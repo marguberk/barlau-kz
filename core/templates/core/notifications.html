@@ -1,0 +1,231 @@
+{% extends "core/base.html" %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-3xl mx-auto">
+        <!-- Заголовок -->
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold text-gray-800">Уведомления</h1>
+            <button id="markAllReadBtn" class="text-blue-600 hover:text-blue-800 text-sm">
+                <i class="fas fa-check-double mr-1"></i>
+                Отметить все как прочитанные
+            </button>
+        </div>
+
+        <!-- Фильтры -->
+        <div class="bg-white rounded-xl shadow-sm p-4 mb-6">
+            <div class="flex flex-wrap gap-4">
+                <button class="filter-btn px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                        data-filter="all">
+                    Все
+                </button>
+                <button class="filter-btn px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                        data-filter="unread">
+                    Непрочитанные
+                </button>
+                <button class="filter-btn px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                        data-filter="TASK">
+                    Задачи
+                </button>
+                <button class="filter-btn px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                        data-filter="WAYBILL">
+                    КАТы
+                </button>
+                <button class="filter-btn px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                        data-filter="EXPENSE">
+                    Расходы
+                </button>
+                <button class="filter-btn px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                        data-filter="SYSTEM">
+                    Системные
+                </button>
+            </div>
+        </div>
+
+        <!-- Список уведомлений -->
+        <div id="notificationsList" class="space-y-4">
+            <!-- Уведомления будут добавлены через JavaScript -->
+        </div>
+
+        <!-- Загрузка -->
+        <div id="loadingIndicator" class="hidden">
+            <div class="flex justify-center items-center py-8">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            </div>
+        </div>
+
+        <!-- Нет уведомлений -->
+        <div id="emptyState" class="hidden">
+            <div class="text-center py-12">
+                <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-bell text-gray-400 text-2xl"></i>
+                </div>
+                <h3 class="text-lg font-medium text-gray-800 mb-2">Нет уведомлений</h3>
+                <p class="text-gray-600">У вас пока нет уведомлений</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    let currentFilter = 'all';
+    let notifications = [];
+    const notificationsList = document.getElementById('notificationsList');
+    const loadingIndicator = document.getElementById('loadingIndicator');
+    const emptyState = document.getElementById('emptyState');
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    const markAllReadBtn = document.getElementById('markAllReadBtn');
+
+    // Стили для кнопок фильтра
+    function updateFilterButtons() {
+        filterButtons.forEach(btn => {
+            if (btn.dataset.filter === currentFilter) {
+                btn.classList.add('bg-blue-600', 'text-white');
+                btn.classList.remove('bg-gray-100', 'text-gray-600', 'hover:bg-gray-200');
+            } else {
+                btn.classList.remove('bg-blue-600', 'text-white');
+                btn.classList.add('bg-gray-100', 'text-gray-600', 'hover:bg-gray-200');
+            }
+        });
+    }
+
+    // Загрузка уведомлений
+    async function loadNotifications() {
+        loadingIndicator.classList.remove('hidden');
+        notificationsList.classList.add('hidden');
+        emptyState.classList.add('hidden');
+
+        try {
+            const response = await fetch('/api/v1/notifications/');
+            notifications = await response.json();
+            renderNotifications();
+        } catch (error) {
+            console.error('Ошибка при загрузке уведомлений:', error);
+            alert('Не удалось загрузить уведомления');
+        } finally {
+            loadingIndicator.classList.add('hidden');
+        }
+    }
+
+    // Отрисовка уведомлений
+    function renderNotifications() {
+        let filteredNotifications = notifications.results;
+
+        if (currentFilter === 'unread') {
+            filteredNotifications = filteredNotifications.filter(n => !n.is_read);
+        } else if (currentFilter !== 'all') {
+            filteredNotifications = filteredNotifications.filter(n => n.type === currentFilter);
+        }
+
+        if (filteredNotifications.length === 0) {
+            notificationsList.classList.add('hidden');
+            emptyState.classList.remove('hidden');
+            return;
+        }
+
+        notificationsList.classList.remove('hidden');
+        emptyState.classList.add('hidden');
+
+        notificationsList.innerHTML = filteredNotifications.map(notification => `
+            <div class="bg-white rounded-xl shadow-sm p-4 transition-all ${notification.is_read ? '' : 'border-l-4 border-blue-600'}">
+                <div class="flex items-start justify-between">
+                    <div class="flex items-start space-x-3">
+                        <div class="w-8 h-8 rounded-full bg-${getNotificationColor(notification.type)}-100 flex items-center justify-center">
+                            <i class="fas fa-${getNotificationIcon(notification.type)} text-${getNotificationColor(notification.type)}-600"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-medium text-gray-800">${notification.title}</h3>
+                            <p class="text-gray-600 mt-1">${notification.message}</p>
+                            ${notification.link ? `
+                                <a href="${notification.link}" class="text-blue-600 hover:text-blue-800 text-sm mt-2 inline-block">
+                                    Подробнее <i class="fas fa-chevron-right ml-1"></i>
+                                </a>
+                            ` : ''}
+                        </div>
+                    </div>
+                    <div class="flex flex-col items-end">
+                        <span class="text-xs text-gray-500">${notification.created_at_display}</span>
+                        ${!notification.is_read ? `
+                            <button onclick="markAsRead(${notification.id})" class="text-blue-600 hover:text-blue-800 text-sm mt-2">
+                                <i class="fas fa-check"></i>
+                            </button>
+                        ` : ''}
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // Получение цвета для типа уведомления
+    function getNotificationColor(type) {
+        switch (type) {
+            case 'TASK': return 'blue';
+            case 'WAYBILL': return 'green';
+            case 'EXPENSE': return 'yellow';
+            case 'SYSTEM': return 'purple';
+            default: return 'gray';
+        }
+    }
+
+    // Получение иконки для типа уведомления
+    function getNotificationIcon(type) {
+        switch (type) {
+            case 'TASK': return 'tasks';
+            case 'WAYBILL': return 'file-alt';
+            case 'EXPENSE': return 'receipt';
+            case 'SYSTEM': return 'cog';
+            default: return 'bell';
+        }
+    }
+
+    // Отметить уведомление как прочитанное
+    async function markAsRead(id) {
+        try {
+            await fetch(`/api/v1/notifications/${id}/mark_read/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                }
+            });
+            await loadNotifications();
+        } catch (error) {
+            console.error('Ошибка при отметке уведомления:', error);
+            alert('Не удалось отметить уведомление как прочитанное');
+        }
+    }
+
+    // Отметить все как прочитанные
+    async function markAllAsRead() {
+        try {
+            await fetch('/api/v1/notifications/mark_all_read/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                }
+            });
+            await loadNotifications();
+        } catch (error) {
+            console.error('Ошибка при отметке всех уведомлений:', error);
+            alert('Не удалось отметить все уведомления как прочитанные');
+        }
+    }
+
+    // Обработчики событий
+    filterButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            currentFilter = btn.dataset.filter;
+            updateFilterButtons();
+            renderNotifications();
+        });
+    });
+
+    markAllReadBtn.addEventListener('click', markAllAsRead);
+
+    // Инициализация
+    updateFilterButtons();
+    loadNotifications();
+</script>
+{% endblock %} 

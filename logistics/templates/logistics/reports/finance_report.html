@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Финансовый отчет</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 2cm;
+        }
+        body {
+            font-family: DejaVu Sans;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+        h1 {
+            font-size: 24px;
+            color: #1F2937;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        h2 {
+            font-size: 18px;
+            color: #374151;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+        .info {
+            margin-bottom: 10px;
+            color: #6B7280;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th {
+            background-color: #F3F4F6;
+            padding: 8px;
+            text-align: left;
+            font-weight: bold;
+            border: 1px solid #D1D5DB;
+        }
+        td {
+            padding: 8px;
+            border: 1px solid #D1D5DB;
+        }
+        .amount {
+            text-align: right;
+        }
+        .total {
+            font-weight: bold;
+        }
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            color: #6B7280;
+            font-size: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Финансовый отчет</h1>
+    
+    <div class="info">
+        <p>Период: {{ data.period.start|date:"d.m.Y" }} - {{ data.period.end|date:"d.m.Y" }}</p>
+        <p>Сформирован: {{ generated_at|date:"d.m.Y H:i" }}</p>
+    </div>
+    
+    <h2>Общая статистика</h2>
+    <table>
+        <tr>
+            <th>Показатель</th>
+            <th class="amount">Значение</th>
+        </tr>
+        <tr>
+            <td>Всего расходов</td>
+            <td class="amount total">{{ data.total_expenses|floatformat:2 }} ₸</td>
+        </tr>
+        <tr>
+            <td>Всего задач</td>
+            <td class="amount">{{ data.total_tasks }}</td>
+        </tr>
+    </table>
+    
+    <h2>Расходы по категориям</h2>
+    <table>
+        <tr>
+            <th>Категория</th>
+            <th class="amount">Сумма</th>
+            <th class="amount">Количество</th>
+        </tr>
+        {% for expense in data.expenses_by_category %}
+        <tr>
+            <td>{{ categories|get:expense.category }}</td>
+            <td class="amount">{{ expense.total|floatformat:2 }} ₸</td>
+            <td class="amount">{{ expense.count }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    
+    <h2>Расходы по транспорту</h2>
+    <table>
+        <tr>
+            <th>Транспорт</th>
+            <th class="amount">Топливо</th>
+            <th class="amount">Ремонт</th>
+            <th class="amount">Обслуживание</th>
+            <th class="amount">Всего</th>
+        </tr>
+        {% for vehicle in data.expenses_by_vehicle %}
+        <tr>
+            <td>{{ vehicle.vehicle__brand }} {{ vehicle.vehicle__model }}<br>{{ vehicle.vehicle__number }}</td>
+            <td class="amount">{{ vehicle.fuel_total|default:0|floatformat:2 }} ₸</td>
+            <td class="amount">{{ vehicle.repair_total|default:0|floatformat:2 }} ₸</td>
+            <td class="amount">{{ vehicle.maintenance_total|default:0|floatformat:2 }} ₸</td>
+            <td class="amount total">{{ vehicle.total|floatformat:2 }} ₸</td>
+        </tr>
+        {% endfor %}
+    </table>
+    
+    <h2>Помесячная динамика</h2>
+    <table>
+        <tr>
+            <th>Месяц</th>
+            <th class="amount">Сумма</th>
+        </tr>
+        {% for month in data.expenses_by_month %}
+        <tr>
+            <td>{{ month.month }}/{{ month.year }}</td>
+            <td class="amount">{{ month.total|floatformat:2 }} ₸</td>
+        </tr>
+        {% endfor %}
+    </table>
+    
+    <div class="footer">
+        <p>BARLAU.KZ - Система управления автопарком</p>
+    </div>
+</body>
+</html> 

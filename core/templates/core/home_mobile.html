@@ -1,0 +1,121 @@
+{% extends "core/base.html" %}
+
+{% block content %}
+<div class="px-4">
+    {% if user.is_authenticated %}
+        <!-- Приветствие и статистика -->
+        <section class="mb-8">
+            <div class="bg-gradient-to-r from-blue-600 to-blue-800 rounded-xl p-6 text-white">
+                <h2 class="text-2xl font-bold mb-4">Добро пожаловать, {{ user.first_name|default:user.username }}!</h2>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-white/10 rounded-lg p-4">
+                        <div class="text-3xl font-bold mb-1">{{ tasks_count|default:"0" }}</div>
+                        <div class="text-sm opacity-80">Активных задач</div>
+                    </div>
+                    <div class="bg-white/10 rounded-lg p-4">
+                        <div class="text-3xl font-bold mb-1">{{ vehicles_count|default:"0" }}</div>
+                        <div class="text-sm opacity-80">Транспорта в работе</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Быстрые действия -->
+        <section class="mb-8">
+            <h2 class="text-lg font-semibold mb-4">Быстрые действия</h2>
+            <div class="grid grid-cols-2 gap-4">
+                {% for action in quick_actions %}
+                <a href="{{ action.url }}" 
+                   class="bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow">
+                    <div class="w-12 h-12 flex items-center justify-center bg-blue-100 rounded-xl mb-3">
+                        <i class="fas fa-{{ action.icon }} text-blue-600 text-xl"></i>
+                    </div>
+                    <h3 class="font-medium text-gray-800 mb-1">{{ action.name }}</h3>
+                    <p class="text-sm text-gray-600">{{ action.description }}</p>
+                </a>
+                {% endfor %}
+            </div>
+        </section>
+
+        <!-- Основные разделы -->
+        <section class="mb-8">
+            <h2 class="text-lg font-semibold mb-4">Основные разделы</h2>
+            <div class="grid grid-cols-4 gap-4">
+                {% for section in main_sections %}
+                <a href="{% if section.name == 'Транспорт' %}{% url 'core:vehicles' %}
+                        {% elif section.name == 'Сотрудники' %}{% url 'core:employees' %}
+                        {% elif section.name == 'КАТы' %}{% url 'core:waybills' %}
+                        {% elif section.name == 'Задачи' %}{% url 'core:tasks' %}
+                        {% elif section.name == 'Финансы' %}{% url 'core:finance' %}
+                        {% elif section.name == 'Расходы' %}{% url 'core:expenses' %}
+                        {% else %}{{ section.url }}{% endif %}" 
+                   class="flex flex-col items-center p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow">
+                    <div class="w-12 h-12 flex items-center justify-center bg-blue-50 rounded-xl mb-2">
+                        <i class="fas fa-{{ section.icon }} text-blue-600 text-xl"></i>
+                    </div>
+                    <span class="text-xs text-center text-gray-700">{{ section.name }}</span>
+                </a>
+                {% endfor %}
+            </div>
+        </section>
+
+        <!-- Последние задачи -->
+        <section class="mb-8">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-semibold">Последние задачи</h2>
+                <a href="{% url 'core:tasks' %}" class="text-blue-600 text-sm hover:text-blue-800">
+                    Все задачи <i class="fas fa-chevron-right ml-1"></i>
+                </a>
+            </div>
+            {% for task in recent_tasks %}
+            <div class="bg-white rounded-xl shadow-sm p-4 mb-3">
+                <div class="flex justify-between items-start mb-2">
+                    <h3 class="font-medium text-gray-800">{{ task.title }}</h3>
+                    {% if task.status == 'NEW' %}
+                        <span class="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">Новая</span>
+                    {% elif task.status == 'IN_PROGRESS' %}
+                        <span class="px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded-full">В работе</span>
+                    {% elif task.status == 'COMPLETED' %}
+                        <span class="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Выполнено</span>
+                    {% else %}
+                        <span class="px-2 py-1 text-xs bg-gray-100 text-gray-800 rounded-full">Отменено</span>
+                    {% endif %}
+                </div>
+                <div class="flex items-center text-sm text-gray-600 mb-2">
+                    <i class="fas fa-user mr-2"></i>
+                    {{ task.assigned_to.get_full_name }}
+                </div>
+                <div class="flex items-center text-sm text-gray-600">
+                    <i class="fas fa-clock mr-2"></i>
+                    До {{ task.deadline|date:"d E, H:i" }}
+                </div>
+            </div>
+            {% endfor %}
+        </section>
+    {% else %}
+        <div class="flex flex-col items-center justify-center min-h-screen -mt-16">
+            <div class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md">
+                <div class="text-center mb-8">
+                    <img src="/static/core/img/logo.png" alt="Logo" class="h-20 w-20 mx-auto mb-4">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-2">Добро пожаловать в Barlau.kz</h2>
+                    <p class="text-gray-600">
+                        Система управления логистической компанией
+                    </p>
+                </div>
+                <div class="space-y-4">
+                    <a href="/admin/login/?next=/" 
+                       class="block w-full bg-blue-600 text-white py-3 px-4 rounded-xl text-center font-medium hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-sign-in-alt mr-2"></i>Войти в систему
+                    </a>
+                    <div class="text-center text-sm text-gray-600">
+                        <p>Нужна помощь? Свяжитесь с нами:</p>
+                        <a href="tel:+77001234567" class="text-blue-600 hover:text-blue-800">
+                            <i class="fas fa-phone mr-1"></i>+7 700 123-45-67
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %} 

@@ -1,0 +1,204 @@
+{% extends "core/base.html" %}
+{% load core_extras %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold text-gray-800">Профиль сотрудника</h1>
+        <div class="flex space-x-3">
+            <a href="{% url 'core:employee_edit' employee.pk %}" 
+               class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                <i class="fas fa-edit mr-2"></i>Редактировать
+            </a>
+            <a href="{% url 'core:employee-pdf' employee.pk %}" 
+               class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                <i class="fas fa-file-pdf mr-2"></i>Скачать PDF
+            </a>
+            <a href="{% url 'core:employees' %}" 
+               class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
+                <i class="fas fa-arrow-left mr-2"></i>Назад к списку
+            </a>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Левая колонка (информация и фото) -->
+        <div class="lg:col-span-1">
+            <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                <!-- Фото и основная информация -->
+                <div class="p-6 text-center">
+                    {% if employee.photo %}
+                    <img src="{{ employee.photo.url }}" alt="{{ employee.get_full_name }}" 
+                         class="w-32 h-32 rounded-full object-cover mx-auto mb-4">
+                    {% else %}
+                    <div class="w-32 h-32 rounded-full bg-blue-100 flex items-center justify-center mx-auto mb-4">
+                        <span class="text-blue-600 text-4xl font-bold">
+                            {{ employee.first_name|first }}{{ employee.last_name|first }}
+                        </span>
+                    </div>
+                    {% endif %}
+                    
+                    <h2 class="text-xl font-bold text-gray-800 mb-1">{{ employee.get_full_name }}</h2>
+                    <p class="text-gray-600 mb-4">{{ employee.position }}</p>
+                    
+                    {% if employee.desired_salary %}
+                    <div class="inline-block px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium mb-4">
+                        Желаемая зарплата: {{ employee.desired_salary }}
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Контактная информация -->
+                <div class="border-t border-gray-100 p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Контактная информация</h3>
+                    
+                    <div class="space-y-3">
+                        {% if employee.email %}
+                        <div class="flex items-start">
+                            <div class="w-8 text-gray-400"><i class="fas fa-envelope"></i></div>
+                            <div>{{ employee.email }}</div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if employee.phone %}
+                        <div class="flex items-start">
+                            <div class="w-8 text-gray-400"><i class="fas fa-phone"></i></div>
+                            <div>{{ employee.phone }}</div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if employee.location %}
+                        <div class="flex items-start">
+                            <div class="w-8 text-gray-400"><i class="fas fa-map-marker-alt"></i></div>
+                            <div>{{ employee.location }}</div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if employee.skype %}
+                        <div class="flex items-start">
+                            <div class="w-8 text-gray-400"><i class="fab fa-skype"></i></div>
+                            <div>{{ employee.skype }}</div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if employee.linkedin %}
+                        <div class="flex items-start">
+                            <div class="w-8 text-gray-400"><i class="fab fa-linkedin"></i></div>
+                            <div><a href="{{ employee.linkedin }}" target="_blank" class="text-blue-600 hover:underline">Профиль LinkedIn</a></div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if employee.portfolio_url %}
+                        <div class="flex items-start">
+                            <div class="w-8 text-gray-400"><i class="fas fa-globe"></i></div>
+                            <div><a href="{{ employee.portfolio_url }}" target="_blank" class="text-blue-600 hover:underline">Портфолио</a></div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Навыки -->
+                {% if employee.key_skills %}
+                <div class="border-t border-gray-100 p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Ключевые навыки</h3>
+                    <div class="flex flex-wrap gap-2">
+                        {% for skill in employee.key_skills|split_lines %}
+                        <span class="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm">{{ skill }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Языки -->
+                {% if employee.languages %}
+                <div class="border-t border-gray-100 p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Языки</h3>
+                    <div class="space-y-2">
+                        {% for language in employee.languages|split_lines %}
+                        <div>{{ language }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Хобби -->
+                {% if employee.hobbies %}
+                <div class="border-t border-gray-100 p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Хобби и интересы</h3>
+                    <div>{{ employee.hobbies|linebreaks }}</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Правая колонка (профессиональная информация) -->
+        <div class="lg:col-span-2">
+            <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                <!-- О себе -->
+                {% if employee.about_me %}
+                <div class="p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">О себе</h3>
+                    <div class="text-gray-700">{{ employee.about_me|linebreaks }}</div>
+                </div>
+                {% endif %}
+                
+                <!-- Опыт работы -->
+                {% if employee.experience %}
+                <div class="{% if employee.about_me %}border-t border-gray-100{% endif %} p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Опыт работы</h3>
+                    <div class="text-gray-700">{{ employee.experience|linebreaks }}</div>
+                </div>
+                {% endif %}
+                
+                <!-- Образование -->
+                {% if employee.education %}
+                <div class="border-t border-gray-100 p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Образование</h3>
+                    <div class="text-gray-700">{{ employee.education|linebreaks }}</div>
+                </div>
+                {% endif %}
+                
+                <!-- Сертификаты -->
+                {% if employee.certifications %}
+                <div class="border-t border-gray-100 p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Сертификаты</h3>
+                    <div class="text-gray-700">{{ employee.certifications|linebreaks }}</div>
+                </div>
+                {% endif %}
+                
+                <!-- Достижения -->
+                {% if employee.achievements %}
+                <div class="border-t border-gray-100 p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Достижения</h3>
+                    <div class="text-gray-700">{{ employee.achievements|linebreaks }}</div>
+                </div>
+                {% endif %}
+                
+                <!-- Курсы -->
+                {% if employee.courses %}
+                <div class="border-t border-gray-100 p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Курсы и тренинги</h3>
+                    <div class="text-gray-700">{{ employee.courses|linebreaks }}</div>
+                </div>
+                {% endif %}
+                
+                <!-- Публикации -->
+                {% if employee.publications %}
+                <div class="border-t border-gray-100 p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Публикации</h3>
+                    <div class="text-gray-700">{{ employee.publications|linebreaks }}</div>
+                </div>
+                {% endif %}
+                
+                <!-- Рекомендации -->
+                {% if employee.recommendations %}
+                <div class="border-t border-gray-100 p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Рекомендации</h3>
+                    <div class="text-gray-700">{{ employee.recommendations|linebreaks }}</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

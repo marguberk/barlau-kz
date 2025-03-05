@@ -1,0 +1,513 @@
+{% extends "core/base.html" %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-6xl mx-auto">
+        <!-- Заголовок и кнопка добавления -->
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold text-gray-800">Путевые листы (КАТ)</h1>
+            <div class="flex space-x-2">
+                <button id="exportExcelBtn" 
+                        class="inline-flex items-center justify-center rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
+                    <i class="fas fa-file-excel mr-2"></i>Экспорт в Excel
+                </button>
+                {% if user.role == 'DIRECTOR' or user.role == 'SUPERADMIN' or user.role == 'DRIVER' %}
+                <a href="{% url 'core:waybill-add' %}" 
+                        class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                    <i class="fas fa-plus mr-2"></i>Создать КАТ
+                </a>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Фильтры -->
+        <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- Поиск -->
+                <div class="space-y-2">
+                    <label class="text-sm font-medium text-gray-700">Поиск по номеру</label>
+                    <div class="relative">
+                        <input type="text" id="searchInput" 
+                               class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                               placeholder="Введите номер КАТа...">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-search text-gray-400"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Фильтр по дате -->
+                <div class="space-y-2">
+                    <label class="text-sm font-medium text-gray-700">Период</label>
+                    <select id="periodFilter" 
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="all">Все время</option>
+                        <option value="today">Сегодня</option>
+                        <option value="week">За неделю</option>
+                        <option value="month">За месяц</option>
+                        <option value="custom">Указать период</option>
+                    </select>
+                </div>
+
+                <!-- Фильтр по транспорту -->
+                <div class="space-y-2">
+                    <label class="text-sm font-medium text-gray-700">Транспорт</label>
+                    <select id="vehicleFilter" 
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">Все</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Список путевых листов -->
+        <div id="waybillsList" class="space-y-4">
+            <!-- Путевые листы будут добавлены через JavaScript -->
+        </div>
+
+        <!-- Загрузка -->
+        <div id="loadingIndicator" class="hidden">
+            <div class="flex justify-center items-center py-8">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            </div>
+        </div>
+
+        <!-- Нет данных -->
+        <div id="emptyState" class="hidden">
+            <div class="text-center py-12">
+                <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-file-alt text-gray-400 text-2xl"></i>
+                </div>
+                <h3 class="text-lg font-medium text-gray-800 mb-2">Нет путевых листов</h3>
+                <p class="text-gray-600">Путевые листы пока не созданы</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно создания/редактирования -->
+<div id="waybillModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50">
+    <div class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl bg-white rounded-xl shadow-lg">
+        <div class="flex justify-between items-center p-6 border-b">
+            <h3 class="text-lg font-semibold" id="modalTitle">Создать путевой лист</h3>
+            <button class="text-gray-500 hover:text-gray-700" onclick="closeModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <form id="waybillForm" class="p-6 space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Номер КАТа -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Номер КАТа</label>
+                    <input type="text" name="number" required
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                
+                <!-- Дата -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Дата</label>
+                    <input type="date" name="date" required
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                
+                <!-- Транспорт -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Транспорт</label>
+                    <select name="vehicle" required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </select>
+                </div>
+                
+                <!-- Водитель -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Водитель</label>
+                    <select name="driver" required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </select>
+                </div>
+                
+                <!-- Пункт отправления -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Пункт отправления</label>
+                    <input type="text" name="departure_point" required
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                
+                <!-- Пункт назначения -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Пункт назначения</label>
+                    <input type="text" name="destination_point" required
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+            </div>
+            
+            <!-- Описание груза -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Описание груза</label>
+                <textarea name="cargo_description" rows="3" required
+                          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+            </div>
+            
+            <!-- Вес груза -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Вес груза (кг)</label>
+                <input type="number" name="cargo_weight" required step="0.01"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            </div>
+            
+            <div class="flex justify-end space-x-4">
+                <button type="button" onclick="closeModal()"
+                        class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
+                    Отмена
+                </button>
+                <button type="submit"
+                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                    Сохранить
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Глобальные переменные
+    let waybills = [];
+    let vehicles = [];
+    let drivers = [];
+    
+    // DOM элементы
+    const waybillsList = document.getElementById('waybillsList');
+    const loadingIndicator = document.getElementById('loadingIndicator');
+    const emptyState = document.getElementById('emptyState');
+    const waybillModal = document.getElementById('waybillModal');
+    const waybillForm = document.getElementById('waybillForm');
+    const addWaybillBtn = document.getElementById('addWaybillBtn');
+    
+    // Инициализация
+    document.addEventListener('DOMContentLoaded', async () => {
+        await Promise.all([
+            loadWaybills(),
+            loadVehicles(),
+            loadDrivers()
+        ]);
+        
+        setupEventListeners();
+    });
+    
+    // Загрузка данных
+    async function loadWaybills() {
+        loadingIndicator.classList.remove('hidden');
+        waybillsList.classList.add('hidden');
+        emptyState.classList.add('hidden');
+        
+        try {
+            const response = await fetch('/api/v1/waybills/');
+            const data = await response.json();
+            waybills = data.results;
+            renderWaybills();
+        } catch (error) {
+            console.error('Ошибка при загрузке путевых листов:', error);
+        } finally {
+            loadingIndicator.classList.add('hidden');
+        }
+    }
+    
+    async function loadVehicles() {
+        try {
+            const response = await fetch('/api/v1/vehicles/');
+            const data = await response.json();
+            vehicles = data.results;
+            updateVehicleSelects();
+        } catch (error) {
+            console.error('Ошибка при загрузке транспорта:', error);
+        }
+    }
+    
+    async function loadDrivers() {
+        try {
+            const response = await fetch('/api/v1/users/?role=DRIVER');
+            const data = await response.json();
+            drivers = data.results;
+            updateDriverSelect();
+        } catch (error) {
+            console.error('Ошибка при загрузке водителей:', error);
+        }
+    }
+    
+    // Отрисовка данных
+    function renderWaybills() {
+        if (waybills.length === 0) {
+            waybillsList.classList.add('hidden');
+            emptyState.classList.remove('hidden');
+            return;
+        }
+        
+        waybillsList.classList.remove('hidden');
+        emptyState.classList.add('hidden');
+        
+        waybillsList.innerHTML = waybills.map(waybill => `
+            <div class="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-800">КАТ №${waybill.number}</h3>
+                        <p class="text-sm text-gray-600">${new Date(waybill.date).toLocaleDateString()}</p>
+                    </div>
+                    <div class="flex space-x-2">
+                        <a href="/waybills/${waybill.id}/edit/" class="text-blue-600 hover:text-blue-800">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <a href="/waybills/${waybill.id}/print/" target="_blank" class="text-gray-600 hover:text-gray-800">
+                            <i class="fas fa-print"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="space-y-2">
+                        <div class="flex items-center text-sm">
+                            <i class="fas fa-truck w-5 text-gray-400"></i>
+                            <span>${waybill.vehicle_details.brand} ${waybill.vehicle_details.model} (${waybill.vehicle_details.number})</span>
+                        </div>
+                        <div class="flex items-center text-sm">
+                            <i class="fas fa-user w-5 text-gray-400"></i>
+                            <span>${waybill.driver_details.first_name} ${waybill.driver_details.last_name}</span>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="flex items-center text-sm">
+                            <i class="fas fa-map-marker-alt w-5 text-gray-400"></i>
+                            <span>${waybill.departure_point} → ${waybill.destination_point}</span>
+                        </div>
+                        <div class="flex items-center text-sm">
+                            <i class="fas fa-box w-5 text-gray-400"></i>
+                            <span>${waybill.cargo_weight} кг</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-4 pt-4 border-t">
+                    <p class="text-sm text-gray-600">${waybill.cargo_description}</p>
+                </div>
+            </div>
+        `).join('');
+    }
+    
+    function updateVehicleSelects() {
+        const vehicleFilter = document.getElementById('vehicleFilter');
+        const vehicleSelect = document.querySelector('select[name="vehicle"]');
+        
+        const options = vehicles.map(vehicle => 
+            `<option value="${vehicle.id}">${vehicle.brand} ${vehicle.model} (${vehicle.number})</option>`
+        );
+        
+        vehicleFilter.innerHTML = '<option value="">Все</option>' + options.join('');
+        vehicleSelect.innerHTML = '<option value="">Выберите транспорт</option>' + options.join('');
+    }
+    
+    function updateDriverSelect() {
+        const driverSelect = document.querySelector('select[name="driver"]');
+        
+        driverSelect.innerHTML = '<option value="">Выберите водителя</option>' + 
+            drivers.map(driver => 
+                `<option value="${driver.id}">${driver.first_name} ${driver.last_name}</option>`
+            ).join('');
+    }
+    
+    // Обработка событий
+    function setupEventListeners() {
+        if (addWaybillBtn) {
+            addWaybillBtn.addEventListener('click', () => {
+                waybillForm.reset();
+                document.getElementById('modalTitle').textContent = 'Создать путевой лист';
+                waybillModal.classList.remove('hidden');
+            });
+        }
+        
+        waybillForm.addEventListener('submit', handleSubmit);
+        
+        document.getElementById('searchInput').addEventListener('input', debounce(filterWaybills, 300));
+        document.getElementById('periodFilter').addEventListener('change', filterWaybills);
+        document.getElementById('vehicleFilter').addEventListener('change', filterWaybills);
+        
+        // Экспорт в Excel
+        const exportExcelBtn = document.getElementById('exportExcelBtn');
+        if (exportExcelBtn) {
+            exportExcelBtn.addEventListener('click', exportToExcel);
+        }
+    }
+    
+    async function handleSubmit(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(waybillForm);
+        const data = Object.fromEntries(formData.entries());
+        
+        try {
+            const response = await fetch('/api/v1/waybills/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: JSON.stringify(data)
+            });
+            
+            if (response.ok) {
+                closeModal();
+                await loadWaybills();
+            } else {
+                const error = await response.json();
+                alert('Ошибка: ' + JSON.stringify(error));
+            }
+        } catch (error) {
+            console.error('Ошибка при сохранении:', error);
+            alert('Произошла ошибка при сохранении');
+        }
+    }
+    
+    function closeModal() {
+        waybillModal.classList.add('hidden');
+        waybillForm.reset();
+    }
+    
+    async function editWaybill(id) {
+        const waybill = waybills.find(w => w.id === id);
+        if (!waybill) return;
+        
+        document.getElementById('modalTitle').textContent = 'Редактировать путевой лист';
+        
+        const form = waybillForm;
+        form.elements['number'].value = waybill.number;
+        form.elements['date'].value = waybill.date;
+        form.elements['vehicle'].value = waybill.vehicle;
+        form.elements['driver'].value = waybill.driver;
+        form.elements['departure_point'].value = waybill.departure_point;
+        form.elements['destination_point'].value = waybill.destination_point;
+        form.elements['cargo_description'].value = waybill.cargo_description;
+        form.elements['cargo_weight'].value = waybill.cargo_weight;
+        
+        waybillModal.classList.remove('hidden');
+    }
+    
+    async function printWaybill(id) {
+        try {
+            const response = await fetch(`/api/v1/waybills/${id}/print/`);
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `waybill-${id}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            a.remove();
+        } catch (error) {
+            console.error('Ошибка при печати:', error);
+            alert('Не удалось сформировать PDF');
+        }
+    }
+    
+    // Вспомогательные функции
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+    
+    function filterWaybills() {
+        const searchValue = document.getElementById('searchInput').value.toLowerCase();
+        const periodValue = document.getElementById('periodFilter').value;
+        const vehicleValue = document.getElementById('vehicleFilter').value;
+        
+        const filtered = waybills.filter(waybill => {
+            const matchesSearch = waybill.number.toLowerCase().includes(searchValue);
+            const matchesVehicle = !vehicleValue || waybill.vehicle === parseInt(vehicleValue);
+            const matchesPeriod = filterByPeriod(waybill.date, periodValue);
+            
+            return matchesSearch && matchesVehicle && matchesPeriod;
+        });
+        
+        waybills = filtered;
+        renderWaybills();
+    }
+    
+    function filterByPeriod(date, period) {
+        const waybillDate = new Date(date);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        switch (period) {
+            case 'today':
+                return waybillDate >= today;
+            case 'week':
+                const weekAgo = new Date(today);
+                weekAgo.setDate(today.getDate() - 7);
+                return waybillDate >= weekAgo;
+            case 'month':
+                const monthAgo = new Date(today);
+                monthAgo.setMonth(today.getMonth() - 1);
+                return waybillDate >= monthAgo;
+            default:
+                return true;
+        }
+    }
+    
+    // Функция экспорта в Excel
+    async function exportToExcel() {
+        try {
+            // Получаем текущие фильтры
+            const searchQuery = document.getElementById('searchInput').value;
+            const periodFilter = document.getElementById('periodFilter').value;
+            const vehicleFilter = document.getElementById('vehicleFilter').value;
+            
+            // Формируем URL с параметрами
+            let url = '/api/v1/waybills/export_excel/?format=json';
+            
+            if (searchQuery) {
+                url += `&search=${encodeURIComponent(searchQuery)}`;
+            }
+            
+            if (vehicleFilter) {
+                url += `&vehicle=${encodeURIComponent(vehicleFilter)}`;
+            }
+            
+            // Обработка периода
+            if (periodFilter !== 'all') {
+                const today = new Date();
+                let startDate;
+                
+                if (periodFilter === 'today') {
+                    startDate = today;
+                } else if (periodFilter === 'week') {
+                    startDate = new Date(today);
+                    startDate.setDate(today.getDate() - 7);
+                } else if (periodFilter === 'month') {
+                    startDate = new Date(today);
+                    startDate.setMonth(today.getMonth() - 1);
+                }
+                
+                if (startDate) {
+                    const formattedDate = startDate.toISOString().split('T')[0];
+                    url += `&date__gte=${formattedDate}`;
+                }
+            }
+            
+            // Перенаправляем на URL экспорта
+            window.location.href = url;
+        } catch (error) {
+            console.error('Ошибка при экспорте в Excel:', error);
+            alert('Произошла ошибка при экспорте. Пожалуйста, попробуйте еще раз.');
+        }
+    }
+</script>
+{% endblock %} 

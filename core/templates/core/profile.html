@@ -1,0 +1,343 @@
+{% extends "core/base.html" %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-6xl mx-auto">
+        <!-- Основная информация -->
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden mb-6">
+            <div class="md:flex">
+                <!-- Фото профиля -->
+                <div class="md:w-1/3 p-8 bg-gray-50">
+                    <div class="text-center">
+                        {% if user.photo %}
+                            <img src="{{ user.photo.url }}" alt="Profile photo" 
+                                 class="w-48 h-48 rounded-full mx-auto object-cover border-4 border-white shadow-lg">
+                        {% else %}
+                            <div class="w-48 h-48 rounded-full mx-auto bg-blue-100 flex items-center justify-center border-4 border-white shadow-lg">
+                                <i class="fas fa-user text-blue-600 text-5xl"></i>
+                            </div>
+                        {% endif %}
+                        <h1 class="text-2xl font-bold text-gray-800 mt-4">{{ user.get_full_name }}</h1>
+                        <p class="text-gray-600">{{ user.get_role_display }}</p>
+                        {% if user.position %}
+                            <p class="text-sm text-gray-500 mt-1">{{ user.position }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Контактная информация -->
+                <div class="md:w-2/3 p-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h2 class="text-lg font-semibold text-gray-800 mb-4">Контактная информация</h2>
+                            <div class="space-y-3">
+                                <div class="flex items-center text-gray-600">
+                                    <i class="fas fa-envelope w-5"></i>
+                                    <span class="ml-2">{{ user.email }}</span>
+                                </div>
+                                <div class="flex items-center text-gray-600">
+                                    <i class="fas fa-phone w-5"></i>
+                                    <span class="ml-2">{{ user.phone }}</span>
+                                </div>
+                                <div class="flex items-center text-gray-600">
+                                    <i class="fas fa-calendar w-5"></i>
+                                    <span class="ml-2">Дата регистрации: {{ user.date_joined|date:"d.m.Y" }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h2 class="text-lg font-semibold text-gray-800 mb-4">Статус аккаунта</h2>
+                            <div class="space-y-3">
+                                <div class="flex items-center">
+                                    <span class="inline-flex rounded-full px-3 py-1 text-sm font-semibold 
+                                        {% if user.is_active %}
+                                            bg-green-100 text-green-800
+                                        {% else %}
+                                            bg-red-100 text-red-800
+                                        {% endif %}">
+                                        {{ user.is_active|yesno:"Активен,Неактивен" }}
+                                    </span>
+                                </div>
+                                <div class="flex items-center text-gray-600">
+                                    <i class="fas fa-clock w-5"></i>
+                                    <span class="ml-2">Последний вход: {{ user.last_login|date:"d.m.Y H:i"|default:"Никогда" }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Статистика и активность -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            <!-- Задачи -->
+            <div class="bg-white rounded-xl shadow-sm p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-semibold text-gray-800">Задачи</h2>
+                    <span class="text-3xl font-bold text-blue-600">{{ tasks_count }}</span>
+                </div>
+                <div class="space-y-2">
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-600">Новые</span>
+                        <span class="font-medium">{{ new_tasks_count }}</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-600">В работе</span>
+                        <span class="font-medium">{{ in_progress_tasks_count }}</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-600">Завершенные</span>
+                        <span class="font-medium">{{ completed_tasks_count }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Путевые листы (для водителей) -->
+            {% if user.role == 'DRIVER' %}
+            <div class="bg-white rounded-xl shadow-sm p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-semibold text-gray-800">Путевые листы</h2>
+                    <span class="text-3xl font-bold text-green-600">{{ waybills_count }}</span>
+                </div>
+                <div class="space-y-2">
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-600">За сегодня</span>
+                        <span class="font-medium">{{ today_waybills_count }}</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-600">За неделю</span>
+                        <span class="font-medium">{{ week_waybills_count }}</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-600">За месяц</span>
+                        <span class="font-medium">{{ month_waybills_count }}</span>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Расходы (для бухгалтеров и снабженцев) -->
+            {% if user.role == 'ACCOUNTANT' or user.role == 'SUPPLIER' %}
+            <div class="bg-white rounded-xl shadow-sm p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-semibold text-gray-800">Расходы</h2>
+                    <span class="text-3xl font-bold text-purple-600">{{ expenses_count }}</span>
+                </div>
+                <div class="space-y-2">
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-600">На проверке</span>
+                        <span class="font-medium">{{ pending_expenses_count }}</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-600">Подтверждено</span>
+                        <span class="font-medium">{{ approved_expenses_count }}</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-600">Отклонено</span>
+                        <span class="font-medium">{{ rejected_expenses_count }}</span>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Уведомления -->
+            <div class="bg-white rounded-xl shadow-sm p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-semibold text-gray-800">Уведомления</h2>
+                    <span class="text-3xl font-bold text-yellow-600">{{ notifications_count }}</span>
+                </div>
+                <div class="space-y-2">
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-600">Непрочитанные</span>
+                        <span class="font-medium">{{ unread_notifications_count }}</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-600">За сегодня</span>
+                        <span class="font-medium">{{ today_notifications_count }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Последние действия -->
+        <div class="bg-white rounded-xl shadow-sm p-6">
+            <h2 class="text-lg font-semibold text-gray-800 mb-4">Последние действия</h2>
+            <div class="space-y-4">
+                {% for action in recent_actions %}
+                <div class="flex items-start space-x-3">
+                    <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-{{ action.icon }} text-blue-600"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-gray-800">{{ action.description }}</p>
+                        <p class="text-sm text-gray-500">{{ action.timestamp|date:"d.m.Y H:i" }}</p>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-gray-500 text-center py-4">Нет последних действий</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно редактирования профиля -->
+<div id="editProfileModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 overflow-y-auto">
+    <div class="relative min-h-screen flex items-center justify-center p-4">
+        <div class="w-full max-w-md bg-white rounded-xl shadow-lg">
+            <div class="flex justify-between items-center p-4 border-b">
+                <h3 class="text-lg font-semibold">Редактировать профиль</h3>
+                <button class="closeModal text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="editProfileForm" class="p-4 space-y-4">
+                <!-- Фото -->
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Фото</label>
+                    <div class="flex items-center space-x-4">
+                        <div id="photoPreview" class="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center">
+                            {% if user.photo %}
+                                <img src="{{ user.photo.url }}" class="w-20 h-20 rounded-full object-cover">
+                            {% else %}
+                                <i class="fas fa-user text-gray-400 text-2xl"></i>
+                            {% endif %}
+                        </div>
+                        <div class="flex-1">
+                            <input type="file" name="photo" id="photoInput" accept="image/*" class="hidden">
+                            <button type="button" onclick="document.getElementById('photoInput').click()"
+                                    class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                                <i class="fas fa-camera mr-2"></i>Изменить фото
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Имя</label>
+                        <input type="text" name="first_name" value="{{ user.first_name }}" required
+                               class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Фамилия</label>
+                        <input type="text" name="last_name" value="{{ user.last_name }}" required
+                               class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                    <input type="email" name="email" value="{{ user.email }}" required
+                           class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Телефон</label>
+                    <input type="tel" name="phone" value="{{ user.phone }}" required
+                           class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Должность</label>
+                    <input type="text" name="position" value="{{ user.position }}"
+                           class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+
+                <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700">
+                    Сохранить изменения
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    const editProfileModal = document.getElementById('editProfileModal');
+    const editProfileForm = document.getElementById('editProfileForm');
+    const photoInput = document.getElementById('photoInput');
+    const photoPreview = document.getElementById('photoPreview');
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    // Открытие модального окна
+    document.getElementById('editProfileBtn')?.addEventListener('click', () => {
+        editProfileModal.classList.remove('hidden');
+    });
+
+    // Закрытие модального окна
+    document.querySelectorAll('.closeModal').forEach(button => {
+        button.addEventListener('click', () => {
+            editProfileModal.classList.add('hidden');
+        });
+    });
+
+    // Предпросмотр фото
+    photoInput.addEventListener('change', function(e) {
+        if (this.files && this.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                photoPreview.innerHTML = `<img src="${e.target.result}" class="w-20 h-20 rounded-full object-cover">`;
+            }
+            reader.readAsDataURL(this.files[0]);
+        }
+    });
+
+    // Сохранение изменений
+    editProfileForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        try {
+            const formData = new FormData(this);
+            
+            // Сначала обновляем основные данные
+            const response = await fetch('/api/v1/users/me/', {
+                method: 'PATCH',
+                headers: {
+                    'X-CSRFToken': csrfToken,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    first_name: formData.get('first_name'),
+                    last_name: formData.get('last_name'),
+                    email: formData.get('email'),
+                    phone: formData.get('phone'),
+                    position: formData.get('position')
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error('Ошибка при обновлении профиля');
+            }
+
+            // Если есть новое фото, загружаем его отдельным запросом
+            if (photoInput.files.length > 0) {
+                const photoData = new FormData();
+                photoData.append('photo', photoInput.files[0]);
+
+                const photoResponse = await fetch('/api/v1/users/me/photo/', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrfToken
+                    },
+                    body: photoData
+                });
+
+                if (!photoResponse.ok) {
+                    throw new Error('Ошибка при загрузке фото');
+                }
+            }
+
+            // Закрываем модальное окно и обновляем страницу
+            editProfileModal.classList.add('hidden');
+            window.location.reload();
+        } catch (error) {
+            console.error('Ошибка:', error);
+            alert('Не удалось обновить профиль: ' + error.message);
+        }
+    });
+</script>
+{% endblock %} 

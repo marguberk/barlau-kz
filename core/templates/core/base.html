@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="ru" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}BARLAU.KZ{% endblock %}</title>
+    
+    <!-- Tailwind и Shadcn -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@shadcn/ui@0.1.0/dist/shadcn-ui.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --background: 0 0% 100%;
+            --foreground: 222.2 84% 4.9%;
+            --primary: 221.2 83.2% 53.3%;
+            --primary-foreground: 210 40% 98%;
+        }
+
+        .dark {
+            --background: 222.2 84% 4.9%;
+            --foreground: 210 40% 98%;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .animate-pulse-slow {
+            animation: pulse 2s infinite;
+        }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-background text-foreground">
+    <!-- Верхняя панель -->
+    <header class="fixed top-0 left-0 right-0 bg-white shadow-sm z-50">
+        <div class="flex justify-between items-center px-4 py-3">
+            <div class="flex items-center space-x-2">
+                <a href="/" class="flex items-center space-x-2">
+                    <img src="/static/core/img/logo.png" alt="Logo" class="h-8 w-8">
+                    <h1 class="text-xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">BARLAU.KZ</h1>
+                </a>
+            </div>
+            <div class="flex items-center space-x-4">
+                {% if user.is_authenticated %}
+                    <div class="relative">
+                        <button id="userMenuBtn" class="flex items-center space-x-2 text-gray-700 hover:text-blue-600">
+                            <div class="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
+                                <i class="fas fa-user text-blue-600"></i>
+                            </div>
+                            <span class="text-sm hidden md:inline">{{ user.get_full_name|default:user.username }}</span>
+                        </button>
+                        <div id="userMenu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2">
+                            <a href="{% url 'core:profile' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50">
+                                <i class="fas fa-user-circle mr-2"></i>Мой профиль
+                            </a>
+                            <div class="border-t border-gray-100 my-2"></div>
+                            <form action="{% url 'logout' %}" method="post" class="m-0">
+                                {% csrf_token %}
+                                <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">
+                                    <i class="fas fa-sign-out-alt mr-2"></i>Выйти
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                {% else %}
+                    <a href="{% url 'login' %}" class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2">
+                        <i class="fas fa-sign-in-alt mr-2"></i>Войти
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    <!-- Основной контент -->
+    <main class="mt-16 mb-20">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Нижняя навигация -->
+    {% if user.is_authenticated %}
+    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200">
+        <div class="flex justify-around items-center px-4 py-2">
+            <a href="{% url 'core:home' %}" class="flex flex-col items-center {% if request.path == '/' %}text-blue-600{% else %}text-gray-600 hover:text-blue-600{% endif %}">
+                <i class="fas fa-home text-xl"></i>
+                <span class="text-xs mt-1">Главная</span>
+            </a>
+            <a href="{% url 'core:tasks' %}" class="flex flex-col items-center {% if active_page == 'tasks' %}text-blue-600{% else %}text-gray-600 hover:text-blue-600{% endif %}">
+                <i class="fas fa-tasks text-xl"></i>
+                <span class="text-xs mt-1">Задачи</span>
+            </a>
+            <a href="{% url 'core:vehicles' %}" class="flex flex-col items-center {% if active_page == 'vehicles' %}text-blue-600{% else %}text-gray-600 hover:text-blue-600{% endif %}">
+                <i class="fas fa-truck text-xl"></i>
+                <span class="text-xs mt-1">Транспорт</span>
+            </a>
+            <a href="{% url 'core:waybills' %}" class="flex flex-col items-center {% if active_page == 'waybills' %}text-blue-600{% else %}text-gray-600 hover:text-blue-600{% endif %}">
+                <i class="fas fa-file-alt text-xl"></i>
+                <span class="text-xs mt-1">КАТы</span>
+            </a>
+            <a href="{% url 'core:expenses' %}" class="flex flex-col items-center {% if active_page == 'expenses' %}text-blue-600{% else %}text-gray-600 hover:text-blue-600{% endif %}">
+                <i class="fas fa-money-bill-wave text-xl"></i>
+                <span class="text-xs mt-1">Расходы</span>
+            </a>
+            {% if user.role == 'DIRECTOR' or user.role == 'SUPERADMIN' or user.role == 'ACCOUNTANT' %}
+            <a href="{% url 'core:finance' %}" class="flex flex-col items-center {% if active_page == 'finance' %}text-blue-600{% else %}text-gray-600 hover:text-blue-600{% endif %}">
+                <i class="fas fa-chart-line text-xl"></i>
+                <span class="text-xs mt-1">Финансы</span>
+            </a>
+            {% endif %}
+        </div>
+    </nav>
+    {% endif %}
+
+    <!-- Модальное окно уведомлений -->
+    <div id="notifyModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50">
+        <div class="fixed top-16 right-0 bottom-0 w-full max-w-md bg-white shadow-lg">
+            <div class="flex justify-between items-center p-4 border-b">
+                <h3 class="text-lg font-semibold">Уведомления</h3>
+                <button id="closeNotifyBtn" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div id="notifyContent" class="overflow-y-auto h-full pb-16">
+                <!-- Здесь будут уведомления -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Скрипты -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ru.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="{% static 'core/js/main.js' %}"></script>
+    
+    <script>
+        // Меню пользователя
+        const userMenuBtn = document.getElementById('userMenuBtn');
+        const userMenu = document.getElementById('userMenu');
+        if (userMenuBtn && userMenu) {
+            userMenuBtn.addEventListener('click', () => {
+                userMenu.classList.toggle('hidden');
+            });
+            document.addEventListener('click', (e) => {
+                if (!userMenuBtn.contains(e.target) && !userMenu.contains(e.target)) {
+                    userMenu.classList.add('hidden');
+                }
+            });
+        }
+
+        // Уведомления
+        const notifyBtn = document.getElementById('notifyBtn');
+        const notifyModal = document.getElementById('notifyModal');
+        const closeNotifyBtn = document.getElementById('closeNotifyBtn');
+        const notifyContent = document.getElementById('notifyContent');
+
+        if (notifyBtn && notifyModal && closeNotifyBtn) {
+            notifyBtn.addEventListener('click', async () => {
+                notifyModal.classList.remove('hidden');
+                // Загружаем уведомления
+                try {
+                    const response = await fetch('/api/v1/notifications/');
+                    const data = await response.json();
+                    notifyContent.innerHTML = data.results.map(notification => `
+                        <div class="p-4 border-b ${notification.is_read ? 'bg-white' : 'bg-blue-50'}">
+                            <div class="flex items-start justify-between">
+                                <div>
+                                    <h4 class="font-medium text-gray-800">${notification.title}</h4>
+                                    <p class="text-sm text-gray-600 mt-1">${notification.message}</p>
+                                </div>
+                                <span class="text-xs text-gray-500">${notification.created_at_display}</span>
+                            </div>
+                            ${notification.link ? `
+                                <a href="${notification.link}" class="text-sm text-blue-600 hover:text-blue-800 mt-2 inline-block">
+                                    Подробнее <i class="fas fa-chevron-right ml-1"></i>
+                                </a>
+                            ` : ''}
+                        </div>
+                    `).join('');
+                } catch (error) {
+                    console.error('Ошибка при загрузке уведомлений:', error);
+                }
+            });
+
+            closeNotifyBtn.addEventListener('click', () => {
+                notifyModal.classList.add('hidden');
+            });
+
+            notifyModal.addEventListener('click', (e) => {
+                if (e.target === notifyModal) {
+                    notifyModal.classList.add('hidden');
+                }
+            });
+        }
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html> 

@@ -1,0 +1,183 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}{{ title }} - BARLAU.KZ{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-3xl mx-auto">
+        <!-- Заголовок и кнопка назад -->
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold text-gray-800">{{ title }}</h1>
+            <a href="{% url 'core:waybills' %}" 
+               class="inline-flex items-center justify-center rounded-lg bg-gray-200 px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2">
+                <i class="fas fa-arrow-left mr-2"></i>Назад к списку
+            </a>
+        </div>
+
+        <!-- Форма -->
+        <div class="bg-white rounded-xl shadow-sm p-6">
+            <form method="post" class="space-y-6">
+                {% csrf_token %}
+                
+                {% if form.errors %}
+                <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
+                    <p class="font-medium">Пожалуйста, исправьте следующие ошибки:</p>
+                    <ul class="list-disc list-inside text-sm mt-2">
+                        {% for field in form %}
+                            {% for error in field.errors %}
+                                <li>{{ field.label }}: {{ error }}</li>
+                            {% endfor %}
+                        {% endfor %}
+                        {% for error in form.non_field_errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Дата -->
+                    <div>
+                        <label for="{{ form.date.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                            Дата <span class="text-red-500">*</span>
+                        </label>
+                        {{ form.date }}
+                    </div>
+                    
+                    <!-- Номер (только для редактирования) -->
+                    {% if object %}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            Номер КАТа
+                        </label>
+                        <input type="text" value="{{ object.number }}" readonly
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100">
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Транспорт -->
+                    <div>
+                        <label for="{{ form.vehicle.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                            Транспорт <span class="text-red-500">*</span>
+                        </label>
+                        {{ form.vehicle }}
+                    </div>
+                    
+                    <!-- Водитель -->
+                    <div>
+                        <label for="{{ form.driver.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                            Водитель <span class="text-red-500">*</span>
+                        </label>
+                        {{ form.driver }}
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Пункт отправления -->
+                    <div>
+                        <label for="{{ form.departure_point.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                            Пункт отправления <span class="text-red-500">*</span>
+                        </label>
+                        {{ form.departure_point }}
+                    </div>
+                    
+                    <!-- Пункт назначения -->
+                    <div>
+                        <label for="{{ form.destination_point.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                            Пункт назначения <span class="text-red-500">*</span>
+                        </label>
+                        {{ form.destination_point }}
+                    </div>
+                </div>
+                
+                <!-- Описание груза -->
+                <div>
+                    <label for="{{ form.cargo_description.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                        Описание груза
+                    </label>
+                    {{ form.cargo_description }}
+                </div>
+                
+                <!-- Вес груза -->
+                <div>
+                    <label for="{{ form.cargo_weight.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                        Вес груза (кг) <span class="text-red-500">*</span>
+                    </label>
+                    {{ form.cargo_weight }}
+                </div>
+                
+                <!-- Кнопки -->
+                <div class="flex justify-end space-x-4 pt-4">
+                    <a href="{% url 'core:waybills' %}" 
+                       class="inline-flex items-center justify-center rounded-lg bg-gray-200 px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2">
+                        Отмена
+                    </a>
+                    {% if object and user.role == 'DIRECTOR' or user.role == 'SUPERADMIN' or user.is_superuser %}
+                    <button type="button" 
+                            onclick="confirmDelete()"
+                            class="inline-flex items-center justify-center rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
+                        <i class="fas fa-trash-alt mr-2"></i>Удалить
+                    </button>
+                    {% endif %}
+                    <button type="submit" 
+                            class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                        {% if object %}Сохранить{% else %}Создать{% endif %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Инициализация выбора даты
+        flatpickr("#{{ form.date.id_for_label }}", {
+            dateFormat: "Y-m-d",
+            locale: "ru",
+            allowInput: true
+        });
+        
+        // Стилизация полей формы
+        const formFields = document.querySelectorAll('input[type="text"], input[type="number"], textarea, select');
+        formFields.forEach(field => {
+            if (!field.classList.contains('flatpickr-input')) {
+                field.classList.add('w-full', 'px-3', 'py-2', 'border', 'border-gray-300', 'rounded-lg', 'focus:ring-2', 'focus:ring-blue-500', 'focus:border-blue-500');
+            }
+            
+            // Если поле только для чтения
+            if (field.hasAttribute('readonly')) {
+                field.classList.add('bg-gray-100');
+            }
+        });
+    });
+    
+    {% if object %}
+    function confirmDelete() {
+        if (confirm('Вы уверены, что хотите удалить этот путевой лист?')) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '{% url "core:waybill-delete" object.id %}';
+            
+            const csrfToken = document.createElement('input');
+            csrfToken.type = 'hidden';
+            csrfToken.name = 'csrfmiddlewaretoken';
+            csrfToken.value = '{{ csrf_token }}';
+            
+            form.appendChild(csrfToken);
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
+    {% endif %}
+</script>
+{% endblock %} 

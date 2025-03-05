@@ -1,0 +1,282 @@
+{% extends "core/base.html" %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="mb-6">
+        <h1 class="text-2xl font-bold text-gray-800">{{ title }}</h1>
+        <p class="text-gray-600">Заполните информацию о сотруднике</p>
+    </div>
+    
+    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+        <div class="p-6">
+            <form method="post" class="space-y-8" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <!-- Фото сотрудника -->
+                <div class="mb-8">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-4">Фото сотрудника</h2>
+                    <div class="flex items-center">
+                        <div class="mr-6">
+                            {% if employee and employee.photo %}
+                            <img src="{{ employee.photo.url }}" alt="{{ employee.get_full_name }}" 
+                                 class="w-32 h-32 rounded-full object-cover" id="employee-photo">
+                            {% else %}
+                            <div class="w-32 h-32 rounded-full bg-gray-200 flex items-center justify-center" id="employee-photo-placeholder">
+                                <span class="text-gray-400 text-2xl font-bold">
+                                    {% if employee %}{{ employee.first_name|first }}{{ employee.last_name|first }}{% else %}ФИ{% endif %}
+                                </span>
+                            </div>
+                            <img src="" alt="" class="w-32 h-32 rounded-full object-cover hidden" id="employee-photo">
+                            {% endif %}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Загрузить фото</label>
+                            <input type="file" id="photo-upload" name="photo" accept="image/jpeg,image/png,image/gif" 
+                                   class="block w-full text-sm text-gray-500
+                                   file:mr-4 file:py-2 file:px-4
+                                   file:rounded-full file:border-0
+                                   file:text-sm file:font-semibold
+                                   file:bg-blue-50 file:text-blue-700
+                                   hover:file:bg-blue-100">
+                            <p class="mt-1 text-sm text-gray-500">JPG, PNG или GIF. Максимум 5 МБ.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Основная информация -->
+                <div>
+                    <h2 class="text-lg font-semibold text-gray-800 mb-4">Основная информация</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="first_name" class="block text-sm font-medium text-gray-700 mb-1">Имя *</label>
+                            <input type="text" id="first_name" name="first_name" 
+                                   value="{% if employee %}{{ employee.first_name }}{% else %}{{ first_name|default:'' }}{% endif %}" 
+                                   class="w-full px-3 py-2 border {% if errors.first_name %}border-red-500{% else %}border-gray-300{% endif %} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                                   required>
+                            {% if errors.first_name %}
+                            <p class="mt-1 text-sm text-red-600">{{ errors.first_name }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div>
+                            <label for="last_name" class="block text-sm font-medium text-gray-700 mb-1">Фамилия *</label>
+                            <input type="text" id="last_name" name="last_name" 
+                                   value="{% if employee %}{{ employee.last_name }}{% else %}{{ last_name|default:'' }}{% endif %}" 
+                                   class="w-full px-3 py-2 border {% if errors.last_name %}border-red-500{% else %}border-gray-300{% endif %} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                                   required>
+                            {% if errors.last_name %}
+                            <p class="mt-1 text-sm text-red-600">{{ errors.last_name }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+                            <input type="email" id="email" name="email" 
+                                   value="{% if employee %}{{ employee.email }}{% else %}{{ email|default:'' }}{% endif %}" 
+                                   class="w-full px-3 py-2 border {% if errors.email %}border-red-500{% else %}border-gray-300{% endif %} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                                   required>
+                            {% if errors.email %}
+                            <p class="mt-1 text-sm text-red-600">{{ errors.email }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div>
+                            <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Телефон</label>
+                            <input type="tel" id="phone" name="phone" 
+                                   value="{% if employee %}{{ employee.phone }}{% else %}{{ phone|default:'' }}{% endif %}" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        
+                        <div>
+                            <label for="position" class="block text-sm font-medium text-gray-700 mb-1">Должность</label>
+                            <input type="text" id="position" name="position" 
+                                   value="{% if employee %}{{ employee.position }}{% else %}{{ position|default:'' }}{% endif %}" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        
+                        <div>
+                            <label for="role" class="block text-sm font-medium text-gray-700 mb-1">Роль в системе</label>
+                            <select id="role" name="role" 
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                {% for role_value, role_name in roles %}
+                                <option value="{{ role_value }}" 
+                                        {% if employee and employee.role == role_value %}selected
+                                        {% elif selected_role == role_value %}selected{% endif %}>
+                                    {{ role_name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Контактная информация -->
+                <div>
+                    <h2 class="text-lg font-semibold text-gray-800 mb-4">Контактная информация</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="age" class="block text-sm font-medium text-gray-700 mb-1">Возраст</label>
+                            <input type="number" id="age" name="age" min="18" max="100" 
+                                   value="{% if employee %}{{ employee.age }}{% endif %}" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        
+                        <div>
+                            <label for="location" class="block text-sm font-medium text-gray-700 mb-1">Местоположение</label>
+                            <input type="text" id="location" name="location" 
+                                   value="{% if employee %}{{ employee.location }}{% endif %}" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        
+                        <div>
+                            <label for="desired_salary" class="block text-sm font-medium text-gray-700 mb-1">Зарплата</label>
+                            <input type="text" id="desired_salary" name="desired_salary" 
+                                   value="{% if employee %}{{ employee.desired_salary }}{% endif %}" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Профессиональная информация -->
+                <div>
+                    <h2 class="text-lg font-semibold text-gray-800 mb-4">Профессиональная информация</h2>
+                    <div class="space-y-6">
+                        <div>
+                            <label for="experience" class="block text-sm font-medium text-gray-700 mb-1">Опыт работы</label>
+                            <textarea id="experience" name="experience" rows="4" 
+                                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">{% if employee %}{{ employee.experience }}{% endif %}</textarea>
+                            <p class="mt-1 text-sm text-gray-500">Укажите предыдущие места работы, должности и периоды работы.</p>
+                        </div>
+                        
+                        <div>
+                            <label for="education" class="block text-sm font-medium text-gray-700 mb-1">Образование</label>
+                            <textarea id="education" name="education" rows="4" 
+                                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">{% if employee %}{{ employee.education }}{% endif %}</textarea>
+                            <p class="mt-1 text-sm text-gray-500">Укажите учебные заведения, специальности и годы обучения.</p>
+                        </div>
+                        
+                        <div>
+                            <label for="skills" class="block text-sm font-medium text-gray-700 mb-1">Навыки</label>
+                            <textarea id="skills" name="skills" rows="4" 
+                                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">{% if employee %}{{ employee.skills }}{% endif %}</textarea>
+                            <p class="mt-1 text-sm text-gray-500">Перечислите профессиональные и технические навыки.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Дополнительная информация -->
+                <div>
+                    <h2 class="text-lg font-semibold text-gray-800 mb-4">Дополнительная информация</h2>
+                    <div class="space-y-6">
+                        <div>
+                            <label for="certifications" class="block text-sm font-medium text-gray-700 mb-1">Сертификаты и достижения</label>
+                            <textarea id="certifications" name="certifications" rows="4" 
+                                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">{% if employee %}{{ employee.certifications }}{% if employee.achievements %}
+
+{{ employee.achievements }}{% endif %}{% endif %}</textarea>
+                            <p class="mt-1 text-sm text-gray-500">Укажите полученные сертификаты, награды и профессиональные достижения.</p>
+                        </div>
+                        
+                        <div>
+                            <label for="languages" class="block text-sm font-medium text-gray-700 mb-1">Языки</label>
+                            <textarea id="languages" name="languages" rows="2" 
+                                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">{% if employee %}{{ employee.languages }}{% endif %}</textarea>
+                            <p class="mt-1 text-sm text-gray-500">Укажите языки и уровень владения.</p>
+                        </div>
+                        
+                        <div>
+                            <label for="hobbies" class="block text-sm font-medium text-gray-700 mb-1">Хобби и интересы</label>
+                            <textarea id="hobbies" name="hobbies" rows="2" 
+                                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">{% if employee %}{{ employee.hobbies }}{% endif %}</textarea>
+                        </div>
+                        
+                        <div>
+                            <label for="recommendation_file" class="block text-sm font-medium text-gray-700 mb-1">Рекомендация (файл)</label>
+                            <input type="file" id="recommendation_file" name="recommendation_file" 
+                                   class="block w-full text-sm text-gray-500
+                                   file:mr-4 file:py-2 file:px-4
+                                   file:rounded-full file:border-0
+                                   file:text-sm file:font-semibold
+                                   file:bg-blue-50 file:text-blue-700
+                                   hover:file:bg-blue-100">
+                            <p class="mt-1 text-sm text-gray-500">Загрузите файл с рекомендацией (PDF, DOC, DOCX).</p>
+                            {% if employee and employee.recommendation_file %}
+                            <div class="mt-2">
+                                <a href="{{ employee.recommendation_file.url }}" target="_blank" class="text-blue-600 hover:text-blue-800">
+                                    <i class="fas fa-file-alt mr-1"></i>Просмотреть текущую рекомендацию
+                                </a>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex justify-end space-x-3">
+                    <a href="{% url 'core:employees' %}" 
+                       class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
+                        Отмена
+                    </a>
+                    <button type="submit" 
+                            class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                        {% if is_new %}Создать{% else %}Сохранить{% endif %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Обработка предварительного просмотра фото
+        const photoUploadInput = document.getElementById('photo-upload');
+        const employeePhoto = document.getElementById('employee-photo');
+        const photoPlaceholder = document.getElementById('employee-photo-placeholder');
+        
+        photoUploadInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            
+            if (!file) {
+                return;
+            }
+            
+            // Проверка типа файла
+            if (!file.type.match('image/jpeg') && !file.type.match('image/png') && !file.type.match('image/gif')) {
+                Swal.fire({
+                    title: 'Ошибка',
+                    text: 'Пожалуйста, выберите изображение в формате JPG, PNG или GIF',
+                    icon: 'error',
+                    confirmButtonText: 'ОК'
+                });
+                photoUploadInput.value = '';
+                return;
+            }
+            
+            // Проверка размера файла (5 МБ)
+            if (file.size > 5 * 1024 * 1024) {
+                Swal.fire({
+                    title: 'Ошибка',
+                    text: 'Размер файла не должен превышать 5 МБ',
+                    icon: 'error',
+                    confirmButtonText: 'ОК'
+                });
+                photoUploadInput.value = '';
+                return;
+            }
+            
+            // Предварительный просмотр
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                if (photoPlaceholder) {
+                    photoPlaceholder.classList.add('hidden');
+                }
+                employeePhoto.src = e.target.result;
+                employeePhoto.classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        });
+    });
+</script>
+{% endblock %} 

@@ -1,0 +1,406 @@
+{% extends "core/base.html" %}
+
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-6xl mx-auto">
+        <!-- Заголовок и кнопки экспорта -->
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold text-gray-800">Финансовый отчет</h1>
+            <div class="flex items-center space-x-2">
+                <button id="exportPdfBtn" class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2">
+                    <i class="fas fa-file-pdf mr-2"></i>PDF
+                </button>
+                <button id="exportExcelBtn" class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2">
+                    <i class="fas fa-file-excel mr-2"></i>Excel
+                </button>
+            </div>
+        </div>
+
+        <!-- Фильтры периода -->
+        <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="space-y-2">
+                    <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                        Период
+                    </label>
+                    <select id="periodFilter" class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
+                        <option value="7">Последние 7 дней</option>
+                        <option value="30" selected>Последние 30 дней</option>
+                        <option value="90">Последние 90 дней</option>
+                        <option value="180">Последние 180 дней</option>
+                        <option value="365">Последний год</option>
+                        <option value="custom">Произвольный период</option>
+                    </select>
+                </div>
+                <div class="space-y-2">
+                    <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                        Дата от
+                    </label>
+                    <input type="date" id="startDate" class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
+                </div>
+                <div class="space-y-2">
+                    <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                        Дата до
+                    </label>
+                    <input type="date" id="endDate" class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
+                </div>
+            </div>
+        </div>
+
+        <!-- Общая статистика -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div class="bg-white rounded-lg shadow-sm p-4">
+                <div class="text-sm text-gray-600 mb-1">Всего расходов</div>
+                <div class="text-2xl font-bold text-gray-800" id="totalExpenses">0 ₸</div>
+            </div>
+            <div class="bg-white rounded-lg shadow-sm p-4">
+                <div class="text-sm text-gray-600 mb-1">Среднемесячные расходы</div>
+                <div class="text-2xl font-bold text-blue-600" id="avgMonthlyExpenses">0 ₸</div>
+            </div>
+            <div class="bg-white rounded-lg shadow-sm p-4">
+                <div class="text-sm text-gray-600 mb-1">Всего задач</div>
+                <div class="text-2xl font-bold text-green-600" id="totalTasks">0</div>
+            </div>
+            <div class="bg-white rounded-lg shadow-sm p-4">
+                <div class="text-sm text-gray-600 mb-1">Активных задач</div>
+                <div class="text-2xl font-bold text-yellow-600" id="activeTasks">0</div>
+            </div>
+        </div>
+
+        <!-- Графики -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <!-- Расходы по категориям -->
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">Расходы по категориям</h2>
+                <div class="relative" style="height: 300px;">
+                    <canvas id="expensesByCategory"></canvas>
+                </div>
+            </div>
+            <!-- Динамика расходов -->
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">Динамика расходов</h2>
+                <div class="relative" style="height: 300px;">
+                    <canvas id="expensesDynamics"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Таблица расходов по транспорту -->
+        <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+            <h2 class="text-lg font-semibold text-gray-800 mb-4">Расходы по транспорту</h2>
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr class="border-b">
+                            <th class="py-3 px-4 text-left text-sm font-medium text-gray-600">Транспорт</th>
+                            <th class="py-3 px-4 text-right text-sm font-medium text-gray-600">Топливо</th>
+                            <th class="py-3 px-4 text-right text-sm font-medium text-gray-600">Ремонт</th>
+                            <th class="py-3 px-4 text-right text-sm font-medium text-gray-600">Обслуживание</th>
+                            <th class="py-3 px-4 text-right text-sm font-medium text-gray-600">Всего</th>
+                        </tr>
+                    </thead>
+                    <tbody id="vehicleExpensesTable">
+                        <!-- Данные будут добавлены через JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Инициализация графиков
+    let categoryChart = null;
+    let dynamicsChart = null;
+
+    // Загрузка данных при загрузке страницы
+    document.addEventListener('DOMContentLoaded', () => {
+        setupDateInputs();
+        setupEventListeners();
+        loadFinancialData();
+    });
+
+    // Настройка полей с датами
+    function setupDateInputs() {
+        const today = new Date();
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(today.getDate() - 30);
+
+        const startDate = document.getElementById('startDate');
+        const endDate = document.getElementById('endDate');
+
+        startDate.value = thirtyDaysAgo.toISOString().split('T')[0];
+        endDate.value = today.toISOString().split('T')[0];
+
+        // Отключаем поля дат по умолчанию
+        startDate.disabled = true;
+        endDate.disabled = true;
+    }
+
+    // Настройка обработчиков событий
+    function setupEventListeners() {
+        // Фильтр периода
+        document.getElementById('periodFilter').addEventListener('change', (e) => {
+            const startDate = document.getElementById('startDate');
+            const endDate = document.getElementById('endDate');
+            
+            if (e.target.value === 'custom') {
+                startDate.disabled = false;
+                endDate.disabled = false;
+            } else {
+                startDate.disabled = true;
+                endDate.disabled = true;
+                
+                const today = new Date();
+                const pastDate = new Date();
+                pastDate.setDate(today.getDate() - parseInt(e.target.value));
+                
+                startDate.value = pastDate.toISOString().split('T')[0];
+                endDate.value = today.toISOString().split('T')[0];
+                
+                loadFinancialData();
+            }
+        });
+
+        // Поля с датами
+        ['startDate', 'endDate'].forEach(id => {
+            document.getElementById(id).addEventListener('change', loadFinancialData);
+        });
+
+        // Кнопки экспорта
+        document.getElementById('exportPdfBtn').addEventListener('click', exportPdf);
+        document.getElementById('exportExcelBtn').addEventListener('click', exportExcel);
+    }
+
+    // Загрузка финансовых данных
+    async function loadFinancialData() {
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
+
+        try {
+            const response = await fetch(`/api/v1/finance/report/?start_date=${startDate}&end_date=${endDate}`);
+            const data = await response.json();
+
+            updateStatistics(data);
+            updateCharts(data);
+            updateVehicleTable(data.expenses_by_vehicle);
+        } catch (error) {
+            console.error('Ошибка при загрузке данных:', error);
+            alert('Не удалось загрузить финансовые данные');
+        }
+    }
+
+    // Обновление статистики
+    function updateStatistics(data) {
+        document.getElementById('totalExpenses').textContent = 
+            data.total_expenses.toLocaleString('ru-RU') + ' ₸';
+        
+        const monthlyAvg = data.total_expenses / getMonthsBetweenDates(
+            document.getElementById('startDate').value,
+            document.getElementById('endDate').value
+        );
+        document.getElementById('avgMonthlyExpenses').textContent = 
+            Math.round(monthlyAvg).toLocaleString('ru-RU') + ' ₸';
+        
+        document.getElementById('totalTasks').textContent = 
+            data.total_tasks.toLocaleString('ru-RU');
+        
+        const activeTasks = data.tasks_by_status
+            .filter(t => t.status === 'NEW' || t.status === 'IN_PROGRESS')
+            .reduce((sum, t) => sum + t.count, 0);
+        document.getElementById('activeTasks').textContent = 
+            activeTasks.toLocaleString('ru-RU');
+    }
+
+    // Обновление графиков
+    function updateCharts(data) {
+        // График расходов по категориям
+        const categoryData = {
+            labels: data.expenses_by_category.map(c => getCategoryLabel(c.category)),
+            datasets: [{
+                data: data.expenses_by_category.map(c => c.total),
+                backgroundColor: [
+                    'rgba(59, 130, 246, 0.8)',   // Синий
+                    'rgba(16, 185, 129, 0.8)',   // Зеленый
+                    'rgba(239, 68, 68, 0.8)',    // Красный
+                    'rgba(107, 114, 128, 0.8)'   // Серый
+                ]
+            }]
+        };
+
+        if (categoryChart) {
+            categoryChart.destroy();
+        }
+
+        categoryChart = new Chart(document.getElementById('expensesByCategory'), {
+            type: 'doughnut',
+            data: categoryData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right'
+                    }
+                }
+            }
+        });
+
+        // График динамики расходов
+        const dynamicsData = {
+            labels: data.expenses_by_month.map(m => `${m.month}/${m.year}`),
+            datasets: [{
+                label: 'Расходы',
+                data: data.expenses_by_month.map(m => m.total),
+                borderColor: 'rgb(59, 130, 246)',
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                fill: true
+            }]
+        };
+
+        if (dynamicsChart) {
+            dynamicsChart.destroy();
+        }
+
+        dynamicsChart = new Chart(document.getElementById('expensesDynamics'), {
+            type: 'line',
+            data: dynamicsData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: value => value.toLocaleString('ru-RU') + ' ₸'
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Обновление таблицы расходов по транспорту
+    function updateVehicleTable(data) {
+        const table = document.getElementById('vehicleExpensesTable');
+        table.innerHTML = data.map(vehicle => `
+            <tr class="border-b hover:bg-gray-50">
+                <td class="py-3 px-4 text-sm text-gray-800">
+                    ${vehicle.vehicle__brand} ${vehicle.vehicle__model}<br>
+                    <span class="text-gray-500">${vehicle.vehicle__number}</span>
+                </td>
+                <td class="py-3 px-4 text-right text-sm text-gray-800">
+                    ${(vehicle.fuel_total || 0).toLocaleString('ru-RU')} ₸
+                </td>
+                <td class="py-3 px-4 text-right text-sm text-gray-800">
+                    ${(vehicle.repair_total || 0).toLocaleString('ru-RU')} ₸
+                </td>
+                <td class="py-3 px-4 text-right text-sm text-gray-800">
+                    ${(vehicle.maintenance_total || 0).toLocaleString('ru-RU')} ₸
+                </td>
+                <td class="py-3 px-4 text-right text-sm font-medium text-gray-800">
+                    ${vehicle.total.toLocaleString('ru-RU')} ₸
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    // Получение метки для категории
+    function getCategoryLabel(category) {
+        switch (category) {
+            case 'FUEL': return 'Топливо';
+            case 'MAINTENANCE': return 'Техобслуживание';
+            case 'REPAIR': return 'Ремонт';
+            case 'OTHER': return 'Прочее';
+            default: return category;
+        }
+    }
+
+    // Получение количества месяцев между датами
+    function getMonthsBetweenDates(startDate, endDate) {
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        return (end.getFullYear() - start.getFullYear()) * 12 + 
+               (end.getMonth() - start.getMonth()) + 1;
+    }
+
+    // Экспорт в PDF
+    async function exportPdf() {
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
+        
+        try {
+            const response = await fetch(
+                `/api/v1/finance/export_pdf/?start_date=${startDate}&end_date=${endDate}`,
+                {
+                    headers: {
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    }
+                }
+            );
+            
+            if (response.ok) {
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'financial-report.pdf';
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                a.remove();
+            } else {
+                throw new Error('Ошибка при экспорте');
+            }
+        } catch (error) {
+            console.error('Ошибка при экспорте в PDF:', error);
+            alert('Не удалось экспортировать отчет в PDF');
+        }
+    }
+
+    // Экспорт в Excel
+    async function exportExcel() {
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
+        
+        try {
+            const response = await fetch(
+                `/api/v1/finance/export_excel/?start_date=${startDate}&end_date=${endDate}`,
+                {
+                    headers: {
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    }
+                }
+            );
+            
+            if (response.ok) {
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'financial-report.xlsx';
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                a.remove();
+            } else {
+                throw new Error('Ошибка при экспорте');
+            }
+        } catch (error) {
+            console.error('Ошибка при экспорте в Excel:', error);
+            alert('Не удалось экспортировать отчет в Excel');
+        }
+    }
+</script>
+{% endblock %} 
