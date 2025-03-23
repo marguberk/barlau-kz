@@ -3,6 +3,9 @@
 {% block content %}
 <div class="container mx-auto px-4 py-8">
     <div class="max-w-3xl mx-auto">
+        <!-- CSRF Token для AJAX-запросов -->
+        {% csrf_token %}
+        
         <!-- Заголовок -->
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-2xl font-bold text-gray-800">Уведомления</h1>
@@ -99,7 +102,7 @@
         emptyState.classList.add('hidden');
 
         try {
-            const response = await fetch('/api/v1/notifications/');
+            const response = await fetch('/api/notifications/');
             notifications = await response.json();
             renderNotifications();
         } catch (error) {
@@ -115,7 +118,7 @@
         let filteredNotifications = notifications.results;
 
         if (currentFilter === 'unread') {
-            filteredNotifications = filteredNotifications.filter(n => !n.is_read);
+            filteredNotifications = filteredNotifications.filter(n => !n.read);
         } else if (currentFilter !== 'all') {
             filteredNotifications = filteredNotifications.filter(n => n.type === currentFilter);
         }
@@ -130,7 +133,7 @@
         emptyState.classList.add('hidden');
 
         notificationsList.innerHTML = filteredNotifications.map(notification => `
-            <div class="bg-white rounded-xl shadow-sm p-4 transition-all ${notification.is_read ? '' : 'border-l-4 border-blue-600'}">
+            <div class="bg-white rounded-xl shadow-sm p-4 transition-all ${notification.read ? '' : 'border-l-4 border-blue-600'}">
                 <div class="flex items-start justify-between">
                     <div class="flex items-start space-x-3">
                         <div class="w-8 h-8 rounded-full bg-${getNotificationColor(notification.type)}-100 flex items-center justify-center">
@@ -148,7 +151,7 @@
                     </div>
                     <div class="flex flex-col items-end">
                         <span class="text-xs text-gray-500">${notification.created_at_display}</span>
-                        ${!notification.is_read ? `
+                        ${!notification.read ? `
                             <button onclick="markAsRead(${notification.id})" class="text-blue-600 hover:text-blue-800 text-sm mt-2">
                                 <i class="fas fa-check"></i>
                             </button>
@@ -184,7 +187,7 @@
     // Отметить уведомление как прочитанное
     async function markAsRead(id) {
         try {
-            await fetch(`/api/v1/notifications/${id}/mark_read/`, {
+            await fetch(`/api/notifications/${id}/mark_read/`, {
                 method: 'POST',
                 headers: {
                     'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
@@ -200,7 +203,7 @@
     // Отметить все как прочитанные
     async function markAllAsRead() {
         try {
-            await fetch('/api/v1/notifications/mark_all_read/', {
+            await fetch('/api/notifications/mark_all_read/', {
                 method: 'POST',
                 headers: {
                     'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value

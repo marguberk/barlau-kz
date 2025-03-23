@@ -32,7 +32,9 @@ from .views import (
     VehicleUpdateView,
     VehicleArchiveView,
     logout_view,
-    MapView
+    MapView,
+    ProfileEditView,
+    ChangePasswordView
 )
 from .api import update_profile, upload_profile_photo, get_profile_stats
 
@@ -54,11 +56,16 @@ urlpatterns = [
     path('expenses/', ExpensesView.as_view(), name='expenses'),
     path('finance/', FinanceView.as_view(), name='finance'),
     
+    # Профиль и аутентификация
+    path('profile/edit/', ProfileEditView.as_view(), name='profile-edit'),
+    path('profile/password/', ChangePasswordView.as_view(), name='change-password'),
+    path('accounts/logout/', logout_view, name='custom-logout'),
+    
     # API endpoints
     path('api/', include(router.urls)),
-    path('api/v1/users/me/', update_profile, name='api-profile-update'),
-    path('api/v1/users/me/photo/', upload_profile_photo, name='api-profile-photo-upload'),
-    path('api/v1/users/me/stats/', get_profile_stats, name='api-profile-stats'),
+    path('api/users/me/', update_profile, name='api-profile-update'),
+    path('api/users/me/photo/', upload_profile_photo, name='api-profile-photo-upload'),
+    path('api/users/me/stats/', get_profile_stats, name='api-profile-stats'),
     
     # Employees
     path('employees/', EmployeeListView.as_view(), name='employees'),
@@ -84,7 +91,4 @@ urlpatterns = [
     path('vehicles/add/', VehicleCreateView.as_view(), name='vehicle-add'),
     path('vehicles/<int:pk>/edit/', VehicleUpdateView.as_view(), name='vehicle-edit'),
     path('vehicles/<int:pk>/archive/', VehicleArchiveView.as_view(), name='vehicle-archive'),
-
-    # Аутентификация
-    path('accounts/logout/', logout_view, name='custom-logout'),
 ] 
