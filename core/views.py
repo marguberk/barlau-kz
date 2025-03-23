@@ -1720,21 +1720,29 @@ def logout_view(request):
     logout(request)
     return redirect('login')
 
-class MapView(LoginRequiredMixin, TemplateView):
+class MapView(TemplateView):
     template_name = 'core/map.html'
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['active_page'] = 'map'
         
+        # Проверяем, является ли пользователь водителем
+        is_driver = False
+        can_see_all_employees = False
+        
         if self.request.user.is_authenticated:
-            context['user_role'] = self.request.user.role
-            # Определяем, может ли пользователь видеть всех сотрудников на карте
-            context['can_see_all_employees'] = self.request.user.role in ['DIRECTOR', 'SUPERADMIN', 'TECH']
-            # Проверяем, является ли пользователь водителем
-            context['is_driver'] = self.request.user.role == 'DRIVER'
+            is_driver = self.request.user.role == 'DRIVER'
+            can_see_all_employees = self.request.user.role in ['ADMIN', 'DIRECTOR', 'DISPATCHER']
+        
+        context['is_driver'] = is_driver
+        context['can_see_all_employees'] = can_see_all_employees
         
         return context
+    
+    # Убираем требование аутентификации, чтобы страница была доступна всем
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
 
 class ProfileEditView(LoginRequiredMixin, View):
     template_name = 'core/profile_edit.html'

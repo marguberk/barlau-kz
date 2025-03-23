@@ -2,11 +2,12 @@ from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.utils import timezone
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from ..models import Vehicle, Task
 from ..serializers import VehicleLocationSerializer, TaskLocationSerializer
 
 class MapViewSet(viewsets.ViewSet):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [AllowAny]  # Разрешаем доступ без аутентификации
     
     def list(self, request):
         """Получить все данные для карты"""
@@ -20,9 +21,50 @@ class MapViewSet(viewsets.ViewSet):
     
     def get_vehicles(self, request):
         """Получить местоположение всех транспортных средств"""
+        # Проверяем, аутентифицирован ли пользователь
         if not request.user.is_authenticated:
-            return Response({"detail": "Требуется аутентификация"}, status=status.HTTP_401_UNAUTHORIZED)
+            # Для неавторизованных пользователей возвращаем демо-данные
+            demo_data = {
+                'vehicles': [
+                    {
+                        'id': 1,
+                        'number': 'KZ 123 ABC',
+                        'driver': {
+                            'fullname': 'Демонстрационный водитель 1',
+                            'current_latitude': 43.2517,
+                            'current_longitude': 76.9186
+                        },
+                        'type': 'car',
+                        'status': 'active'
+                    },
+                    {
+                        'id': 2,
+                        'number': 'KZ 456 DEF',
+                        'driver': {
+                            'fullname': 'Демонстрационный водитель 2',
+                            'current_latitude': 43.2617,
+                            'current_longitude': 76.9386
+                        },
+                        'type': 'truck',
+                        'status': 'active'
+                    },
+                    {
+                        'id': 3,
+                        'number': 'KZ 789 GHI',
+                        'driver': {
+                            'fullname': 'Демонстрационный водитель 3',
+                            'current_latitude': 43.2417,
+                            'current_longitude': 76.9086
+                        },
+                        'type': 'special',
+                        'status': 'inactive'
+                    }
+                ],
+                'isDriverMode': False
+            }
+            return Response(demo_data)
             
+        # Для авторизованных пользователей стандартная логика
         vehicles = Vehicle.objects.filter(
             driver__isnull=False,
             driver__current_latitude__isnull=False,
@@ -62,7 +104,8 @@ class MapViewSet(viewsets.ViewSet):
     def get_tasks(self, request):
         """Получить местоположение всех активных задач"""
         if not request.user.is_authenticated:
-            return Response({"detail": "Требуется аутентификация"}, status=status.HTTP_401_UNAUTHORIZED)
+            # Для неавторизованных пользователей возвращаем пустой список
+            return Response([])
             
         tasks = Task.objects.filter(
             status__in=['NEW', 'IN_PROGRESS'],
@@ -82,6 +125,7 @@ class MapViewSet(viewsets.ViewSet):
     @action(detail=False, methods=['post'])
     def update_location(self, request):
         """Обновить местоположение транспортного средства"""
+        # Требуем аутентификацию для этого метода
         if not request.user.is_authenticated:
             return Response({"detail": "Требуется аутентификация"}, status=status.HTTP_401_UNAUTHORIZED)
             
@@ -109,6 +153,7 @@ class MapViewSet(viewsets.ViewSet):
     @action(detail=False, methods=['post'])
     def update_tracking_status(self, request):
         """Обновить статус отслеживания местоположения"""
+        # Требуем аутентификацию для этого метода
         if not request.user.is_authenticated:
             return Response({"detail": "Требуется аутентификация"}, status=status.HTTP_401_UNAUTHORIZED)
             
