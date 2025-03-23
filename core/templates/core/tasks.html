@@ -1,17 +1,72 @@
 {% extends "core/base.html" %}
 
+{% block title %}Задачи | BARLAU.KZ{% endblock %}
+
 {% block content %}
-<div class="container mx-auto px-4 py-8">
+<div class="container mx-auto px-4 py-6">
     <div class="max-w-6xl mx-auto">
+        <!-- CSRF Token -->
+        <div style="display: none">{% csrf_token %}</div>
         <!-- Заголовок и кнопка добавления -->
         <div class="flex justify-between items-center mb-6">
-            <h1 class="text-2xl font-bold text-gray-800">Задачи</h1>
-            {% if user.role == 'DIRECTOR' or user.role == 'SUPERADMIN' or user.is_superuser %}
-            <button id="addTaskBtn" 
-                    class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-800">Задачи</h1>
+                <p class="text-gray-600 mt-1">Управление рабочими задачами</p>
+            </div>
+            {% if user.role == 'DIRECTOR' or user.role == 'SUPERADMIN' or user.role == 'DISPATCHER' or user.is_superuser %}
+            <a href="{% url 'core:task-add' %}" id="addTaskBtn" 
+                    class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200">
                 <i class="fas fa-plus mr-2"></i>Добавить задачу
-            </button>
+            </a>
             {% endif %}
+        </div>
+
+        <!-- Статистика -->
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-6">
+            <div class="bg-white rounded-xl shadow-sm p-4 hover:shadow-md transition-shadow duration-200">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Всего задач</p>
+                        <h3 class="text-2xl font-bold text-gray-800" id="totalTasks">0</h3>
+                    </div>
+                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                        <i class="fas fa-tasks text-blue-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm p-4 hover:shadow-md transition-shadow duration-200">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Новые</p>
+                        <h3 class="text-2xl font-bold text-gray-800" id="newTasks">0</h3>
+                    </div>
+                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                        <i class="fas fa-plus-circle text-blue-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm p-4 hover:shadow-md transition-shadow duration-200">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">В работе</p>
+                        <h3 class="text-2xl font-bold text-gray-800" id="inProgressTasks">0</h3>
+                    </div>
+                    <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
+                        <i class="fas fa-spinner text-yellow-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm p-4 hover:shadow-md transition-shadow duration-200">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Завершенные</p>
+                        <h3 class="text-2xl font-bold text-gray-800" id="completedTasks">0</h3>
+                    </div>
+                    <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                        <i class="fas fa-check-circle text-green-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Фильтры -->
@@ -19,18 +74,21 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <!-- Поиск -->
                 <div class="space-y-2">
-                    <label class="text-sm font-medium text-gray-700">Поиск</label>
+                    <label class="text-sm font-medium text-gray-700 flex items-center">
+                        <i class="fas fa-search text-gray-400 mr-2"></i>Поиск
+                    </label>
                     <div class="relative">
                         <input type="text" id="searchInput" 
                                class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm placeholder:text-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                                placeholder="Поиск по названию...">
-                        <i class="fas fa-search absolute right-3 top-2.5 text-gray-400"></i>
                     </div>
                 </div>
 
                 <!-- Статус -->
                 <div class="space-y-2">
-                    <label class="text-sm font-medium text-gray-700">Статус</label>
+                    <label class="text-sm font-medium text-gray-700 flex items-center">
+                        <i class="fas fa-flag text-gray-400 mr-2"></i>Статус
+                    </label>
                     <select id="statusFilter" 
                             class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500">
                         <option value="">Все статусы</option>
@@ -43,7 +101,9 @@
 
                 <!-- Приоритет -->
                 <div class="space-y-2">
-                    <label class="text-sm font-medium text-gray-700">Приоритет</label>
+                    <label class="text-sm font-medium text-gray-700 flex items-center">
+                        <i class="fas fa-exclamation-circle text-gray-400 mr-2"></i>Приоритет
+                    </label>
                     <select id="priorityFilter"
                             class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500">
                         <option value="">Все приоритеты</option>
@@ -56,367 +116,444 @@
         </div>
 
         <!-- Список задач -->
-        <div id="tasksList" class="space-y-4">
+        <div id="tasksList" class="space-y-4 hidden">
             <!-- Задачи будут добавлены через JavaScript -->
         </div>
 
         <!-- Загрузка -->
-        <div id="loadingIndicator" class="hidden">
-            <div class="flex justify-center items-center py-8">
-                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            </div>
+        <div id="loadingIndicator" class="flex flex-col justify-center items-center py-12">
+            <div class="w-12 h-12 rounded-full border-4 border-blue-200 border-t-blue-600 animate-spin mb-4"></div>
+            <p class="text-gray-600">Загрузка задач...</p>
         </div>
 
         <!-- Нет задач -->
         <div id="emptyState" class="hidden">
-            <div class="text-center py-12">
-                <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div class="text-center py-12 bg-white rounded-xl shadow-sm">
+                <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     <i class="fas fa-tasks text-gray-400 text-2xl"></i>
                 </div>
-                <h3 class="text-lg font-medium text-gray-800 mb-2">Нет задач</h3>
-                <p class="text-gray-600">Задачи пока не созданы</p>
+                <h3 class="text-xl font-medium text-gray-800 mb-2">Нет задач</h3>
+                <p class="text-gray-600 mb-6 max-w-md mx-auto">Задачи пока не созданы или не найдены по выбранным фильтрам</p>
+                
+                {% if user.role == 'DIRECTOR' or user.role == 'SUPERADMIN' or user.role == 'DISPATCHER' or user.is_superuser %}
+                <a href="{% url 'core:task-add' %}" class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                    <i class="fas fa-plus mr-2"></i>Создать первую задачу
+                </a>
+                {% endif %}
             </div>
         </div>
-    </div>
-</div>
 
-<!-- Модальное окно добавления/редактирования задачи -->
-<div id="taskModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50">
-    <div class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-lg bg-white rounded-xl shadow-lg">
-        <div class="flex justify-between items-center p-4 border-b">
-            <h3 id="modalTitle" class="text-lg font-semibold">Новая задача</h3>
-            <button class="closeModal text-gray-500 hover:text-gray-700">
-                <i class="fas fa-times text-xl"></i>
-            </button>
+        <!-- Ошибка -->
+        <div id="errorState" class="hidden">
+            <div class="text-center py-12 bg-white rounded-xl shadow-sm">
+                <div class="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-exclamation-triangle text-red-500 text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-medium text-gray-800 mb-2">Ошибка загрузки</h3>
+                <p class="text-gray-600 mb-6 max-w-md mx-auto" id="errorMessage">Не удалось загрузить данные. Попробуйте обновить страницу.</p>
+                
+                <button id="retryButton" class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                    <i class="fas fa-sync-alt mr-2"></i>Повторить
+                </button>
+            </div>
         </div>
-        <form id="taskForm" class="p-4 space-y-4">
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Название</label>
-                <input type="text" name="title" required
-                       class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Описание</label>
-                <textarea name="description" rows="4" required
-                          class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
-            </div>
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Приоритет</label>
-                    <select name="priority" required
-                            class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                        <option value="LOW">Низкий</option>
-                        <option value="MEDIUM" selected>Средний</option>
-                        <option value="HIGH">Высокий</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Срок выполнения</label>
-                    <input type="datetime-local" name="due_date" required
-                           class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                </div>
-            </div>
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Исполнитель</label>
-                    <select name="assigned_to" required
-                            class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                        <!-- Список исполнителей будет добавлен через JavaScript -->
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Транспорт</label>
-                    <select name="vehicle"
-                            class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                        <option value="">Не выбран</option>
-                        <!-- Список транспорта будет добавлен через JavaScript -->
-                    </select>
-                </div>
-            </div>
-            <div class="pt-4 border-t flex justify-end space-x-3">
-                <button type="button" class="closeModal px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">
-                    Отмена
-                </button>
-                <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">
-                    Сохранить
-                </button>
-            </div>
-        </form>
     </div>
 </div>
 {% endblock %}
 
-{% block extra_scripts %}
+{% block extra_js %}
 <script>
     // Глобальные переменные
-    let tasks = [];
-    let currentTaskId = null;
-    const tasksList = document.getElementById('tasksList');
-    const loadingIndicator = document.getElementById('loadingIndicator');
-    const emptyState = document.getElementById('emptyState');
-    const taskModal = document.getElementById('taskModal');
-    const modalTitle = document.getElementById('modalTitle');
-    const taskForm = document.getElementById('taskForm');
-    const addTaskBtn = document.getElementById('addTaskBtn');
+    let allTasks = [];
     const searchInput = document.getElementById('searchInput');
     const statusFilter = document.getElementById('statusFilter');
     const priorityFilter = document.getElementById('priorityFilter');
+    const tasksList = document.getElementById('tasksList');
+    const loadingIndicator = document.getElementById('loadingIndicator');
+    const emptyState = document.getElementById('emptyState');
+    const errorState = document.getElementById('errorState');
+    const errorMessage = document.getElementById('errorMessage');
+    const retryButton = document.getElementById('retryButton');
 
-    // Загрузка задач
+    // Загрузка данных о задачах с API
     async function loadTasks() {
+        showLoading();
+        
+        try {
+            console.log('Загрузка задач...');
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
+            const response = await fetch('/api/v1/tasks/?token=' + new Date().getTime(), {
+                headers: {
+                    'X-CSRFToken': csrfToken || ''
+                }
+            });
+            
+            if (!response.ok) {
+                if (response.status === 403 || response.status === 401) {
+                    console.log('Ошибка аутентификации:', response.status);
+                    window.location.href = '/accounts/login/?next=/tasks/';
+                    return;
+                }
+                throw new Error(`Ошибка HTTP: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            console.log('Загружено задач:', data.results ? data.results.length : 0);
+            
+            // Сохраняем данные для фильтрации
+            allTasks = data.results || [];
+            
+            if (allTasks.length === 0) {
+                showEmpty();
+            } else {
+                displayTasks(allTasks);
+                updateStats(allTasks);
+                populateFilters(allTasks);
+            }
+        } catch (error) {
+            console.error('Ошибка при загрузке данных:', error);
+            showError(error.message);
+        }
+    }
+    
+    // Отображение задач
+    function displayTasks(tasks) {
+        if (!tasks.length) {
+            showEmpty();
+            return;
+        }
+        
+        hideLoading();
+        hideError();
+        hideEmpty();
+        
+        tasksList.classList.remove('hidden');
+        tasksList.innerHTML = tasks.map(task => {
+            // Определение стилей в зависимости от статуса и приоритета
+            let statusClass, statusText, statusIcon;
+            
+            switch(task.status) {
+                case 'NEW':
+                    statusClass = 'bg-blue-100 text-blue-800';
+                    statusText = 'Новая';
+                    statusIcon = 'fas fa-file-alt';
+                    break;
+                case 'IN_PROGRESS':
+                    statusClass = 'bg-yellow-100 text-yellow-800';
+                    statusText = 'В процессе';
+                    statusIcon = 'fas fa-spinner fa-spin';
+                    break;
+                case 'COMPLETED':
+                    statusClass = 'bg-green-100 text-green-800';
+                    statusText = 'Завершена';
+                    statusIcon = 'fas fa-check-circle';
+                    break;
+                case 'CANCELLED':
+                    statusClass = 'bg-red-100 text-red-800';
+                    statusText = 'Отменена';
+                    statusIcon = 'fas fa-times-circle';
+                    break;
+                default:
+                    statusClass = 'bg-gray-100 text-gray-800';
+                    statusText = 'Неизвестно';
+                    statusIcon = 'fas fa-question-circle';
+            }
+            
+            let priorityClass, priorityText, priorityIcon;
+            
+            switch(task.priority) {
+                case 'LOW':
+                    priorityClass = 'bg-gray-100 text-gray-800';
+                    priorityText = 'Низкий';
+                    priorityIcon = 'fas fa-arrow-down';
+                    break;
+                case 'MEDIUM':
+                    priorityClass = 'bg-yellow-100 text-yellow-800';
+                    priorityText = 'Средний';
+                    priorityIcon = 'fas fa-arrow-right';
+                    break;
+                case 'HIGH':
+                    priorityClass = 'bg-red-100 text-red-800';
+                    priorityText = 'Высокий';
+                    priorityIcon = 'fas fa-arrow-up';
+                    break;
+                default:
+                    priorityClass = 'bg-gray-100 text-gray-800';
+                    priorityText = 'Неизвестно';
+                    priorityIcon = 'fas fa-question';
+            }
+            
+            // Форматирование даты
+            const dueDate = new Date(task.due_date);
+            const now = new Date();
+            const isOverdue = dueDate < now && task.status !== 'COMPLETED';
+            
+            let dueDateClass = 'text-gray-700';
+            if (isOverdue) {
+                dueDateClass = 'text-red-600 font-semibold';
+            }
+            
+            const formattedDate = dueDate.toLocaleDateString('ru-RU', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit', 
+                minute: '2-digit'
+            });
+            
+            return `
+                <div class="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-200">
+                    <div class="p-6">
+                        <div class="flex justify-between items-start">
+                            <div class="flex-1">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-2">${task.title}</h3>
+                                <p class="text-gray-600 text-sm mb-3">${task.description || 'Без описания'}</p>
+                                
+                                <div class="flex flex-wrap gap-2 mb-4">
+                                    <span class="${statusClass} text-xs px-2.5 py-1 rounded-full flex items-center">
+                                        <i class="${statusIcon} mr-1"></i>${statusText}
+                                    </span>
+                                    <span class="${priorityClass} text-xs px-2.5 py-1 rounded-full flex items-center">
+                                        <i class="${priorityIcon} mr-1"></i>${priorityText}
+                                    </span>
+                                </div>
+                                
+                                <!-- Кнопки изменения статуса -->
+                                <div class="flex flex-wrap gap-2 mb-4">
+                                    ${task.status !== 'IN_PROGRESS' && task.status !== 'COMPLETED' && task.status !== 'CANCELLED' ? `
+                                        <button type="button" 
+                                                onclick="updateTaskStatus(${task.id}, 'IN_PROGRESS')" 
+                                                class="bg-yellow-100 text-yellow-800 text-xs px-3 py-1 rounded-full flex items-center hover:bg-yellow-200 transition">
+                                            <i class="fas fa-play mr-1"></i>Взять в работу
+                                        </button>
+                                    ` : ''}
+                                    
+                                    ${task.status !== 'COMPLETED' && task.status !== 'CANCELLED' ? `
+                                        <button type="button" 
+                                                onclick="updateTaskStatus(${task.id}, 'COMPLETED')" 
+                                                class="bg-green-100 text-green-800 text-xs px-3 py-1 rounded-full flex items-center hover:bg-green-200 transition">
+                                            <i class="fas fa-check mr-1"></i>Завершить
+                                        </button>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="border-t border-gray-100 mt-3 pt-4">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <div class="flex items-center text-sm">
+                                    <i class="fas fa-user text-gray-400 mr-2"></i>
+                                    <span class="text-gray-700">
+                                        ${task.assigned_user_details ? `${task.assigned_user_details.first_name} ${task.assigned_user_details.last_name}` : 'Не назначен'}
+                                    </span>
+                                </div>
+                                <div class="flex items-center text-sm">
+                                    <i class="fas fa-truck text-gray-400 mr-2"></i>
+                                    <span class="text-gray-700">
+                                        ${task.vehicle_details ? `${task.vehicle_details.number} (${task.vehicle_details.brand})` : 'Не назначен'}
+                                    </span>
+                                </div>
+                                <div class="flex items-center text-sm">
+                                    <i class="fas fa-calendar text-gray-400 mr-2"></i>
+                                    <span class="${dueDateClass}">
+                                        ${formattedDate}${isOverdue ? ' (просрочено)' : ''}
+                                    </span>
+                                </div>
+                                <div class="flex items-center text-sm">
+                                    <i class="fas fa-user-edit text-gray-400 mr-2"></i>
+                                    <span class="text-gray-700">
+                                        ${task.created_by_details ? `${task.created_by_details.first_name} ${task.created_by_details.last_name}` : 'Система'}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4 flex justify-end space-x-2">
+                            {% if user.role == 'DIRECTOR' or user.role == 'SUPERADMIN' or user.role == 'DISPATCHER' or user.is_superuser %}
+                            <a href="/tasks/${task.id}/edit/" class="text-blue-600 hover:text-blue-800 text-sm flex items-center">
+                                <i class="fas fa-edit mr-1"></i> Редактировать
+                            </a>
+                            
+                            ${task.status !== 'COMPLETED' && task.status !== 'CANCELLED' ? `
+                                <form action="/tasks/${task.id}/archive/" method="post" class="inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="text-red-600 hover:text-red-800 text-sm ml-3 flex items-center" onclick="return confirm('Вы уверены, что хотите архивировать задачу?')">
+                                        <i class="fas fa-archive mr-1"></i> Архивировать
+                                    </button>
+                                </form>
+                            ` : ''}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+    
+    // Обновление статистики
+    function updateStats(tasks) {
+        const totalTasks = tasks.length;
+        const newTasks = tasks.filter(t => t.status === 'NEW').length;
+        const inProgressTasks = tasks.filter(t => t.status === 'IN_PROGRESS').length;
+        const completedTasks = tasks.filter(t => t.status === 'COMPLETED').length;
+        
+        document.getElementById('totalTasks').textContent = totalTasks;
+        document.getElementById('newTasks').textContent = newTasks;
+        document.getElementById('inProgressTasks').textContent = inProgressTasks;
+        document.getElementById('completedTasks').textContent = completedTasks;
+    }
+    
+    // Вспомогательные функции для отображения UI
+    function showLoading() {
         loadingIndicator.classList.remove('hidden');
         tasksList.classList.add('hidden');
         emptyState.classList.add('hidden');
-
-        try {
-            const response = await fetch('/api/v1/tasks/');
-            const data = await response.json();
-            tasks = data.results;
-            renderTasks();
-        } catch (error) {
-            console.error('Ошибка при загрузке задач:', error);
-            alert('Не удалось загрузить задачи');
-        } finally {
-            loadingIndicator.classList.add('hidden');
-        }
+        errorState.classList.add('hidden');
     }
-
-    // Отрисовка задач
-    function renderTasks() {
-        let filteredTasks = tasks;
-
-        // Применяем фильтры
-        const searchQuery = searchInput.value.toLowerCase();
-        const statusValue = statusFilter.value;
-        const priorityValue = priorityFilter.value;
-
-        if (searchQuery) {
-            filteredTasks = filteredTasks.filter(task => 
-                task.title.toLowerCase().includes(searchQuery) ||
-                task.description.toLowerCase().includes(searchQuery)
-            );
-        }
-
-        if (statusValue) {
-            filteredTasks = filteredTasks.filter(task => task.status === statusValue);
-        }
-
-        if (priorityValue) {
-            filteredTasks = filteredTasks.filter(task => task.priority === priorityValue);
-        }
-
-        if (filteredTasks.length === 0) {
-            tasksList.classList.add('hidden');
-            emptyState.classList.remove('hidden');
-            return;
-        }
-
-        tasksList.classList.remove('hidden');
+    
+    function hideLoading() {
+        loadingIndicator.classList.add('hidden');
+    }
+    
+    function showEmpty() {
+        emptyState.classList.remove('hidden');
+        tasksList.classList.add('hidden');
+        loadingIndicator.classList.add('hidden');
+        errorState.classList.add('hidden');
+    }
+    
+    function hideEmpty() {
         emptyState.classList.add('hidden');
-
-        tasksList.innerHTML = filteredTasks.map(task => `
-            <div class="bg-white rounded-xl shadow-sm p-4 hover:shadow-md transition-shadow">
-                <div class="flex items-start justify-between">
-                    <div class="flex-1">
-                        <div class="flex items-center space-x-2 mb-2">
-                            <h3 class="font-medium text-gray-800">${task.title}</h3>
-                            <span class="px-2 py-1 text-xs rounded-full ${getStatusStyle(task.status)}">${getStatusText(task.status)}</span>
-                            <span class="px-2 py-1 text-xs rounded-full ${getPriorityStyle(task.priority)}">${getPriorityText(task.priority)}</span>
-                        </div>
-                        <p class="text-gray-600 text-sm mb-4">${task.description}</p>
-                        <div class="grid grid-cols-2 gap-4 text-sm text-gray-600">
-                            <div class="flex items-center space-x-2">
-                                <i class="fas fa-user text-gray-400"></i>
-                                <span>${task.assigned_to_details.first_name} ${task.assigned_to_details.last_name}</span>
-                            </div>
-                            ${task.vehicle_details ? `
-                                <div class="flex items-center space-x-2">
-                                    <i class="fas fa-truck text-gray-400"></i>
-                                    <span>${task.vehicle_details.brand} ${task.vehicle_details.model}</span>
-                                </div>
-                            ` : ''}
-                            <div class="flex items-center space-x-2">
-                                <i class="fas fa-clock text-gray-400"></i>
-                                <span>До ${new Date(task.due_date).toLocaleString('ru')}</span>
-                            </div>
-                            <div class="flex items-center space-x-2">
-                                <i class="fas fa-calendar text-gray-400"></i>
-                                <span>Создано ${new Date(task.created_at).toLocaleString('ru')}</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="flex space-x-2">
-                        <button onclick="editTask(${task.id})" class="p-2 text-blue-600 hover:text-blue-800">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button onclick="changeStatus(${task.id})" class="p-2 text-green-600 hover:text-green-800">
-                            <i class="fas fa-check"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        `).join('');
     }
-
-    // Стили для статусов и приоритетов
-    function getStatusStyle(status) {
-        switch (status) {
-            case 'NEW': return 'bg-blue-100 text-blue-800';
-            case 'IN_PROGRESS': return 'bg-yellow-100 text-yellow-800';
-            case 'COMPLETED': return 'bg-green-100 text-green-800';
-            case 'CANCELLED': return 'bg-gray-100 text-gray-800';
-            default: return 'bg-gray-100 text-gray-800';
-        }
+    
+    function showError(message) {
+        errorMessage.textContent = message || 'Не удалось загрузить данные. Попробуйте обновить страницу.';
+        errorState.classList.remove('hidden');
+        tasksList.classList.add('hidden');
+        loadingIndicator.classList.add('hidden');
+        emptyState.classList.add('hidden');
     }
-
-    function getPriorityStyle(priority) {
-        switch (priority) {
-            case 'HIGH': return 'bg-red-100 text-red-800';
-            case 'MEDIUM': return 'bg-orange-100 text-orange-800';
-            case 'LOW': return 'bg-green-100 text-green-800';
-            default: return 'bg-gray-100 text-gray-800';
-        }
+    
+    function hideError() {
+        errorState.classList.add('hidden');
     }
-
-    function getStatusText(status) {
-        switch (status) {
-            case 'NEW': return 'Новая';
-            case 'IN_PROGRESS': return 'В работе';
-            case 'COMPLETED': return 'Завершена';
-            case 'CANCELLED': return 'Отменена';
-            default: return status;
-        }
-    }
-
-    function getPriorityText(priority) {
-        switch (priority) {
-            case 'HIGH': return 'Высокий';
-            case 'MEDIUM': return 'Средний';
-            case 'LOW': return 'Низкий';
-            default: return priority;
-        }
-    }
-
-    // Управление модальным окном
-    function openModal() {
-        taskModal.classList.remove('hidden');
-    }
-
-    function closeModal() {
-        taskModal.classList.add('hidden');
-        taskForm.reset();
-        currentTaskId = null;
-    }
-
-    // Редактирование задачи
-    async function editTask(id) {
-        currentTaskId = id;
-        modalTitle.textContent = 'Редактировать задачу';
+    
+    // Применение фильтров
+    function applyFilters() {
+        const search = searchInput.value.toLowerCase();
+        const status = statusFilter.value;
+        const priority = priorityFilter.value;
         
-        const task = tasks.find(t => t.id === id);
-        if (task) {
-            const form = taskForm;
-            form.title.value = task.title;
-            form.description.value = task.description;
-            form.priority.value = task.priority;
-            form.due_date.value = task.due_date.slice(0, 16);
-            form.assigned_to.value = task.assigned_to;
-            form.vehicle.value = task.vehicle || '';
-            
-            openModal();
+        let filteredData = [...allTasks];
+        
+        if (search) {
+            filteredData = filteredData.filter(t => {
+                return (t.title && t.title.toLowerCase().includes(search)) || 
+                       (t.description && t.description.toLowerCase().includes(search));
+            });
         }
+        
+        if (status) {
+            filteredData = filteredData.filter(t => t.status === status);
+        }
+        
+        if (priority) {
+            filteredData = filteredData.filter(t => t.priority === priority);
+        }
+        
+        displayTasks(filteredData);
+        updateStats(filteredData);
     }
-
-    // Изменение статуса
-    async function changeStatus(id) {
-        const task = tasks.find(t => t.id === id);
-        if (!task) return;
-
-        let newStatus;
-        switch (task.status) {
-            case 'NEW': newStatus = 'IN_PROGRESS'; break;
-            case 'IN_PROGRESS': newStatus = 'COMPLETED'; break;
-            default: return;
-        }
-
+    
+    // Обновление статуса задачи
+    async function updateTaskStatus(taskId, newStatus) {
         try {
-            const response = await fetch(`/api/v1/tasks/${id}/change_status/`, {
-                method: 'POST',
+            // Показываем индикатор загрузки
+            showLoading();
+            
+            const response = await fetch(`/api/v1/tasks/${taskId}/`, {
+                method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
                 },
                 body: JSON.stringify({ status: newStatus })
             });
-
-            if (response.ok) {
-                await loadTasks();
-            } else {
-                const data = await response.json();
-                alert(data.detail || 'Не удалось изменить статус задачи');
-            }
-        } catch (error) {
-            console.error('Ошибка при изменении статуса:', error);
-            alert('Не удалось изменить статус задачи');
-        }
-    }
-
-    // Обработчики событий
-    if (addTaskBtn) {
-        addTaskBtn.addEventListener('click', () => {
-            modalTitle.textContent = 'Новая задача';
-            openModal();
-        });
-    }
-
-    document.querySelectorAll('.closeModal').forEach(btn => {
-        btn.addEventListener('click', closeModal);
-    });
-
-    taskModal.addEventListener('click', (e) => {
-        if (e.target === taskModal) {
-            closeModal();
-        }
-    });
-
-    taskForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const formData = new FormData(taskForm);
-        const data = Object.fromEntries(formData.entries());
-
-        try {
-            const url = currentTaskId ? 
-                `/api/v1/tasks/${currentTaskId}/` : 
-                '/api/v1/tasks/';
             
-            const response = await fetch(url, {
-                method: currentTaskId ? 'PUT' : 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-                },
-                body: JSON.stringify(data)
-            });
-
-            if (response.ok) {
-                closeModal();
-                await loadTasks();
-            } else {
-                const responseData = await response.json();
-                alert(responseData.detail || 'Не удалось сохранить задачу');
+            if (!response.ok) {
+                if (response.status === 403 || response.status === 401) {
+                    window.location.href = '/accounts/login/?next=/tasks/';
+                    return;
+                }
+                throw new Error(`Ошибка HTTP: ${response.status}`);
             }
+            
+            // Обновляем данные
+            await loadTasks();
+            
         } catch (error) {
-            console.error('Ошибка при сохранении задачи:', error);
-            alert('Не удалось сохранить задачу');
+            console.error('Ошибка при обновлении статуса задачи:', error);
+            showError(error.message);
         }
-    });
-
-    // Фильтры
-    searchInput.addEventListener('input', renderTasks);
-    statusFilter.addEventListener('change', renderTasks);
-    priorityFilter.addEventListener('change', renderTasks);
-
+    }
+    
+    // Заполнение фильтров уникальными значениями из полученных данных
+    function populateFilters(tasks) {
+        // Заполняем фильтр статусов (хотя он уже статически заполнен в HTML)
+        // statusFilter.innerHTML = '<option value="">Все статусы</option>';
+        // const statuses = [...new Set(tasks.map(t => t.status).filter(Boolean))];
+        // statuses.forEach(status => {
+        //     const option = document.createElement('option');
+        //     option.value = status;
+        //     option.textContent = getStatusText(status);
+        //     statusFilter.appendChild(option);
+        // });
+        
+        // Заполняем фильтр приоритетов (хотя он уже статически заполнен в HTML)
+        // priorityFilter.innerHTML = '<option value="">Все приоритеты</option>';
+        // const priorities = [...new Set(tasks.map(t => t.priority).filter(Boolean))];
+        // priorities.forEach(priority => {
+        //     const option = document.createElement('option');
+        //     option.value = priority;
+        //     option.textContent = getPriorityText(priority);
+        //     priorityFilter.appendChild(option);
+        // });
+        
+        // Функция уже реализована статически в HTML, поэтому здесь ничего не делаем
+        console.log('Фильтры задач уже настроены в HTML');
+    }
+    
+    // Вспомогательная функция для получения текстового представления статуса
+    function getStatusText(status) {
+        switch(status) {
+            case 'NEW': return 'Новые';
+            case 'IN_PROGRESS': return 'В работе';
+            case 'COMPLETED': return 'Завершенные';
+            case 'CANCELLED': return 'Отмененные';
+            default: return 'Неизвестно';
+        }
+    }
+    
+    // Вспомогательная функция для получения текстового представления приоритета
+    function getPriorityText(priority) {
+        switch(priority) {
+            case 'HIGH': return 'Высокий';
+            case 'MEDIUM': return 'Средний';
+            case 'LOW': return 'Низкий';
+            default: return 'Неизвестно';
+        }
+    }
+    
     // Инициализация
-    loadTasks();
+    document.addEventListener('DOMContentLoaded', () => {
+        // Загрузка данных
+        loadTasks();
+        
+        // Обработчики событий
+        searchInput.addEventListener('input', applyFilters);
+        statusFilter.addEventListener('change', applyFilters);
+        priorityFilter.addEventListener('change', applyFilters);
+        retryButton.addEventListener('click', loadTasks);
+    });
 </script>
 {% endblock %} 

@@ -5,6 +5,7 @@ from django_filters import rest_framework as filters
 from ..models import Task
 from ..serializers import TaskSerializer
 from .base import BaseModelViewSet
+from django.conf import settings
 
 class TaskFilter(filters.FilterSet):
     min_due_date = filters.DateTimeFilter(field_name="due_date", lookup_expr='gte')
@@ -27,8 +28,38 @@ class TaskViewSet(BaseModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
     filterset_class = TaskFilter
     
+    def get_permissions(self):
+        """
+        Переопределяем получение разрешений для возврата тестовых данных неавторизованным пользователям
+        """
+        if self.request.method == 'GET' and settings.DEBUG:
+            return []
+        return [permission() for permission in self.permission_classes]
+    
+    def get_queryset(self):
+        """
+        Переопределяем метод для обеспечения корректной работы с анонимными пользователями
+        """
+        if getattr(self, 'swagger_fake_view', False):
+            return self.queryset.none()
+            
+        queryset = self.queryset
+        
+        if not self.request.user.is_authenticated and settings.DEBUG:
+            # Для неавторизованных пользователей в режиме отладки возвращаем все задачи
+            return queryset
+        
+        if not self.request.user.is_authenticated:
+            return self.queryset.none()
+            
+        return self.filter_queryset_by_role(queryset)
+    
     def filter_queryset_by_role(self, queryset):
         user = self.request.user
+        if not user.is_authenticated and settings.DEBUG:
+            # Для неавторизованных пользователей в режиме отладки возвращаем все задачи
+            return queryset
+        
         if user.role == 'DRIVER':
             return queryset.filter(assigned_to=user)
         return queryset

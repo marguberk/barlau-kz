@@ -187,3 +187,7 @@ COMPANY_EMAIL = 'info@barlau.kz'
 COMPANY_LOGO = 'core/img/logo.svg'
 COMPANY_DESCRIPTION = 'Система управления логистической компанией'
 COMPANY_WORKING_HOURS = 'Пн-Пт: 9:00 - 18:00'
+
+# Настройки аутентификации
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/accounts/login/'

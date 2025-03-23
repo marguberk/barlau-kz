@@ -1,600 +1,441 @@
 {% extends "core/base.html" %}
 
+{% block title %}Транспорт | BARLAU.KZ{% endblock %}
+
 {% block content %}
-<div class="container mx-auto px-4 py-8">
+<div class="container mx-auto px-4 py-6">
     <div class="max-w-6xl mx-auto">
+        <!-- CSRF Token -->
+        <div style="display: none">{% csrf_token %}</div>
         <!-- Заголовок и кнопка добавления -->
         <div class="flex justify-between items-center mb-6">
-            <h1 class="text-2xl font-bold text-gray-800">Транспорт</h1>
+            <div>
+                <h1 class="text-2xl font-bold text-gray-800">Транспорт</h1>
+                <p class="text-gray-600 mt-1">Управление транспортными средствами</p>
+            </div>
             {% if user.role == 'DIRECTOR' or user.role == 'SUPERADMIN' or user.is_superuser %}
-            <button id="addVehicleBtn" 
-                    class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+            <a href="{% url 'core:vehicle-add' %}" id="addVehicleBtn" 
+                    class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200">
                 <i class="fas fa-plus mr-2"></i>Добавить транспорт
-            </button>
+            </a>
             {% endif %}
         </div>
 
-        <!-- Фильтры и статистика -->
-        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-6">
-            <!-- Статистика -->
-            <div class="lg:col-span-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div class="bg-white rounded-xl shadow-sm p-4">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm text-gray-600">Всего транспорта</p>
-                            <h3 class="text-2xl font-bold text-gray-800" id="totalVehicles">0</h3>
-                        </div>
-                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-truck text-blue-600 text-xl"></i>
-                        </div>
+        <!-- Статистика -->
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-6">
+            <div class="bg-white rounded-xl shadow-sm p-4 hover:shadow-md transition-shadow duration-200">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Всего транспорта</p>
+                        <h3 class="text-2xl font-bold text-gray-800" id="totalVehicles">0</h3>
                     </div>
-                </div>
-                <div class="bg-white rounded-xl shadow-sm p-4">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm text-gray-600">В работе</p>
-                            <h3 class="text-2xl font-bold text-gray-800" id="activeVehicles">0</h3>
-                        </div>
-                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-check-circle text-green-600 text-xl"></i>
-                        </div>
-                    </div>
-                </div>
-                <div class="bg-white rounded-xl shadow-sm p-4">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm text-gray-600">Без водителя</p>
-                            <h3 class="text-2xl font-bold text-gray-800" id="unassignedVehicles">0</h3>
-                        </div>
-                        <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-user-slash text-yellow-600 text-xl"></i>
-                        </div>
-                    </div>
-                </div>
-                <div class="bg-white rounded-xl shadow-sm p-4">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm text-gray-600">Расходы за месяц</p>
-                            <h3 class="text-2xl font-bold text-gray-800" id="monthlyExpenses">0 ₸</h3>
-                        </div>
-                        <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-money-bill-wave text-red-600 text-xl"></i>
-                        </div>
+                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                        <i class="fas fa-truck text-blue-600 text-xl"></i>
                     </div>
                 </div>
             </div>
-
-            <!-- Фильтры -->
-            <div class="lg:col-span-4 bg-white rounded-xl shadow-sm p-6">
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <!-- Поиск -->
-                    <div class="space-y-2">
-                        <label class="text-sm font-medium text-gray-700">Поиск</label>
-                        <div class="relative">
-                            <input type="text" id="searchInput" 
-                                   class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm placeholder:text-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
-                                   placeholder="Поиск по номеру или марке...">
-                            <i class="fas fa-search absolute right-3 top-2.5 text-gray-400"></i>
-                        </div>
+            <div class="bg-white rounded-xl shadow-sm p-4 hover:shadow-md transition-shadow duration-200">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">С водителем</p>
+                        <h3 class="text-2xl font-bold text-gray-800" id="activeVehicles">0</h3>
                     </div>
-
-                    <!-- Марка -->
-                    <div class="space-y-2">
-                        <label class="text-sm font-medium text-gray-700">Марка</label>
-                        <select id="brandFilter" 
-                                class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500">
-                            <option value="">Все марки</option>
-                        </select>
+                    <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                        <i class="fas fa-user-check text-green-600 text-xl"></i>
                     </div>
-
-                    <!-- Год выпуска -->
-                    <div class="space-y-2">
-                        <label class="text-sm font-medium text-gray-700">Год выпуска</label>
-                        <select id="yearFilter"
-                                class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500">
-                            <option value="">Все года</option>
-                        </select>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm p-4 hover:shadow-md transition-shadow duration-200">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Без водителя</p>
+                        <h3 class="text-2xl font-bold text-gray-800" id="unassignedVehicles">0</h3>
                     </div>
-
-                    <!-- Статус -->
-                    <div class="space-y-2">
-                        <label class="text-sm font-medium text-gray-700">Статус</label>
-                        <select id="statusFilter"
-                                class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500">
-                            <option value="">Все</option>
-                            <option value="with_driver">С водителем</option>
-                            <option value="without_driver">Без водителя</option>
-                        </select>
+                    <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
+                        <i class="fas fa-user-alt-slash text-yellow-600 text-xl"></i>
                     </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm p-4 hover:shadow-md transition-shadow duration-200">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Расходы за месяц</p>
+                        <h3 class="text-2xl font-bold text-gray-800" id="monthlyExpenses">0 ₸</h3>
+                    </div>
+                    <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                        <i class="fas fa-money-bill text-red-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Фильтры -->
+        <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <!-- Поиск -->
+                <div class="space-y-2">
+                    <label class="text-sm font-medium text-gray-700 flex items-center">
+                        <i class="fas fa-search text-gray-400 mr-2"></i>Поиск
+                    </label>
+                    <div class="relative">
+                        <input type="text" id="searchInput" 
+                               class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm placeholder:text-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+                               placeholder="Номер, марка или модель...">
+                    </div>
+                </div>
+
+                <!-- Марка -->
+                <div class="space-y-2">
+                    <label class="text-sm font-medium text-gray-700 flex items-center">
+                        <i class="fas fa-car text-gray-400 mr-2"></i>Марка
+                    </label>
+                    <select id="brandFilter" 
+                            class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500">
+                        <option value="">Все марки</option>
+                    </select>
+                </div>
+
+                <!-- Год выпуска -->
+                <div class="space-y-2">
+                    <label class="text-sm font-medium text-gray-700 flex items-center">
+                        <i class="fas fa-calendar-alt text-gray-400 mr-2"></i>Год выпуска
+                    </label>
+                    <select id="yearFilter"
+                            class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500">
+                        <option value="">Все года</option>
+                    </select>
+                </div>
+
+                <!-- Статус -->
+                <div class="space-y-2">
+                    <label class="text-sm font-medium text-gray-700 flex items-center">
+                        <i class="fas fa-user text-gray-400 mr-2"></i>Статус
+                    </label>
+                    <select id="statusFilter"
+                            class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500">
+                        <option value="">Все</option>
+                        <option value="with_driver">С водителем</option>
+                        <option value="without_driver">Без водителя</option>
+                    </select>
                 </div>
             </div>
         </div>
 
         <!-- Список транспорта -->
-        <div id="vehiclesList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div id="vehiclesList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 hidden">
             <!-- Транспорт будет добавлен через JavaScript -->
         </div>
 
         <!-- Загрузка -->
-        <div id="loadingIndicator" class="hidden">
-            <div class="flex justify-center items-center py-8">
-                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            </div>
+        <div id="loadingIndicator" class="flex flex-col justify-center items-center py-12">
+            <div class="w-12 h-12 rounded-full border-4 border-blue-200 border-t-blue-600 animate-spin mb-4"></div>
+            <p class="text-gray-600">Загрузка транспорта...</p>
         </div>
 
         <!-- Нет транспорта -->
         <div id="emptyState" class="hidden">
-            <div class="text-center py-12">
-                <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div class="text-center py-12 bg-white rounded-xl shadow-sm">
+                <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     <i class="fas fa-truck text-gray-400 text-2xl"></i>
                 </div>
-                <h3 class="text-lg font-medium text-gray-800 mb-2">Нет транспорта</h3>
-                <p class="text-gray-600">Транспортные средства пока не добавлены</p>
+                <h3 class="text-xl font-medium text-gray-800 mb-2">Нет транспорта</h3>
+                <p class="text-gray-600 mb-6 max-w-md mx-auto">Транспорт пока не добавлен или не найден по выбранным фильтрам</p>
+                
+                {% if user.role == 'DIRECTOR' or user.role == 'SUPERADMIN' or user.is_superuser %}
+                <a href="{% url 'core:vehicle-add' %}" class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                    <i class="fas fa-plus mr-2"></i>Добавить первый транспорт
+                </a>
+                {% endif %}
             </div>
         </div>
-    </div>
-</div>
 
-<!-- Модальное окно добавления/редактирования -->
-<div id="vehicleModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50">
-    <div class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-lg bg-white rounded-xl shadow-lg">
-        <div class="flex justify-between items-center p-4 border-b">
-            <h3 id="modalTitle" class="text-lg font-semibold">Новый транспорт</h3>
-            <button class="closeModal text-gray-500 hover:text-gray-700">
-                <i class="fas fa-times text-xl"></i>
-            </button>
-        </div>
-        <form id="vehicleForm" class="p-4 space-y-4">
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Номер</label>
-                    <input type="text" name="number" required
-                           class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                           placeholder="123ABC01">
+        <!-- Ошибка -->
+        <div id="errorState" class="hidden">
+            <div class="text-center py-12 bg-white rounded-xl shadow-sm">
+                <div class="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-exclamation-triangle text-red-500 text-2xl"></i>
                 </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Год выпуска</label>
-                    <input type="number" name="year" required min="1990" max="2024"
-                           class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                </div>
-            </div>
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Марка</label>
-                    <input type="text" name="brand" required
-                           class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                           placeholder="Mercedes-Benz">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Модель</label>
-                    <input type="text" name="model" required
-                           class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                           placeholder="Actros">
-                </div>
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Водитель</label>
-                <select name="driver"
-                        class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                    <option value="">Не назначен</option>
-                    <!-- Список водителей будет добавлен через JavaScript -->
-                </select>
-            </div>
-            <div class="pt-4 border-t flex justify-end space-x-3">
-                <button type="button" class="closeModal px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">
-                    Отмена
+                <h3 class="text-xl font-medium text-gray-800 mb-2">Ошибка загрузки</h3>
+                <p class="text-gray-600 mb-6 max-w-md mx-auto" id="errorMessage">Не удалось загрузить данные. Попробуйте обновить страницу.</p>
+                
+                <button id="retryButton" class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                    <i class="fas fa-sync-alt mr-2"></i>Повторить
                 </button>
-                <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">
-                    Сохранить
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<!-- Модальное окно просмотра расходов -->
-<div id="expensesModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50">
-    <div class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl bg-white rounded-xl shadow-lg">
-        <div class="flex justify-between items-center p-4 border-b">
-            <h3 id="expensesModalTitle" class="text-lg font-semibold">Расходы</h3>
-            <button class="closeModal text-gray-500 hover:text-gray-700">
-                <i class="fas fa-times text-xl"></i>
-            </button>
-        </div>
-        <div class="p-4">
-            <div class="grid grid-cols-2 gap-4 mb-4">
-                <div class="bg-gray-50 rounded-lg p-4">
-                    <p class="text-sm text-gray-600 mb-1">Всего расходов</p>
-                    <h4 id="totalExpensesAmount" class="text-xl font-bold text-gray-800">0 ₸</h4>
-                </div>
-                <div class="bg-gray-50 rounded-lg p-4">
-                    <p class="text-sm text-gray-600 mb-1">Количество записей</p>
-                    <h4 id="expensesCount" class="text-xl font-bold text-gray-800">0</h4>
-                </div>
-            </div>
-            <div class="space-y-4" id="expensesList">
-                <!-- Список расходов будет добавлен через JavaScript -->
             </div>
         </div>
     </div>
 </div>
 {% endblock %}
 
-{% block extra_scripts %}
+{% block extra_js %}
 <script>
     // Глобальные переменные
-    let vehicles = [];
-    let currentVehicleId = null;
-    const vehiclesList = document.getElementById('vehiclesList');
-    const loadingIndicator = document.getElementById('loadingIndicator');
-    const emptyState = document.getElementById('emptyState');
-    const vehicleModal = document.getElementById('vehicleModal');
-    const expensesModal = document.getElementById('expensesModal');
-    const modalTitle = document.getElementById('modalTitle');
-    const vehicleForm = document.getElementById('vehicleForm');
-    const addVehicleBtn = document.getElementById('addVehicleBtn');
+    let allVehicles = [];
     const searchInput = document.getElementById('searchInput');
     const brandFilter = document.getElementById('brandFilter');
     const yearFilter = document.getElementById('yearFilter');
     const statusFilter = document.getElementById('statusFilter');
+    const vehiclesList = document.getElementById('vehiclesList');
+    const loadingIndicator = document.getElementById('loadingIndicator');
+    const emptyState = document.getElementById('emptyState');
+    const errorState = document.getElementById('errorState');
+    const errorMessage = document.getElementById('errorMessage');
+    const retryButton = document.getElementById('retryButton');
 
-    // Загрузка транспорта
+    // Загрузка данных о транспорте с API
     async function loadVehicles() {
-        loadingIndicator.classList.remove('hidden');
-        vehiclesList.classList.add('hidden');
-        emptyState.classList.add('hidden');
-
+        showLoading();
+        
         try {
-            const response = await fetch('/api/v1/vehicles/');
+            console.log('Загрузка транспорта...');
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
+            const response = await fetch('/api/v1/vehicles/?token=' + new Date().getTime(), {
+                headers: {
+                    'X-CSRFToken': csrfToken || ''
+                }
+            });
+            
+            if (!response.ok) {
+                if (response.status === 403 || response.status === 401) {
+                    console.log('Ошибка аутентификации:', response.status);
+                    window.location.href = '/accounts/login/?next=/vehicles/';
+                    return;
+                }
+                throw new Error(`Ошибка HTTP: ${response.status}`);
+            }
+            
             const data = await response.json();
-            vehicles = data.results;
-            updateStatistics();
-            updateFilters();
-            renderVehicles();
+            console.log('Загружено транспортных средств:', data.results ? data.results.length : 0);
+            
+            // Сохраняем данные для фильтрации
+            allVehicles = data.results || [];
+            
+            if (allVehicles.length === 0) {
+                showEmpty();
+            } else {
+                displayVehicles(allVehicles);
+                updateStats(allVehicles);
+                populateFilters(allVehicles);
+            }
         } catch (error) {
-            console.error('Ошибка при загрузке транспорта:', error);
-            alert('Не удалось загрузить список транспорта');
-        } finally {
-            loadingIndicator.classList.add('hidden');
+            console.error('Ошибка при загрузке данных:', error);
+            showError(error.message);
         }
     }
-
+    
+    // Отображение транспорта
+    function displayVehicles(vehicles) {
+        if (!vehicles.length) {
+            showEmpty();
+            return;
+        }
+        
+        hideLoading();
+        hideError();
+        hideEmpty();
+        
+        vehiclesList.classList.remove('hidden');
+        vehiclesList.innerHTML = vehicles.map(vehicle => {
+            const hasDriver = !!vehicle.driver_details;
+            
+            return `
+                <div class="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-200">
+                    <div class="p-6">
+                        <div class="flex justify-between items-start">
+                            <div class="flex-1">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-2">${vehicle.brand} ${vehicle.model}</h3>
+                                <p class="text-gray-500 text-sm mb-3">Гос. номер: <span class="text-gray-800 font-medium">${vehicle.number}</span></p>
+                                <p class="text-gray-500 text-sm">Год выпуска: <span class="text-gray-800 font-medium">${vehicle.year}</span></p>
+                                
+                                <div class="flex gap-2 mt-4">
+                                    ${hasDriver ? `
+                                        <span class="bg-green-100 text-green-800 text-xs px-2.5 py-1 rounded-full flex items-center">
+                                            <i class="fas fa-user-check mr-1"></i>С водителем
+                                        </span>
+                                    ` : `
+                                        <span class="bg-yellow-100 text-yellow-800 text-xs px-2.5 py-1 rounded-full flex items-center">
+                                            <i class="fas fa-user-alt-slash mr-1"></i>Без водителя
+                                        </span>
+                                    `}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="border-t border-gray-100 mt-4 pt-4">
+                            <div class="flex items-center mb-2">
+                                <i class="fas fa-user text-gray-400 mr-2"></i>
+                                <span class="text-sm text-gray-700">
+                                    ${hasDriver ? `${vehicle.driver_details.first_name} ${vehicle.driver_details.last_name}` : 'Водитель не назначен'}
+                                </span>
+                            </div>
+                            ${hasDriver ? `
+                                <div class="flex items-center text-sm">
+                                    <i class="fas fa-phone text-gray-400 mr-2"></i>
+                                    <span class="text-gray-700">
+                                        ${vehicle.driver_details.phone || 'Телефон не указан'}
+                                    </span>
+                                </div>
+                            ` : ''}
+                        </div>
+                        
+                        <div class="mt-4 flex justify-end space-x-2">
+                            {% if user.role == 'DIRECTOR' or user.role == 'SUPERADMIN' or user.is_superuser %}
+                            <a href="/vehicles/${vehicle.id}/edit/" class="text-blue-600 hover:text-blue-800 text-sm flex items-center">
+                                <i class="fas fa-edit mr-1"></i> Редактировать
+                            </a>
+                            
+                            ${hasDriver ? `
+                                <form action="/vehicles/${vehicle.id}/archive/" method="post" class="inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="text-red-600 hover:text-red-800 text-sm ml-3 flex items-center" onclick="return confirm('Вы уверены, что хотите освободить транспорт?')">
+                                        <i class="fas fa-user-slash mr-1"></i> Освободить
+                                    </button>
+                                </form>
+                            ` : ''}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+    
     // Обновление статистики
-    function updateStatistics() {
+    function updateStats(vehicles) {
         const totalVehicles = vehicles.length;
-        const activeVehicles = vehicles.filter(v => v.driver !== null).length;
-        const unassignedVehicles = vehicles.filter(v => v.driver === null).length;
-
+        const activeVehicles = vehicles.filter(v => v.driver_details).length;
+        const unassignedVehicles = totalVehicles - activeVehicles;
+        
         document.getElementById('totalVehicles').textContent = totalVehicles;
         document.getElementById('activeVehicles').textContent = activeVehicles;
         document.getElementById('unassignedVehicles').textContent = unassignedVehicles;
-
-        // Загрузка расходов за месяц
-        loadMonthlyExpenses();
-    }
-
-    // Загрузка расходов за месяц
-    async function loadMonthlyExpenses() {
-        try {
-            const now = new Date();
-            const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
-            const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-
-            const response = await fetch(`/api/v1/expenses/report/?start_date=${firstDay.toISOString().split('T')[0]}&end_date=${lastDay.toISOString().split('T')[0]}`);
-            const data = await response.json();
-            
-            const totalAmount = data.reduce((sum, category) => sum + category.total_amount, 0);
-            document.getElementById('monthlyExpenses').textContent = `${totalAmount.toLocaleString()} ₸`;
-        } catch (error) {
-            console.error('Ошибка при загрузке расходов:', error);
-        }
-    }
-
-    // Обновление фильтров
-    function updateFilters() {
-        // Обновляем список марок
-        const brands = [...new Set(vehicles.map(v => v.brand))].sort();
-        brandFilter.innerHTML = '<option value="">Все марки</option>' + 
-            brands.map(brand => `<option value="${brand}">${brand}</option>`).join('');
-
-        // Обновляем список годов
-        const years = [...new Set(vehicles.map(v => v.year))].sort((a, b) => b - a);
-        yearFilter.innerHTML = '<option value="">Все года</option>' + 
-            years.map(year => `<option value="${year}">${year}</option>`).join('');
-    }
-
-    // Отрисовка транспорта
-    function renderVehicles() {
-        let filteredVehicles = vehicles;
-
-        // Применяем фильтры
-        const searchQuery = searchInput.value.toLowerCase();
-        const brandValue = brandFilter.value;
-        const yearValue = yearFilter.value;
-        const statusValue = statusFilter.value;
-
-        if (searchQuery) {
-            filteredVehicles = filteredVehicles.filter(vehicle => 
-                vehicle.number.toLowerCase().includes(searchQuery) ||
-                vehicle.brand.toLowerCase().includes(searchQuery) ||
-                vehicle.model.toLowerCase().includes(searchQuery)
-            );
-        }
-
-        if (brandValue) {
-            filteredVehicles = filteredVehicles.filter(vehicle => vehicle.brand === brandValue);
-        }
-
-        if (yearValue) {
-            filteredVehicles = filteredVehicles.filter(vehicle => vehicle.year === parseInt(yearValue));
-        }
-
-        if (statusValue) {
-            filteredVehicles = filteredVehicles.filter(vehicle => 
-                (statusValue === 'with_driver' && vehicle.driver !== null) ||
-                (statusValue === 'without_driver' && vehicle.driver === null)
-            );
-        }
-
-        if (filteredVehicles.length === 0) {
-            vehiclesList.classList.add('hidden');
-            emptyState.classList.remove('hidden');
-            return;
-        }
-
-        vehiclesList.classList.remove('hidden');
-        emptyState.classList.add('hidden');
-
-        vehiclesList.innerHTML = filteredVehicles.map(vehicle => `
-            <div class="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow">
-                <div class="p-4">
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-lg font-medium text-gray-800">${vehicle.number}</h3>
-                        <span class="px-2 py-1 text-xs rounded-full ${vehicle.driver ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}">
-                            ${vehicle.driver ? 'С водителем' : 'Без водителя'}
-                        </span>
-                    </div>
-                    <div class="space-y-2 text-sm text-gray-600">
-                        <div class="flex items-center space-x-2">
-                            <i class="fas fa-truck text-gray-400"></i>
-                            <span>${vehicle.brand} ${vehicle.model}</span>
-                        </div>
-                        <div class="flex items-center space-x-2">
-                            <i class="fas fa-calendar text-gray-400"></i>
-                            <span>${vehicle.year} год</span>
-                        </div>
-                        ${vehicle.driver_details ? `
-                            <div class="flex items-center space-x-2">
-                                <i class="fas fa-user text-gray-400"></i>
-                                <span>${vehicle.driver_details.first_name} ${vehicle.driver_details.last_name}</span>
-                            </div>
-                        ` : ''}
-                    </div>
-                </div>
-                <div class="border-t px-4 py-3 bg-gray-50 rounded-b-xl">
-                    <div class="flex justify-between items-center">
-                        <button onclick="showExpenses(${vehicle.id})" 
-                                class="text-sm text-blue-600 hover:text-blue-800">
-                            <i class="fas fa-receipt mr-1"></i>Расходы
-                        </button>
-                        <div class="flex space-x-2">
-                            <button onclick="editVehicle(${vehicle.id})" 
-                                    class="p-2 text-blue-600 hover:text-blue-800">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            ${!vehicle.driver ? `
-                                <button onclick="assignDriver(${vehicle.id})" 
-                                        class="p-2 text-green-600 hover:text-green-800">
-                                    <i class="fas fa-user-plus"></i>
-                                </button>
-                            ` : ''}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `).join('');
-    }
-
-    // Управление модальным окном
-    function openModal() {
-        vehicleModal.classList.remove('hidden');
-    }
-
-    function closeModal() {
-        vehicleModal.classList.add('hidden');
-        vehicleForm.reset();
-        currentVehicleId = null;
-    }
-
-    // Редактирование транспорта
-    async function editVehicle(id) {
-        currentVehicleId = id;
-        modalTitle.textContent = 'Редактировать транспорт';
         
-        const vehicle = vehicles.find(v => v.id === id);
-        if (vehicle) {
-            const form = vehicleForm;
-            form.number.value = vehicle.number;
-            form.brand.value = vehicle.brand;
-            form.model.value = vehicle.model;
-            form.year.value = vehicle.year;
-            form.driver.value = vehicle.driver || '';
-            
-            openModal();
-        }
-    }
-
-    // Назначение водителя
-    async function assignDriver(id) {
-        currentVehicleId = id;
-        modalTitle.textContent = 'Назначить водителя';
-        
-        const vehicle = vehicles.find(v => v.id === id);
-        if (vehicle) {
-            const form = vehicleForm;
-            form.number.value = vehicle.number;
-            form.number.disabled = true;
-            form.brand.value = vehicle.brand;
-            form.brand.disabled = true;
-            form.model.value = vehicle.model;
-            form.model.disabled = true;
-            form.year.value = vehicle.year;
-            form.year.disabled = true;
-            
-            openModal();
-        }
-    }
-
-    // Просмотр расходов
-    async function showExpenses(id) {
-        const vehicle = vehicles.find(v => v.id === id);
-        if (!vehicle) return;
-
-        document.getElementById('expensesModalTitle').textContent = `Расходы - ${vehicle.number}`;
-        expensesModal.classList.remove('hidden');
-
-        try {
-            const response = await fetch(`/api/v1/expenses/?vehicle=${id}`);
-            const data = await response.json();
-            
-            const totalAmount = data.results.reduce((sum, expense) => sum + expense.amount, 0);
-            document.getElementById('totalExpensesAmount').textContent = `${totalAmount.toLocaleString()} ₸`;
-            document.getElementById('expensesCount').textContent = data.results.length;
-
-            document.getElementById('expensesList').innerHTML = data.results.map(expense => `
-                <div class="bg-gray-50 rounded-lg p-4">
-                    <div class="flex justify-between items-start mb-2">
-                        <div>
-                            <span class="px-2 py-1 text-xs rounded-full ${getCategoryStyle(expense.category)}">
-                                ${getCategoryText(expense.category)}
-                            </span>
-                            <p class="mt-2 text-sm text-gray-600">${expense.description}</p>
-                        </div>
-                        <span class="font-medium text-gray-800">${expense.amount.toLocaleString()} ₸</span>
-                    </div>
-                    <div class="flex items-center justify-between text-sm text-gray-600">
-                        <span><i class="fas fa-calendar mr-1"></i>${new Date(expense.date).toLocaleDateString('ru')}</span>
-                        <span><i class="fas fa-user mr-1"></i>${expense.created_by_details.first_name} ${expense.created_by_details.last_name}</span>
-                    </div>
-                </div>
-            `).join('');
-        } catch (error) {
-            console.error('Ошибка при загрузке расходов:', error);
-            alert('Не удалось загрузить расходы');
-        }
-    }
-
-    function getCategoryStyle(category) {
-        switch (category) {
-            case 'FUEL': return 'bg-blue-100 text-blue-800';
-            case 'MAINTENANCE': return 'bg-yellow-100 text-yellow-800';
-            case 'REPAIR': return 'bg-red-100 text-red-800';
-            default: return 'bg-gray-100 text-gray-800';
-        }
-    }
-
-    function getCategoryText(category) {
-        switch (category) {
-            case 'FUEL': return 'Топливо';
-            case 'MAINTENANCE': return 'Техобслуживание';
-            case 'REPAIR': return 'Ремонт';
-            default: return 'Прочее';
-        }
-    }
-
-    // Обработчики событий
-    if (addVehicleBtn) {
-        addVehicleBtn.addEventListener('click', () => {
-            modalTitle.textContent = 'Новый транспорт';
-            const form = vehicleForm;
-            form.number.disabled = false;
-            form.brand.disabled = false;
-            form.model.disabled = false;
-            form.year.disabled = false;
-            openModal();
-        });
-    }
-
-    document.querySelectorAll('.closeModal').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            vehicleModal.classList.add('hidden');
-            expensesModal.classList.add('hidden');
-            if (e.target.closest('#vehicleModal')) {
-                vehicleForm.reset();
-                currentVehicleId = null;
-            }
-        });
-    });
-
-    [vehicleModal, expensesModal].forEach(modal => {
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                modal.classList.add('hidden');
-                if (modal === vehicleModal) {
-                    vehicleForm.reset();
-                    currentVehicleId = null;
+        // Получение данных о расходах за месяц
+        fetch('/api/v1/expenses/monthly_sum/')
+            .then(response => {
+                if (!response.ok) {
+                    if (response.status === 401 || response.status === 403) {
+                        console.log('Ошибка аутентификации при получении расходов');
+                        return { total_amount: 0 };
+                    }
+                    throw new Error(`Ошибка HTTP при получении расходов: ${response.status}`);
                 }
-            }
-        });
-    });
-
-    vehicleForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const formData = new FormData(vehicleForm);
-        const data = Object.fromEntries(formData.entries());
-
-        try {
-            const url = currentVehicleId ? 
-                `/api/v1/vehicles/${currentVehicleId}/` : 
-                '/api/v1/vehicles/';
-            
-            const response = await fetch(url, {
-                method: currentVehicleId ? 'PUT' : 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-                },
-                body: JSON.stringify(data)
+                return response.json();
+            })
+            .then(data => {
+                document.getElementById('monthlyExpenses').textContent = `${(data.total_amount || 0).toLocaleString()} ₸`;
+            })
+            .catch(error => {
+                console.error('Ошибка при получении данных о расходах:', error);
+                document.getElementById('monthlyExpenses').textContent = '0 ₸';
             });
-
-            if (response.ok) {
-                closeModal();
-                await loadVehicles();
-            } else {
-                const responseData = await response.json();
-                alert(responseData.detail || 'Не удалось сохранить транспорт');
-            }
-        } catch (error) {
-            console.error('Ошибка при сохранении транспорта:', error);
-            alert('Не удалось сохранить транспорт');
-        }
-    });
-
-    // Фильтры
-    searchInput.addEventListener('input', renderVehicles);
-    brandFilter.addEventListener('change', renderVehicles);
-    yearFilter.addEventListener('change', renderVehicles);
-    statusFilter.addEventListener('change', renderVehicles);
-
-    // Инициализация
-    loadVehicles();
-
-    // Загрузка списка водителей
-    async function loadDrivers() {
-        try {
-            const response = await fetch('/api/v1/users/?role=DRIVER');
-            const data = await response.json();
-            
-            const driverSelect = vehicleForm.driver;
-            driverSelect.innerHTML = '<option value="">Не назначен</option>' + 
-                data.results.map(driver => 
-                    `<option value="${driver.id}">${driver.first_name} ${driver.last_name}</option>`
-                ).join('');
-        } catch (error) {
-            console.error('Ошибка при загрузке списка водителей:', error);
-        }
     }
-
-    loadDrivers();
+    
+    // Заполнение фильтров уникальными значениями из полученных данных
+    function populateFilters(vehicles) {
+        const brands = [...new Set(vehicles.map(v => v.brand).filter(Boolean))].sort();
+        const years = [...new Set(vehicles.map(v => v.year).filter(Boolean))].sort((a, b) => b - a);
+        
+        // Очистка и заполнение списка марок
+        brandFilter.innerHTML = '<option value="">Все марки</option>';
+        brands.forEach(brand => {
+            const option = document.createElement('option');
+            option.value = brand;
+            option.textContent = brand;
+            brandFilter.appendChild(option);
+        });
+        
+        // Очистка и заполнение списка годов
+        yearFilter.innerHTML = '<option value="">Все года</option>';
+        years.forEach(year => {
+            const option = document.createElement('option');
+            option.value = year;
+            option.textContent = year;
+            yearFilter.appendChild(option);
+        });
+    }
+    
+    // Вспомогательные функции для отображения UI
+    function showLoading() {
+        loadingIndicator.classList.remove('hidden');
+        vehiclesList.classList.add('hidden');
+        emptyState.classList.add('hidden');
+        errorState.classList.add('hidden');
+    }
+    
+    function hideLoading() {
+        loadingIndicator.classList.add('hidden');
+    }
+    
+    function showEmpty() {
+        emptyState.classList.remove('hidden');
+        vehiclesList.classList.add('hidden');
+        loadingIndicator.classList.add('hidden');
+        errorState.classList.add('hidden');
+    }
+    
+    function hideEmpty() {
+        emptyState.classList.add('hidden');
+    }
+    
+    function showError(message) {
+        errorMessage.textContent = message || 'Не удалось загрузить данные. Попробуйте обновить страницу.';
+        errorState.classList.remove('hidden');
+        vehiclesList.classList.add('hidden');
+        loadingIndicator.classList.add('hidden');
+        emptyState.classList.add('hidden');
+    }
+    
+    function hideError() {
+        errorState.classList.add('hidden');
+    }
+    
+    // Применение фильтров
+    function applyFilters() {
+        const search = searchInput.value.toLowerCase();
+        const brand = brandFilter.value;
+        const year = yearFilter.value ? parseInt(yearFilter.value) : null;
+        const status = statusFilter.value;
+        
+        let filteredData = [...allVehicles];
+        
+        if (search) {
+            filteredData = filteredData.filter(v => {
+                return (v.number && v.number.toLowerCase().includes(search)) || 
+                       (v.brand && v.brand.toLowerCase().includes(search)) || 
+                       (v.model && v.model.toLowerCase().includes(search));
+            });
+        }
+        
+        if (brand) {
+            filteredData = filteredData.filter(v => v.brand === brand);
+        }
+        
+        if (year) {
+            filteredData = filteredData.filter(v => v.year === year);
+        }
+        
+        if (status === 'with_driver') {
+            filteredData = filteredData.filter(v => v.driver_details);
+        } else if (status === 'without_driver') {
+            filteredData = filteredData.filter(v => !v.driver_details);
+        }
+        
+        displayVehicles(filteredData);
+        updateStats(filteredData);
+    }
+    
+    // Инициализация
+    document.addEventListener('DOMContentLoaded', () => {
+        // Загрузка данных
+        loadVehicles();
+        
+        // Обработчики событий
+        searchInput.addEventListener('input', applyFilters);
+        brandFilter.addEventListener('change', applyFilters);
+        yearFilter.addEventListener('change', applyFilters);
+        statusFilter.addEventListener('change', applyFilters);
+        retryButton.addEventListener('click', loadVehicles);
+    });
 </script>
 {% endblock %} 

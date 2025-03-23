@@ -5,6 +5,7 @@ from django_filters import rest_framework as filters
 from ..models import Vehicle
 from ..serializers import VehicleSerializer, VehicleLocationSerializer
 from .base import BaseModelViewSet
+from django.conf import settings
 
 class IsDirectorOrReadOnly(permissions.BasePermission):
     def has_permission(self, request, view):
@@ -32,7 +33,37 @@ class VehicleViewSet(BaseModelViewSet):
     permission_classes = [permissions.IsAuthenticated, IsDirectorOrReadOnly]
     filterset_class = VehicleFilter
     
+    def get_permissions(self):
+        """
+        Переопределяем получение разрешений для возврата тестовых данных неавторизованным пользователям
+        """
+        if self.request.method == 'GET' and settings.DEBUG:
+            return []
+        return [permission() for permission in self.permission_classes]
+    
+    def get_queryset(self):
+        """
+        Переопределяем метод для обеспечения корректной работы с анонимными пользователями
+        """
+        if getattr(self, 'swagger_fake_view', False):
+            return self.queryset.none()
+            
+        queryset = self.queryset
+        
+        if not self.request.user.is_authenticated and settings.DEBUG:
+            # Для неавторизованных пользователей в режиме отладки возвращаем все транспортные средства
+            return queryset
+        
+        if not self.request.user.is_authenticated:
+            return self.queryset.none()
+            
+        return self.filter_queryset_by_role(queryset)
+    
     def filter_queryset_by_role(self, queryset):
+        if not self.request.user.is_authenticated and settings.DEBUG:
+            # Для неавторизованных пользователей в режиме отладки возвращаем все транспортные средства
+            return queryset
+            
         if self.request.user.role == 'DRIVER':
             return queryset.filter(driver=self.request.user)
         return queryset

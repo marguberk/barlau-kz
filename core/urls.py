@@ -24,7 +24,15 @@ from .views import (
     EmployeeEditView,
     WaybillCreateView,
     WaybillUpdateView,
-    WaybillDeleteView
+    WaybillDeleteView,
+    TaskCreateView,
+    TaskUpdateView,
+    TaskArchiveView,
+    VehicleCreateView,
+    VehicleUpdateView,
+    VehicleArchiveView,
+    logout_view,
+    MapView
 )
 from .api import update_profile, upload_profile_photo, get_profile_stats
 
@@ -42,6 +50,7 @@ urlpatterns = [
     path('notifications/', NotificationsView.as_view(), name='notifications'),
     path('vehicles/', VehiclesView.as_view(), name='vehicles'),
     path('tasks/', TasksView.as_view(), name='tasks'),
+    path('map/', MapView.as_view(), name='map'),
     path('expenses/', ExpensesView.as_view(), name='expenses'),
     path('finance/', FinanceView.as_view(), name='finance'),
     
@@ -65,4 +74,17 @@ urlpatterns = [
     path('waybills/add/', WaybillCreateView.as_view(), name='waybill-add'),
     path('waybills/<int:pk>/edit/', WaybillUpdateView.as_view(), name='waybill-edit'),
     path('waybills/<int:pk>/delete/', WaybillDeleteView.as_view(), name='waybill-delete'),
+    
+    # Задачи
+    path('tasks/add/', TaskCreateView.as_view(), name='task-add'),
+    path('tasks/<int:pk>/edit/', TaskUpdateView.as_view(), name='task-edit'),
+    path('tasks/<int:pk>/archive/', TaskArchiveView.as_view(), name='task-archive'),
+    
+    # Транспорт
+    path('vehicles/add/', VehicleCreateView.as_view(), name='vehicle-add'),
+    path('vehicles/<int:pk>/edit/', VehicleUpdateView.as_view(), name='vehicle-edit'),
+    path('vehicles/<int:pk>/archive/', VehicleArchiveView.as_view(), name='vehicle-archive'),
+
+    # Аутентификация
+    path('accounts/logout/', logout_view, name='custom-logout'),
 ] 
