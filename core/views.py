@@ -1507,7 +1507,12 @@ class VehicleCreateView(LoginRequiredMixin, View):
         User = get_user_model()
         drivers = User.objects.filter(is_active=True, role='DRIVER')
         
+        # Создаем форму для транспорта
+        from logistics.models import Vehicle
+        form = forms.Form()  # Пустая форма, будет заполнена в шаблоне
+        
         context = {
+            'form': form,
             'drivers': drivers,
             'title': 'Добавление транспорта',
             'action': 'create',
