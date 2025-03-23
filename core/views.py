@@ -1507,9 +1507,18 @@ class VehicleCreateView(LoginRequiredMixin, View):
         User = get_user_model()
         drivers = User.objects.filter(is_active=True, role='DRIVER')
         
-        # Создаем форму для транспорта
+        # Создаем форму для транспорта с необходимыми полями
         from logistics.models import Vehicle
-        form = forms.Form()  # Пустая форма, будет заполнена в шаблоне
+        from django import forms
+        
+        class VehicleForm(forms.Form):
+            number = forms.CharField(max_length=20, required=True)
+            brand = forms.CharField(max_length=100, required=True)
+            model = forms.CharField(max_length=100, required=True)
+            year = forms.IntegerField(required=True, min_value=1900, max_value=2100)
+            driver = forms.ModelChoiceField(queryset=drivers, required=False)
+            
+        form = VehicleForm()  # Создаем экземпляр формы
         
         context = {
             'form': form,
@@ -1519,46 +1528,68 @@ class VehicleCreateView(LoginRequiredMixin, View):
             'active_page': 'vehicles'
         }
         return render(request, self.template_name, context)
-    
+        
     def post(self, request):
         from logistics.models import Vehicle
+        from django import forms
         
-        number = request.POST.get('number')
-        brand = request.POST.get('brand')
-        model = request.POST.get('model')
-        year = request.POST.get('year')
-        driver_id = request.POST.get('driver')
+        User = get_user_model()
+        drivers = User.objects.filter(is_active=True, role='DRIVER')
         
-        # Валидация
-        if not number or not brand or not model or not year:
-            messages.error(request, 'Пожалуйста, заполните все обязательные поля')
-            return redirect('core:vehicle-add')
+        class VehicleForm(forms.Form):
+            number = forms.CharField(max_length=20, required=True)
+            brand = forms.CharField(max_length=100, required=True)
+            model = forms.CharField(max_length=100, required=True)
+            year = forms.IntegerField(required=True, min_value=1900, max_value=2100)
+            driver = forms.ModelChoiceField(queryset=drivers, required=False)
         
-        # Проверка уникальности номера
-        if Vehicle.objects.filter(number=number).exists():
-            messages.error(request, 'Транспорт с таким номером уже существует')
-            return redirect('core:vehicle-add')
+        form = VehicleForm(request.POST)
         
-        # Создаем транспорт
-        vehicle = Vehicle(
-            number=number,
-            brand=brand,
-            model=model,
-            year=year
-        )
+        if form.is_valid():
+            number = form.cleaned_data['number']
+            brand = form.cleaned_data['brand']
+            model = form.cleaned_data['model']
+            year = form.cleaned_data['year']
+            driver = form.cleaned_data['driver']
+            
+            # Проверка уникальности номера
+            if Vehicle.objects.filter(number=number).exists():
+                form.add_error('number', 'Транспорт с таким номером уже существует')
+                context = {
+                    'form': form,
+                    'drivers': drivers,
+                    'title': 'Добавление транспорта',
+                    'action': 'create',
+                    'active_page': 'vehicles'
+                }
+                return render(request, self.template_name, context)
+            
+            # Создаем транспорт
+            vehicle = Vehicle(
+                number=number,
+                brand=brand,
+                model=model,
+                year=year
+            )
+            
+            # Если выбран водитель
+            if driver:
+                vehicle.driver = driver
+            
+            vehicle.save()
+            
+            messages.success(request, f'Транспорт {number} успешно добавлен')
+            return redirect('core:vehicles')
         
-        # Если выбран водитель
-        if driver_id:
-            User = get_user_model()
-            try:
-                vehicle.driver = User.objects.get(id=driver_id)
-            except User.DoesNotExist:
-                pass
-        
-        vehicle.save()
-        
-        messages.success(request, 'Транспорт успешно добавлен')
-        return redirect('core:vehicles')
+        # Если форма не прошла валидацию
+        context = {
+            'form': form,
+            'drivers': drivers,
+            'title': 'Добавление транспорта',
+            'action': 'create',
+            'active_page': 'vehicles'
+        }
+        return render(request, self.template_name, context)
 
 class VehicleUpdateView(LoginRequiredMixin, View):
     template_name = 'core/vehicle_form.html'
