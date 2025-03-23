@@ -8,20 +8,14 @@ def task_notification(sender, instance, created, **kwargs):
     """Создает уведомление при изменении задачи"""
     if created:
         # Уведомление для исполнителя
-        Notification.create_task_notification(instance.assigned_to, instance)
+        if instance.assigned_to:
+            Notification.create_task_notification(instance.assigned_to, instance)
         
         # Уведомление для создателя, если это разные люди
-        if instance.created_by != instance.assigned_to:
+        if instance.created_by and instance.created_by != instance.assigned_to:
             Notification.create_task_notification(instance.created_by, instance)
-    else:
-        # При изменении статуса
-        if instance.tracker.has_changed('status'):
-            # Уведомляем исполнителя
-            Notification.create_task_notification(instance.assigned_to, instance)
-            
-            # Уведомляем создателя, если это разные люди
-            if instance.created_by != instance.assigned_to:
-                Notification.create_task_notification(instance.created_by, instance)
+    # Не используем проверку изменения статуса через tracker,
+    # так как модель Task не имеет этого атрибута
 
 @receiver(post_save, sender=WaybillDocument)
 def waybill_notification(sender, instance, created, **kwargs):

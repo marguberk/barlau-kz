@@ -46,10 +46,10 @@ def get_profile_stats(request):
         },
         'notifications': {
             'total': Notification.objects.filter(user=user).count(),
-            'unread': Notification.objects.filter(user=user, is_read=False).count(),
+            'unread': Notification.objects.filter(user=user, read=False).count(),
             'today': Notification.objects.filter(
                 user=user,
-                created_at__date=today
+                created_at__gte=today
             ).count()
         }
     }

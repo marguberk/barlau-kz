@@ -20,6 +20,9 @@ class MapViewSet(viewsets.ViewSet):
     
     def get_vehicles(self, request):
         """Получить местоположение всех транспортных средств"""
+        if not request.user.is_authenticated:
+            return Response({"detail": "Требуется аутентификация"}, status=status.HTTP_401_UNAUTHORIZED)
+            
         vehicles = Vehicle.objects.filter(
             driver__isnull=False,
             driver__current_latitude__isnull=False,
@@ -34,6 +37,9 @@ class MapViewSet(viewsets.ViewSet):
     
     def get_tasks(self, request):
         """Получить местоположение всех активных задач"""
+        if not request.user.is_authenticated:
+            return Response({"detail": "Требуется аутентификация"}, status=status.HTTP_401_UNAUTHORIZED)
+            
         tasks = Task.objects.filter(
             status__in=['NEW', 'IN_PROGRESS'],
             deadline__gte=timezone.now(),
@@ -52,6 +58,9 @@ class MapViewSet(viewsets.ViewSet):
     @action(detail=False, methods=['post'])
     def update_location(self, request):
         """Обновить местоположение транспортного средства"""
+        if not request.user.is_authenticated:
+            return Response({"detail": "Требуется аутентификация"}, status=status.HTTP_401_UNAUTHORIZED)
+            
         if not request.user.role == 'DRIVER':
             return Response(
                 {"detail": "Только водители могут обновлять местоположение"},

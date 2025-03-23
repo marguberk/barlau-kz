@@ -87,7 +87,7 @@ class NotificationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Notification
-        fields = ['id', 'type', 'title', 'message', 'link', 'is_read', 'created_at', 'time_since']
+        fields = ['id', 'type', 'title', 'message', 'link', 'read', 'created_at', 'time_since']
 
     def get_time_since(self, obj):
         if not obj.created_at:

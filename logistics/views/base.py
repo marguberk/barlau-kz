@@ -1,4 +1,5 @@
 from rest_framework import viewsets, permissions
+from django.conf import settings
 
 class BaseModelViewSet(viewsets.ModelViewSet):
     """Базовый класс для всех представлений с общей логикой"""
@@ -9,6 +10,11 @@ class BaseModelViewSet(viewsets.ModelViewSet):
             return self.queryset.none()
             
         queryset = self.queryset
+        
+        # Если режим отладки и метод GET, разрешаем получение данных без аутентификации
+        if settings.DEBUG and self.request.method == 'GET' and not self.request.user.is_authenticated:
+            return queryset
+            
         if not self.request.user.is_authenticated:
             return self.queryset.none()
             

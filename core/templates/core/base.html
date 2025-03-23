@@ -40,7 +40,6 @@
         <div class="flex justify-between items-center px-4 py-3">
             <div class="flex items-center space-x-2">
                 <a href="/" class="flex items-center space-x-2">
-                    <img src="/static/core/img/logo.png" alt="Logo" class="h-8 w-8">
                     <h1 class="text-xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">BARLAU.KZ</h1>
                 </a>
             </div>
@@ -58,7 +57,7 @@
                                 <i class="fas fa-user-circle mr-2"></i>Мой профиль
                             </a>
                             <div class="border-t border-gray-100 my-2"></div>
-                            <form action="{% url 'logout' %}" method="post" class="m-0">
+                            <form action="{% url 'core:custom-logout' %}" method="post" class="m-0">
                                 {% csrf_token %}
                                 <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">
                                     <i class="fas fa-sign-out-alt mr-2"></i>Выйти
@@ -92,24 +91,14 @@
                 <i class="fas fa-tasks text-xl"></i>
                 <span class="text-xs mt-1">Задачи</span>
             </a>
-            <a href="{% url 'core:vehicles' %}" class="flex flex-col items-center {% if active_page == 'vehicles' %}text-blue-600{% else %}text-gray-600 hover:text-blue-600{% endif %}">
-                <i class="fas fa-truck text-xl"></i>
-                <span class="text-xs mt-1">Транспорт</span>
+            <a href="{% url 'core:map' %}" class="flex flex-col items-center {% if active_page == 'map' %}text-blue-600{% else %}text-gray-600 hover:text-blue-600{% endif %}">
+                <i class="fas fa-map-marker-alt text-xl"></i>
+                <span class="text-xs mt-1">Карта</span>
             </a>
-            <a href="{% url 'core:waybills' %}" class="flex flex-col items-center {% if active_page == 'waybills' %}text-blue-600{% else %}text-gray-600 hover:text-blue-600{% endif %}">
-                <i class="fas fa-file-alt text-xl"></i>
-                <span class="text-xs mt-1">КАТы</span>
+            <a href="{% url 'core:profile' %}" class="flex flex-col items-center {% if active_page == 'profile' %}text-blue-600{% else %}text-gray-600 hover:text-blue-600{% endif %}">
+                <i class="fas fa-user text-xl"></i>
+                <span class="text-xs mt-1">Профиль</span>
             </a>
-            <a href="{% url 'core:expenses' %}" class="flex flex-col items-center {% if active_page == 'expenses' %}text-blue-600{% else %}text-gray-600 hover:text-blue-600{% endif %}">
-                <i class="fas fa-money-bill-wave text-xl"></i>
-                <span class="text-xs mt-1">Расходы</span>
-            </a>
-            {% if user.role == 'DIRECTOR' or user.role == 'SUPERADMIN' or user.role == 'ACCOUNTANT' %}
-            <a href="{% url 'core:finance' %}" class="flex flex-col items-center {% if active_page == 'finance' %}text-blue-600{% else %}text-gray-600 hover:text-blue-600{% endif %}">
-                <i class="fas fa-chart-line text-xl"></i>
-                <span class="text-xs mt-1">Финансы</span>
-            </a>
-            {% endif %}
         </div>
     </nav>
     {% endif %}
@@ -165,7 +154,7 @@
                     const response = await fetch('/api/v1/notifications/');
                     const data = await response.json();
                     notifyContent.innerHTML = data.results.map(notification => `
-                        <div class="p-4 border-b ${notification.is_read ? 'bg-white' : 'bg-blue-50'}">
+                        <div class="p-4 border-b ${notification.read ? 'bg-white' : 'bg-blue-50'}">
                             <div class="flex items-start justify-between">
                                 <div>
                                     <h4 class="font-medium text-gray-800">${notification.title}</h4>
@@ -194,6 +183,22 @@
                     notifyModal.classList.add('hidden');
                 }
             });
+        }
+
+        // Функция для проверки доступности API
+        async function checkApiAccess() {
+            try {
+                const response = await fetch('/api/v1/tasks/');
+                if (response.status === 401 || response.status === 403) {
+                    console.log('API требует аутентификации. Перенаправление на страницу входа...');
+                    window.location.href = '/accounts/login/?next=' + window.location.pathname;
+                    return false;
+                }
+                return response.ok;
+            } catch (error) {
+                console.error('Ошибка при проверке API:', error);
+                return false;
+            }
         }
     </script>
     {% block extra_js %}{% endblock %}

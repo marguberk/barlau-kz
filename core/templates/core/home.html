@@ -15,20 +15,37 @@
 
         <main>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {% for section, endpoints in api_endpoints.items %}
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <h2 class="text-xl font-semibold text-gray-800 mb-4">{{ section }}</h2>
-                    <ul class="space-y-2">
-                        {% for name, url in endpoints.items %}
-                        <li>
-                            <a href="{{ url }}" class="text-blue-600 hover:text-blue-800 hover:underline">
-                                {{ name }}
+                {% if api_endpoints %}
+                    {% for section, endpoints in api_endpoints.items %}
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-4">{{ section }}</h2>
+                        <ul class="space-y-2">
+                            {% for name, url in endpoints.items %}
+                            <li>
+                                <a href="{{ url }}" class="text-blue-600 hover:text-blue-800 hover:underline">
+                                    {{ name }}
+                                </a>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="col-span-3 bg-white rounded-lg shadow-md p-6 text-center">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-4">Меню навигации</h2>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                            <a href="{% url 'core:map' %}" class="btn bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded">
+                                Карта
                             </a>
-                        </li>
-                        {% endfor %}
-                    </ul>
-                </div>
-                {% endfor %}
+                            <a href="/api/v1/tasks/" class="btn bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded">
+                                Задачи
+                            </a>
+                            <a href="{% url 'core:profile' %}" class="btn bg-purple-500 hover:bg-purple-600 text-white py-2 px-4 rounded">
+                                Профиль
+                            </a>
+                        </div>
+                    </div>
+                {% endif %}
             </div>
         </main>
 

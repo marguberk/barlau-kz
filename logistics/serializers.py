@@ -27,20 +27,14 @@ class VehicleLocationSerializer(serializers.ModelSerializer):
         fields = ['id', 'number', 'brand', 'model', 'driver_name', 'latitude', 'longitude', 'last_update']
 
 class TaskSerializer(serializers.ModelSerializer):
-    assigned_to_details = UserSerializer(source='assigned_to', read_only=True)
-    vehicle_details = VehicleSerializer(source='vehicle', read_only=True)
     created_by_details = UserSerializer(source='created_by', read_only=True)
+    assigned_user_details = UserSerializer(source='assigned_to', read_only=True)
+    vehicle_details = VehicleSerializer(source='vehicle', read_only=True)
     
     class Meta:
         model = Task
-        fields = [
-            'id', 'title', 'description', 'priority', 'status',
-            'assigned_to', 'assigned_to_details',
-            'vehicle', 'vehicle_details',
-            'due_date', 'created_at', 'updated_at',
-            'created_by', 'created_by_details'
-        ]
-        read_only_fields = ['created_at', 'updated_at', 'created_by']
+        fields = '__all__'
+        read_only_fields = ['created_by']
 
 class TaskLocationSerializer(serializers.ModelSerializer):
     vehicle_number = serializers.CharField(source='vehicle.number', read_only=True)
