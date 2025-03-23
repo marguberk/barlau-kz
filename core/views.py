@@ -633,10 +633,13 @@ class TaskCreateView(LoginRequiredMixin, View):
             except Vehicle.DoesNotExist:
                 pass
         
-        task.save()
-        
-        messages.success(request, 'Задача успешно создана')
-        return redirect('core:tasks')
+        try:
+            task.save()
+            messages.success(request, 'Задача успешно создана')
+            return redirect('core:tasks')
+        except Exception as e:
+            messages.error(request, f'Ошибка при создании задачи: {str(e)}')
+            return redirect('core:tasks')
 
 class TaskUpdateView(LoginRequiredMixin, View):
     template_name = 'core/task_form.html'
