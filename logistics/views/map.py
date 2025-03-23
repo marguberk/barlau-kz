@@ -29,11 +29,35 @@ class MapViewSet(viewsets.ViewSet):
             driver__current_longitude__isnull=False
         ).order_by('number')
         
-        if request.user.role == 'DRIVER':
+        # Определяем, имеет ли пользователь роль водителя
+        is_driver = request.user.role == 'DRIVER'
+        
+        # Фильтруем транспортные средства в зависимости от роли пользователя
+        if is_driver:
             vehicles = vehicles.filter(driver=request.user)
             
         serializer = VehicleLocationSerializer(vehicles, many=True)
-        return Response(serializer.data)
+        
+        # Обогащаем данные типом транспортного средства
+        vehicle_data = serializer.data
+        for vehicle in vehicle_data:
+            v = Vehicle.objects.get(pk=vehicle['id'])
+            # Добавляем тип транспортного средства (легковой, грузовой, спецтехника)
+            if v.vehicle_type:
+                vehicle['type'] = v.vehicle_type.lower()
+            else:
+                vehicle['type'] = 'car'  # По умолчанию - легковой
+            
+            # Добавляем статус (активен/неактивен)
+            if v.status:
+                vehicle['status'] = v.status.lower()
+            else:
+                vehicle['status'] = 'active'  # По умолчанию - активен
+        
+        return Response({
+            'vehicles': vehicle_data,
+            'isDriverMode': is_driver
+        })
     
     def get_tasks(self, request):
         """Получить местоположение всех активных задач"""
@@ -80,4 +104,36 @@ class MapViewSet(viewsets.ViewSet):
         request.user.save()
         
         serializer = VehicleLocationSerializer(vehicle)
-        return Response(serializer.data) 
+        return Response(serializer.data)
+        
+    @action(detail=False, methods=['post'])
+    def update_tracking_status(self, request):
+        """Обновить статус отслеживания местоположения"""
+        if not request.user.is_authenticated:
+            return Response({"detail": "Требуется аутентификация"}, status=status.HTTP_401_UNAUTHORIZED)
+            
+        if not request.user.role == 'DRIVER':
+            return Response(
+                {"detail": "Только водители могут обновлять статус отслеживания"},
+                status=status.HTTP_403_FORBIDDEN
+            )
+            
+        tracking_enabled = request.data.get('tracking_enabled', False)
+        
+        # Обновляем статус отслеживания пользователя
+        request.user.location_tracking_enabled = tracking_enabled
+        request.user.save()
+        
+        vehicle = Vehicle.objects.filter(driver=request.user).first()
+        if vehicle:
+            # Если отслеживание включено, обновляем статус транспортного средства
+            if tracking_enabled:
+                vehicle.status = 'ACTIVE'
+            else:
+                vehicle.status = 'INACTIVE'
+            vehicle.save()
+        
+        return Response({
+            "tracking_enabled": tracking_enabled,
+            "message": "Статус отслеживания успешно обновлен"
+        }) 

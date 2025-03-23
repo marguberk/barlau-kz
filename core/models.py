@@ -190,6 +190,30 @@ class User(AbstractUser):
         blank=True,
         verbose_name='Фото'
     )
+    # Поля для геолокации
+    current_latitude = models.DecimalField(
+        max_digits=9, 
+        decimal_places=6, 
+        null=True, 
+        blank=True,
+        verbose_name='Текущая широта'
+    )
+    current_longitude = models.DecimalField(
+        max_digits=9, 
+        decimal_places=6, 
+        null=True, 
+        blank=True,
+        verbose_name='Текущая долгота'
+    )
+    last_location_update = models.DateTimeField(
+        null=True, 
+        blank=True,
+        verbose_name='Последнее обновление местоположения'
+    )
+    location_tracking_enabled = models.BooleanField(
+        default=False,
+        verbose_name='Отслеживание местоположения включено'
+    )
 
     class Meta:
         verbose_name = 'Пользователь'

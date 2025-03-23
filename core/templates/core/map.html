@@ -107,6 +107,24 @@
     <div id="map"></div>
     <div class="map-controls">
         <h5 class="mb-3">Фильтры транспорта</h5>
+        {% if user.is_authenticated %}
+            {% if is_driver %}
+            <div class="alert alert-info mb-3 small">
+                <p><strong>Вы - водитель</strong></p>
+                <p>Разрешите доступ к местоположению для отображения вашего транспорта на карте.</p>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="enableTracking">
+                    <label class="form-check-label" for="enableTracking">
+                        Разрешить отслеживание
+                    </label>
+                </div>
+            </div>
+            {% elif can_see_all_employees %}
+            <div class="alert alert-success mb-3 small">
+                <p>Вы видите всех сотрудников на карте</p>
+            </div>
+            {% endif %}
+        {% endif %}
         <div class="filter-group mb-3">
             <div class="form-check">
                 <input class="form-check-input" type="checkbox" id="showAll" checked>
@@ -133,6 +151,7 @@
             Для просмотра карты необходимо авторизоваться
         </div>
     </div>
+    {% csrf_token %}
 </div>
 {% endblock %}
 
@@ -147,6 +166,8 @@
         truck: true,
         special: true
     };
+    var userLocationMarker;
+    var watchLocationId;
 
     // Инициализация карты
     function initMap() {
@@ -155,33 +176,196 @@
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
         
-        // Определяем текущее местоположение
-        map.locate({setView: true, maxZoom: 16});
+        // Проверяем права на отслеживание
+        checkPermissionAndTrackLocation();
         
-        // Обработчик события успешного определения местоположения
-        map.on('locationfound', onLocationFound);
+        // Загружаем данные о транспортных средствах
+        loadVehicleData();
+    }
+    
+    // Запрос разрешения на получение геолокации и запуск отслеживания
+    function checkPermissionAndTrackLocation() {
+        // Проверяем доступность API геолокации
+        if (navigator.geolocation) {
+            // Запрашиваем разрешение на использование геолокации
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    // Если получили разрешение - отображаем текущее положение и начинаем отслеживание
+                    onLocationFound(position);
+                    startLocationTracking();
+                },
+                function(error) {
+                    // Если пользователь отказал или произошла ошибка
+                    handleLocationError(error);
+                },
+                { enableHighAccuracy: true }
+            );
+        } else {
+            console.log("Геолокация не поддерживается вашим браузером");
+        }
+    }
+    
+    // Запуск постоянного отслеживания местоположения
+    function startLocationTracking() {
+        if (navigator.geolocation) {
+            // Запускаем отслеживание местоположения
+            watchLocationId = navigator.geolocation.watchPosition(
+                function(position) {
+                    // Обновляем позицию маркера
+                    updateUserLocation(position);
+                    // Отправляем координаты на сервер, если пользователь - водитель
+                    sendLocationToServer(position.coords.latitude, position.coords.longitude);
+                },
+                function(error) {
+                    console.log("Ошибка при отслеживании местоположения: " + error.message);
+                },
+                { enableHighAccuracy: true, maximumAge: 10000, timeout: 10000 }
+            );
+        }
+    }
+    
+    // Остановка отслеживания местоположения
+    function stopLocationTracking() {
+        if (watchLocationId) {
+            navigator.geolocation.clearWatch(watchLocationId);
+            watchLocationId = null;
+        }
+    }
+    
+    // Отправка координат на сервер
+    function sendLocationToServer(latitude, longitude) {
+        // Получаем CSRF токен
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
         
-        // Обработчик события ошибки определения местоположения
-        map.on('locationerror', onLocationError);
+        fetch('/api/v1/map/update_location/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            },
+            body: JSON.stringify({
+                latitude: latitude,
+                longitude: longitude
+            })
+        })
+        .then(response => {
+            if (!response.ok) {
+                if (response.status === 403) {
+                    console.log("Только водители могут обновлять местоположение");
+                } else {
+                    throw new Error('Ошибка отправки местоположения: ' + response.status);
+                }
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log("Местоположение успешно обновлено", data);
+        })
+        .catch(error => {
+            console.error('Ошибка отправки координат:', error);
+        });
+    }
+    
+    // Обновление статуса отслеживания на сервере
+    function updateTrackingStatus(enabled) {
+        // Получаем CSRF токен
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        
+        fetch('/api/v1/map/tracking_status/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            },
+            body: JSON.stringify({
+                tracking_enabled: enabled
+            })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Ошибка обновления статуса отслеживания: ' + response.status);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log("Статус отслеживания обновлен:", data);
+        })
+        .catch(error => {
+            console.error('Ошибка обновления статуса:', error);
+        });
     }
     
     // Обработчик успешного определения местоположения
-    function onLocationFound(e) {
-        var radius = e.accuracy / 2;
+    function onLocationFound(position) {
+        const latlng = [position.coords.latitude, position.coords.longitude];
         
-        // Добавляем маркер с текущим местоположением
-        L.marker(e.latlng).addTo(map)
-            .bindPopup("Вы находитесь в радиусе " + radius + " метров от этой точки").openPopup();
+        // Центрируем карту на текущем местоположении
+        map.setView(latlng, 15);
         
-        // Добавляем круг, показывающий точность определения местоположения
-        L.circle(e.latlng, radius).addTo(map);
+        // Создаем или обновляем маркер пользователя
+        if (!userLocationMarker) {
+            // Создаем кастомный маркер для текущего местоположения
+            const currentLocationIcon = L.divIcon({
+                className: 'current-location-marker',
+                html: '<div class="pulse"></div>',
+                iconSize: [20, 20],
+                iconAnchor: [10, 10]
+            });
+            
+            userLocationMarker = L.marker(latlng, {
+                icon: currentLocationIcon,
+                zIndexOffset: 1000
+            }).addTo(map);
+            
+            userLocationMarker.bindPopup("Ваше текущее местоположение").openPopup();
+            
+            // Добавляем круг точности
+            L.circle(latlng, {
+                radius: position.coords.accuracy / 2,
+                color: '#3388ff',
+                fillColor: '#3388ff',
+                fillOpacity: 0.2
+            }).addTo(map);
+        } else {
+            // Обновляем существующий маркер
+            userLocationMarker.setLatLng(latlng);
+        }
+    }
+    
+    // Обновление местоположения пользователя
+    function updateUserLocation(position) {
+        const latlng = [position.coords.latitude, position.coords.longitude];
+        
+        if (userLocationMarker) {
+            userLocationMarker.setLatLng(latlng);
+        }
     }
     
     // Обработчик ошибки определения местоположения
-    function onLocationError(e) {
-        console.log("Ошибка определения местоположения: " + e.message);
+    function handleLocationError(error) {
+        let errorMessage;
+        
+        switch(error.code) {
+            case error.PERMISSION_DENIED:
+                errorMessage = "Пользователь отклонил запрос на геолокацию.";
+                break;
+            case error.POSITION_UNAVAILABLE:
+                errorMessage = "Информация о местоположении недоступна.";
+                break;
+            case error.TIMEOUT:
+                errorMessage = "Истекло время ожидания запроса на получение местоположения.";
+                break;
+            case error.UNKNOWN_ERROR:
+                errorMessage = "Произошла неизвестная ошибка при определении местоположения.";
+                break;
+        }
+        
+        console.log("Ошибка геолокации: " + errorMessage);
+        
+        // Показываем сообщение пользователю
+        alert("Для полноценной работы карты необходимо разрешить доступ к вашему местоположению. " + errorMessage);
     }
-    
+
     // Загрузка данных о транспортных средствах
     function loadVehicleData() {
         console.log("Загрузка данных о транспортных средствах...");
@@ -204,6 +388,9 @@
                 const now = new Date();
                 document.getElementById('lastUpdate').textContent = 'Последнее обновление: ' + 
                     now.toLocaleTimeString();
+                
+                // Проверяем, является ли пользователь водителем
+                isDriverMode = data.isDriverMode === true;
                 
                 // Обновление маркеров на карте
                 updateVehiclesOnMap(data);
@@ -322,11 +509,36 @@
         // Инициализация карты
         initMap();
         
-        // Загрузка данных о транспортных средствах
-        loadVehicleData();
-        
         // Обработчик для кнопки обновления
         document.getElementById('refreshMap').addEventListener('click', loadVehicleData);
+        
+        // Обработчик для включения/выключения отслеживания
+        const trackingCheckbox = document.getElementById('enableTracking');
+        if (trackingCheckbox) {
+            trackingCheckbox.addEventListener('change', function(e) {
+                if (e.target.checked) {
+                    // Включаем отслеживание
+                    startLocationTracking();
+                    localStorage.setItem('tracking_enabled', 'true');
+                } else {
+                    // Выключаем отслеживание
+                    stopLocationTracking();
+                    localStorage.setItem('tracking_enabled', 'false');
+                }
+                
+                // Обновляем статус отслеживания на сервере через API
+                updateTrackingStatus(e.target.checked);
+            });
+            
+            // Устанавливаем начальное состояние чекбокса
+            const trackingEnabled = localStorage.getItem('tracking_enabled') === 'true';
+            trackingCheckbox.checked = trackingEnabled;
+            
+            // Если отслеживание было включено, запускаем его снова
+            if (trackingEnabled) {
+                startLocationTracking();
+            }
+        }
         
         // Обработчик для чекбокса "Все типы"
         document.getElementById('showAll').addEventListener('change', function(e) {

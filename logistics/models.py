@@ -4,10 +4,34 @@ from django.contrib.auth import get_user_model
 from model_utils import FieldTracker
 
 class Vehicle(models.Model):
+    VEHICLE_TYPE_CHOICES = [
+        ('CAR', 'Легковой'),
+        ('TRUCK', 'Грузовой'),
+        ('SPECIAL', 'Спецтехника'),
+    ]
+    
+    STATUS_CHOICES = [
+        ('ACTIVE', 'Активен'),
+        ('INACTIVE', 'Неактивен'),
+        ('MAINTENANCE', 'На обслуживании'),
+    ]
+    
     number = models.CharField(max_length=20, unique=True, verbose_name='Номер')
     brand = models.CharField(max_length=50, verbose_name='Марка')
     model = models.CharField(max_length=50, verbose_name='Модель')
     year = models.IntegerField(verbose_name='Год выпуска')
+    vehicle_type = models.CharField(
+        max_length=10, 
+        choices=VEHICLE_TYPE_CHOICES, 
+        default='CAR',
+        verbose_name='Тип транспорта'
+    )
+    status = models.CharField(
+        max_length=15, 
+        choices=STATUS_CHOICES, 
+        default='ACTIVE',
+        verbose_name='Статус'
+    )
     driver = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,

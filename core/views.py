@@ -1726,6 +1726,14 @@ class MapView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['active_page'] = 'map'
+        
+        if self.request.user.is_authenticated:
+            context['user_role'] = self.request.user.role
+            # Определяем, может ли пользователь видеть всех сотрудников на карте
+            context['can_see_all_employees'] = self.request.user.role in ['DIRECTOR', 'SUPERADMIN', 'TECH']
+            # Проверяем, является ли пользователь водителем
+            context['is_driver'] = self.request.user.role == 'DRIVER'
+        
         return context
 
 class ProfileEditView(LoginRequiredMixin, View):
