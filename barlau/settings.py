@@ -166,6 +166,11 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 10,
 }
 
+AUTHENTICATION_BACKENDS = [
+    'accounts.authentication.PhoneBackend',  # Кастомный бэкенд для аутентификации по телефону
+    'django.contrib.auth.backends.ModelBackend',  # Стандартный бэкенд
+]
+
 # JWT settings
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
