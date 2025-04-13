@@ -1,613 +1,398 @@
 {% extends "core/base.html" %}
 {% load static %}
 
-{% block title %}Карта транспортных средств{% endblock %}
+{% block title %}Карта транспорта{% endblock %}
 
 {% block extra_head %}
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
-{% endblock %}
+<!-- Подключаем Leaflet CSS и JS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+<!-- Font Awesome для иконок -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" crossorigin="anonymous" />
 
-{% block extra_css %}
 <style>
-    html, body {
-        height: 100%;
-        margin: 0;
-        padding: 0;
-    }
-    
-    #content {
-        height: calc(100vh - 60px);
-        position: relative;
-    }
-    
-    .container-fluid {
-        padding: 0;
-        height: 100%;
-        position: relative;
-    }
-    
-    #map {
+    #mapContainer {
         width: 100%;
-        height: 100%;
+        height: calc(100vh - 200px);
+        min-height: 400px;
+        z-index: 1;
     }
     
-    .map-controls {
-        position: absolute;
-        top: 20px;
-        right: 20px;
-        z-index: 1000;
+    .filter-panel {
         background: white;
         padding: 15px;
-        border-radius: 5px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-        min-width: 250px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        margin-bottom: 15px;
     }
     
-    .leaflet-popup-content {
-        margin: 12px;
+    .filter-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
     }
     
-    .popup-content h4 {
-        margin-top: 0;
-        margin-bottom: 8px;
+    .filter-body {
+        margin-bottom: 10px;
     }
     
-    .popup-content p {
-        margin: 5px 0;
+    .refresh-button {
+        background-color: #4a8eff;
+        color: white;
+        border: none;
+        padding: 8px 15px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 5px;
     }
     
-    .vehicle-status {
-        display: inline-block;
-        width: 12px;
-        height: 12px;
+    .refresh-button:hover {
+        background-color: #3a7bed;
+    }
+    
+    .vehicle-marker {
+        display: flex;
+        align-items: center;
+        justify-content: center;
         border-radius: 50%;
-        margin-right: 5px;
+        background: white;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     }
     
-    .status-active {
-        background-color: #28a745;
+    .vehicle-marker i {
+        font-size: 18px;
     }
     
-    .status-inactive {
-        background-color: #dc3545;
+    /* Пульсирующая анимация для маркера пользователя */
+    .user-location-marker {
+        width: 16px;
+        height: 16px;
+        background-color: #4a8eff;
+        border-radius: 50%;
+        border: 2px solid white;
+        box-shadow: 0 0 0 rgba(74, 142, 255, 0.4);
+        animation: pulse 2s infinite;
     }
     
-    /* Анимация текущего местоположения */
     @keyframes pulse {
         0% {
-            transform: scale(0.8);
-            opacity: 1;
+            box-shadow: 0 0 0 0 rgba(74, 142, 255, 0.4);
         }
-        50% {
-            transform: scale(1.2);
-            opacity: 0.8;
+        70% {
+            box-shadow: 0 0 0 10px rgba(74, 142, 255, 0);
         }
         100% {
-            transform: scale(0.8);
-            opacity: 1;
+            box-shadow: 0 0 0 0 rgba(74, 142, 255, 0);
         }
     }
     
-    .current-location-marker {
-        width: 20px;
-        height: 20px;
-        border-radius: 50%;
-        background-color: rgba(0, 128, 255, 0.7);
-        border: 2px solid white;
-        animation: pulse 1.5s infinite;
+    .update-info {
+        font-size: 0.8rem;
+        color: #666;
+        margin-top: 5px;
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <div id="map"></div>
-    <div class="map-controls">
-        <h5 class="mb-3">Фильтры транспорта</h5>
-        {% if user.is_authenticated %}
-            {% if is_driver %}
-            <div class="alert alert-info mb-3 small">
-                <p><strong>Вы - водитель</strong></p>
-                <p>Разрешите доступ к местоположению для отображения вашего транспорта на карте.</p>
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="enableTracking">
-                    <label class="form-check-label" for="enableTracking">
-                        Разрешить отслеживание
-                    </label>
-                </div>
+<div class="container mx-auto px-4 py-4">
+    <h2 class="text-2xl font-bold mb-4">Карта транспортных средств</h2>
+    
+    <div class="filter-panel">
+        <div class="filter-header">
+            <h4 class="font-semibold">Фильтры транспорта</h4>
+            <button id="refreshButton" class="refresh-button">
+                <i class="fas fa-sync-alt"></i> Обновить
+            </button>
+        </div>
+        <div class="filter-body">
+            <div class="mb-2">
+                <label class="inline-flex items-center">
+                    <input type="checkbox" class="form-checkbox" id="filterAll" checked>
+                    <span class="ml-2">Все типы</span>
+                </label>
             </div>
-            {% elif can_see_all_employees %}
-            <div class="alert alert-success mb-3 small">
-                <p>Вы видите всех сотрудников на карте</p>
+            <div class="mb-2">
+                <label class="inline-flex items-center">
+                    <input type="checkbox" class="form-checkbox vehicle-type" id="filterCar" data-type="car" checked>
+                    <span class="ml-2">Легковые</span>
+                </label>
             </div>
-            {% endif %}
-        {% else %}
-            <div class="alert alert-warning mb-3 small">
-                <p>Для доступа ко всем функциям карты, пожалуйста, <a href="/accounts/login/?next=/map/">авторизуйтесь</a>.</p>
+            <div class="mb-2">
+                <label class="inline-flex items-center">
+                    <input type="checkbox" class="form-checkbox vehicle-type" id="filterTruck" data-type="truck" checked>
+                    <span class="ml-2">Грузовые</span>
+                </label>
             </div>
-        {% endif %}
-        <div class="filter-group mb-3">
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="showAll" checked>
-                <label class="form-check-label" for="showAll">Все типы</label>
-            </div>
-            <div class="form-check">
-                <input class="form-check-input vehicle-type" type="checkbox" id="typeCar" checked>
-                <label class="form-check-label" for="typeCar">Легковые</label>
-            </div>
-            <div class="form-check">
-                <input class="form-check-input vehicle-type" type="checkbox" id="typeTruck" checked>
-                <label class="form-check-label" for="typeTruck">Грузовые</label>
-            </div>
-            <div class="form-check">
-                <input class="form-check-input vehicle-type" type="checkbox" id="typeSpecial" checked>
-                <label class="form-check-label" for="typeSpecial">Спецтехника</label>
+            <div class="mb-2">
+                <label class="inline-flex items-center">
+                    <input type="checkbox" class="form-checkbox vehicle-type" id="filterSpecial" data-type="special" checked>
+                    <span class="ml-2">Спецтехника</span>
+                </label>
             </div>
         </div>
-        <button id="refreshMap" class="btn btn-primary btn-sm w-100 mb-3">
-            <i class="fas fa-sync-alt"></i> Обновить данные
-        </button>
-        <div id="lastUpdate" class="small text-muted mb-3">Последнее обновление: никогда</div>
-        <div id="authMessage" class="alert alert-warning small" style="display: none;">
-            Для просмотра карты необходимо авторизоваться
-        </div>
+        <div class="update-info" id="lastUpdate">Последнее обновление: </div>
     </div>
-    {% csrf_token %}
+    
+    <!-- Контейнер карты с явными размерами -->
+    <div id="mapContainer" style="width: 100%; height: 500px; position: relative;"></div>
 </div>
-{% endblock %}
 
-{% block extra_js %}
 <script>
-    var map;
-    var markers = {};
-    var vehiclePaths = {};
-    var isDriverMode = false;
-    var activeFilters = {
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Инициализация страницы карты');
+    
+    // Создаем карту с центром на Алматы
+    var map = L.map('mapContainer', {
+        zoomControl: true,
+        attributionControl: true
+    }).setView([43.238949, 76.889709], 12);
+    
+    console.log('Создание карты Leaflet');
+    
+    // Добавляем слой OpenStreetMap
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        maxZoom: 19
+    }).addTo(map);
+    
+    console.log('Карта создана, загружаем местоположение пользователя');
+    
+    // Переменные для хранения маркеров
+    var userMarker;
+    var vehicleMarkers = {};
+    
+    // Фильтры транспорта
+    var filters = {
         car: true,
         truck: true,
         special: true
     };
-    var userLocationMarker;
-    var watchLocationId;
-    var defaultData = {
-        vehicles: [
-            {
-                id: 1,
-                number: "KZ 123 ABC",
-                driver: {
-                    fullname: "Демонстрационный водитель 1",
-                    current_latitude: 43.2517,
-                    current_longitude: 76.9186
-                },
-                type: "car",
-                status: "active"
-            },
-            {
-                id: 2,
-                number: "KZ 456 DEF",
-                driver: {
-                    fullname: "Демонстрационный водитель 2",
-                    current_latitude: 43.2617,
-                    current_longitude: 76.9386
-                },
-                type: "truck",
-                status: "active"
-            },
-            {
-                id: 3,
-                number: "KZ 789 GHI",
-                driver: {
-                    fullname: "Демонстрационный водитель 3",
-                    current_latitude: 43.2417,
-                    current_longitude: 76.9086
-                },
-                type: "special",
-                status: "inactive"
+    
+    // Демо-данные для транспортных средств
+    var demoVehicles = [
+        {
+            id: 1, 
+            number: "KZ 123 ABC", 
+            type: "car", 
+            status: "active",
+            driver: {
+                fullname: "Иванов Иван",
+                current_latitude: 43.238949,
+                current_longitude: 76.889709
             }
-        ],
-        isDriverMode: false
-    };
-
-    // Инициализация карты
-    function initMap() {
-        map = L.map('map').setView([43.2567, 76.9286], 12);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map);
-        
-        // Проверяем права на отслеживание
-        checkPermissionAndTrackLocation();
-        
-        // Загружаем данные о транспортных средствах
-        loadVehicleData();
-    }
-    
-    // Запрос разрешения на получение геолокации и запуск отслеживания
-    function checkPermissionAndTrackLocation() {
-        // Проверяем доступность API геолокации
-        if (navigator.geolocation) {
-            // Запрашиваем разрешение на использование геолокации
-            navigator.geolocation.getCurrentPosition(
-                function(position) {
-                    // Если получили разрешение - отображаем текущее положение и начинаем отслеживание
-                    onLocationFound(position);
-                    startLocationTracking();
-                },
-                function(error) {
-                    // Если пользователь отказал или произошла ошибка
-                    handleLocationError(error);
-                },
-                { enableHighAccuracy: true }
-            );
-        } else {
-            console.log("Геолокация не поддерживается вашим браузером");
-        }
-    }
-    
-    // Запуск постоянного отслеживания местоположения
-    function startLocationTracking() {
-        if (navigator.geolocation) {
-            // Запускаем отслеживание местоположения
-            watchLocationId = navigator.geolocation.watchPosition(
-                function(position) {
-                    // Обновляем позицию маркера
-                    updateUserLocation(position);
-                    // Отправляем координаты на сервер, если пользователь - водитель и авторизован
-                    if ({{ user.is_authenticated|lower }} && {{ is_driver|default:'false'|lower }}) {
-                        sendLocationToServer(position.coords.latitude, position.coords.longitude);
-                    }
-                },
-                function(error) {
-                    console.log("Ошибка при отслеживании местоположения: " + error.message);
-                },
-                { enableHighAccuracy: true, maximumAge: 10000, timeout: 10000 }
-            );
-        }
-    }
-    
-    // Остановка отслеживания местоположения
-    function stopLocationTracking() {
-        if (watchLocationId) {
-            navigator.geolocation.clearWatch(watchLocationId);
-            watchLocationId = null;
-        }
-    }
-    
-    // Отправка координат на сервер
-    function sendLocationToServer(latitude, longitude) {
-        // Получаем CSRF токен
-        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-        
-        fetch('/api/v1/map/update_location/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': csrfToken
-            },
-            body: JSON.stringify({
-                latitude: latitude,
-                longitude: longitude
-            })
-        })
-        .then(response => {
-            if (!response.ok) {
-                if (response.status === 403) {
-                    console.log("Только водители могут обновлять местоположение");
-                } else {
-                    throw new Error('Ошибка отправки местоположения: ' + response.status);
-                }
+        },
+        {
+            id: 2, 
+            number: "KZ 456 DEF", 
+            type: "truck", 
+            status: "active",
+            driver: {
+                fullname: "Петров Петр",
+                current_latitude: 43.252863,
+                current_longitude: 76.945870
             }
-            return response.json();
-        })
-        .then(data => {
-            console.log("Местоположение успешно обновлено", data);
-        })
-        .catch(error => {
-            console.error('Ошибка отправки координат:', error);
-        });
-    }
-    
-    // Обновление статуса отслеживания на сервере
-    function updateTrackingStatus(enabled) {
-        // Получаем CSRF токен
-        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-        
-        fetch('/api/v1/map/tracking_status/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': csrfToken
-            },
-            body: JSON.stringify({
-                tracking_enabled: enabled
-            })
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Ошибка обновления статуса отслеживания: ' + response.status);
+        },
+        {
+            id: 3, 
+            number: "KZ 789 GHI", 
+            type: "special", 
+            status: "inactive",
+            driver: {
+                fullname: "Сидоров Сидор",
+                current_latitude: 43.225211,
+                current_longitude: 76.862957
             }
-            return response.json();
-        })
-        .then(data => {
-            console.log("Статус отслеживания обновлен:", data);
-        })
-        .catch(error => {
-            console.error('Ошибка обновления статуса:', error);
-        });
+        }
+    ];
+    
+    // Пытаемся получить местоположение пользователя
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            // Успех
+            function(position) {
+                console.log('Получены координаты пользователя:', position.coords.latitude, position.coords.longitude);
+                var userLatLng = [position.coords.latitude, position.coords.longitude];
+                
+                // Создаем маркер пользователя
+                var userIcon = L.divIcon({
+                    className: 'user-location-marker',
+                    iconSize: [16, 16],
+                    iconAnchor: [8, 8]
+                });
+                
+                userMarker = L.marker(userLatLng, {icon: userIcon}).addTo(map);
+                userMarker.bindPopup('Ваше местоположение').openPopup();
+                
+                // Центрируем карту на пользователе
+                map.setView(userLatLng, 13);
+            },
+            // Ошибка
+            function(error) {
+                console.log('Ошибка получения местоположения:', error);
+                // Используем данные по умолчанию
+                loadVehicles();
+            }
+        );
+    } else {
+        console.log('Геолокация не поддерживается');
+        loadVehicles();
     }
     
-    // Обработчик успешного определения местоположения
-    function onLocationFound(position) {
-        const latlng = [position.coords.latitude, position.coords.longitude];
-        
-        // Центрируем карту на текущем местоположении
-        map.setView(latlng, 15);
-        
-        // Создаем или обновляем маркер пользователя
-        if (!userLocationMarker) {
-            // Создаем кастомный маркер для текущего местоположения
-            const currentLocationIcon = L.divIcon({
-                className: 'current-location-marker',
-                html: '<div class="pulse"></div>',
-                iconSize: [20, 20],
-                iconAnchor: [10, 10]
-            });
-            
-            userLocationMarker = L.marker(latlng, {
-                icon: currentLocationIcon,
-                zIndexOffset: 1000
-            }).addTo(map);
-            
-            userLocationMarker.bindPopup("Ваше текущее местоположение").openPopup();
-            
-            // Добавляем круг точности
-            L.circle(latlng, {
-                radius: position.coords.accuracy / 2,
-                color: '#3388ff',
-                fillColor: '#3388ff',
-                fillOpacity: 0.2
-            }).addTo(map);
-        } else {
-            // Обновляем существующий маркер
-            userLocationMarker.setLatLng(latlng);
-        }
-    }
+    // В любом случае загружаем транспортные средства
+    loadVehicles();
     
-    // Обновление местоположения пользователя
-    function updateUserLocation(position) {
-        const latlng = [position.coords.latitude, position.coords.longitude];
+    // Функция загрузки транспортных средств
+    function loadVehicles() {
+        console.log('Загружаем транспортные средства');
         
-        if (userLocationMarker) {
-            userLocationMarker.setLatLng(latlng);
-        }
-    }
-    
-    // Обработчик ошибки определения местоположения
-    function handleLocationError(error) {
-        let errorMessage;
-        
-        switch(error.code) {
-            case error.PERMISSION_DENIED:
-                errorMessage = "Пользователь отклонил запрос на геолокацию.";
-                break;
-            case error.POSITION_UNAVAILABLE:
-                errorMessage = "Информация о местоположении недоступна.";
-                break;
-            case error.TIMEOUT:
-                errorMessage = "Истекло время ожидания запроса на получение местоположения.";
-                break;
-            case error.UNKNOWN_ERROR:
-                errorMessage = "Произошла неизвестная ошибка при определении местоположения.";
-                break;
-        }
-        
-        console.log("Ошибка геолокации: " + errorMessage);
-        
-        // Показываем сообщение пользователю
-        alert("Для полноценной работы карты необходимо разрешить доступ к вашему местоположению. " + errorMessage);
-    }
-
-    // Загрузка данных о транспортных средствах
-    function loadVehicleData() {
-        console.log("Загрузка данных о транспортных средствах...");
-        
-        // Пробуем загрузить данные от API
-        fetch('/api/v1/map/live_tracking/')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Ошибка получения данных: ' + response.status);
-                }
-                document.getElementById('authMessage').style.display = 'none';
-                return response.json();
-            })
-            .then(data => {
-                console.log("Получены данные о транспортных средствах:", data);
-                
-                // Обновление информации о последнем обновлении
-                const now = new Date();
-                document.getElementById('lastUpdate').textContent = 'Последнее обновление: ' + 
-                    now.toLocaleTimeString();
-                
-                // Проверяем, является ли пользователь водителем
-                isDriverMode = data.isDriverMode === true;
-                
-                // Обновление маркеров на карте
-                updateVehiclesOnMap(data);
-            })
-            .catch(error => {
-                console.error('Ошибка загрузки данных:', error);
-                
-                // Используем демонстрационные данные, если не удалось загрузить с сервера
-                console.log("Загружаем демонстрационные данные");
-                
-                // Обновление информации о последнем обновлении
-                const now = new Date();
-                document.getElementById('lastUpdate').textContent = 'Демо-режим: ' + 
-                    now.toLocaleTimeString();
-                
-                // Обновление маркеров на карте
-                updateVehiclesOnMap(defaultData);
-            });
-    }
-
-    // Обновление транспортных средств на карте
-    function updateVehiclesOnMap(data) {
         // Очищаем существующие маркеры
-        for (const id in markers) {
-            map.removeLayer(markers[id]);
-            delete markers[id];
-        }
+        clearVehicleMarkers();
         
-        // Добавляем новые маркеры
-        const vehicles = data.vehicles;
+        // Используем демо-данные
+        displayVehicles(demoVehicles);
         
-        if (!vehicles || vehicles.length === 0) {
-            console.log("Нет данных о транспортных средствах");
-            return;
-        }
+        // Обновляем время последнего обновления
+        updateLastUpdateTime();
+    }
+    
+    // Отображение транспортных средств на карте
+    function displayVehicles(vehicles) {
+        console.log('Отображаем транспортные средства:', vehicles);
         
-        vehicles.forEach(vehicle => {
-            if (!vehicle.driver || !vehicle.driver.current_latitude || !vehicle.driver.current_longitude) {
+        vehicles.forEach(function(vehicle) {
+            // Проверяем фильтры
+            if (!filters[vehicle.type]) {
                 return;
             }
             
-            // Фильтрация по типу транспортного средства
-            const vehicleType = vehicle.type || 'car';
-            if (!activeFilters[vehicleType]) {
-                return;
-            }
+            var latlng = [
+                vehicle.driver.current_latitude,
+                vehicle.driver.current_longitude
+            ];
             
-            const position = [vehicle.driver.current_latitude, vehicle.driver.current_longitude];
-            
-            // Выбираем иконку в зависимости от типа транспортного средства
-            let iconUrl;
-            switch(vehicleType) {
+            // Определяем иконку по типу
+            var iconClass;
+            switch(vehicle.type) {
                 case 'truck':
-                    iconUrl = 'https://cdn-icons-png.flaticon.com/512/3774/3774290.png';
+                    iconClass = 'fa-truck';
                     break;
                 case 'special':
-                    iconUrl = 'https://cdn-icons-png.flaticon.com/512/2526/2526496.png';
+                    iconClass = 'fa-truck-monster';
                     break;
-                case 'car':
                 default:
-                    iconUrl = 'https://cdn-icons-png.flaticon.com/512/744/744465.png';
-                    break;
+                    iconClass = 'fa-car';
             }
             
-            // Создаем иконку
-            const vehicleIcon = L.icon({
-                iconUrl: iconUrl,
-                iconSize: [32, 32],
-                iconAnchor: [16, 16],
-                popupAnchor: [0, -16]
-            });
+            // Цвет в зависимости от статуса
+            var color = vehicle.status === 'active' ? '#28a745' : '#dc3545';
             
             // Создаем маркер
-            const marker = L.marker(position, {icon: vehicleIcon}).addTo(map);
+            var vehicleIcon = L.divIcon({
+                className: 'vehicle-marker',
+                html: '<i class="fas ' + iconClass + '" style="color: ' + color + '"></i>',
+                iconSize: [30, 30],
+                iconAnchor: [15, 15]
+            });
             
-            // Создаем информационное окно
-            const popupContent = `
-                <div class="popup-content">
-                    <h4>${vehicle.number}</h4>
-                    <p><strong>Водитель:</strong> ${vehicle.driver.fullname}</p>
-                    <p>
-                        <strong>Статус:</strong> 
-                        <span class="vehicle-status status-${vehicle.status || 'active'}"></span>
-                        ${vehicle.status === 'active' ? 'Активен' : 'Неактивен'}
-                    </p>
-                    <p><strong>Координаты:</strong> ${position[0].toFixed(6)}, ${position[1].toFixed(6)}</p>
-                </div>
-            `;
+            var marker = L.marker(latlng, {icon: vehicleIcon}).addTo(map);
             
-            marker.bindPopup(popupContent);
+            // Добавляем всплывающее окно
+            marker.bindPopup(
+                '<div>' +
+                '<h3 style="font-weight: bold; margin-bottom: 5px;">' + vehicle.number + '</h3>' +
+                '<p><strong>Водитель:</strong> ' + vehicle.driver.fullname + '</p>' +
+                '<p><strong>Тип:</strong> ' + getVehicleTypeName(vehicle.type) + '</p>' +
+                '<p><strong>Статус:</strong> ' + (vehicle.status === 'active' ? 'Активен' : 'Неактивен') + '</p>' +
+                '</div>'
+            );
             
-            // Сохраняем маркер в коллекции
-            markers[vehicle.id] = marker;
+            // Сохраняем маркер
+            vehicleMarkers[vehicle.id] = marker;
         });
     }
-
-    // Фильтрация транспортных средств по типу
-    function filterVehicles() {
-        // Получаем текущие значения фильтров
-        const showAll = document.getElementById('showAll').checked;
-        
-        // Если выбран "Все типы", то все фильтры активны
-        if (showAll) {
-            document.getElementById('typeCar').checked = true;
-            document.getElementById('typeTruck').checked = true;
-            document.getElementById('typeSpecial').checked = true;
-            
-            activeFilters.car = true;
-            activeFilters.truck = true;
-            activeFilters.special = true;
-        } else {
-            // Иначе учитываем индивидуальные фильтры
-            activeFilters.car = document.getElementById('typeCar').checked;
-            activeFilters.truck = document.getElementById('typeTruck').checked;
-            activeFilters.special = document.getElementById('typeSpecial').checked;
+    
+    // Очистка маркеров транспортных средств
+    function clearVehicleMarkers() {
+        for (var id in vehicleMarkers) {
+            map.removeLayer(vehicleMarkers[id]);
         }
-        
-        // Перезагружаем данные с учетом фильтров
-        loadVehicleData();
+        vehicleMarkers = {};
     }
-
+    
     // Обработчики событий
-    document.addEventListener('DOMContentLoaded', function() {
-        // Инициализация карты
-        initMap();
-        
-        // Обработчик кнопки обновления данных
-        document.getElementById('refreshMap').addEventListener('click', function() {
-            loadVehicleData();
-        });
-        
-        // Обработчики для фильтров типов транспортных средств
-        document.getElementById('showAll').addEventListener('change', function() {
-            if (this.checked) {
-                document.querySelectorAll('.vehicle-type').forEach(checkbox => {
-                    checkbox.checked = true;
-                });
-            }
-            filterVehicles();
-        });
-        
-        document.querySelectorAll('.vehicle-type').forEach(checkbox => {
-            checkbox.addEventListener('change', function() {
-                // Если хотя бы один из чекбоксов типов снят, то снимаем и "все типы"
-                if (!this.checked) {
-                    document.getElementById('showAll').checked = false;
-                }
-                
-                // Если все чекбоксы типов выбраны, то выбираем и "все типы"
-                if (document.getElementById('typeCar').checked && 
-                    document.getElementById('typeTruck').checked && 
-                    document.getElementById('typeSpecial').checked) {
-                    document.getElementById('showAll').checked = true;
-                }
-                
-                filterVehicles();
-            });
-        });
-        
-        // Обработчик для включения/отключения отслеживания
-        const trackingCheckbox = document.getElementById('enableTracking');
-        if (trackingCheckbox) {
-            trackingCheckbox.addEventListener('change', function() {
-                if (this.checked) {
-                    startLocationTracking();
-                    updateTrackingStatus(true);
-                } else {
-                    stopLocationTracking();
-                    updateTrackingStatus(false);
-                }
+    document.getElementById('refreshButton').addEventListener('click', function() {
+        loadVehicles();
+    });
+    
+    // Фильтр "Все типы"
+    document.getElementById('filterAll').addEventListener('change', function() {
+        if (this.checked) {
+            // Выбираем все
+            document.querySelectorAll('.vehicle-type').forEach(function(checkbox) {
+                checkbox.checked = true;
+                filters[checkbox.dataset.type] = true;
             });
         }
-        
-        // Автоматическое обновление данных каждые 30 секунд
-        setInterval(loadVehicleData, 30000);
+        applyFilters();
     });
+    
+    // Фильтры по типам
+    document.querySelectorAll('.vehicle-type').forEach(function(checkbox) {
+        checkbox.addEventListener('change', function() {
+            filters[this.dataset.type] = this.checked;
+            
+            // Если снят хоть один чекбокс, снимаем "Все типы"
+            if (!this.checked) {
+                document.getElementById('filterAll').checked = false;
+            }
+            
+            // Если выбраны все, выбираем "Все типы"
+            var allChecked = Array.from(document.querySelectorAll('.vehicle-type'))
+                .every(function(cb) { return cb.checked; });
+            
+            if (allChecked) {
+                document.getElementById('filterAll').checked = true;
+            }
+            
+            applyFilters();
+        });
+    });
+    
+    // Функция применения фильтров
+    function applyFilters() {
+        clearVehicleMarkers();
+        displayVehicles(demoVehicles);
+    }
+    
+    // Обновление времени последнего обновления
+    function updateLastUpdateTime() {
+        var now = new Date();
+        var timeString = now.toLocaleTimeString();
+        document.getElementById('lastUpdate').textContent = 'Последнее обновление: ' + timeString;
+    }
+    
+    // Получение названия типа транспорта
+    function getVehicleTypeName(type) {
+        switch(type) {
+            case 'car': return 'Легковой';
+            case 'truck': return 'Грузовой';
+            case 'special': return 'Спецтехника';
+            default: return 'Неизвестно';
+        }
+    }
+    
+    // Обновляем время последнего обновления
+    updateLastUpdateTime();
+    
+    // Исправляем отображение карты, если есть проблемы с контейнером
+    setTimeout(function() {
+        map.invalidateSize();
+    }, 100);
+});
 </script>
 {% endblock %} 
