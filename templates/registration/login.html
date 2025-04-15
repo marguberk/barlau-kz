@@ -4,47 +4,37 @@
 {% block title %}Вход в систему - BARLAU.KZ{% endblock %}
 
 {% block content %}
-<div class="flex flex-col items-center justify-center min-h-screen -mt-16 px-4">
-    <div class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md">
-        <div class="text-center mb-8">
-            <img src="{% static 'core/img/logo.svg' %}" alt="Logo" class="h-20 w-auto mx-auto mb-4">
-            <h2 class="text-2xl font-bold text-gray-800 mb-2">Вход в систему</h2>
-            <p class="text-gray-600">
-                Введите ваши учетные данные для входа
-            </p>
-        </div>
-
-        {% if form.errors %}
-        <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
-            <p class="font-medium">Ошибка входа</p>
-            <p class="text-sm">Пожалуйста, проверьте правильность номера телефона и пароля.</p>
-        </div>
-        {% endif %}
-
-        <form method="post" action="{% url 'login' %}" class="space-y-6">
-            {% csrf_token %}
-            <div>
-                <label for="id_username" class="block text-sm font-medium text-gray-700 mb-1">Номер телефона</label>
-                <input type="text" name="username" id="id_username" autocomplete="username" required
-                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-            </div>
-            <div>
-                <label for="id_password" class="block text-sm font-medium text-gray-700 mb-1">Пароль</label>
-                <input type="password" name="password" id="id_password" autocomplete="current-password" required
-                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-            </div>
-            <div>
-                <button type="submit" 
-                        class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-blue-700 transition-colors">
-                    Войти
-                </button>
-            </div>
-            <input type="hidden" name="next" value="{{ next }}">
-        </form>
-
-        <div class="mt-6 text-center text-sm text-gray-600">
-            <p>Нужна помощь? Свяжитесь с администратором системы.</p>
-        </div>
+<div class="w-full min-h-screen bg-gray-50 flex flex-col items-center justify-center">
+  <div class="flex items-center gap-2 mb-8">
+    <div class="w-10 h-6 bg-blue-600 shadow-[inset_0px_-1px_2.6px_rgba(255,255,255,0.64)]"></div>
+    <h1 class="text-2xl font-semibold font-['Inter_Tight'] text-black">Barlau.kz</h1>
+  </div>
+  <form method="post" action="{% url 'login' %}" class="w-96 p-10 bg-white rounded-[20px] shadow-[0px_16px_32px_-12px_rgba(88,92,95,0.10)] flex flex-col gap-6">
+    {% csrf_token %}
+    <div class="flex flex-col items-start gap-2.5">
+      <h2 class="text-2xl font-semibold leading-loose text-zinc-950">Войдите в систему</h2>
+      <p class="text-base text-gray-500 leading-normal tracking-tight">Введите номер телефона и пароль</p>
     </div>
+    {% if form.errors %}
+      <div class="text-red-500 text-sm">Неверный номер телефона или пароль</div>
+    {% endif %}
+    <div class="flex flex-col gap-4">
+      <div class="flex flex-col gap-2">
+        <label for="id_username" class="text-sm font-medium text-gray-500">Номер телефона</label>
+        <input type="text" name="username" id="id_username" required autocomplete="username"
+          class="w-full h-12 px-3.5 py-2 bg-white rounded-xl shadow outline outline-1 outline-zinc-200 text-zinc-950 text-base" />
+      </div>
+      <div class="flex flex-col gap-2">
+        <label for="id_password" class="text-sm font-medium text-gray-500">Пароль</label>
+        <input type="password" name="password" id="id_password" required autocomplete="current-password"
+          class="w-full h-12 px-3.5 py-2 bg-white rounded-xl shadow outline outline-1 outline-zinc-200 text-zinc-950 text-base" />
+      </div>
+    </div>
+    <button type="submit"
+      class="h-12 w-full bg-blue-600 rounded-xl text-white font-semibold text-base flex justify-center items-center shadow">
+      Войти
+    </button>
+    <input type="hidden" name="next" value="{{ next }}">
+  </form>
 </div>
 {% endblock %} 
