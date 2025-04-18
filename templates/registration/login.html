@@ -17,13 +17,13 @@
         }
         .bg-pattern {
             background-image: url('{% static "core/img/bg-dots.png" %}?v={% now "U" %}');
-            background-size: cover;
+            background-size: 80%; /* Уменьшаем размер фона на 20% */
             background-position: center;
             background-color: #f7fafc;
         }
         .form-container {
             position: absolute;
-            top: 45%;
+            top: 48%; /* Опускаем форму немного ниже */
             left: 50%;
             transform: translate(-50%, -50%);
             width: 100%;
@@ -35,12 +35,7 @@
 <body class="bg-pattern h-full">
     <div class="flex justify-center pt-8 pb-4">
         <div class="flex items-center">
-            <svg width="40" height="24" viewBox="0 0 40 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect width="40" height="24" rx="2" fill="#2679DB"/>
-                <path d="M8 8H32" stroke="white" stroke-width="2" stroke-linecap="round"/>
-                <path d="M12 12H32" stroke="white" stroke-width="2" stroke-linecap="round"/>
-                <path d="M16 16H32" stroke="white" stroke-width="2" stroke-linecap="round"/>
-            </svg>
+            <img src="{% static 'core/img/logo.png' %}?v={% now "U" %}" alt="Barlau Logo" class="w-[42px] h-[23px]" />
             <h1 class="text-2xl font-semibold text-black ml-2">Barlau.kz</h1>
         </div>
     </div>
