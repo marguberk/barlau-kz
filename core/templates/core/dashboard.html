@@ -7,6 +7,7 @@
     <title>Barlau.kz - Система управления логистической компанией</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{% static 'core/css/dashboard.css' %}">
     <style>
         body {
             font-family: 'Inter Tight', sans-serif;
@@ -152,9 +153,39 @@
                         </div>
                     </div>
                     <div class="self-stretch p-5 h-48 flex items-end justify-center">
-                        <!-- Заглушка графика -->
-                        <div class="w-full h-full bg-gray-50 rounded flex items-center justify-center">
-                            <p class="text-gray-400">Финансовый график</p>
+                        <!-- График финансов -->
+                        <div class="w-full h-full bg-gray-50 rounded">
+                            <div class="w-full h-full flex flex-col">
+                                <!-- Линии сетки -->
+                                <div class="flex-1 border-b border-gray-200 relative">
+                                    <div class="absolute left-0 right-0 bottom-1/4 border-b border-gray-200"></div>
+                                    <div class="absolute left-0 right-0 bottom-1/2 border-b border-gray-200"></div>
+                                    <div class="absolute left-0 right-0 bottom-3/4 border-b border-gray-200"></div>
+                                    
+                                    <!-- График - синяя линия (текущий месяц) -->
+                                    <div class="absolute left-0 right-0 bottom-0 h-full">
+                                        <svg viewBox="0 0 100 40" preserveAspectRatio="none" class="h-full w-full">
+                                            <path d="M0,35 C10,32 20,28 30,25 C40,22 50,30 60,28 C70,26 80,15 90,10 L100,5" stroke="#2679DB" stroke-width="2" fill="none" />
+                                        </svg>
+                                    </div>
+                                    
+                                    <!-- График - голубая линия (прошлый месяц) -->
+                                    <div class="absolute left-0 right-0 bottom-0 h-full">
+                                        <svg viewBox="0 0 100 40" preserveAspectRatio="none" class="h-full w-full">
+                                            <path d="M0,30 C10,32 20,33 30,30 C40,27 50,24 60,25 C70,26 80,24 90,22 L100,20" stroke="#38BDF8" stroke-width="2" stroke-dasharray="2 2" fill="none" />
+                                        </svg>
+                                    </div>
+                                </div>
+                                
+                                <!-- Шкала времени -->
+                                <div class="h-6 flex justify-between px-4 text-xs text-gray-500">
+                                    <span>1 апр</span>
+                                    <span>8 апр</span>
+                                    <span>15 апр</span>
+                                    <span>22 апр</span>
+                                    <span>29 апр</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     {% else %}
@@ -183,10 +214,9 @@
                                         <div class="pt-1 flex justify-center items-center gap-2">
                                             <div class="w-4 h-4 relative">
                                                 {% if task.status == 'COMPLETED' %}
-                                                    <div class="w-4 h-4 left-0 top-0 absolute bg-blue-600 rounded-full"></div>
-                                                    <span class="w-2.5 h-2.5 left-[3.33px] top-[3.33px] absolute text-white text-xs">✓</span>
+                                                    <img src="{% static 'core/img/check-circle-filled.svg' %}" alt="Completed" class="w-4 h-4">
                                                 {% else %}
-                                                    <div class="w-4 h-4 left-0 top-0 absolute rounded-full border border-zinc-200"></div>
+                                                    <img src="{% static 'core/img/check-circle.svg' %}" alt="Not completed" class="w-4 h-4">
                                                 {% endif %}
                                             </div>
                                         </div>
@@ -252,38 +282,127 @@
                     {% if request.user.is_authenticated %}
                     <div class="flex">
                         <!-- Список машин -->
-                        <div class="w-1/2 px-5 py-4 flex flex-col gap-4">
+                        <div class="w-1/2 px-5 py-4 flex flex-col gap-4 h-80 overflow-y-auto trucks-container">
                             <!-- Первая машина - активная -->
-                            <div class="w-full h-28 bg-white rounded-lg shadow-[0px_0px_5px_0px_rgba(38,123,217,0.37)] border border-blue-600 p-4 relative">
+                            <div class="w-full h-28 bg-white rounded-lg shadow-[0px_0px_5px_0px_rgba(38,123,217,0.37)] border border-blue-600 p-4 relative truck-card active" data-truck="474-atl-01">
                                 <div class="opacity-40 justify-start text-black text-xs font-normal uppercase">VOLVO FH 460</div>
                                 <div class="justify-start text-black text-3xl font-medium uppercase mt-1">474 ATL 01</div>
                                 <div class="justify-start text-black text-xs font-normal mt-2">Хоргос – Астана</div>
+                                <img src="{% static 'core/img/VOLVO FH 460.png' %}" alt="Volvo Truck" class="absolute right-4 top-2 w-20 h-20 object-contain opacity-90">
                             </div>
                             
                             <!-- Вторая машина -->
-                            <div class="w-full h-28 bg-white rounded-lg shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] border border-zinc-200 p-4 relative">
+                            <div class="w-full h-28 bg-white rounded-lg shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] border border-zinc-200 p-4 relative truck-card" data-truck="355-atl-01">
                                 <div class="opacity-40 justify-start text-black text-xs font-normal uppercase">VOLVO FH 460</div>
                                 <div class="justify-start text-black text-3xl font-medium uppercase mt-1">355 ATL 01</div>
                                 <div class="justify-start text-black text-xs font-normal mt-2">Алматы – Хоргос</div>
+                                <img src="{% static 'core/img/VOLVO FH 460.png' %}" alt="Volvo Truck" class="absolute right-4 top-2 w-20 h-20 object-contain opacity-40">
                             </div>
                             
                             <!-- Третья машина -->
-                            <div class="w-full h-28 bg-white rounded-lg shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] border border-zinc-200 p-4 relative">
+                            <div class="w-full h-28 bg-white rounded-lg shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] border border-zinc-200 p-4 relative truck-card" data-truck="533-atl-01">
                                 <div class="opacity-40 justify-start text-black text-xs font-normal uppercase">VOLVO FH 460</div>
                                 <div class="justify-start text-black text-3xl font-medium uppercase mt-1">533 ATL 01</div>
                                 <div class="justify-start text-black text-xs font-normal mt-2">Хоргос – Костанай</div>
+                                <img src="{% static 'core/img/VOLVO FH 460.png' %}" alt="Volvo Truck" class="absolute right-4 top-2 w-20 h-20 object-contain opacity-40">
+                            </div>
+                            
+                            <!-- Дополнительные машины для примера скроллинга -->
+                            <div class="w-full h-28 bg-white rounded-lg shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] border border-zinc-200 p-4 relative truck-card" data-truck="621-atl-01">
+                                <div class="opacity-40 justify-start text-black text-xs font-normal uppercase">VOLVO FH 460</div>
+                                <div class="justify-start text-black text-3xl font-medium uppercase mt-1">621 ATL 01</div>
+                                <div class="justify-start text-black text-xs font-normal mt-2">Алматы – Нур-Султан</div>
+                                <img src="{% static 'core/img/VOLVO FH 460.png' %}" alt="Volvo Truck" class="absolute right-4 top-2 w-20 h-20 object-contain opacity-40">
+                            </div>
+                            
+                            <div class="w-full h-28 bg-white rounded-lg shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] border border-zinc-200 p-4 relative truck-card" data-truck="788-atl-01">
+                                <div class="opacity-40 justify-start text-black text-xs font-normal uppercase">VOLVO FH 460</div>
+                                <div class="justify-start text-black text-3xl font-medium uppercase mt-1">788 ATL 01</div>
+                                <div class="justify-start text-black text-xs font-normal mt-2">Актау – Шымкент</div>
+                                <img src="{% static 'core/img/VOLVO FH 460.png' %}" alt="Volvo Truck" class="absolute right-4 top-2 w-20 h-20 object-contain opacity-40">
                             </div>
                         </div>
                         
                         <!-- Карта и детали -->
                         <div class="w-1/2 px-5 py-4 flex flex-col">
                             <!-- Карта -->
-                            <div class="w-full h-52 bg-gray-100 rounded-lg mb-4 flex items-center justify-center">
-                                <p class="text-gray-400">Интерактивная карта</p>
+                            <div class="w-full h-52 bg-gray-100 rounded-lg mb-4 relative overflow-hidden">
+                                <div class="absolute inset-0 bg-gray-100">
+                                    <!-- Упрощенная карта с маршрутом -->
+                                    <div class="w-full h-full">
+                                        <!-- Линия маршрута -->
+                                        <svg viewBox="0 0 400 200" class="w-full h-full" id="map-474-atl-01">
+                                            <!-- Фон карты - упрощенный -->
+                                            <rect x="0" y="0" width="400" height="200" fill="#EBF3FA" />
+                                            
+                                            <!-- Дорога - линия маршрута -->
+                                            <path d="M50,150 C100,130 150,100 200,90 C250,80 300,130 350,110" stroke="#2679DB" stroke-width="3" fill="none" class="graph-line" />
+                                            
+                                            <!-- Начальная точка - Хоргос -->
+                                            <circle cx="50" cy="150" r="6" fill="#34D399" />
+                                            <text x="50" y="170" font-size="10" text-anchor="middle" fill="#4B5563">Хоргос</text>
+                                            
+                                            <!-- Конечная точка - Астана -->
+                                            <circle cx="350" cy="110" r="6" fill="#F87171" />
+                                            <text x="350" y="130" font-size="10" text-anchor="middle" fill="#4B5563">Астана</text>
+                                            
+                                            <!-- Текущее положение -->
+                                            <circle cx="200" cy="90" r="8" fill="#2679DB" stroke="white" stroke-width="2" class="map-marker map-marker-pulse" />
+                                        </svg>
+                                        
+                                        <!-- Альтернативные маршруты для других грузовиков (скрыты по умолчанию) -->
+                                        <svg viewBox="0 0 400 200" class="w-full h-full hidden" id="map-355-atl-01">
+                                            <rect x="0" y="0" width="400" height="200" fill="#EBF3FA" />
+                                            <path d="M350,150 C300,140 250,130 200,125 C150,120 100,130 50,120" stroke="#2679DB" stroke-width="3" fill="none" class="graph-line" />
+                                            <circle cx="350" cy="150" r="6" fill="#34D399" />
+                                            <text x="350" y="170" font-size="10" text-anchor="middle" fill="#4B5563">Алматы</text>
+                                            <circle cx="50" cy="120" r="6" fill="#F87171" />
+                                            <text x="50" y="140" font-size="10" text-anchor="middle" fill="#4B5563">Хоргос</text>
+                                            <circle cx="180" cy="124" r="8" fill="#2679DB" stroke="white" stroke-width="2" class="map-marker map-marker-pulse" />
+                                        </svg>
+                                        
+                                        <svg viewBox="0 0 400 200" class="w-full h-full hidden" id="map-533-atl-01">
+                                            <rect x="0" y="0" width="400" height="200" fill="#EBF3FA" />
+                                            <path d="M50,150 C100,100 150,70 200,60 C250,50 300,30 350,50" stroke="#2679DB" stroke-width="3" fill="none" class="graph-line" />
+                                            <circle cx="50" cy="150" r="6" fill="#34D399" />
+                                            <text x="50" y="170" font-size="10" text-anchor="middle" fill="#4B5563">Хоргос</text>
+                                            <circle cx="350" cy="50" r="6" fill="#F87171" />
+                                            <text x="350" y="70" font-size="10" text-anchor="middle" fill="#4B5563">Костанай</text>
+                                            <circle cx="120" cy="105" r="8" fill="#2679DB" stroke="white" stroke-width="2" class="map-marker map-marker-pulse" />
+                                        </svg>
+                                        
+                                        <svg viewBox="0 0 400 200" class="w-full h-full hidden" id="map-621-atl-01">
+                                            <rect x="0" y="0" width="400" height="200" fill="#EBF3FA" />
+                                            <path d="M50,100 C100,90 150,70 200,80 C250,90 300,100 350,80" stroke="#2679DB" stroke-width="3" fill="none" class="graph-line" />
+                                            <circle cx="50" cy="100" r="6" fill="#34D399" />
+                                            <text x="50" y="120" font-size="10" text-anchor="middle" fill="#4B5563">Алматы</text>
+                                            <circle cx="350" cy="80" r="6" fill="#F87171" />
+                                            <text x="350" y="100" font-size="10" text-anchor="middle" fill="#4B5563">Нур-Султан</text>
+                                            <circle cx="250" cy="85" r="8" fill="#2679DB" stroke="white" stroke-width="2" class="map-marker map-marker-pulse" />
+                                        </svg>
+                                        
+                                        <svg viewBox="0 0 400 200" class="w-full h-full hidden" id="map-788-atl-01">
+                                            <rect x="0" y="0" width="400" height="200" fill="#EBF3FA" />
+                                            <path d="M50,50 C100,80 150,100 200,110 C250,120 300,130 350,120" stroke="#2679DB" stroke-width="3" fill="none" class="graph-line" />
+                                            <circle cx="50" cy="50" r="6" fill="#34D399" />
+                                            <text x="50" y="70" font-size="10" text-anchor="middle" fill="#4B5563">Актау</text>
+                                            <circle cx="350" cy="120" r="6" fill="#F87171" />
+                                            <text x="350" y="140" font-size="10" text-anchor="middle" fill="#4B5563">Шымкент</text>
+                                            <circle cx="150" cy="90" r="8" fill="#2679DB" stroke="white" stroke-width="2" class="map-marker map-marker-pulse" />
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div class="absolute bottom-2 right-2">
+                                    <div class="bg-white rounded-full w-8 h-8 shadow flex items-center justify-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-5 h-5 text-gray-600">
+                                            <path d="M15 15l6 6m-6-6v4.8m0-4.8h4.8M9 19.8V15m0 0H4.2M4.2 15l6 6M9 4.2V9m0 0h4.8M9 9L3 3m12 0l6 6m-6-6v4.8m0-4.8h4.8" />
+                                        </svg>
+                                    </div>
+                                </div>
                             </div>
                             
                             <!-- Детали поездки -->
-                            <div class="flex justify-between items-start">
+                            <div class="flex justify-between items-start truck-details" id="details-474-atl-01">
                                 <div class="flex flex-col">
                                     <div class="opacity-50 justify-start text-black text-xs font-normal">Вес груза</div>
                                     <div class="justify-start text-black text-xl font-medium mt-1">103кг</div>
@@ -304,6 +423,95 @@
                                     <div class="justify-start text-black text-xl font-medium mt-1">$990</div>
                                 </div>
                             </div>
+                            
+                            <!-- Альтернативные детали для других грузовиков (скрыты по умолчанию) -->
+                            <div class="flex justify-between items-start truck-details hidden" id="details-355-atl-01">
+                                <div class="flex flex-col">
+                                    <div class="opacity-50 justify-start text-black text-xs font-normal">Вес груза</div>
+                                    <div class="justify-start text-black text-xl font-medium mt-1">87кг</div>
+                                </div>
+                                <div class="w-px h-11 bg-zinc-300"></div>
+                                <div class="flex flex-col">
+                                    <div class="opacity-50 justify-start text-black text-xs font-normal">Осталось</div>
+                                    <div class="justify-start text-black text-xl font-medium mt-1">1850км</div>
+                                </div>
+                                <div class="w-px h-11 bg-zinc-300"></div>
+                                <div class="flex flex-col">
+                                    <div class="opacity-50 justify-start text-black text-xs font-normal">Дата прибытия</div>
+                                    <div class="justify-start text-black text-xl font-medium mt-1">8 апреля</div>
+                                </div>
+                                <div class="w-px h-11 bg-zinc-300"></div>
+                                <div class="flex flex-col">
+                                    <div class="opacity-50 justify-start text-black text-xs font-normal">Прибыль</div>
+                                    <div class="justify-start text-black text-xl font-medium mt-1">$650</div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex justify-between items-start truck-details hidden" id="details-533-atl-01">
+                                <div class="flex flex-col">
+                                    <div class="opacity-50 justify-start text-black text-xs font-normal">Вес груза</div>
+                                    <div class="justify-start text-black text-xl font-medium mt-1">125кг</div>
+                                </div>
+                                <div class="w-px h-11 bg-zinc-300"></div>
+                                <div class="flex flex-col">
+                                    <div class="opacity-50 justify-start text-black text-xs font-normal">Осталось</div>
+                                    <div class="justify-start text-black text-xl font-medium mt-1">3450км</div>
+                                </div>
+                                <div class="w-px h-11 bg-zinc-300"></div>
+                                <div class="flex flex-col">
+                                    <div class="opacity-50 justify-start text-black text-xs font-normal">Дата прибытия</div>
+                                    <div class="justify-start text-black text-xl font-medium mt-1">12 апреля</div>
+                                </div>
+                                <div class="w-px h-11 bg-zinc-300"></div>
+                                <div class="flex flex-col">
+                                    <div class="opacity-50 justify-start text-black text-xs font-normal">Прибыль</div>
+                                    <div class="justify-start text-black text-xl font-medium mt-1">$1250</div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex justify-between items-start truck-details hidden" id="details-621-atl-01">
+                                <div class="flex flex-col">
+                                    <div class="opacity-50 justify-start text-black text-xs font-normal">Вес груза</div>
+                                    <div class="justify-start text-black text-xl font-medium mt-1">95кг</div>
+                                </div>
+                                <div class="w-px h-11 bg-zinc-300"></div>
+                                <div class="flex flex-col">
+                                    <div class="opacity-50 justify-start text-black text-xs font-normal">Осталось</div>
+                                    <div class="justify-start text-black text-xl font-medium mt-1">1250км</div>
+                                </div>
+                                <div class="w-px h-11 bg-zinc-300"></div>
+                                <div class="flex flex-col">
+                                    <div class="opacity-50 justify-start text-black text-xs font-normal">Дата прибытия</div>
+                                    <div class="justify-start text-black text-xl font-medium mt-1">5 апреля</div>
+                                </div>
+                                <div class="w-px h-11 bg-zinc-300"></div>
+                                <div class="flex flex-col">
+                                    <div class="opacity-50 justify-start text-black text-xs font-normal">Прибыль</div>
+                                    <div class="justify-start text-black text-xl font-medium mt-1">$750</div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex justify-between items-start truck-details hidden" id="details-788-atl-01">
+                                <div class="flex flex-col">
+                                    <div class="opacity-50 justify-start text-black text-xs font-normal">Вес груза</div>
+                                    <div class="justify-start text-black text-xl font-medium mt-1">142кг</div>
+                                </div>
+                                <div class="w-px h-11 bg-zinc-300"></div>
+                                <div class="flex flex-col">
+                                    <div class="opacity-50 justify-start text-black text-xs font-normal">Осталось</div>
+                                    <div class="justify-start text-black text-xl font-medium mt-1">2150км</div>
+                                </div>
+                                <div class="w-px h-11 bg-zinc-300"></div>
+                                <div class="flex flex-col">
+                                    <div class="opacity-50 justify-start text-black text-xs font-normal">Дата прибытия</div>
+                                    <div class="justify-start text-black text-xl font-medium mt-1">9 апреля</div>
+                                </div>
+                                <div class="w-px h-11 bg-zinc-300"></div>
+                                <div class="flex flex-col">
+                                    <div class="opacity-50 justify-start text-black text-xs font-normal">Прибыль</div>
+                                    <div class="justify-start text-black text-xl font-medium mt-1">$1100</div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     {% else %}
@@ -316,4 +524,51 @@
         </div>
     </div>
 </body>
+<script>
+    // Инициализация при загрузке страницы
+    document.addEventListener('DOMContentLoaded', function() {
+        // Показываем первый грузовик по умолчанию
+        selectTruck('474-atl-01');
+        
+        // Обработчики для чекбоксов задач
+        const checkboxes = document.querySelectorAll('.task-checkbox');
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const taskItem = this.closest('.task-item');
+                if (this.checked) {
+                    taskItem.classList.add('bg-green-50');
+                } else {
+                    taskItem.classList.remove('bg-green-50');
+                }
+            });
+        });
+    });
+    
+    // Функция для выбора грузовика и отображения его маршрута
+    function selectTruck(truckId) {
+        // Скрываем все карты
+        document.querySelectorAll('[id^="map-"]').forEach(map => {
+            map.classList.add('hidden');
+        });
+        
+        // Показываем выбранную карту
+        const selectedMap = document.getElementById(`map-${truckId}`);
+        if (selectedMap) {
+            selectedMap.classList.remove('hidden');
+        }
+        
+        // Обновляем стили карточек грузовиков
+        document.querySelectorAll('.truck-card').forEach(card => {
+            card.classList.remove('bg-blue-100');
+            card.classList.add('bg-gray-50');
+        });
+        
+        // Выделяем выбранную карточку
+        const selectedCard = document.querySelector(`.truck-card[data-truck-id="${truckId}"]`);
+        if (selectedCard) {
+            selectedCard.classList.remove('bg-gray-50');
+            selectedCard.classList.add('bg-blue-100');
+        }
+    }
+</script>
 </html> 
