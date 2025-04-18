@@ -12,6 +12,20 @@
         body {
             font-family: 'Inter Tight', sans-serif;
         }
+        .item-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .item-row .label {
+            font-weight: 500;
+            color: #6b7280;
+        }
+        .item-row .value {
+            font-weight: 600;
+            color: #111827;
+        }
     </style>
 </head>
 <body class="bg-gray-50">
@@ -43,7 +57,7 @@
                         </a>
                         <a href="{% url 'core:map' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex justify-start items-center gap-2">
                             <div class="w-5 h-5 relative overflow-hidden">
-                                <img src="{% static 'core/img/location.svg' %}" alt="Map" class="w-4 h-4">
+                                <img src="{% static 'core/img/location.svg' %}" alt="Map" class="w-4 h-4" onerror="this.onerror=null; this.src='/static/core/img/location.svg'">
                             </div>
                             <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Карта</div>
                         </a>
@@ -110,7 +124,7 @@
                     <div class="self-stretch flex flex-col justify-start items-start gap-2">
                         <div class="self-stretch inline-flex justify-between items-center">
                             <div class="justify-start text-zinc-950 text-4xl font-semibold leading-10">{{ tasks_count|default:"0" }}</div>
-                            <div class="w-10 h-10 p-2 bg-blue-600 rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.10)] flex justify-center items-center gap-2 overflow-hidden">
+                            <div class="w-10 h-10 p-2 bg-blue-600 rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.10)] flex justify-center items-center gap-2 overflow-hidden" style="background: linear-gradient(135deg, #4287f5 0%, #2869db 100%);">
                                 <img src="{% static 'core/img/check-square.svg' %}" alt="Tasks" class="w-5 h-5 invert" style="filter: brightness(0) invert(1);">
                             </div>
                         </div>
@@ -121,7 +135,7 @@
                     <div class="self-stretch flex flex-col justify-start items-start gap-2">
                         <div class="self-stretch inline-flex justify-between items-center">
                             <div class="justify-start text-zinc-950 text-4xl font-semibold leading-10">{{ vehicles_count|default:"0" }}</div>
-                            <div class="w-10 h-10 p-2 bg-blue-600 rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.10)] flex justify-center items-center gap-2 overflow-hidden">
+                            <div class="w-10 h-10 p-2 bg-blue-600 rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.10)] flex justify-center items-center gap-2 overflow-hidden" style="background: linear-gradient(135deg, #4287f5 0%, #2869db 100%);">
                                 <img src="{% static 'core/img/truck.svg' %}" alt="Vehicles" class="w-5 h-5 invert" style="filter: brightness(0) invert(1);">
                             </div>
                         </div>
@@ -231,7 +245,11 @@
                                             <div class="w-4 h-4 relative task-checkbox-container">
                                                 {% if task.status == 'COMPLETED' %}
                                                     <button onclick="toggleTaskStatus({{ task.id }}, 'NEW')" class="cursor-pointer">
-                                                        <img src="{% static 'core/img/check-circle-filled.svg' %}" alt="Completed" class="w-4 h-4 svg-icon-blue">
+                                                        <div class="w-4 h-4 rounded-full bg-blue-600 flex justify-center items-center">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-white" viewBox="0 0 20 20" fill="currentColor">
+                                                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                                            </svg>
+                                                        </div>
                                                     </button>
                                                 {% else %}
                                                     <button onclick="toggleTaskStatus({{ task.id }}, 'COMPLETED')" class="cursor-pointer">
@@ -634,7 +652,11 @@
             if (newStatus === 'COMPLETED') {
                 // Меняем на выполненную
                 container.innerHTML = `<button onclick="toggleTaskStatus(${taskId}, 'NEW')" class="cursor-pointer">
-                    <img src="{% static 'core/img/check-circle-filled.svg' %}" alt="Completed" class="w-4 h-4 svg-icon-blue">
+                    <div class="w-4 h-4 rounded-full bg-blue-600 flex justify-center items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-white" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
                 </button>`;
                 titleEl.classList.add('line-through', 'text-slate-500');
                 descEl.classList.add('text-slate-500');
