@@ -1,78 +1,94 @@
-{% extends "core/base.html" %}
+<!DOCTYPE html>
 {% load static %}
-
-{% block title %}Вход — Barlau.kz{% endblock %}
-
-{% block extra_head %}
-<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
-{% endblock %}
-
-{% block content %}
-<div class="font-['Inter_Tight'] bg-[url('/static/core/img/bg-dots.png')] bg-cover bg-center min-h-screen flex items-center justify-center px-4">
-  <div class="w-full max-w-md bg-white rounded-[20px] shadow-[0px_16px_32px_-12px_rgba(88,92,95,0.10)] p-8 flex flex-col gap-6">
-
-    <!-- Логотип и название -->
-    <div class="flex items-center gap-3 justify-center">
-      <img src="{% static 'core/img/logo.png' %}" alt="Barlau Logo" class="w-10 h-6" />
-      <h1 class="text-2xl font-semibold text-black">Barlau.kz</h1>
-    </div>
-
-    <!-- Заголовки -->
-    <div class="text-center">
-      <h2 class="text-2xl font-semibold text-zinc-950 leading-loose">Войдите в систему</h2>
-      <p class="text-base text-gray-500">Введите номер телефона и пароль</p>
-    </div>
-
-    <!-- Ошибки -->
-    {% if form.errors %}
-    <div class="text-red-500 text-sm text-center">Неверный номер телефона или пароль</div>
-    {% endif %}
-
-    <!-- Форма -->
-    <form method="post" action="{% url 'login' %}" class="flex flex-col gap-4">
-      {% csrf_token %}
-
-      <!-- Телефон -->
-      <div class="flex flex-col gap-2">
-        <label for="id_username" class="text-sm font-medium text-gray-500">Номер телефона</label>
-        <input type="text" name="username" id="id_username" required autocomplete="username"
-          class="w-full h-12 px-3.5 py-2 bg-white rounded-xl shadow outline outline-1 outline-zinc-200 text-zinc-950 text-base" />
-      </div>
-
-      <!-- Пароль -->
-      <div class="flex flex-col gap-2">
-        <label for="id_password" class="text-sm font-medium text-gray-500">Пароль</label>
-        <div class="relative">
-          <input type="password" name="password" id="id_password" required autocomplete="current-password"
-            class="w-full h-12 px-3.5 py-2 pr-10 bg-white rounded-xl shadow outline outline-1 outline-zinc-200 text-zinc-950 text-base" />
-          <img src="{% static 'core/img/eye.svg' %}" alt="Показать пароль" class="w-5 h-5 absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer toggle-password" />
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вход — Barlau.kz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: 'Inter Tight', sans-serif;
+        }
+        .bg-pattern {
+            background-image: url('{% static "core/img/bg-dots.png" %}');
+            background-size: cover;
+            background-position: center;
+        }
+    </style>
+</head>
+<body class="bg-pattern h-full">
+    <div class="flex justify-center py-8">
+        <div class="flex items-center gap-2">
+            <div class="w-10 h-6 bg-blue-600 shadow-[inset_0px_-1px_2.6px_rgba(255,255,255,0.64)]"></div>
+            <h1 class="text-2xl font-semibold text-black">Barlau.kz</h1>
         </div>
-      </div>
-
-      <!-- Кнопка входа -->
-      <button type="submit"
-        class="h-12 w-full bg-[#267BD9] rounded-xl text-white font-semibold text-base flex justify-center items-center shadow hover:bg-blue-700 transition">
-        Войти
-      </button>
-      
-      <input type="hidden" name="next" value="{{ next }}">
-    </form>
-  </div>
-</div>
-{% endblock %}
-
-{% block extra_scripts %}
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const togglePassword = document.querySelector('.toggle-password');
-    const passwordInput = document.getElementById('id_password');
+    </div>
     
-    if (togglePassword && passwordInput) {
-      togglePassword.addEventListener('click', function() {
-        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-        passwordInput.setAttribute('type', type);
-      });
-    }
-  });
-</script>
-{% endblock %} 
+    <div class="flex items-center justify-center h-[calc(100%-80px)]">
+        <div class="w-full max-w-md bg-white rounded-[20px] shadow-[0px_16px_32px_-12px_rgba(88,92,95,0.10)] p-8 flex flex-col gap-6 mx-4">
+            <!-- Заголовки -->
+            <div class="text-center">
+                <h2 class="text-2xl font-semibold text-zinc-950 leading-loose">Войдите в систему</h2>
+                <p class="text-base text-gray-500">Введите номер телефона и пароль</p>
+            </div>
+
+            <!-- Ошибки -->
+            {% if form.errors %}
+            <div class="text-red-500 text-sm text-center">Неверный номер телефона или пароль</div>
+            {% endif %}
+
+            <!-- Форма -->
+            <form method="post" action="{% url 'login' %}" class="flex flex-col gap-4">
+                {% csrf_token %}
+
+                <!-- Телефон -->
+                <div class="flex flex-col gap-2">
+                    <label for="id_username" class="text-sm font-medium text-gray-500">Номер телефона</label>
+                    <input type="text" name="username" id="id_username" placeholder="+7" required autocomplete="username"
+                        class="w-full h-12 px-3.5 py-2 bg-white rounded-xl shadow outline outline-1 outline-zinc-200 text-zinc-950 text-base" />
+                </div>
+
+                <!-- Пароль -->
+                <div class="flex flex-col gap-2">
+                    <label for="id_password" class="text-sm font-medium text-gray-500">Пароль</label>
+                    <div class="relative">
+                        <input type="password" name="password" id="id_password" required autocomplete="current-password"
+                            class="w-full h-12 px-3.5 py-2 pr-10 bg-white rounded-xl shadow outline outline-1 outline-zinc-200 text-zinc-950 text-base" />
+                        <button type="button" id="togglePassword" class="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer">
+                            <img src="{% static 'core/img/eye.svg' %}" alt="Показать пароль" class="w-5 h-5" />
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Кнопка входа -->
+                <button type="submit"
+                    class="h-12 w-full bg-[#267BD9] rounded-xl text-white font-semibold text-base flex justify-center items-center shadow hover:bg-blue-700 transition">
+                    Войти
+                </button>
+                
+                <input type="hidden" name="next" value="{{ next }}">
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const togglePassword = document.getElementById('togglePassword');
+            const passwordInput = document.getElementById('id_password');
+            
+            if (togglePassword && passwordInput) {
+                togglePassword.addEventListener('click', function() {
+                    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                    passwordInput.setAttribute('type', type);
+                });
+            }
+        });
+    </script>
+</body>
+</html> 
