@@ -1,0 +1,170 @@
+/* Dashboard.css - Дополнительные стили для дашборда */
+
+/* Анимация для выбора грузовика */
+.truck-card {
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.truck-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.truck-card.active {
+    border-color: #2679DB;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3);
+}
+
+.truck-card:not(.active) {
+    opacity: 0.8;
+}
+
+.truck-card:not(.active):hover {
+    opacity: 1;
+}
+
+/* Анимации чекбоксов */
+.task-checkbox {
+    transition: all 0.2s ease;
+}
+
+.task-checkbox:hover {
+    transform: scale(1.1);
+}
+
+/* Анимация графика */
+@keyframes graphLineAnimation {
+    0% {
+        stroke-dashoffset: 1000;
+        opacity: 0;
+    }
+    100% {
+        stroke-dashoffset: 0;
+        opacity: 1;
+    }
+}
+
+.graph-line {
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+    animation: graphLineAnimation 2s ease-in-out forwards;
+}
+
+.graph-line-delayed {
+    animation-delay: 0.5s;
+}
+
+/* Маркер на карте */
+.map-marker {
+    transition: all 0.5s ease;
+}
+
+.map-marker-pulse {
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(38, 121, 219, 0.7);
+    }
+    
+    70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 10px rgba(38, 121, 219, 0);
+    }
+    
+    100% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(38, 121, 219, 0);
+    }
+}
+
+/* Стили для скролл-бара грузовиков */
+.trucks-container {
+    scrollbar-width: thin;
+    scrollbar-color: #CBD5E1 #F1F5F9;
+}
+
+.trucks-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.trucks-container::-webkit-scrollbar-track {
+    background: #F1F5F9;
+    border-radius: 8px;
+}
+
+.trucks-container::-webkit-scrollbar-thumb {
+    background-color: #CBD5E1;
+    border-radius: 8px;
+}
+
+.trucks-container::-webkit-scrollbar-thumb:hover {
+    background-color: #94A3B8;
+}
+
+/* Изменение цвета SVG иконок */
+
+/* Метод 1: использование CSS filter для изменения цвета */
+.svg-icon-blue {
+    filter: invert(43%) sepia(97%) saturate(1352%) hue-rotate(196deg) brightness(96%) contrast(96%);
+}
+
+.svg-icon-red {
+    filter: invert(40%) sepia(97%) saturate(2878%) hue-rotate(337deg) brightness(100%) contrast(98%);
+}
+
+.svg-icon-green {
+    filter: invert(68%) sepia(69%) saturate(435%) hue-rotate(101deg) brightness(93%) contrast(89%);
+}
+
+.svg-icon-purple {
+    filter: invert(31%) sepia(82%) saturate(2368%) hue-rotate(242deg) brightness(87%) contrast(92%);
+}
+
+.svg-icon-orange {
+    filter: invert(69%) sepia(66%) saturate(1688%) hue-rotate(346deg) brightness(102%) contrast(98%);
+}
+
+/* Метод 2: Использование свойства background-color с маской */
+.svg-bg-icon {
+    background-color: currentColor;
+    -webkit-mask-size: cover;
+    mask-size: cover;
+}
+
+/* Метод 3: инверсия цвета для использования на темном фоне */
+.svg-invert {
+    filter: invert(100%);
+}
+
+/* Метод 4: Изменение непосредственно fill и stroke для inline SVG */
+svg.colored-svg circle {
+    stroke: #2679DB; /* Синий */
+    fill: transparent;
+}
+
+svg.colored-svg.filled-svg circle {
+    fill: #2679DB;
+}
+
+svg.colored-svg.filled-svg path {
+    stroke: white;
+}
+
+/* Анимация при наведении */
+.svg-icon-hover {
+    transition: all 0.3s ease;
+}
+
+.svg-icon-hover:hover {
+    filter: invert(43%) sepia(97%) saturate(1352%) hue-rotate(196deg) brightness(120%) contrast(96%);
+    transform: scale(1.1);
+}
+
+/* Стили для белых иконок на синем фоне */
+.bg-blue-600 img.invert {
+    filter: brightness(0) invert(1);
+} 

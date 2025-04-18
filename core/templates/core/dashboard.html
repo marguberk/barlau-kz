@@ -111,7 +111,7 @@
                         <div class="self-stretch inline-flex justify-between items-center">
                             <div class="justify-start text-zinc-950 text-4xl font-semibold leading-10">{{ tasks_count|default:"0" }}</div>
                             <div class="w-10 h-10 p-2 bg-blue-600 rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.10)] flex justify-center items-center gap-2 overflow-hidden">
-                                <img src="{% static 'core/img/check-square.svg' %}" alt="Tasks" class="w-5 h-5 invert">
+                                <img src="{% static 'core/img/check-square.svg' %}" alt="Tasks" class="w-5 h-5 invert" style="filter: brightness(0) invert(1);">
                             </div>
                         </div>
                         <div class="self-stretch justify-start text-gray-500 text-base font-normal leading-normal">Задач на сегодня</div>
@@ -122,7 +122,7 @@
                         <div class="self-stretch inline-flex justify-between items-center">
                             <div class="justify-start text-zinc-950 text-4xl font-semibold leading-10">{{ vehicles_count|default:"0" }}</div>
                             <div class="w-10 h-10 p-2 bg-blue-600 rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.10)] flex justify-center items-center gap-2 overflow-hidden">
-                                <img src="{% static 'core/img/truck.svg' %}" alt="Vehicles" class="w-5 h-5 invert">
+                                <img src="{% static 'core/img/truck.svg' %}" alt="Vehicles" class="w-5 h-5 invert" style="filter: brightness(0) invert(1);">
                             </div>
                         </div>
                         <div class="self-stretch justify-start text-gray-500 text-base font-normal leading-normal">Машин в пути</div>
@@ -613,7 +613,14 @@
         })
         .then(response => {
             if (!response.ok) {
-                throw new Error(response.status);
+                let errorMsg = 'Не удалось обновить статус задачи';
+                
+                // Особая обработка ошибки 403 Forbidden
+                if (response.status === 403) {
+                    errorMsg = 'У вас нет прав для изменения этой задачи';
+                }
+                
+                throw new Error(errorMsg);
             }
             return response.json();
         })
@@ -654,7 +661,7 @@
             modal.innerHTML = `
                 <div class="bg-white rounded-lg p-6 max-w-md mx-auto">
                     <h3 class="text-lg font-medium mb-2">Подтвердите действие на ${window.location.hostname}</h3>
-                    <p class="text-gray-700 mb-6">Не удалось обновить статус задачи. Пожалуйста, попробуйте еще раз.</p>
+                    <p class="text-gray-700 mb-6">${error.message}. Пожалуйста, попробуйте еще раз.</p>
                     <div class="flex justify-end">
                         <button class="px-4 py-2 bg-teal-700 text-white rounded-lg" onclick="this.closest('.fixed').remove()">ОК</button>
                     </div>
