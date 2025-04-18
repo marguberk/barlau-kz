@@ -242,7 +242,7 @@ class NotificationViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 class HomeView(TemplateView):
-    template_name = 'core/home_mobile.html'
+    template_name = 'core/dashboard.html'
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

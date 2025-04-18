@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barlau.kz - Система управления логистической компанией</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter Tight', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="w-full flex">
+        <!-- Боковая панель -->
+        <div class="w-64 h-screen bg-white border-r border-zinc-200 flex flex-col justify-start items-start fixed left-0 top-0">
+            <div class="self-stretch px-5 py-6 relative flex flex-col justify-start items-start gap-2">
+                <div class="py-1 inline-flex justify-start items-center gap-2">
+                    <img src="{% static 'core/img/logo.png' %}" alt="Barlau Logo" class="w-10 h-6">
+                    <div class="text-center justify-start text-black text-2xl font-semibold leading-normal">Barlau.kz</div>
+                </div>
+                <div class="w-56 h-0 left-[20px] top-[81px] absolute outline outline-1 outline-offset-[-0.50px] outline-zinc-200"></div>
+            </div>
+            <div class="self-stretch flex-1 px-4 pt-2 pb-4 flex flex-col justify-start items-center gap-4">
+                <div class="self-stretch flex flex-col justify-start items-start gap-1">
+                    <div class="self-stretch flex flex-col justify-start items-start">
+                        <a href="{% url 'core:home' %}" class="self-stretch px-3 py-3.5 relative bg-gray-50 rounded-lg inline-flex justify-start items-center gap-2">
+                            <div class="w-5 h-5 relative overflow-hidden">
+                                <img src="{% static 'core/img/home.svg' %}" alt="Home" class="w-4 h-4">
+                            </div>
+                            <div class="flex-1 justify-start text-zinc-950 text-base font-medium leading-normal tracking-tight">Главная</div>
+                            <div class="w-1 h-6 left-[-16px] top-[14px] absolute bg-blue-600 rounded-tr-lg rounded-br-lg"></div>
+                        </a>
+                        <a href="{% url 'core:tasks' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex justify-start items-center gap-2">
+                            <div class="w-5 h-5 relative overflow-hidden">
+                                <img src="{% static 'core/img/check-square.svg' %}" alt="Tasks" class="w-4 h-4">
+                            </div>
+                            <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Задачи</div>
+                        </a>
+                        <a href="{% url 'core:map' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex justify-start items-center gap-2">
+                            <div class="w-5 h-5 relative overflow-hidden">
+                                <img src="{% static 'core/img/location.svg' %}" alt="Map" class="w-4 h-4">
+                            </div>
+                            <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Карта</div>
+                        </a>
+                        <a href="{% url 'core:vehicles' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex justify-start items-center gap-2">
+                            <div class="w-5 h-5 relative overflow-hidden">
+                                <img src="{% static 'core/img/truck.svg' %}" alt="Vehicles" class="w-4 h-4">
+                            </div>
+                            <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Грузовики</div>
+                        </a>
+                        <a href="{% url 'core:employees' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex justify-start items-center gap-2">
+                            <div class="w-5 h-5 relative overflow-hidden">
+                                <img src="{% static 'core/img/employee.svg' %}" alt="Employees" class="w-4 h-4">
+                            </div>
+                            <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Сотрудники</div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Основной контент -->
+        <div class="ml-64 flex-1 min-h-screen bg-gray-50 relative">
+            <!-- Верхняя панель -->
+            <div class="w-full h-20 px-8 py-5 bg-white flex justify-between items-center">
+                <div class="justify-start text-zinc-950 text-2xl font-semibold leading-loose">Главная</div>
+                <div class="flex justify-start items-center gap-3">
+                    <div class="flex justify-start items-start gap-2">
+                        <a href="{% url 'core:notifications' %}" class="w-8 h-8 px-3 py-2 bg-white rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex justify-center items-center gap-1.5">
+                            <img src="{% static 'core/img/bell.svg' %}" alt="Notifications" class="w-4 h-4">
+                        </a>
+                    </div>
+                    <div class="flex justify-start items-center gap-1.5">
+                        <img class="w-8 h-8 rounded-full" src="{% static 'core/img/logo.png' %}" />
+                        <div class="justify-center text-zinc-950 text-sm font-semibold leading-tight tracking-tight">
+                            {% if request.user.is_authenticated %}
+                                {{ request.user.get_full_name|default:request.user.username }}
+                            {% else %}
+                                Гость
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Карточки статистики -->
+            <div class="w-full px-8 pt-8 flex justify-start items-start gap-4">
+                <div class="flex-1 px-5 py-6 bg-white rounded-2xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex flex-col justify-start items-start gap-4 overflow-hidden">
+                    <div class="self-stretch flex flex-col justify-start items-start gap-2">
+                        <div class="self-stretch inline-flex justify-between items-center">
+                            <div class="justify-start text-zinc-950 text-4xl font-semibold leading-10">{{ tasks_count|default:"0" }}</div>
+                            <div class="w-10 h-10 p-2 bg-blue-600 rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.10)] flex justify-center items-center gap-2 overflow-hidden">
+                                <img src="{% static 'core/img/check-square.svg' %}" alt="Tasks" class="w-5 h-5 invert">
+                            </div>
+                        </div>
+                        <div class="self-stretch justify-start text-gray-500 text-base font-normal leading-normal">Задач на сегодня</div>
+                    </div>
+                </div>
+                <div class="flex-1 px-5 py-6 bg-white rounded-2xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex flex-col justify-start items-start gap-4 overflow-hidden">
+                    <div class="self-stretch flex flex-col justify-start items-start gap-2">
+                        <div class="self-stretch inline-flex justify-between items-center">
+                            <div class="justify-start text-zinc-950 text-4xl font-semibold leading-10">{{ vehicles_count|default:"0" }}</div>
+                            <div class="w-10 h-10 p-2 bg-blue-600 rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.10)] flex justify-center items-center gap-2 overflow-hidden">
+                                <img src="{% static 'core/img/truck.svg' %}" alt="Vehicles" class="w-5 h-5 invert">
+                            </div>
+                        </div>
+                        <div class="self-stretch justify-start text-gray-500 text-base font-normal leading-normal">Машин в пути</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Финансы и задачи -->
+            <div class="w-full px-8 pt-8 flex justify-start items-start gap-4">
+                <!-- Финансовая отчетность -->
+                <div class="w-2/3 bg-white rounded-2xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex flex-col justify-start items-start overflow-hidden">
+                    <div class="self-stretch px-5 py-4 border-b border-zinc-200 flex justify-between items-center">
+                        <div class="flex justify-start items-center gap-2">
+                            <img src="{% static 'core/img/finance.svg' %}" alt="Finance" class="w-6 h-6">
+                            <div class="justify-start text-black text-xl font-medium leading-loose tracking-tight">Финансовая отчетность</div>
+                        </div>
+                        <div class="flex justify-start items-center gap-2">
+                            <a href="{% url 'core:finance' %}" class="w-8 h-8 p-2 bg-white rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex justify-center items-center gap-2">
+                                <img src="{% static 'core/img/refresh-12.svg' %}" alt="Refresh" class="w-4 h-4">
+                            </a>
+                        </div>
+                    </div>
+                    {% if request.user.is_authenticated %}
+                    <div class="self-stretch p-5 flex justify-start items-baseline gap-2">
+                        <div class="justify-start text-zinc-950 text-2xl font-semibold leading-loose">$23,569.00</div>
+                        <div class="flex-1 flex justify-start items-center gap-1.5">
+                            <div class="flex justify-start items-center gap-0.5">
+                                <svg class="w-3.5 h-3.5" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M7 3L10 7H4L7 3Z" fill="#34D399" />
+                                </svg>
+                                <div class="justify-start text-emerald-400 text-sm font-semibold leading-tight tracking-tight">10,5%</div>
+                            </div>
+                            <div class="text-right justify-start text-gray-500 text-sm font-normal leading-tight tracking-tight">в сравнении с прошлым месяцем</div>
+                        </div>
+                        <div class="flex justify-start items-baseline gap-3">
+                            <div class="flex justify-end items-center gap-1.5">
+                                <div class="w-2 h-2 bg-blue-600 rounded-sm"></div>
+                                <div class="text-right justify-start text-gray-500 text-sm font-normal leading-tight tracking-tight">Этот месяц</div>
+                            </div>
+                            <div class="flex justify-end items-center gap-1.5">
+                                <div class="w-2 h-2 bg-sky-400 rounded-sm"></div>
+                                <div class="text-right justify-start text-gray-500 text-sm font-normal leading-tight tracking-tight">Прошлый месяц</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="self-stretch p-5 h-48 flex items-end justify-center">
+                        <!-- Заглушка графика -->
+                        <div class="w-full h-full bg-gray-50 rounded flex items-center justify-center">
+                            <p class="text-gray-400">Финансовый график</p>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="self-stretch p-5 h-64 flex items-center justify-center">
+                        <p class="text-gray-500 text-center">Войдите, чтобы увидеть финансовую информацию</p>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Задачи -->
+                <div class="w-1/3 bg-white rounded-2xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex flex-col justify-start items-start overflow-hidden">
+                    <div class="self-stretch px-5 py-4 border-b border-zinc-200 flex justify-between items-center">
+                        <div class="flex justify-start items-center gap-2">
+                            <img src="{% static 'core/img/check-square.svg' %}" alt="Tasks" class="w-6 h-6">
+                            <div class="justify-start text-black text-xl font-medium leading-loose tracking-tight">Задачи</div>
+                        </div>
+                        <a href="{% url 'core:tasks_add' %}" class="w-8 h-8 p-2 bg-white rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex justify-center items-center gap-2">
+                            <img src="{% static 'core/img/plus.svg' %}" alt="Add Task" class="w-4 h-4">
+                        </a>
+                    </div>
+                    <div class="self-stretch px-5 py-4 flex flex-col justify-start items-start gap-3">
+                        {% if request.user.is_authenticated %}
+                            {% if recent_tasks %}
+                                {% for task in recent_tasks|slice:":3" %}
+                                    <div class="self-stretch p-3.5 bg-white rounded-xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex justify-start items-start gap-3 overflow-hidden">
+                                        <div class="pt-1 flex justify-center items-center gap-2">
+                                            <div class="w-4 h-4 relative">
+                                                {% if task.status == 'COMPLETED' %}
+                                                    <div class="w-4 h-4 left-0 top-0 absolute bg-blue-600 rounded-full"></div>
+                                                    <span class="w-2.5 h-2.5 left-[3.33px] top-[3.33px] absolute text-white text-xs">✓</span>
+                                                {% else %}
+                                                    <div class="w-4 h-4 left-0 top-0 absolute rounded-full border border-zinc-200"></div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        <div class="flex-1 flex flex-col justify-start items-start gap-2.5">
+                                            <div class="self-stretch flex flex-col justify-start items-start gap-0.5">
+                                                <div class="self-stretch justify-start text-zinc-950 text-sm font-medium leading-tight tracking-tight{% if task.status == 'COMPLETED' %} line-through text-slate-500{% endif %}">{{ task.title }}</div>
+                                                <div class="self-stretch justify-start text-gray-500 text-sm font-normal leading-tight tracking-tight{% if task.status == 'COMPLETED' %} text-slate-500{% endif %}">{{ task.description|truncatechars:60 }}</div>
+                                            </div>
+                                            <div class="self-stretch flex justify-between items-center">
+                                                <div class="self-stretch flex justify-start items-center gap-1.5">
+                                                    <img src="{% static 'core/img/clock.svg' %}" alt="Date" class="w-4 h-4">
+                                                    <div class="justify-start text-gray-500 text-sm font-normal leading-tight tracking-tight{% if task.status == 'COMPLETED' %} text-slate-500{% endif %}">{{ task.deadline|date:"d/m" }}</div>
+                                                </div>
+                                                <div class="flex justify-start items-center gap-1">
+                                                    {% if task.priority == 'HIGH' %}
+                                                        <div class="px-1.5 py-px bg-red-50 rounded flex justify-center items-center gap-1">
+                                                            <div class="text-right justify-center text-red-600 text-xs font-medium leading-none tracking-tight">Срочно</div>
+                                                        </div>
+                                                    {% elif task.priority == 'MEDIUM' %}
+                                                        <div class="px-1.5 py-px bg-orange-50 rounded flex justify-center items-center gap-1">
+                                                            <div class="text-right justify-center text-orange-500 text-xs font-medium leading-none tracking-tight">Средний</div>
+                                                        </div>
+                                                    {% else %}
+                                                        <div class="px-1.5 py-px bg-indigo-50 rounded flex justify-center items-center gap-1">
+                                                            <div class="text-right justify-center text-blue-600 text-xs font-medium leading-none tracking-tight">Обычный</div>
+                                                        </div>
+                                                    {% endif %}
+                                                    {% if task.assigned_to %}
+                                                        <div class="px-1.5 py-px bg-sky-50 rounded flex justify-center items-center gap-1">
+                                                            <div class="text-right justify-center text-sky-400 text-xs font-medium leading-none tracking-tight">{{ task.assigned_to.get_short_name }}</div>
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="self-stretch p-4 text-center text-gray-500">
+                                    Нет активных задач
+                                </div>
+                            {% endif %}
+                        {% else %}
+                            <div class="self-stretch p-4 text-center text-gray-500">
+                                Войдите, чтобы увидеть задачи
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Активные поездки -->
+            <div class="w-full px-8 pt-8 pb-8">
+                <div class="w-full h-96 bg-white rounded-2xl outline outline-1 outline-offset-[-1px] outline-zinc-200 overflow-hidden relative">
+                    <div class="px-5 py-4 flex justify-between items-center">
+                        <div class="flex justify-start items-center gap-2">
+                            <img src="{% static 'core/img/flash.svg' %}" alt="Active trips" class="w-6 h-6">
+                            <div class="justify-start text-black text-xl font-medium leading-loose tracking-tight">Активные поездки</div>
+                        </div>
+                        <div class="justify-start text-black text-xl font-medium leading-loose tracking-tight">На карте</div>
+                    </div>
+                    
+                    {% if request.user.is_authenticated %}
+                    <div class="flex">
+                        <!-- Список машин -->
+                        <div class="w-1/2 px-5 py-4 flex flex-col gap-4">
+                            <!-- Первая машина - активная -->
+                            <div class="w-full h-28 bg-white rounded-lg shadow-[0px_0px_5px_0px_rgba(38,123,217,0.37)] border border-blue-600 p-4 relative">
+                                <div class="opacity-40 justify-start text-black text-xs font-normal uppercase">VOLVO FH 460</div>
+                                <div class="justify-start text-black text-3xl font-medium uppercase mt-1">474 ATL 01</div>
+                                <div class="justify-start text-black text-xs font-normal mt-2">Хоргос – Астана</div>
+                            </div>
+                            
+                            <!-- Вторая машина -->
+                            <div class="w-full h-28 bg-white rounded-lg shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] border border-zinc-200 p-4 relative">
+                                <div class="opacity-40 justify-start text-black text-xs font-normal uppercase">VOLVO FH 460</div>
+                                <div class="justify-start text-black text-3xl font-medium uppercase mt-1">355 ATL 01</div>
+                                <div class="justify-start text-black text-xs font-normal mt-2">Алматы – Хоргос</div>
+                            </div>
+                            
+                            <!-- Третья машина -->
+                            <div class="w-full h-28 bg-white rounded-lg shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] border border-zinc-200 p-4 relative">
+                                <div class="opacity-40 justify-start text-black text-xs font-normal uppercase">VOLVO FH 460</div>
+                                <div class="justify-start text-black text-3xl font-medium uppercase mt-1">533 ATL 01</div>
+                                <div class="justify-start text-black text-xs font-normal mt-2">Хоргос – Костанай</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Карта и детали -->
+                        <div class="w-1/2 px-5 py-4 flex flex-col">
+                            <!-- Карта -->
+                            <div class="w-full h-52 bg-gray-100 rounded-lg mb-4 flex items-center justify-center">
+                                <p class="text-gray-400">Интерактивная карта</p>
+                            </div>
+                            
+                            <!-- Детали поездки -->
+                            <div class="flex justify-between items-start">
+                                <div class="flex flex-col">
+                                    <div class="opacity-50 justify-start text-black text-xs font-normal">Вес груза</div>
+                                    <div class="justify-start text-black text-xl font-medium mt-1">103кг</div>
+                                </div>
+                                <div class="w-px h-11 bg-zinc-300"></div>
+                                <div class="flex flex-col">
+                                    <div class="opacity-50 justify-start text-black text-xs font-normal">Осталось</div>
+                                    <div class="justify-start text-black text-xl font-medium mt-1">2948км</div>
+                                </div>
+                                <div class="w-px h-11 bg-zinc-300"></div>
+                                <div class="flex flex-col">
+                                    <div class="opacity-50 justify-start text-black text-xs font-normal">Дата прибытия</div>
+                                    <div class="justify-start text-black text-xl font-medium mt-1">10 апреля</div>
+                                </div>
+                                <div class="w-px h-11 bg-zinc-300"></div>
+                                <div class="flex flex-col">
+                                    <div class="opacity-50 justify-start text-black text-xs font-normal">Прибыль</div>
+                                    <div class="justify-start text-black text-xl font-medium mt-1">$990</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="h-80 flex items-center justify-center">
+                        <p class="text-gray-500 text-center">Войдите, чтобы увидеть активные поездки</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 
