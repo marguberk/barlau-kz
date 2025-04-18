@@ -16,22 +16,37 @@
             font-family: 'Inter Tight', sans-serif;
         }
         .bg-pattern {
-            background-image: url('{% static "core/img/bg-dots.png" %}');
+            background-image: url('{% static "core/img/bg-dots.png" %}?v={% now "U" %}');
             background-size: cover;
             background-position: center;
+            background-color: #f7fafc;
+        }
+        .form-container {
+            position: absolute;
+            top: 45%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            max-width: 440px;
+            padding: 0 16px;
         }
     </style>
 </head>
 <body class="bg-pattern h-full">
-    <div class="flex justify-center py-8">
-        <div class="flex items-center gap-2">
-            <div class="w-10 h-6 bg-blue-600 shadow-[inset_0px_-1px_2.6px_rgba(255,255,255,0.64)]"></div>
-            <h1 class="text-2xl font-semibold text-black">Barlau.kz</h1>
+    <div class="flex justify-center pt-8 pb-4">
+        <div class="flex items-center">
+            <svg width="40" height="24" viewBox="0 0 40 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="40" height="24" rx="2" fill="#2679DB"/>
+                <path d="M8 8H32" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                <path d="M12 12H32" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                <path d="M16 16H32" stroke="white" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <h1 class="text-2xl font-semibold text-black ml-2">Barlau.kz</h1>
         </div>
     </div>
     
-    <div class="flex items-center justify-center h-[calc(100%-80px)]">
-        <div class="w-full max-w-md bg-white rounded-[20px] shadow-[0px_16px_32px_-12px_rgba(88,92,95,0.10)] p-8 flex flex-col gap-6 mx-4">
+    <div class="form-container">
+        <div class="w-full bg-white rounded-[20px] shadow-[0px_16px_32px_-12px_rgba(88,92,95,0.10)] p-8 flex flex-col gap-6">
             <!-- Заголовки -->
             <div class="text-center">
                 <h2 class="text-2xl font-semibold text-zinc-950 leading-loose">Войдите в систему</h2>
@@ -51,7 +66,7 @@
                 <div class="flex flex-col gap-2">
                     <label for="id_username" class="text-sm font-medium text-gray-500">Номер телефона</label>
                     <input type="text" name="username" id="id_username" placeholder="+7" required autocomplete="username"
-                        class="w-full h-12 px-3.5 py-2 bg-white rounded-xl shadow outline outline-1 outline-zinc-200 text-zinc-950 text-base" />
+                        class="w-full h-12 px-3.5 py-2 bg-blue-50 rounded-xl shadow-none border-0 outline-none text-zinc-950 text-base" />
                 </div>
 
                 <!-- Пароль -->
@@ -59,16 +74,16 @@
                     <label for="id_password" class="text-sm font-medium text-gray-500">Пароль</label>
                     <div class="relative">
                         <input type="password" name="password" id="id_password" required autocomplete="current-password"
-                            class="w-full h-12 px-3.5 py-2 pr-10 bg-white rounded-xl shadow outline outline-1 outline-zinc-200 text-zinc-950 text-base" />
+                            class="w-full h-12 px-3.5 py-2 pr-10 bg-white rounded-xl shadow-none border border-gray-200 outline-none text-zinc-950 text-base" />
                         <button type="button" id="togglePassword" class="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer">
-                            <img src="{% static 'core/img/eye.svg' %}" alt="Показать пароль" class="w-5 h-5" />
+                            <img src="{% static 'core/img/eye.svg' %}?v={% now "U" %}" alt="Показать пароль" class="w-5 h-5" />
                         </button>
                     </div>
                 </div>
 
                 <!-- Кнопка входа -->
                 <button type="submit"
-                    class="h-12 w-full bg-[#267BD9] rounded-xl text-white font-semibold text-base flex justify-center items-center shadow hover:bg-blue-700 transition">
+                    class="h-12 w-full bg-[#2679DB] rounded-xl text-white font-semibold text-base flex justify-center items-center hover:bg-blue-700 transition mt-2">
                     Войти
                 </button>
                 
