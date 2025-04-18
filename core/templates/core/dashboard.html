@@ -37,25 +37,25 @@
                         </a>
                         <a href="{% url 'core:tasks' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex justify-start items-center gap-2">
                             <div class="w-5 h-5 relative overflow-hidden">
-                                <img src="{% static 'core/img/check-square.svg' %}" alt="Tasks" class="w-4 h-4 svg-icon-blue">
+                                <img src="{% static 'core/img/check-square.svg' %}" alt="Tasks" class="w-4 h-4">
                             </div>
                             <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Задачи</div>
                         </a>
                         <a href="{% url 'core:map' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex justify-start items-center gap-2">
                             <div class="w-5 h-5 relative overflow-hidden">
-                                <img src="{% static 'core/img/location.svg' %}" alt="Map" class="w-4 h-4 svg-icon-blue">
+                                <img src="{% static 'core/img/location.svg' %}" alt="Map" class="w-4 h-4">
                             </div>
                             <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Карта</div>
                         </a>
                         <a href="{% url 'core:vehicles' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex justify-start items-center gap-2">
                             <div class="w-5 h-5 relative overflow-hidden">
-                                <img src="{% static 'core/img/truck.svg' %}" alt="Vehicles" class="w-4 h-4 svg-icon-blue">
+                                <img src="{% static 'core/img/truck.svg' %}" alt="Vehicles" class="w-4 h-4">
                             </div>
                             <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Грузовики</div>
                         </a>
                         <a href="{% url 'core:employees' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex justify-start items-center gap-2">
                             <div class="w-5 h-5 relative overflow-hidden">
-                                <img src="{% static 'core/img/employee.svg' %}" alt="Employees" class="w-4 h-4 svg-icon-blue">
+                                <img src="{% static 'core/img/employee.svg' %}" alt="Employees" class="w-4 h-4">
                             </div>
                             <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Сотрудники</div>
                         </a>
@@ -72,7 +72,7 @@
                 <div class="flex justify-start items-center gap-3">
                     <div class="flex justify-start items-start gap-2">
                         <a href="{% url 'core:notifications' %}" class="w-10 h-10 px-3 py-2 bg-white rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex justify-center items-center gap-1.5">
-                            <img src="{% static 'core/img/bell.svg' %}" alt="Notifications" class="w-5 h-5 svg-icon-blue">
+                            <img src="{% static 'core/img/bell.svg' %}" alt="Notifications" class="w-5 h-5">
                         </a>
                     </div>
                     <div class="flex justify-start items-center gap-1.5">
@@ -215,7 +215,7 @@
                 <div class="w-1/3 bg-white rounded-2xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex flex-col justify-start items-start overflow-hidden">
                     <div class="self-stretch px-5 py-4 border-b border-zinc-200 flex justify-between items-center">
                         <div class="flex justify-start items-center gap-2">
-                            <img src="{% static 'core/img/check-square.svg' %}" alt="Tasks" class="w-6 h-6">
+                            <img src="{% static 'core/img/check-square.svg' %}" alt="Tasks" class="w-6 h-6 svg-icon-green">
                             <div class="justify-start text-black text-xl font-medium leading-loose tracking-tight">Задачи</div>
                         </div>
                         <a href="{% url 'core:task-add' %}" class="w-8 h-8 p-2 bg-white rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex justify-center items-center gap-2">
@@ -226,13 +226,17 @@
                         {% if request.user.is_authenticated %}
                             {% if recent_tasks %}
                                 {% for task in recent_tasks|slice:":3" %}
-                                    <div class="self-stretch p-3.5 bg-white rounded-xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex justify-start items-start gap-3 overflow-hidden">
+                                    <div class="self-stretch p-3.5 bg-white rounded-xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex justify-start items-start gap-3 overflow-hidden task-item">
                                         <div class="pt-1 flex justify-center items-center gap-2">
-                                            <div class="w-4 h-4 relative">
+                                            <div class="w-4 h-4 relative task-checkbox-container">
                                                 {% if task.status == 'COMPLETED' %}
-                                                    <img src="{% static 'core/img/check-circle-filled.svg' %}" alt="Completed" class="w-4 h-4">
+                                                    <button onclick="toggleTaskStatus({{ task.id }}, 'NEW')" class="cursor-pointer">
+                                                        <img src="{% static 'core/img/check-circle-filled.svg' %}" alt="Completed" class="w-4 h-4 svg-icon-blue">
+                                                    </button>
                                                 {% else %}
-                                                    <img src="{% static 'core/img/check-circle.svg' %}" alt="Not completed" class="w-4 h-4">
+                                                    <button onclick="toggleTaskStatus({{ task.id }}, 'COMPLETED')" class="cursor-pointer">
+                                                        <img src="{% static 'core/img/check-circle.svg' %}" alt="Not completed" class="w-4 h-4">
+                                                    </button>
                                                 {% endif %}
                                             </div>
                                         </div>
@@ -244,7 +248,13 @@
                                             <div class="self-stretch flex justify-between items-center">
                                                 <div class="self-stretch flex justify-start items-center gap-1.5">
                                                     <img src="{% static 'core/img/clock.svg' %}" alt="Date" class="w-4 h-4">
-                                                    <div class="justify-start text-gray-500 text-sm font-normal leading-tight tracking-tight{% if task.status == 'COMPLETED' %} text-slate-500{% endif %}">{{ task.deadline|date:"d/m" }}</div>
+                                                    <div class="justify-start text-gray-500 text-sm font-normal leading-tight tracking-tight{% if task.status == 'COMPLETED' %} text-slate-500{% endif %}">
+                                                        {% if task.due_date %}
+                                                            {{ task.due_date|date:"d M Y" }}
+                                                        {% else %}
+                                                            Без срока
+                                                        {% endif %}
+                                                    </div>
                                                 </div>
                                                 <div class="flex justify-start items-center gap-1">
                                                     {% if task.priority == 'HIGH' %}
@@ -537,68 +547,6 @@
                     {% endif %}
                 </div>
             </div>
-            
-            <!-- Демонстрация цветных SVG иконок -->
-            <div class="w-full px-8 pt-8 pb-8">
-                <div class="w-full bg-white rounded-2xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex flex-col justify-start items-start overflow-hidden">
-                    <div class="self-stretch px-5 py-4 border-b border-zinc-200">
-                        <div class="justify-start text-black text-xl font-medium leading-loose tracking-tight">Различные способы изменения цвета SVG иконок</div>
-                    </div>
-                    
-                    <div class="self-stretch p-5">
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-                            <!-- Метод 1: CSS filter -->
-                            <div class="p-4 bg-gray-50 rounded-lg flex flex-col items-center">
-                                <h3 class="font-medium text-sm text-gray-700 mb-3">CSS Filter</h3>
-                                <div class="flex gap-4">
-                                    <img src="{% static 'core/img/check-circle.svg' %}" alt="Default" class="w-6 h-6">
-                                    <img src="{% static 'core/img/check-circle.svg' %}" alt="Blue" class="w-6 h-6 svg-icon-blue">
-                                    <img src="{% static 'core/img/check-circle.svg' %}" alt="Red" class="w-6 h-6 svg-icon-red">
-                                    <img src="{% static 'core/img/check-circle.svg' %}" alt="Green" class="w-6 h-6 svg-icon-green">
-                                </div>
-                            </div>
-                            
-                            <!-- Метод 2: Изменение fill/stroke в SVG -->
-                            <div class="p-4 bg-gray-50 rounded-lg flex flex-col items-center">
-                                <h3 class="font-medium text-sm text-gray-700 mb-3">Inline SVG с CSS</h3>
-                                <div class="flex gap-4">
-                                    <svg width="24" height="24" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <circle cx="8" cy="8" r="7" stroke="#E5E7EB" stroke-width="2"/>
-                                    </svg>
-                                    <svg width="24" height="24" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" class="colored-svg">
-                                        <circle cx="8" cy="8" r="7" stroke-width="2"/>
-                                    </svg>
-                                    <svg width="24" height="24" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" class="colored-svg filled-svg">
-                                        <circle cx="8" cy="8" r="8"/>
-                                        <path d="M5 8L7 10L11 6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                    </svg>
-                                </div>
-                            </div>
-                            
-                            <!-- Метод 3: Invert для темного фона -->
-                            <div class="p-4 bg-gray-800 rounded-lg flex flex-col items-center">
-                                <h3 class="font-medium text-sm text-white mb-3">Инверсия на темном фоне</h3>
-                                <div class="flex gap-4">
-                                    <img src="{% static 'core/img/check-circle.svg' %}" alt="Default" class="w-6 h-6">
-                                    <img src="{% static 'core/img/check-circle.svg' %}" alt="Inverted" class="w-6 h-6 svg-invert">
-                                    <img src="{% static 'core/img/check-circle-filled.svg' %}" alt="Filled" class="w-6 h-6">
-                                    <img src="{% static 'core/img/check-circle-filled.svg' %}" alt="Filled Inverted" class="w-6 h-6 svg-invert">
-                                </div>
-                            </div>
-                            
-                            <!-- Метод 4: Анимация при наведении -->
-                            <div class="p-4 bg-gray-50 rounded-lg flex flex-col items-center">
-                                <h3 class="font-medium text-sm text-gray-700 mb-3">Анимация при наведении</h3>
-                                <div class="flex gap-4">
-                                    <img src="{% static 'core/img/check-circle.svg' %}" alt="Hover" class="w-6 h-6 svg-icon-hover">
-                                    <img src="{% static 'core/img/check-square.svg' %}" alt="Hover" class="w-6 h-6 svg-icon-hover">
-                                    <img src="{% static 'core/img/check-circle-filled.svg' %}" alt="Hover" class="w-6 h-6 svg-icon-hover">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 </body>
@@ -607,19 +555,6 @@
     document.addEventListener('DOMContentLoaded', function() {
         // Показываем первый грузовик по умолчанию
         selectTruck('474-atl-01');
-        
-        // Обработчики для чекбоксов задач
-        const checkboxes = document.querySelectorAll('.task-checkbox');
-        checkboxes.forEach(checkbox => {
-            checkbox.addEventListener('change', function() {
-                const taskItem = this.closest('.task-item');
-                if (this.checked) {
-                    taskItem.classList.add('bg-green-50');
-                } else {
-                    taskItem.classList.remove('bg-green-50');
-                }
-            });
-        });
     });
     
     // Функция для выбора грузовика и отображения его маршрута
@@ -635,18 +570,91 @@
             selectedMap.classList.remove('hidden');
         }
         
-        // Обновляем стили карточек грузовиков
+        // Скрываем все детали
+        document.querySelectorAll('.truck-details').forEach(details => {
+            details.classList.add('hidden');
+        });
+        
+        // Показываем детали выбранного грузовика
+        const selectedDetails = document.getElementById(`details-${truckId}`);
+        if (selectedDetails) {
+            selectedDetails.classList.remove('hidden');
+        }
+        
+        // Сбрасываем стили для всех карточек
         document.querySelectorAll('.truck-card').forEach(card => {
-            card.classList.remove('bg-blue-100');
-            card.classList.add('bg-gray-50');
+            card.classList.remove('active');
         });
         
         // Выделяем выбранную карточку
-        const selectedCard = document.querySelector(`.truck-card[data-truck-id="${truckId}"]`);
+        const selectedCard = document.querySelector(`.truck-card[data-truck="${truckId}"]`);
         if (selectedCard) {
-            selectedCard.classList.remove('bg-gray-50');
-            selectedCard.classList.add('bg-blue-100');
+            selectedCard.classList.add('active');
         }
+    }
+    
+    // Функция для изменения статуса задачи
+    function toggleTaskStatus(taskId, newStatus) {
+        fetch(`/api/v1/tasks/${taskId}/change_status/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({ status: newStatus })
+        })
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            }
+            throw new Error('Не удалось обновить статус задачи');
+        })
+        .then(data => {
+            // Обновляем UI после успешного обновления
+            const container = document.querySelector(`.task-checkbox-container button[onclick*="${taskId}"]`).parentNode;
+            const taskItem = container.closest('.task-item');
+            const titleEl = taskItem.querySelector('div.text-zinc-950');
+            const descEl = taskItem.querySelector('div.text-gray-500');
+            const dateEl = taskItem.querySelector('div.justify-start.text-gray-500');
+            
+            if (newStatus === 'COMPLETED') {
+                // Меняем на выполненную
+                container.innerHTML = `<button onclick="toggleTaskStatus(${taskId}, 'NEW')" class="cursor-pointer">
+                    <img src="{% static 'core/img/check-circle-filled.svg' %}" alt="Completed" class="w-4 h-4 svg-icon-blue">
+                </button>`;
+                titleEl.classList.add('line-through', 'text-slate-500');
+                descEl.classList.add('text-slate-500');
+                dateEl.classList.add('text-slate-500');
+            } else {
+                // Меняем на новую
+                container.innerHTML = `<button onclick="toggleTaskStatus(${taskId}, 'COMPLETED')" class="cursor-pointer">
+                    <img src="{% static 'core/img/check-circle.svg' %}" alt="Not completed" class="w-4 h-4">
+                </button>`;
+                titleEl.classList.remove('line-through', 'text-slate-500');
+                descEl.classList.remove('text-slate-500');
+                dateEl.classList.remove('text-slate-500');
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка при обновлении задачи:', error);
+            alert('Не удалось обновить статус задачи. Пожалуйста, попробуйте еще раз.');
+        });
+    }
+    
+    // Функция для получения CSRF токена из cookie
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
     }
 </script>
 </html> 
