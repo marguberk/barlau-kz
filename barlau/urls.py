@@ -22,6 +22,8 @@ from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from django.contrib.auth import views as auth_views
+from django.contrib.auth.decorators import login_required
+from django.views.generic import RedirectView
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -36,7 +38,8 @@ schema_view = get_schema_view(
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('core.urls', namespace='core')),
+    path('', login_required(RedirectView.as_view(pattern_name='core:home')), name='index'),
+    path('dashboard/', include('core.urls', namespace='core')),
     path('api/v1/', include('logistics.urls')),
     path('api/v1/', include('accounts.urls')),
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),

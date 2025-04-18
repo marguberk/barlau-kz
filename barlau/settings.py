@@ -194,5 +194,6 @@ COMPANY_DESCRIPTION = 'Система управления логистичес�
 COMPANY_WORKING_HOURS = 'Пн-Пт: 9:00 - 18:00'
 
 # Настройки аутентификации
+LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/accounts/login/'
