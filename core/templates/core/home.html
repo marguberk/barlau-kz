@@ -29,32 +29,32 @@
                     <div class="self-stretch flex flex-col justify-start items-start">
                         <a href="{% url 'core:home' %}" class="self-stretch px-3 py-3.5 relative bg-gray-50 rounded-lg inline-flex justify-start items-center gap-2">
                             <div class="w-5 h-5 relative overflow-hidden">
-                                <img src="{% static 'core/img/home.svg' %}" alt="Home" class="w-4 h-4">
+                                <img src="{% static 'core/img/home.svg' %}" alt="Home" class="w-4 h-4 svg-icon-blue">
                             </div>
                             <div class="flex-1 justify-start text-zinc-950 text-base font-medium leading-normal tracking-tight">Главная</div>
                             <div class="w-1 h-6 left-[-16px] top-[14px] absolute bg-blue-600 rounded-tr-lg rounded-br-lg"></div>
                         </a>
                         <a href="{% url 'core:tasks' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex justify-start items-center gap-2">
                             <div class="w-5 h-5 relative overflow-hidden">
-                                <img src="{% static 'core/img/check-square.svg' %}" alt="Tasks" class="w-4 h-4">
+                                <img src="{% static 'core/img/check-square.svg' %}" alt="Tasks" class="w-4 h-4 svg-icon-blue">
                             </div>
                             <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Задачи</div>
                         </a>
                         <a href="{% url 'core:map' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex justify-start items-center gap-2">
                             <div class="w-5 h-5 relative overflow-hidden">
-                                <img src="{% static 'core/img/location.svg' %}" alt="Map" class="w-4 h-4">
+                                <img src="{% static 'core/img/location.svg' %}" alt="Map" class="w-4 h-4 svg-icon-blue">
                             </div>
                             <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Карта</div>
                         </a>
                         <a href="{% url 'core:vehicles' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex justify-start items-center gap-2">
                             <div class="w-5 h-5 relative overflow-hidden">
-                                <img src="{% static 'core/img/truck.svg' %}" alt="Vehicles" class="w-4 h-4">
+                                <img src="{% static 'core/img/truck.svg' %}" alt="Vehicles" class="w-4 h-4 svg-icon-blue">
                             </div>
                             <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Грузовики</div>
                         </a>
                         <a href="{% url 'core:employees' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex justify-start items-center gap-2">
                             <div class="w-5 h-5 relative overflow-hidden">
-                                <img src="{% static 'core/img/employee.svg' %}" alt="Employees" class="w-4 h-4">
+                                <img src="{% static 'core/img/employee.svg' %}" alt="Employees" class="w-4 h-4 svg-icon-blue">
                             </div>
                             <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Сотрудники</div>
                         </a>
@@ -70,14 +70,34 @@
                 <div class="justify-start text-zinc-950 text-2xl font-semibold leading-loose">Главная</div>
                 <div class="flex justify-start items-center gap-3">
                     <div class="flex justify-start items-start gap-2">
-                        <a href="{% url 'core:notifications' %}" class="w-8 h-8 px-3 py-2 bg-white rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex justify-center items-center gap-1.5">
-                            <img src="{% static 'core/img/bell.svg' %}" alt="Notifications" class="w-4 h-4">
+                        <a href="{% url 'core:notifications' %}" class="w-10 h-10 px-3 py-2 bg-white rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex justify-center items-center gap-1.5">
+                            <img src="{% static 'core/img/bell.svg' %}" alt="Notifications" class="w-5 h-5 svg-icon-blue">
                         </a>
                     </div>
                     <div class="flex justify-start items-center gap-1.5">
-                        <img class="w-8 h-8 rounded-full" src="{% static 'core/img/logo.png' %}" />
+                        {% if user.is_authenticated %}
+                            {% if user.photo %}
+                                <img class="w-8 h-8 rounded-full object-cover" src="{{ user.photo.url }}" />
+                            {% else %}
+                                <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                                    </svg>
+                                </div>
+                            {% endif %}
+                        {% else %}
+                            <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                        {% endif %}
                         <div class="justify-center text-zinc-950 text-sm font-semibold leading-tight tracking-tight">
-                            {{ user.get_full_name|default:user.username }}
+                            {% if user.is_authenticated %}
+                                {{ user.get_full_name|default:user.username }}
+                            {% else %}
+                                Гость
+                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -124,6 +144,7 @@
                             </a>
                         </div>
                     </div>
+                    {% if user.is_authenticated %}
                     <div class="self-stretch p-5 flex justify-start items-baseline gap-2">
                         <div class="justify-start text-zinc-950 text-2xl font-semibold leading-loose">$23,569.00</div>
                         <div class="flex-1 flex justify-start items-center gap-1.5">
@@ -152,6 +173,11 @@
                             <p class="text-gray-400">Финансовый график</p>
                         </div>
                     </div>
+                    {% else %}
+                    <div class="self-stretch p-5 h-64 flex items-center justify-center">
+                        <p class="text-gray-500 text-center">Войдите, чтобы увидеть финансовую информацию</p>
+                    </div>
+                    {% endif %}
                 </div>
 
                 <!-- Задачи -->
@@ -166,56 +192,62 @@
                         </a>
                     </div>
                     <div class="self-stretch px-5 py-4 flex flex-col justify-start items-start gap-3">
-                        {% if recent_tasks %}
-                            {% for task in recent_tasks|slice:":3" %}
-                                <div class="self-stretch p-3.5 bg-white rounded-xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex justify-start items-start gap-3 overflow-hidden">
-                                    <div class="pt-1 flex justify-center items-center gap-2">
-                                        <div class="w-4 h-4 relative">
-                                            {% if task.status == 'COMPLETED' %}
-                                                <div class="w-4 h-4 left-0 top-0 absolute bg-blue-600 rounded-full"></div>
-                                                <span class="w-2.5 h-2.5 left-[3.33px] top-[3.33px] absolute text-white text-xs">✓</span>
-                                            {% else %}
-                                                <div class="w-4 h-4 left-0 top-0 absolute rounded-full border border-zinc-200"></div>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                    <div class="flex-1 flex flex-col justify-start items-start gap-2.5">
-                                        <div class="self-stretch flex flex-col justify-start items-start gap-0.5">
-                                            <div class="self-stretch justify-start text-zinc-950 text-sm font-medium leading-tight tracking-tight{% if task.status == 'COMPLETED' %} line-through text-slate-500{% endif %}">{{ task.title }}</div>
-                                            <div class="self-stretch justify-start text-gray-500 text-sm font-normal leading-tight tracking-tight{% if task.status == 'COMPLETED' %} text-slate-500{% endif %}">{{ task.description|truncatechars:60 }}</div>
-                                        </div>
-                                        <div class="self-stretch flex justify-between items-center">
-                                            <div class="self-stretch flex justify-start items-center gap-1.5">
-                                                <img src="{% static 'core/img/clock.svg' %}" alt="Date" class="w-4 h-4">
-                                                <div class="justify-start text-gray-500 text-sm font-normal leading-tight tracking-tight{% if task.status == 'COMPLETED' %} text-slate-500{% endif %}">{{ task.deadline|date:"d/m" }}</div>
-                                            </div>
-                                            <div class="flex justify-start items-center gap-1">
-                                                {% if task.priority == 'HIGH' %}
-                                                    <div class="px-1.5 py-px bg-red-50 rounded flex justify-center items-center gap-1">
-                                                        <div class="text-right justify-center text-red-600 text-xs font-medium leading-none tracking-tight">Срочно</div>
-                                                    </div>
-                                                {% elif task.priority == 'MEDIUM' %}
-                                                    <div class="px-1.5 py-px bg-orange-50 rounded flex justify-center items-center gap-1">
-                                                        <div class="text-right justify-center text-orange-500 text-xs font-medium leading-none tracking-tight">Средний</div>
-                                                    </div>
+                        {% if user.is_authenticated %}
+                            {% if recent_tasks %}
+                                {% for task in recent_tasks|slice:":3" %}
+                                    <div class="self-stretch p-3.5 bg-white rounded-xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex justify-start items-start gap-3 overflow-hidden">
+                                        <div class="pt-1 flex justify-center items-center gap-2">
+                                            <div class="w-4 h-4 relative">
+                                                {% if task.status == 'COMPLETED' %}
+                                                    <div class="w-4 h-4 left-0 top-0 absolute bg-blue-600 rounded-full"></div>
+                                                    <span class="w-2.5 h-2.5 left-[3.33px] top-[3.33px] absolute text-white text-xs">✓</span>
                                                 {% else %}
-                                                    <div class="px-1.5 py-px bg-indigo-50 rounded flex justify-center items-center gap-1">
-                                                        <div class="text-right justify-center text-blue-600 text-xs font-medium leading-none tracking-tight">Обычный</div>
-                                                    </div>
-                                                {% endif %}
-                                                {% if task.assigned_to %}
-                                                    <div class="px-1.5 py-px bg-sky-50 rounded flex justify-center items-center gap-1">
-                                                        <div class="text-right justify-center text-sky-400 text-xs font-medium leading-none tracking-tight">{{ task.assigned_to.get_short_name }}</div>
-                                                    </div>
+                                                    <div class="w-4 h-4 left-0 top-0 absolute rounded-full border border-zinc-200"></div>
                                                 {% endif %}
                                             </div>
                                         </div>
+                                        <div class="flex-1 flex flex-col justify-start items-start gap-2.5">
+                                            <div class="self-stretch flex flex-col justify-start items-start gap-0.5">
+                                                <div class="self-stretch justify-start text-zinc-950 text-sm font-medium leading-tight tracking-tight{% if task.status == 'COMPLETED' %} line-through text-slate-500{% endif %}">{{ task.title }}</div>
+                                                <div class="self-stretch justify-start text-gray-500 text-sm font-normal leading-tight tracking-tight{% if task.status == 'COMPLETED' %} text-slate-500{% endif %}">{{ task.description|truncatechars:60 }}</div>
+                                            </div>
+                                            <div class="self-stretch flex justify-between items-center">
+                                                <div class="self-stretch flex justify-start items-center gap-1.5">
+                                                    <img src="{% static 'core/img/clock.svg' %}" alt="Date" class="w-4 h-4">
+                                                    <div class="justify-start text-gray-500 text-sm font-normal leading-tight tracking-tight{% if task.status == 'COMPLETED' %} text-slate-500{% endif %}">{{ task.deadline|date:"d/m" }}</div>
+                                                </div>
+                                                <div class="flex justify-start items-center gap-1">
+                                                    {% if task.priority == 'HIGH' %}
+                                                        <div class="px-1.5 py-px bg-red-50 rounded flex justify-center items-center gap-1">
+                                                            <div class="text-right justify-center text-red-600 text-xs font-medium leading-none tracking-tight">Срочно</div>
+                                                        </div>
+                                                    {% elif task.priority == 'MEDIUM' %}
+                                                        <div class="px-1.5 py-px bg-orange-50 rounded flex justify-center items-center gap-1">
+                                                            <div class="text-right justify-center text-orange-500 text-xs font-medium leading-none tracking-tight">Средний</div>
+                                                        </div>
+                                                    {% else %}
+                                                        <div class="px-1.5 py-px bg-indigo-50 rounded flex justify-center items-center gap-1">
+                                                            <div class="text-right justify-center text-blue-600 text-xs font-medium leading-none tracking-tight">Обычный</div>
+                                                        </div>
+                                                    {% endif %}
+                                                    {% if task.assigned_to %}
+                                                        <div class="px-1.5 py-px bg-sky-50 rounded flex justify-center items-center gap-1">
+                                                            <div class="text-right justify-center text-sky-400 text-xs font-medium leading-none tracking-tight">{{ task.assigned_to.get_short_name }}</div>
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="self-stretch p-4 text-center text-gray-500">
+                                    Нет активных задач
                                 </div>
-                            {% endfor %}
+                            {% endif %}
                         {% else %}
                             <div class="self-stretch p-4 text-center text-gray-500">
-                                Нет активных задач
+                                Войдите, чтобы увидеть задачи
                             </div>
                         {% endif %}
                     </div>
@@ -233,6 +265,7 @@
                         <div class="justify-start text-black text-xl font-medium leading-loose tracking-tight">На карте</div>
                     </div>
                     
+                    {% if user.is_authenticated %}
                     <div class="flex">
                         <!-- Список машин -->
                         <div class="w-1/2 px-5 py-4 flex flex-col gap-4">
@@ -289,6 +322,11 @@
                             </div>
                         </div>
                     </div>
+                    {% else %}
+                    <div class="h-80 flex items-center justify-center">
+                        <p class="text-gray-500 text-center">Войдите, чтобы увидеть активные поездки</p>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
         </div>

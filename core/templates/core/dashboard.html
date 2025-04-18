@@ -30,32 +30,32 @@
                     <div class="self-stretch flex flex-col justify-start items-start">
                         <a href="{% url 'core:home' %}" class="self-stretch px-3 py-3.5 relative bg-gray-50 rounded-lg inline-flex justify-start items-center gap-2">
                             <div class="w-5 h-5 relative overflow-hidden">
-                                <img src="{% static 'core/img/home.svg' %}" alt="Home" class="w-4 h-4">
+                                <img src="{% static 'core/img/home.svg' %}" alt="Home" class="w-4 h-4 svg-icon-blue">
                             </div>
                             <div class="flex-1 justify-start text-zinc-950 text-base font-medium leading-normal tracking-tight">Главная</div>
                             <div class="w-1 h-6 left-[-16px] top-[14px] absolute bg-blue-600 rounded-tr-lg rounded-br-lg"></div>
                         </a>
                         <a href="{% url 'core:tasks' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex justify-start items-center gap-2">
                             <div class="w-5 h-5 relative overflow-hidden">
-                                <img src="{% static 'core/img/check-square.svg' %}" alt="Tasks" class="w-4 h-4">
+                                <img src="{% static 'core/img/check-square.svg' %}" alt="Tasks" class="w-4 h-4 svg-icon-blue">
                             </div>
                             <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Задачи</div>
                         </a>
                         <a href="{% url 'core:map' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex justify-start items-center gap-2">
                             <div class="w-5 h-5 relative overflow-hidden">
-                                <img src="{% static 'core/img/location.svg' %}" alt="Map" class="w-4 h-4">
+                                <img src="{% static 'core/img/location.svg' %}" alt="Map" class="w-4 h-4 svg-icon-blue">
                             </div>
                             <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Карта</div>
                         </a>
                         <a href="{% url 'core:vehicles' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex justify-start items-center gap-2">
                             <div class="w-5 h-5 relative overflow-hidden">
-                                <img src="{% static 'core/img/truck.svg' %}" alt="Vehicles" class="w-4 h-4">
+                                <img src="{% static 'core/img/truck.svg' %}" alt="Vehicles" class="w-4 h-4 svg-icon-blue">
                             </div>
                             <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Грузовики</div>
                         </a>
                         <a href="{% url 'core:employees' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex justify-start items-center gap-2">
                             <div class="w-5 h-5 relative overflow-hidden">
-                                <img src="{% static 'core/img/employee.svg' %}" alt="Employees" class="w-4 h-4">
+                                <img src="{% static 'core/img/employee.svg' %}" alt="Employees" class="w-4 h-4 svg-icon-blue">
                             </div>
                             <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Сотрудники</div>
                         </a>
@@ -71,12 +71,28 @@
                 <div class="justify-start text-zinc-950 text-2xl font-semibold leading-loose">Главная</div>
                 <div class="flex justify-start items-center gap-3">
                     <div class="flex justify-start items-start gap-2">
-                        <a href="{% url 'core:notifications' %}" class="w-8 h-8 px-3 py-2 bg-white rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex justify-center items-center gap-1.5">
-                            <img src="{% static 'core/img/bell.svg' %}" alt="Notifications" class="w-4 h-4">
+                        <a href="{% url 'core:notifications' %}" class="w-10 h-10 px-3 py-2 bg-white rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex justify-center items-center gap-1.5">
+                            <img src="{% static 'core/img/bell.svg' %}" alt="Notifications" class="w-5 h-5 svg-icon-blue">
                         </a>
                     </div>
                     <div class="flex justify-start items-center gap-1.5">
-                        <img class="w-8 h-8 rounded-full" src="{% static 'core/img/logo.png' %}" />
+                        {% if request.user.is_authenticated %}
+                            {% if request.user.photo %}
+                                <img class="w-8 h-8 rounded-full object-cover" src="{{ request.user.photo.url }}" />
+                            {% else %}
+                                <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                                    </svg>
+                                </div>
+                            {% endif %}
+                        {% else %}
+                            <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                        {% endif %}
                         <div class="justify-center text-zinc-950 text-sm font-semibold leading-tight tracking-tight">
                             {% if request.user.is_authenticated %}
                                 {{ request.user.get_full_name|default:request.user.username }}
@@ -519,6 +535,68 @@
                         <p class="text-gray-500 text-center">Войдите, чтобы увидеть активные поездки</p>
                     </div>
                     {% endif %}
+                </div>
+            </div>
+            
+            <!-- Демонстрация цветных SVG иконок -->
+            <div class="w-full px-8 pt-8 pb-8">
+                <div class="w-full bg-white rounded-2xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex flex-col justify-start items-start overflow-hidden">
+                    <div class="self-stretch px-5 py-4 border-b border-zinc-200">
+                        <div class="justify-start text-black text-xl font-medium leading-loose tracking-tight">Различные способы изменения цвета SVG иконок</div>
+                    </div>
+                    
+                    <div class="self-stretch p-5">
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                            <!-- Метод 1: CSS filter -->
+                            <div class="p-4 bg-gray-50 rounded-lg flex flex-col items-center">
+                                <h3 class="font-medium text-sm text-gray-700 mb-3">CSS Filter</h3>
+                                <div class="flex gap-4">
+                                    <img src="{% static 'core/img/check-circle.svg' %}" alt="Default" class="w-6 h-6">
+                                    <img src="{% static 'core/img/check-circle.svg' %}" alt="Blue" class="w-6 h-6 svg-icon-blue">
+                                    <img src="{% static 'core/img/check-circle.svg' %}" alt="Red" class="w-6 h-6 svg-icon-red">
+                                    <img src="{% static 'core/img/check-circle.svg' %}" alt="Green" class="w-6 h-6 svg-icon-green">
+                                </div>
+                            </div>
+                            
+                            <!-- Метод 2: Изменение fill/stroke в SVG -->
+                            <div class="p-4 bg-gray-50 rounded-lg flex flex-col items-center">
+                                <h3 class="font-medium text-sm text-gray-700 mb-3">Inline SVG с CSS</h3>
+                                <div class="flex gap-4">
+                                    <svg width="24" height="24" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <circle cx="8" cy="8" r="7" stroke="#E5E7EB" stroke-width="2"/>
+                                    </svg>
+                                    <svg width="24" height="24" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" class="colored-svg">
+                                        <circle cx="8" cy="8" r="7" stroke-width="2"/>
+                                    </svg>
+                                    <svg width="24" height="24" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" class="colored-svg filled-svg">
+                                        <circle cx="8" cy="8" r="8"/>
+                                        <path d="M5 8L7 10L11 6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            
+                            <!-- Метод 3: Invert для темного фона -->
+                            <div class="p-4 bg-gray-800 rounded-lg flex flex-col items-center">
+                                <h3 class="font-medium text-sm text-white mb-3">Инверсия на темном фоне</h3>
+                                <div class="flex gap-4">
+                                    <img src="{% static 'core/img/check-circle.svg' %}" alt="Default" class="w-6 h-6">
+                                    <img src="{% static 'core/img/check-circle.svg' %}" alt="Inverted" class="w-6 h-6 svg-invert">
+                                    <img src="{% static 'core/img/check-circle-filled.svg' %}" alt="Filled" class="w-6 h-6">
+                                    <img src="{% static 'core/img/check-circle-filled.svg' %}" alt="Filled Inverted" class="w-6 h-6 svg-invert">
+                                </div>
+                            </div>
+                            
+                            <!-- Метод 4: Анимация при наведении -->
+                            <div class="p-4 bg-gray-50 rounded-lg flex flex-col items-center">
+                                <h3 class="font-medium text-sm text-gray-700 mb-3">Анимация при наведении</h3>
+                                <div class="flex gap-4">
+                                    <img src="{% static 'core/img/check-circle.svg' %}" alt="Hover" class="w-6 h-6 svg-icon-hover">
+                                    <img src="{% static 'core/img/check-square.svg' %}" alt="Hover" class="w-6 h-6 svg-icon-hover">
+                                    <img src="{% static 'core/img/check-circle-filled.svg' %}" alt="Hover" class="w-6 h-6 svg-icon-hover">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
