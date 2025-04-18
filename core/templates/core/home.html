@@ -42,7 +42,7 @@
                         </a>
                         <a href="{% url 'core:map' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex justify-start items-center gap-2">
                             <div class="w-5 h-5 relative overflow-hidden">
-                                <img src="{% static 'core/img/location.svg' %}" alt="Map" class="w-4 h-4">
+                                <img src="{% static 'core/img/location.svg' %}?v={% now 'U' %}" alt="Map" class="w-4 h-4">
                             </div>
                             <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Карта</div>
                         </a>
