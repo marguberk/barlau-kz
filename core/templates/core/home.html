@@ -11,20 +11,85 @@
         body {
             font-family: 'Inter Tight', sans-serif;
         }
+        
+        /* Адаптивные стили для планшетов */
+        @media (max-width: 1100px) {
+            /* Скрываем боковую панель и перемещаем ее вниз */
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                top: auto;
+                border-right: none;
+                border-top: 1px solid #e5e7eb;
+                z-index: 50;
+            }
+            
+            .sidebar-menu {
+                flex-direction: row;
+                justify-content: space-around;
+                padding: 0;
+            }
+            
+            .sidebar-menu a {
+                flex: 1;
+                padding: 0.75rem 0.5rem;
+                text-align: center;
+                flex-direction: column;
+                gap: 0.25rem;
+            }
+            
+            .sidebar-menu a .flex-1 {
+                display: none;
+            }
+            
+            .sidebar-logo {
+                display: none;
+            }
+            
+            /* Основной контент занимает всю ширину */
+            .main-content {
+                margin-left: 0;
+                margin-bottom: 4.5rem;
+                width: 100%;
+            }
+            
+            /* Адаптация для карточек статистики */
+            .stats-cards {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .stats-cards > div {
+                width: 100%;
+            }
+            
+            /* Адаптация для карточек контента */
+            .content-cards {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .content-cards > div {
+                width: 100%;
+            }
+        }
     </style>
 </head>
 <body class="bg-gray-50">
     <div class="w-full flex">
         <!-- Боковая панель -->
-        <div class="w-64 h-screen bg-white border-r border-zinc-200 flex flex-col justify-start items-start fixed left-0 top-0">
-            <div class="self-stretch px-5 py-6 relative flex flex-col justify-start items-start gap-2">
+        <div class="w-64 h-screen bg-white border-r border-zinc-200 flex flex-col justify-start items-start fixed left-0 top-0 sidebar">
+            <div class="self-stretch px-5 py-6 relative flex flex-col justify-start items-start gap-2 sidebar-logo">
                 <div class="py-1 inline-flex justify-start items-center gap-2">
                     <img src="{% static 'core/img/logo.png' %}" alt="Barlau Logo" class="w-10 h-6">
                     <div class="text-center justify-start text-black text-2xl font-semibold leading-normal">Barlau.kz</div>
                 </div>
                 <div class="w-56 h-0 left-[20px] top-[81px] absolute outline outline-1 outline-offset-[-0.50px] outline-zinc-200"></div>
             </div>
-            <div class="self-stretch flex-1 px-4 pt-2 pb-4 flex flex-col justify-start items-center gap-4">
+            <div class="self-stretch flex-1 px-4 pt-2 pb-4 flex flex-col justify-start items-center gap-4 sidebar-menu">
                 <div class="self-stretch flex flex-col justify-start items-start gap-1">
                     <div class="self-stretch flex flex-col justify-start items-start">
                         <a href="{% url 'core:home' %}" class="self-stretch px-3 py-3.5 relative bg-gray-50 rounded-lg inline-flex justify-start items-center gap-2">
@@ -64,7 +129,7 @@
         </div>
 
         <!-- Основной контент -->
-        <div class="ml-64 flex-1 min-h-screen bg-gray-50 relative">
+        <div class="ml-64 flex-1 min-h-screen bg-gray-50 relative main-content">
             <!-- Верхняя панель -->
             <div class="w-full h-20 px-8 py-5 bg-white flex justify-between items-center">
                 <div class="justify-start text-zinc-950 text-2xl font-semibold leading-loose">Главная</div>
@@ -104,7 +169,7 @@
             </div>
 
             <!-- Карточки статистики -->
-            <div class="w-full px-8 pt-8 flex justify-start items-start gap-4">
+            <div class="w-full px-8 pt-8 flex justify-start items-start gap-4 stats-cards">
                 <div class="flex-1 px-5 py-6 bg-white rounded-2xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex flex-col justify-start items-start gap-4 overflow-hidden">
                     <div class="self-stretch flex flex-col justify-start items-start gap-2">
                         <div class="self-stretch inline-flex justify-between items-center">
@@ -130,7 +195,7 @@
             </div>
 
             <!-- Финансы и задачи -->
-            <div class="w-full px-8 pt-8 flex justify-start items-start gap-4">
+            <div class="w-full px-8 pt-8 flex justify-start items-start gap-4 content-cards">
                 <!-- Финансовая отчетность -->
                 <div class="w-2/3 bg-white rounded-2xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex flex-col justify-start items-start overflow-hidden">
                     <div class="self-stretch px-5 py-4 border-b border-zinc-200 flex justify-between items-center">
