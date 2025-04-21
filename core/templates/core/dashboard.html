@@ -81,6 +81,7 @@
                 background-color: white !important;
                 z-index: 50 !important;
                 padding: 0 !important;
+                top: auto !important; /* Убираем top: 0 */
             }
             
             .sidebar-menu {
@@ -96,7 +97,7 @@
             
             .sidebar-menu a {
                 display: flex !important;
-                flex-direction: column !important;
+                flex-direction: column !important; /* Вертикальное расположение элементов */
                 align-items: center !important;
                 justify-content: center !important;
                 padding: 10px 0 !important;
@@ -104,6 +105,14 @@
                 text-align: center !important;
                 position: relative !important;
                 gap: 6px !important;
+            }
+            
+            /* Меняем горизонтальное расположение на вертикальное для пунктов меню */
+            .sidebar-menu a.inline-flex {
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                justify-content: center !important;
             }
             
             .sidebar-menu a .w-5.h-5 {
@@ -424,7 +433,7 @@
 <body class="bg-gray-50">
     <div class="w-full flex">
         <!-- Боковая панель -->
-        <div class="w-64 h-screen bg-white border-r border-zinc-200 flex flex-col justify-start items-start fixed left-0 top-0 sidebar">
+        <div class="w-64 h-screen bg-white border-r border-zinc-200 flex flex-col justify-start items-start fixed left-0 bottom-0 sidebar">
             <div class="self-stretch px-5 py-6 relative flex flex-col justify-start items-start gap-2 sidebar-logo">
                 <div class="py-1 inline-flex justify-start items-center gap-2">
                     <img src="{% static 'core/img/logo.png' %}" alt="Barlau Logo" class="w-10 h-6">
