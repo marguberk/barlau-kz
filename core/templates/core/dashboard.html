@@ -67,45 +67,57 @@
         @media (max-width: 1100px) {
             /* Скрываем боковую панель и перемещаем ее вниз */
             .sidebar {
-                display: flex !important;
-                flex-direction: row !important;
-                width: 100% !important;
-                height: 64px !important;
                 position: fixed !important;
                 bottom: 0 !important;
                 left: 0 !important;
-                top: auto !important;
+                width: 100% !important;
+                height: 80px !important;
+                display: flex !important;
+                flex-direction: row !important;
+                justify-content: center !important;
+                align-items: center !important;
                 border-right: none !important;
                 border-top: 1px solid #e5e7eb !important;
-                z-index: 50 !important;
                 background-color: white !important;
+                z-index: 50 !important;
+                padding: 0 !important;
             }
             
             .sidebar-menu {
                 width: 100% !important;
+                display: flex !important;
                 flex-direction: row !important;
                 justify-content: space-around !important;
-                padding: 0 !important;
                 align-items: center !important;
+                padding: 0 !important;
+                max-width: 600px !important;
+                margin: 0 auto !important;
             }
             
             .sidebar-menu a {
-                flex: 1 !important;
-                padding: 10px 0 !important;
-                text-align: center !important;
+                display: flex !important;
                 flex-direction: column !important;
                 align-items: center !important;
-                gap: 4px !important;
-                height: auto !important;
+                justify-content: center !important;
+                padding: 10px 0 !important;
+                flex: 1 !important;
+                text-align: center !important;
                 position: relative !important;
-                display: flex !important;
+                gap: 6px !important;
             }
             
-            .sidebar-menu a svg, 
-            .sidebar-menu a img {
+            .sidebar-menu a .w-5.h-5 {
+                width: 40px !important;
+                height: 40px !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+            }
+            
+            .sidebar-menu a .w-5.h-5 img, 
+            .sidebar-menu a .w-5.h-5 svg {
                 width: 24px !important;
                 height: 24px !important;
-                margin: 0 auto !important;
             }
             
             .sidebar-menu a .flex-1 {
@@ -118,9 +130,21 @@
                 color: #6B7280 !important;
             }
             
-            /* Скрываем логотип в мобильном меню */
+            /* Скрываем логотип и другие элементы в мобильном меню */
             .sidebar-logo {
                 display: none !important;
+            }
+            
+            .sidebar-menu .self-stretch {
+                display: flex !important;
+                flex-direction: row !important;
+                justify-content: space-around !important;
+                width: 100% !important;
+            }
+            
+            /* Стилизация активной ссылки в меню */
+            .sidebar-menu a.bg-gray-50 {
+                background-color: transparent !important;
             }
             
             .sidebar-menu a.bg-gray-50 .flex-1 {
@@ -143,15 +167,19 @@
                 filter: invert(39%) sepia(42%) saturate(2086%) hue-rotate(203deg) brightness(99%) contrast(101%) !important;
             }
             
-            .sidebar-menu a.bg-gray-50 .w-5.h-5 svg,
-            .sidebar-menu a.bg-gray-50 .w-5.h-5 path {
+            .sidebar-menu a.bg-gray-50 .w-5.h-5 svg path {
                 fill: #2563EB !important;
+            }
+            
+            /* Убираем полоску слева от активного пункта */
+            .sidebar-menu a .w-1.h-6 {
+                display: none !important;
             }
             
             /* Основной контент занимает всю ширину */
             .main-content {
                 margin-left: 0 !important;
-                padding-bottom: 80px !important; /* Уменьшен отступ снизу */
+                padding-bottom: 96px !important;
                 width: 100% !important;
             }
             
@@ -422,7 +450,7 @@
                         </a>
                         <a href="{% url 'core:map' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex justify-start items-center gap-2">
                             <div class="w-5 h-5 relative overflow-hidden">
-                                <img src="{% static 'core/img/location.svg' %}?v={% now 'U' %}" alt="Map" class="w-4 h-4">
+                                <img src="{% static 'core/img/location.svg' %}?v={% now 'U' %}" alt="Map" class="w-4 h-4" onerror="this.onerror=null; this.src='/static/core/img/location.svg'">
                             </div>
                             <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Карта</div>
                         </a>
@@ -1018,118 +1046,110 @@
     
     // Функция для адаптации макета под планшет
     function adjustLayoutForTablet() {
-        // Настройка изображений грузовиков
-        document.querySelectorAll('.truck-card img').forEach(img => {
-            img.style.transform = 'translateY(-50%)'; // Убран поворот
-            img.style.width = '204px';
-            img.style.height = '75px';
-            img.style.opacity = '0.4';
-        });
+        const isTablet = window.innerWidth <= 1100;
         
-        // Активному грузовику устанавливаем повышенную непрозрачность
-        document.querySelectorAll('.truck-card.active img').forEach(img => {
-            img.style.opacity = '0.9';
-        });
-        
-        // Настраиваем layout для блока с грузовиками и картой
-        const trucksMap = document.querySelector('.trucks-map');
-        if (trucksMap) {
-            trucksMap.style.flexDirection = 'row';
-            
-            // Список машин и блок с картой занимают по 50%
-            const columns = trucksMap.querySelectorAll('> div');
-            columns.forEach(column => {
-                column.style.width = '50%';
+        if (isTablet) {
+            // Настройка изображений грузовиков
+            document.querySelectorAll('.truck-card img').forEach(img => {
+                img.style.transform = 'translateY(-50%)';
+                img.style.width = '204px';
+                img.style.height = '75px';
+                img.style.opacity = '0.4';
             });
-        }
-        
-        // Обработка навигации в нижнем меню
-        const sidebarItems = document.querySelectorAll('.sidebar-menu a');
-        sidebarItems.forEach(item => {
-            // Настраиваем стили для элемента
-            item.style.display = 'flex';
-            item.style.flexDirection = 'column';
-            item.style.alignItems = 'center';
-            item.style.padding = '10px 0';
-            item.style.flex = '1';
-            item.style.textAlign = 'center';
-            item.style.position = 'relative';
             
-            // Настройка иконок
-            const icon = item.querySelector('.w-5.h-5 img, .w-5.h-5');
-            if (icon) {
-                icon.style.width = '24px';
-                icon.style.height = '24px';
-                icon.style.margin = '0 auto';
+            // Активному грузовику устанавливаем повышенную непрозрачность
+            document.querySelectorAll('.truck-card.active img').forEach(img => {
+                img.style.opacity = '0.9';
+            });
+            
+            // Настройка меню навигации
+            const sidebarMenu = document.querySelector('.sidebar-menu');
+            if (sidebarMenu) {
+                // Уже настроен через CSS
                 
-                // Если это активная ссылка, применяем синий цвет к иконке
-                if (item.classList.contains('bg-gray-50')) {
-                    if (icon.tagName === 'IMG') {
-                        icon.style.filter = 'invert(39%) sepia(42%) saturate(2086%) hue-rotate(203deg) brightness(99%) contrast(101%)';
-                    } else {
-                        const paths = icon.querySelectorAll('path');
-                        if (paths && paths.length > 0) {
-                            paths.forEach(path => {
-                                path.setAttribute('fill', '#2563EB');
-                            });
-                        } else {
-                            icon.style.fill = '#2563EB';
-                        }
+                // Скрываем полоски у всех пунктов меню
+                document.querySelectorAll('.sidebar-menu a .w-1.h-6').forEach(line => {
+                    line.style.display = 'none';
+                });
+                
+                // Увеличиваем размер иконок
+                document.querySelectorAll('.sidebar-menu a .w-5.h-5 img, .sidebar-menu a .w-5.h-5 svg').forEach(icon => {
+                    icon.style.width = '24px';
+                    icon.style.height = '24px';
+                });
+                
+                // Особое выделение для активного пункта
+                const activeItem = sidebarMenu.querySelector('a.bg-gray-50');
+                if (activeItem) {
+                    // Изменяем цвет текста
+                    const text = activeItem.querySelector('.flex-1');
+                    if (text) {
+                        text.style.color = '#2563EB';
+                        text.style.fontWeight = '500';
                     }
-                } else {
-                    icon.style.filter = '';
-                    const paths = icon.querySelectorAll('path');
-                    if (paths && paths.length > 0) {
-                        paths.forEach(path => {
-                            path.setAttribute('fill', '');
-                        });
-                    } else {
-                        icon.style.fill = '';
+                    
+                    // Если есть полоска внизу, оставляем её, иначе добавляем
+                    if (!activeItem.querySelector('::after')) {
+                        // CSS уже добавляет ::after
+                    }
+                    
+                    // Применяем стиль к иконке
+                    const img = activeItem.querySelector('.w-5.h-5 img');
+                    if (img) {
+                        img.style.filter = 'invert(39%) sepia(42%) saturate(2086%) hue-rotate(203deg) brightness(99%) contrast(101%)';
+                    }
+                    
+                    const svg = activeItem.querySelector('.w-5.h-5 svg');
+                    if (svg) {
+                        svg.style.fill = '#2563EB';
                     }
                 }
             }
+        } else {
+            // Возвращаем стандартные стили для десктопа
+            resetLayoutToDesktop();
+        }
+    }
+    
+    // Функция для возврата стандартного вида меню на десктопе
+    function resetSidebarToDesktop(sidebar) {
+        const menuItems = sidebar.querySelectorAll('.sidebar-item');
+        
+        menuItems.forEach(function(item) {
+            // Возвращаем стандартный размер иконок
+            const icon = item.querySelector('svg');
+            if (icon) {
+                icon.style.width = '';
+                icon.style.height = '';
+                icon.style.filter = '';
+                icon.style.fill = '';
+            }
             
-            // Настройка текста
+            // Возвращаем нормальный стиль текста
             const text = item.querySelector('.flex-1');
             if (text) {
-                text.style.display = 'block';
-                text.style.fontSize = '12px';
-                text.style.lineHeight = '14px';
-                text.style.marginTop = '4px';
-                text.style.whiteSpace = 'nowrap';
-                
-                // Для активной вкладки текст синий и жирный
-                if (item.classList.contains('bg-gray-50')) {
-                    text.style.color = '#2563EB';
-                    text.style.fontWeight = '500';
-                } else {
-                    text.style.color = '#6B7280';
-                    text.style.fontWeight = 'normal';
-                }
+                text.style.fontSize = '';
+                text.style.lineHeight = '';
+                text.style.marginTop = '';
+                text.style.color = '';
+                text.style.fontWeight = '';
             }
             
-            // Добавляем/удаляем полосу снизу для активной вкладки
-            if (item.classList.contains('bg-gray-50')) {
-                item.style.backgroundColor = 'transparent';
-                
-                let activeLine = item.querySelector('.active-indicator');
-                if (!activeLine) {
-                    activeLine = document.createElement('div');
-                    activeLine.className = 'active-indicator';
-                    activeLine.style.position = 'absolute';
-                    activeLine.style.bottom = '0';
-                    activeLine.style.left = '0';
-                    activeLine.style.width = '100%';
-                    activeLine.style.height = '2px';
-                    activeLine.style.backgroundColor = '#2563EB';
-                    item.appendChild(activeLine);
-                }
-                
-                // Скрываем стандартный индикатор
-                const standardLine = item.querySelector('div.bg-blue-600.rounded-tr-lg.rounded-br-lg');
-                if (standardLine) {
-                    standardLine.style.display = 'none';
-                }
+            // Удаляем индикатор активности для планшетов
+            const activeLine = item.querySelector('.active-indicator');
+            if (activeLine) {
+                activeLine.remove();
+            }
+            
+            // Возвращаем полосу слева для активного пункта
+            const standardLine = item.querySelector('div.bg-blue-600.rounded-tr-lg.rounded-br-lg');
+            if (standardLine) {
+                standardLine.style.display = '';
+                standardLine.style.height = '24px';
+                standardLine.style.width = '4px';
+                standardLine.style.left = '-16px';
+                standardLine.style.top = '14px';
+                standardLine.style.bottom = 'auto';
             }
         });
     }
@@ -1160,14 +1180,13 @@
         const sidebarItems = document.querySelectorAll('.sidebar-menu a');
         sidebarItems.forEach(item => {
             // Возвращаем нормальный размер иконок
-            const icon = item.querySelector('.w-5.h-5 img, .w-5.h-5');
-            if (icon) {
-                icon.style.width = '20px';
-                icon.style.height = '20px';
-                icon.style.marginBottom = '';
+            const icons = item.querySelectorAll('.w-5.h-5 img, .w-5.h-5 svg');
+            icons.forEach(icon => {
+                icon.style.width = '';
+                icon.style.height = '';
                 icon.style.filter = '';
                 icon.style.fill = '';
-            }
+            });
             
             // Возвращаем нормальный стиль текста
             const text = item.querySelector('.flex-1');
@@ -1179,21 +1198,10 @@
                 text.style.fontWeight = '';
             }
             
-            // Удаляем индикатор активности для планшетов
-            const activeLine = item.querySelector('.active-indicator');
-            if (activeLine) {
-                activeLine.remove();
-            }
-            
-            // Возвращаем полосу слева для активного пункта
-            const standardLine = item.querySelector('div.bg-blue-600.rounded-tr-lg.rounded-br-lg');
-            if (standardLine) {
-                standardLine.style.display = '';
-                standardLine.style.height = '24px';
-                standardLine.style.width = '4px';
-                standardLine.style.left = '-16px';
-                standardLine.style.top = '14px';
-                standardLine.style.bottom = 'auto';
+            // Возвращаем видимость полоски активного пункта
+            const activeLine = item.querySelector('.w-1.h-6');
+            if (activeLine && item.classList.contains('bg-gray-50')) {
+                activeLine.style.display = '';
             }
         });
     }
