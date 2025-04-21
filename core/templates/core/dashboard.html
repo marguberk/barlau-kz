@@ -54,7 +54,7 @@
                 display: flex !important;
                 flex-direction: row !important;
                 width: 100% !important;
-                height: 96px !important; /* Высота фиксированная как в Figma */
+                height: 96px !important;
                 position: fixed !important;
                 bottom: 0 !important;
                 left: 0 !important;
@@ -75,28 +75,61 @@
             
             .sidebar-menu a {
                 flex: 1 !important;
-                padding: 16px 8px 8px 8px !important;
+                padding: 14px 0 6px 0 !important;
                 text-align: center !important;
                 flex-direction: column !important;
                 align-items: center !important;
-                gap: 4px !important;
+                gap: 8px !important;
                 height: auto !important;
+                position: relative !important;
             }
             
             .sidebar-menu a svg, 
             .sidebar-menu a img {
-                width: 32px !important;
-                height: 32px !important;
+                width: 28px !important;
+                height: 28px !important;
                 margin: 0 auto !important;
-                margin-bottom: 6px !important;
+                margin-bottom: 4px !important;
             }
             
             .sidebar-menu a .flex-1 {
                 display: block !important;
-                font-size: 12px !important;
+                font-size: 14px !important;
+                font-weight: normal !important;
                 margin-top: 0 !important;
-                line-height: 14px !important;
+                line-height: 16px !important;
                 white-space: nowrap !important;
+                color: #6B7280 !important;
+            }
+            
+            /* Стилизация активной ссылки в меню */
+            .sidebar-menu a.bg-gray-50 {
+                background-color: transparent !important;
+            }
+            
+            .sidebar-menu a.bg-gray-50 .flex-1 {
+                color: #2563EB !important;
+                font-weight: 500 !important;
+            }
+            
+            .sidebar-menu a.bg-gray-50::after {
+                content: "";
+                width: 100%;
+                height: 2px;
+                background-color: #2563EB;
+                position: absolute;
+                bottom: 0;
+                left: 0;
+            }
+            
+            /* Исправляем стили для иконок */
+            .sidebar-menu a.bg-gray-50 .w-5.h-5 img {
+                filter: invert(39%) sepia(42%) saturate(2086%) hue-rotate(203deg) brightness(99%) contrast(101%) !important;
+            }
+            
+            .sidebar-menu a.bg-gray-50 .w-5.h-5 svg,
+            .sidebar-menu a.bg-gray-50 .w-5.h-5 path {
+                fill: #2563EB !important;
             }
             
             .sidebar-menu .self-stretch {
@@ -352,21 +385,6 @@
                 background: rgba(0, 0, 0, 0.6);
                 border-radius: 9999px;
                 z-index: 0;
-            }
-            
-            /* Стилизация активной ссылки в меню */
-            .sidebar-menu a.bg-gray-50 {
-                background-color: transparent !important;
-            }
-            
-            .sidebar-menu a.bg-gray-50::after {
-                content: "";
-                width: 100%;
-                height: 1px;
-                background-color: #2563eb;
-                position: absolute;
-                bottom: 0;
-                left: 0;
             }
         }
     </style>
@@ -1033,27 +1051,62 @@
             // Увеличиваем иконки
             const icon = item.querySelector('.w-5.h-5 img, .w-5.h-5');
             if (icon) {
-                icon.style.width = '32px';
-                icon.style.height = '32px';
-                icon.style.marginBottom = '6px';
+                icon.style.width = '28px';
+                icon.style.height = '28px';
+                icon.style.marginBottom = '4px';
+                
+                // Если это активная ссылка, применяем синий цвет к иконке
+                if (item.classList.contains('bg-gray-50')) {
+                    if (icon.tagName === 'IMG') {
+                        icon.style.filter = 'invert(39%) sepia(42%) saturate(2086%) hue-rotate(203deg) brightness(99%) contrast(101%)';
+                    } else {
+                        icon.style.fill = '#2563EB';
+                    }
+                } else {
+                    icon.style.filter = '';
+                    icon.style.fill = '';
+                }
             }
             
             // Изменяем стиль текста
             const text = item.querySelector('.flex-1');
             if (text) {
-                text.style.fontSize = '12px';
-                text.style.lineHeight = '14px';
+                text.style.fontSize = '14px';
+                text.style.lineHeight = '16px';
                 text.style.marginTop = '0';
+                
+                // Для активной вкладки текст синий и жирный
+                if (item.classList.contains('bg-gray-50')) {
+                    text.style.color = '#2563EB';
+                    text.style.fontWeight = '500';
+                } else {
+                    text.style.color = '#6B7280';
+                    text.style.fontWeight = 'normal';
+                }
             }
             
-            // Удаляем полосу слева и заменяем на полосу снизу для активного пункта
-            const activeLine = item.querySelector('div.bg-blue-600.rounded-tr-lg.rounded-br-lg');
-            if (activeLine) {
-                activeLine.style.height = '2px';
-                activeLine.style.width = '100%';
-                activeLine.style.left = '0';
-                activeLine.style.bottom = '0';
-                activeLine.style.top = 'auto';
+            // Добавляем/удаляем полосу снизу для активной вкладки
+            if (item.classList.contains('bg-gray-50')) {
+                item.style.position = 'relative';
+                
+                let activeLine = item.querySelector('.active-indicator');
+                if (!activeLine) {
+                    activeLine = document.createElement('div');
+                    activeLine.className = 'active-indicator';
+                    activeLine.style.position = 'absolute';
+                    activeLine.style.bottom = '0';
+                    activeLine.style.left = '0';
+                    activeLine.style.width = '100%';
+                    activeLine.style.height = '2px';
+                    activeLine.style.backgroundColor = '#2563EB';
+                    item.appendChild(activeLine);
+                }
+                
+                // Скрываем стандартный индикатор
+                const standardLine = item.querySelector('div.bg-blue-600.rounded-tr-lg.rounded-br-lg');
+                if (standardLine) {
+                    standardLine.style.display = 'none';
+                }
             }
         });
     }
@@ -1089,6 +1142,8 @@
                 icon.style.width = '20px';
                 icon.style.height = '20px';
                 icon.style.marginBottom = '';
+                icon.style.filter = '';
+                icon.style.fill = '';
             }
             
             // Возвращаем нормальный стиль текста
@@ -1097,16 +1152,25 @@
                 text.style.fontSize = '';
                 text.style.lineHeight = '';
                 text.style.marginTop = '';
+                text.style.color = '';
+                text.style.fontWeight = '';
+            }
+            
+            // Удаляем индикатор активности для планшетов
+            const activeLine = item.querySelector('.active-indicator');
+            if (activeLine) {
+                activeLine.remove();
             }
             
             // Возвращаем полосу слева для активного пункта
-            const activeLine = item.querySelector('div.bg-blue-600.rounded-tr-lg.rounded-br-lg');
-            if (activeLine) {
-                activeLine.style.height = '24px';
-                activeLine.style.width = '4px';
-                activeLine.style.left = '-16px';
-                activeLine.style.top = '14px';
-                activeLine.style.bottom = 'auto';
+            const standardLine = item.querySelector('div.bg-blue-600.rounded-tr-lg.rounded-br-lg');
+            if (standardLine) {
+                standardLine.style.display = '';
+                standardLine.style.height = '24px';
+                standardLine.style.width = '4px';
+                standardLine.style.left = '-16px';
+                standardLine.style.top = '14px';
+                standardLine.style.bottom = 'auto';
             }
         });
     }
