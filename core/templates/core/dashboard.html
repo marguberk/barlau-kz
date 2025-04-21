@@ -70,7 +70,7 @@
                 display: flex !important;
                 flex-direction: row !important;
                 width: 100% !important;
-                height: 64px !important; /* Уменьшена высота нижнего меню */
+                height: 64px !important;
                 position: fixed !important;
                 bottom: 0 !important;
                 left: 0 !important;
@@ -91,13 +91,14 @@
             
             .sidebar-menu a {
                 flex: 1 !important;
-                padding: 8px 0 4px 0 !important;
+                padding: 10px 0 !important;
                 text-align: center !important;
                 flex-direction: column !important;
                 align-items: center !important;
-                gap: 2px !important;
+                gap: 4px !important;
                 height: auto !important;
                 position: relative !important;
+                display: flex !important;
             }
             
             .sidebar-menu a svg, 
@@ -105,22 +106,21 @@
                 width: 24px !important;
                 height: 24px !important;
                 margin: 0 auto !important;
-                margin-bottom: 2px !important;
             }
             
             .sidebar-menu a .flex-1 {
                 display: block !important;
-                font-size: 11px !important;
+                font-size: 12px !important;
                 font-weight: normal !important;
-                margin-top: 0 !important;
+                margin-top: 4px !important;
                 line-height: 14px !important;
                 white-space: nowrap !important;
                 color: #6B7280 !important;
             }
             
-            /* Стилизация активной ссылки в меню */
-            .sidebar-menu a.bg-gray-50 {
-                background-color: transparent !important;
+            /* Скрываем логотип в мобильном меню */
+            .sidebar-logo {
+                display: none !important;
             }
             
             .sidebar-menu a.bg-gray-50 .flex-1 {
@@ -1043,35 +1043,60 @@
             });
         }
         
-        // Обработка навигации
+        // Обработка навигации в нижнем меню
         const sidebarItems = document.querySelectorAll('.sidebar-menu a');
         sidebarItems.forEach(item => {
-            // Увеличиваем иконки
+            // Настраиваем стили для элемента
+            item.style.display = 'flex';
+            item.style.flexDirection = 'column';
+            item.style.alignItems = 'center';
+            item.style.padding = '10px 0';
+            item.style.flex = '1';
+            item.style.textAlign = 'center';
+            item.style.position = 'relative';
+            
+            // Настройка иконок
             const icon = item.querySelector('.w-5.h-5 img, .w-5.h-5');
             if (icon) {
                 icon.style.width = '24px';
                 icon.style.height = '24px';
-                icon.style.marginBottom = '2px';
+                icon.style.margin = '0 auto';
                 
                 // Если это активная ссылка, применяем синий цвет к иконке
                 if (item.classList.contains('bg-gray-50')) {
                     if (icon.tagName === 'IMG') {
                         icon.style.filter = 'invert(39%) sepia(42%) saturate(2086%) hue-rotate(203deg) brightness(99%) contrast(101%)';
                     } else {
-                        icon.style.fill = '#2563EB';
+                        const paths = icon.querySelectorAll('path');
+                        if (paths && paths.length > 0) {
+                            paths.forEach(path => {
+                                path.setAttribute('fill', '#2563EB');
+                            });
+                        } else {
+                            icon.style.fill = '#2563EB';
+                        }
                     }
                 } else {
                     icon.style.filter = '';
-                    icon.style.fill = '';
+                    const paths = icon.querySelectorAll('path');
+                    if (paths && paths.length > 0) {
+                        paths.forEach(path => {
+                            path.setAttribute('fill', '');
+                        });
+                    } else {
+                        icon.style.fill = '';
+                    }
                 }
             }
             
-            // Изменяем стиль текста
+            // Настройка текста
             const text = item.querySelector('.flex-1');
             if (text) {
-                text.style.fontSize = '11px';
+                text.style.display = 'block';
+                text.style.fontSize = '12px';
                 text.style.lineHeight = '14px';
-                text.style.marginTop = '0';
+                text.style.marginTop = '4px';
+                text.style.whiteSpace = 'nowrap';
                 
                 // Для активной вкладки текст синий и жирный
                 if (item.classList.contains('bg-gray-50')) {
@@ -1085,7 +1110,7 @@
             
             // Добавляем/удаляем полосу снизу для активной вкладки
             if (item.classList.contains('bg-gray-50')) {
-                item.style.position = 'relative';
+                item.style.backgroundColor = 'transparent';
                 
                 let activeLine = item.querySelector('.active-indicator');
                 if (!activeLine) {
