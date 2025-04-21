@@ -27,6 +27,22 @@
             color: #111827;
         }
         
+        /* Выравнивание высоты блоков финансов и задач в ПК-версии */
+        .finance-tasks {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .finance-tasks > div {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Уменьшение вертикального отступа между рядами */
+        .stats-cards + .w-full.px-8.pt-8 {
+            padding-top: 1rem !important;
+        }
+        
         /* Пульсирующий маркер на карте */
         .map-marker-pulse {
             animation: pulse 1.5s infinite;
@@ -54,7 +70,7 @@
                 display: flex !important;
                 flex-direction: row !important;
                 width: 100% !important;
-                height: 96px !important;
+                height: 64px !important; /* Уменьшена высота нижнего меню */
                 position: fixed !important;
                 bottom: 0 !important;
                 left: 0 !important;
@@ -75,29 +91,29 @@
             
             .sidebar-menu a {
                 flex: 1 !important;
-                padding: 14px 0 6px 0 !important;
+                padding: 8px 0 4px 0 !important;
                 text-align: center !important;
                 flex-direction: column !important;
                 align-items: center !important;
-                gap: 8px !important;
+                gap: 2px !important;
                 height: auto !important;
                 position: relative !important;
             }
             
             .sidebar-menu a svg, 
             .sidebar-menu a img {
-                width: 28px !important;
-                height: 28px !important;
+                width: 24px !important;
+                height: 24px !important;
                 margin: 0 auto !important;
-                margin-bottom: 4px !important;
+                margin-bottom: 2px !important;
             }
             
             .sidebar-menu a .flex-1 {
                 display: block !important;
-                font-size: 14px !important;
+                font-size: 11px !important;
                 font-weight: normal !important;
                 margin-top: 0 !important;
-                line-height: 16px !important;
+                line-height: 14px !important;
                 white-space: nowrap !important;
                 color: #6B7280 !important;
             }
@@ -132,22 +148,10 @@
                 fill: #2563EB !important;
             }
             
-            .sidebar-menu .self-stretch {
-                display: flex !important;
-                flex-direction: row !important;
-                width: 100% !important;
-                max-width: 600px !important;
-                margin: 0 auto !important;
-            }
-            
-            .sidebar-logo {
-                display: none !important;
-            }
-            
             /* Основной контент занимает всю ширину */
             .main-content {
                 margin-left: 0 !important;
-                padding-bottom: 112px !important;
+                padding-bottom: 80px !important; /* Уменьшен отступ снизу */
                 width: 100% !important;
             }
             
@@ -938,6 +942,9 @@
         // Настройка для планшетной/мобильной версии
         handleResponsiveLayout();
         
+        // Выравниваем высоту карточек
+        equalizeCardHeights();
+        
         // Обработка клика по карточкам грузовиков
         document.querySelectorAll('.truck-card').forEach(card => {
             card.addEventListener('click', function() {
@@ -955,7 +962,10 @@
         });
         
         // Через небольшую задержку выравниваем высоту блоков
-        setTimeout(equalizeFinanceTasksHeight, 300);
+        setTimeout(() => {
+            equalizeFinanceTasksHeight();
+            equalizeCardHeights();
+        }, 300);
         
         // Обработка изменения размера окна с защитой от частых вызовов
         let resizeTimeout;
@@ -963,9 +973,35 @@
             clearTimeout(resizeTimeout);
             resizeTimeout = setTimeout(function() {
                 handleResponsiveLayout();
+                equalizeCardHeights();
             }, 250);
         });
     });
+    
+    // Функция для выравнивания высоты карточек в ПК-версии
+    function equalizeCardHeights() {
+        // Выравниваем высоту блоков финансов и задач в ПК-версии
+        if (window.innerWidth > 1100) {
+            const financeBlock = document.querySelector('.finance-tasks > div:first-child');
+            const tasksBlock = document.querySelector('.finance-tasks > div:last-child');
+            
+            if (financeBlock && tasksBlock) {
+                // Сбрасываем высоту для правильного измерения
+                financeBlock.style.height = 'auto';
+                tasksBlock.style.height = 'auto';
+                
+                // Небольшая задержка для корректного рендеринга
+                setTimeout(() => {
+                    const financeHeight = financeBlock.offsetHeight;
+                    const tasksHeight = tasksBlock.offsetHeight;
+                    const maxHeight = Math.max(financeHeight, tasksHeight);
+                    
+                    financeBlock.style.height = `${maxHeight}px`;
+                    tasksBlock.style.height = `${maxHeight}px`;
+                }, 50);
+            }
+        }
+    }
     
     // Функция для обработки адаптивного макета
     function handleResponsiveLayout() {
@@ -976,45 +1012,7 @@
             equalizeFinanceTasksHeight(); // Выравниваем высоту блоков
         } else {
             resetLayoutToDesktop();
-        }
-    }
-    
-    // Функция для выравнивания высоты блоков финансов и задач
-    function equalizeFinanceTasksHeight() {
-        const financeBlock = document.querySelector('.finance-tasks > div:first-child');
-        const tasksBlock = document.querySelector('.finance-tasks > div:last-child');
-        
-        if (financeBlock && tasksBlock && window.innerWidth <= 1100) {
-            // Сначала сбрасываем высоту
-            financeBlock.style.height = 'auto';
-            tasksBlock.style.height = 'auto';
-            
-            // Затем устанавливаем максимальную высоту
-            setTimeout(() => {
-                const financeHeight = financeBlock.offsetHeight;
-                const tasksHeight = tasksBlock.offsetHeight;
-                const maxHeight = Math.max(financeHeight, tasksHeight);
-                
-                // Устанавливаем одинаковую высоту обоим блокам
-                financeBlock.style.height = `${maxHeight}px`;
-                tasksBlock.style.height = `${maxHeight}px`;
-                
-                // Обеспечиваем прокрутку внутреннего содержимого
-                const financeContent = financeBlock.querySelector('.self-stretch.p-5.h-48');
-                const tasksContent = tasksBlock.querySelector('.self-stretch.px-5.py-4');
-                
-                if (financeContent) {
-                    financeContent.style.height = 'auto';
-                    financeContent.style.maxHeight = `${maxHeight - 100}px`; // Вычитаем высоту заголовка
-                    financeContent.style.overflowY = 'auto';
-                }
-                
-                if (tasksContent) {
-                    tasksContent.style.flex = '1';
-                    tasksContent.style.maxHeight = `${maxHeight - 60}px`; // Вычитаем высоту заголовка
-                    tasksContent.style.overflowY = 'auto';
-                }
-            }, 100);
+            equalizeCardHeights(); // Выравниваем высоту карточек в ПК-версии
         }
     }
     
@@ -1051,9 +1049,9 @@
             // Увеличиваем иконки
             const icon = item.querySelector('.w-5.h-5 img, .w-5.h-5');
             if (icon) {
-                icon.style.width = '28px';
-                icon.style.height = '28px';
-                icon.style.marginBottom = '4px';
+                icon.style.width = '24px';
+                icon.style.height = '24px';
+                icon.style.marginBottom = '2px';
                 
                 // Если это активная ссылка, применяем синий цвет к иконке
                 if (item.classList.contains('bg-gray-50')) {
@@ -1071,8 +1069,8 @@
             // Изменяем стиль текста
             const text = item.querySelector('.flex-1');
             if (text) {
-                text.style.fontSize = '14px';
-                text.style.lineHeight = '16px';
+                text.style.fontSize = '11px';
+                text.style.lineHeight = '14px';
                 text.style.marginTop = '0';
                 
                 // Для активной вкладки текст синий и жирный
@@ -1319,6 +1317,45 @@
             }
         }
         return cookieValue;
+    }
+    
+    // Функция для выравнивания высоты блоков финансов и задач в планшетной версии
+    function equalizeFinanceTasksHeight() {
+        const financeBlock = document.querySelector('.finance-tasks > div:first-child');
+        const tasksBlock = document.querySelector('.finance-tasks > div:last-child');
+        
+        if (financeBlock && tasksBlock && window.innerWidth <= 1100) {
+            // Сначала сбрасываем высоту
+            financeBlock.style.height = 'auto';
+            tasksBlock.style.height = 'auto';
+            
+            // Затем устанавливаем максимальную высоту
+            setTimeout(() => {
+                const financeHeight = financeBlock.offsetHeight;
+                const tasksHeight = tasksBlock.offsetHeight;
+                const maxHeight = Math.max(financeHeight, tasksHeight);
+                
+                // Устанавливаем одинаковую высоту обоим блокам
+                financeBlock.style.height = `${maxHeight}px`;
+                tasksBlock.style.height = `${maxHeight}px`;
+                
+                // Обеспечиваем прокрутку внутреннего содержимого
+                const financeContent = financeBlock.querySelector('.self-stretch.p-5.h-48');
+                const tasksContent = tasksBlock.querySelector('.self-stretch.px-5.py-4');
+                
+                if (financeContent) {
+                    financeContent.style.height = 'auto';
+                    financeContent.style.maxHeight = `${maxHeight - 100}px`; // Вычитаем высоту заголовка
+                    financeContent.style.overflowY = 'auto';
+                }
+                
+                if (tasksContent) {
+                    tasksContent.style.flex = '1';
+                    tasksContent.style.maxHeight = `${maxHeight - 60}px`; // Вычитаем высоту заголовка
+                    tasksContent.style.overflowY = 'auto';
+                }
+            }, 100);
+        }
     }
 </script>
 </html> 
