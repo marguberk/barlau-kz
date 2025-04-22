@@ -270,14 +270,16 @@
             
             /* Стилизация карточек задач в карточке задач */
             .finance-tasks > div:last-child .task-item {
-                width: 100% !important;
-                margin-bottom: 8px !important;
-                box-sizing: border-box !important;
-                border-radius: 8px !important;
-                padding: 4px 10px !important;
+                border-radius: 12px !important;
+                background-color: white !important;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
+                padding: 10px 12px !important;
+                margin-bottom: 12px !important;
                 min-height: 0 !important;
-                gap: 8px !important;
-                height: auto !important;
+                display: flex !important;
+                align-items: center !important;
+                gap: 10px !important;
+                border: 1px solid rgba(0,0,0,0.05) !important;
             }
             
             /* Убираем лишние отступы и вложенности в карточках */
@@ -502,38 +504,48 @@
             
             /* Стилизация карточек задач для планшетной версии */
             .finance-tasks > div:last-child .task-item {
-                border-radius: 8px !important;
-                padding: 8px !important;
+                border-radius: 12px !important;
+                background-color: white !important;
                 box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
+                padding: 10px 12px !important;
+                margin-bottom: 12px !important;
+                min-height: 0 !important;
                 display: flex !important;
                 align-items: center !important;
-                margin-bottom: 8px !important;
-                min-height: 0 !important;
+                gap: 10px !important;
+                border: 1px solid rgba(0,0,0,0.05) !important;
             }
             
             /* Стилизация чекбокса */
             .finance-tasks > div:last-child .circle-checkbox {
-                margin-right: 8px !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 16px !important;
+                height: 16px !important;
                 display: flex !important;
                 align-items: center !important;
                 justify-content: center !important;
             }
             
-            /* Скрываем все описания задач */
-            .finance-tasks > div:last-child .task-item .text-gray-500 {
-                display: none !important;
-            }
-            
-            /* Скрываем метки дат и приоритетов */
-            .finance-tasks > div:last-child .flex.justify-between {
+            /* Скрываем описания задач */
+            .finance-tasks > div:last-child .text-gray-500 {
                 display: none !important;
             }
             
             /* Заголовок задачи */
             .finance-tasks > div:last-child .task-item .text-sm {
+                font-size: 14px !important;
                 white-space: nowrap !important;
                 overflow: hidden !important;
                 text-overflow: ellipsis !important;
+                line-height: 1.2 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            
+            /* Скрываем теги и даты */
+            .finance-tasks > div:last-child .task-item .flex.justify-between {
+                display: none !important;
             }
         }
     </style>
@@ -1464,15 +1476,23 @@
                 tasksContent.style.paddingRight = '10px'; // Добавляем отступ для скроллбара
             }
             
+            // Обновляем переменную чтобы избежать ошибки повторного объявления
+            let dashboardTaskItems;
+            
             // Убедимся, что карточки задач корректно отображаются
-            const taskItems = tasksBlock.querySelectorAll('.task-item');
-            taskItems.forEach(function(item) {
+            dashboardTaskItems = tasksBlock.querySelectorAll('.task-item');
+            dashboardTaskItems.forEach(function(item) {
                 // Основные параметры карточки
                 item.style.width = '100%';
                 item.style.marginBottom = '12px';
-                item.style.boxSizing = 'border-box';
-                item.style.padding = '8px 10px';
-                item.style.minHeight = '0';
+                item.style.borderRadius = '12px';
+                item.style.padding = '10px 12px';
+                item.style.display = 'flex';
+                item.style.alignItems = 'center';
+                item.style.gap = '10px';
+                item.style.backgroundColor = 'white';
+                item.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
+                item.style.border = '1px solid rgba(0,0,0,0.05)';
                 
                 // Удаляем отступы у контейнера чекбокса
                 const checkboxContainer = item.querySelector('> div:first-child');
@@ -1510,30 +1530,27 @@
             }
             
             // Настройка карточек задач для планшетов
-            const taskItems = document.querySelectorAll('.finance-tasks > div:last-child .task-item');
-            
             if (window.innerWidth <= 1100) {
-                taskItems.forEach(item => {
-                    // Сбрасываем все сложные стили
+                // Используем существующую переменную вместо объявления новой
+                document.querySelectorAll('.finance-tasks > div:last-child .task-item').forEach(item => {
+                    // Сбрасываем предыдущие инлайн-стили
                     item.style = '';
                     
-                    // Применяем минимальные планшетные стили
-                    item.style.borderRadius = '8px';
-                    item.style.padding = '8px';
+                    // Применяем стили для планшетной версии
+                    item.style.borderRadius = '12px';
+                    item.style.padding = '10px 12px';
                     item.style.display = 'flex';
                     item.style.alignItems = 'center';
-                    item.style.marginBottom = '8px';
+                    item.style.gap = '10px';
+                    item.style.marginBottom = '12px';
+                    item.style.backgroundColor = 'white';
+                    item.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
+                    item.style.border = '1px solid rgba(0,0,0,0.05)';
                     
-                    // Скрываем описание и теги
-                    const description = item.querySelector('.text-gray-500');
-                    if (description) {
-                        description.style.display = 'none';
-                    }
-                    
-                    const bottomRow = item.querySelector('.flex.justify-between');
-                    if (bottomRow) {
-                        bottomRow.style.display = 'none';
-                    }
+                    // Скрываем описание и нижнюю часть с тегами
+                    item.querySelectorAll('.text-gray-500, .flex.justify-between').forEach(el => {
+                        if (el) el.style.display = 'none';
+                    });
                 });
             }
         }
