@@ -274,9 +274,10 @@
                 margin-bottom: 8px !important;
                 box-sizing: border-box !important;
                 border-radius: 8px !important;
-                padding: 8px !important;
+                padding: 4px 10px !important;
                 min-height: 0 !important;
                 gap: 8px !important;
+                height: auto !important;
             }
             
             /* Убираем лишние отступы и вложенности в карточках */
@@ -285,19 +286,15 @@
                 padding: 0 !important;
                 width: 16px !important;
                 height: 16px !important;
-                margin-top: 1px !important;
+                margin-top: 3px !important;
             }
             
-            /* Оптимизируем контент задачи */
-            .finance-tasks > div:last-child .task-item .flex-1 {
-                display: flex !important;
-                flex-direction: column !important;
-                gap: 2px !important;
-                min-width: 0 !important;
-                overflow: hidden !important;
+            /* СКРЫВАЕМ описание задачи полностью */
+            .finance-tasks > div:last-child .task-item .text-gray-500.text-xs {
+                display: none !important;
             }
             
-            /* Заголовок задачи */
+            /* Компактный заголовок задачи */
             .finance-tasks > div:last-child .task-item .text-zinc-950 {
                 font-size: 0.875rem !important;
                 line-height: 1.1 !important;
@@ -306,17 +303,7 @@
                 white-space: nowrap !important;
                 overflow: hidden !important;
                 text-overflow: ellipsis !important;
-            }
-            
-            /* Описание задачи */
-            .finance-tasks > div:last-child .task-item .text-gray-500.text-xs {
-                font-size: 0.75rem !important;
-                line-height: 1.2 !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                white-space: nowrap !important;
-                overflow: hidden !important;
-                text-overflow: ellipsis !important;
+                margin-bottom: 4px !important;
             }
             
             /* Нижняя часть с датой и тегами */
