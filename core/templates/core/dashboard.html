@@ -486,7 +486,7 @@
         @media screen and (max-width: 600px) {
             /* Карточки статистики */
             .stat-cards-container {
-                grid-template-columns: 1fr;
+                grid-template-columns: repeat(2, 1fr) !important;
                 gap: 0.75rem;
                 margin-bottom: 0.75rem;
             }
@@ -571,7 +571,7 @@
             }
             
             .mobile-nav a {
-                font-size: 0.625rem;
+                font-size: 0.5rem !important;
             }
             
             .mobile-nav .mobile-icon {
@@ -597,78 +597,31 @@
             }
             
             .stat-card {
-                padding: 20px !important;
+                padding: 16px !important;
                 height: auto !important;
-                display: flex;
-                flex-direction: column;
-                gap: 8px;
             }
             
             .stat-card-number {
-                font-size: 2rem !important;
-                font-weight: 600;
-                line-height: 1;
+                font-size: 28px !important;
+                line-height: 1 !important;
             }
             
             .stat-card-label {
-                font-size: 0.875rem !important;
-                white-space: normal;
-                line-height: 1.2;
+                font-size: 12px !important;
+                line-height: 1.2 !important;
             }
             
-            /* Показываем мобильные элементы и скрываем десктопные */
-            .mobile-only {
-                display: block !important;
-            }
-            
-            .desktop-only {
-                display: none !important;
-            }
-            
-            /* Меню навигации */
-            .mobile-nav {
-                position: fixed;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                height: 70px;
-                padding-top: 10px;
-                background-color: white;
-                border-top: 1px solid #e5e7eb;
-                display: flex;
-                justify-content: space-around;
-                z-index: 50;
-            }
-            
+            /* Нижнее меню навигации */
             .mobile-nav a {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                text-decoration: none;
-                color: #6b7280;
-                font-size: 0.625rem;
-                white-space: nowrap;
-                opacity: 0.7;
-            }
-            
-            .mobile-nav a.active {
-                color: #2563eb;
-                opacity: 1;
+                font-size: 0.5rem !important;
+                max-width: 48px !important;
+                letter-spacing: -0.01em !important;
             }
             
             .mobile-nav .mobile-icon {
-                width: 2rem;
-                height: 2rem;
-                margin-bottom: 0.25rem;
-            }
-            
-            .mobile-nav .active-indicator {
-                position: absolute;
-                bottom: 0;
-                width: 32px;
-                height: 4px;
-                background-color: #2563eb;
-                border-radius: 4px 4px 0 0;
+                width: 24px !important;
+                height: 24px !important;
+                margin-bottom: 4px !important;
             }
         }
     </style>
