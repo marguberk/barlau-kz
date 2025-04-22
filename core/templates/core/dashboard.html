@@ -38,12 +38,17 @@
             display: flex;
             flex-direction: column;
             min-height: 400px !important; /* Фиксированная минимальная высота */
-            height: 100% !important; /* Занимает всю доступную высоту */
+            height: 400px !important; /* Фиксированная высота */
         }
         
         /* Уменьшение вертикального отступа между рядами */
         .stats-cards + .w-full.px-8.pt-8 {
             padding-top: 1rem !important;
+        }
+        
+        /* Уменьшение отступа после блоков финансов и задач */
+        .finance-tasks + .w-full.px-8.pt-8.pb-8 {
+            padding-top: 1rem !important; /* Такой же отступ как сверху */
         }
         
         /* Пульсирующий маркер на карте */
@@ -1370,48 +1375,39 @@
         const tasksBlock = document.querySelector('.finance-tasks > div:last-child');
         
         if (financeBlock && tasksBlock) {
-            // Сначала сбрасываем высоту
-            financeBlock.style.height = 'auto';
-            tasksBlock.style.height = 'auto';
+            // Устанавливаем фиксированную высоту для обоих блоков
+            const fixedHeight = 400; // Абсолютно одинаковая высота для обоих блоков
             
-            // Затем устанавливаем максимальную высоту с небольшой задержкой для корректного рендеринга
-            setTimeout(() => {
-                const financeHeight = financeBlock.offsetHeight;
-                const tasksHeight = tasksBlock.offsetHeight;
-                const maxHeight = Math.max(financeHeight, tasksHeight, 400); // Минимальная высота 400px
-                
-                // Устанавливаем одинаковую высоту обоим блокам
-                financeBlock.style.height = `${maxHeight}px`;
-                tasksBlock.style.height = `${maxHeight}px`;
-                
-                // Обеспечиваем прокрутку внутреннего содержимого
-                const financeContent = financeBlock.querySelector('.self-stretch.p-5.h-48');
-                const tasksContent = tasksBlock.querySelector('.self-stretch.px-5.py-4');
-                
-                if (financeContent) {
-                    financeContent.style.height = 'auto';
-                    financeContent.style.maxHeight = `${maxHeight - 100}px`; // Вычитаем высоту заголовка
-                    financeContent.style.overflowY = 'auto';
-                }
-                
-                if (tasksContent) {
-                    tasksContent.style.flex = '1';
-                    tasksContent.style.maxHeight = `${maxHeight - 60}px`; // Вычитаем высоту заголовка
-                    tasksContent.style.overflowY = 'auto';
-                }
-                
-                // Уменьшаем отступ после блоков
-                const financeTasksContainer = financeBlock.parentElement;
-                if (financeTasksContainer) {
-                    financeTasksContainer.style.marginBottom = '1rem';
-                }
-                
-                // Уменьшаем вертикальный отступ между рядами
-                const activeTripsContainer = document.querySelector('.w-full.px-8.pt-8.pb-8');
-                if (activeTripsContainer) {
-                    activeTripsContainer.style.paddingTop = '1rem';
-                }
-            }, 100);
+            financeBlock.style.height = `${fixedHeight}px`;
+            tasksBlock.style.height = `${fixedHeight}px`;
+            
+            // Обеспечиваем прокрутку внутреннего содержимого
+            const financeContent = financeBlock.querySelector('.self-stretch.p-5.h-48');
+            const tasksContent = tasksBlock.querySelector('.self-stretch.px-5.py-4');
+            
+            if (financeContent) {
+                financeContent.style.height = 'auto';
+                financeContent.style.maxHeight = `${fixedHeight - 100}px`; // Вычитаем высоту заголовка
+                financeContent.style.overflowY = 'auto';
+            }
+            
+            if (tasksContent) {
+                tasksContent.style.flex = '1';
+                tasksContent.style.maxHeight = `${fixedHeight - 60}px`; // Вычитаем высоту заголовка
+                tasksContent.style.overflowY = 'auto';
+            }
+            
+            // Уменьшаем отступ после блоков
+            const financeTasksContainer = financeBlock.parentElement;
+            if (financeTasksContainer) {
+                financeTasksContainer.style.marginBottom = '1rem';
+            }
+            
+            // Уменьшаем вертикальный отступ между рядами
+            const activeTripsContainer = document.querySelector('.w-full.px-8.pt-8.pb-8');
+            if (activeTripsContainer) {
+                activeTripsContainer.style.paddingTop = '1rem';
+            }
         }
     }
 </script>
