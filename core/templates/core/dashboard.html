@@ -1162,6 +1162,22 @@
                     item.style.position = 'relative';
                     item.style.gap = '6px';
                     
+                    // Показываем мобильные иконки вместо десктопных
+                    const desktopIcon = item.querySelector('.desktop-icon');
+                    const mobileIcon = item.querySelector('.mobile-icon');
+                    
+                    if (desktopIcon) {
+                        desktopIcon.style.display = 'none';
+                    }
+                    
+                    if (mobileIcon) {
+                        mobileIcon.style.display = 'block';
+                        mobileIcon.classList.remove('hidden');
+                        // Увеличиваем размер мобильных иконок
+                        mobileIcon.style.width = '32px';
+                        mobileIcon.style.height = '32px';
+                    }
+                    
                     // Увеличиваем размер иконок
                     const iconContainer = item.querySelector('.w-5.h-5');
                     if (iconContainer) {
@@ -1170,13 +1186,6 @@
                         iconContainer.style.display = 'flex';
                         iconContainer.style.alignItems = 'center';
                         iconContainer.style.justifyContent = 'center';
-                        
-                        // Увеличиваем размер иконок внутри контейнера
-                        const icons = iconContainer.querySelectorAll('img, svg');
-                        icons.forEach(icon => {
-                            icon.style.width = '32px';
-                            icon.style.height = '32px';
-                        });
                     }
                     
                     // Изменяем внешний вид текста
@@ -1223,15 +1232,6 @@
                     const img = activeItem.querySelector('.mobile-icon');
                     if (img) {
                         img.style.filter = 'invert(39%) sepia(42%) saturate(2086%) hue-rotate(203deg) brightness(99%) contrast(101%)';
-                    }
-                    
-                    // Окрашиваем SVG иконку, если есть
-                    const svg = activeItem.querySelector('.w-5.h-5 svg');
-                    if (svg) {
-                        const paths = svg.querySelectorAll('path');
-                        paths.forEach(path => {
-                            path.setAttribute('fill', '#2563EB');
-                        });
                     }
                 }
                 
