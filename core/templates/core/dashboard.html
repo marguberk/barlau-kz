@@ -318,6 +318,33 @@
                 gap: 2px !important;
                 padding-top: 0 !important; 
                 padding-bottom: 0 !important;
+                min-height: 0 !important; /* Уменьшаем минимальную высоту */
+            }
+            
+            /* Уменьшаем отступы у чекбокса */
+            .finance-tasks > div:last-child .task-item > div:first-child {
+                padding-top: 0 !important;
+                margin-right: 0.5rem !important;
+                align-self: flex-start !important; /* Выравниваем сверху */
+                margin-top: 2px !important; /* Немного смещаем вниз */
+            }
+            
+            /* Сокращаем вертикальные отступы внутри заголовка задачи */
+            .finance-tasks > div:last-child .task-item .font-medium.text-gray-900 {
+                padding-top: 0 !important;
+                padding-bottom: 0 !important;
+                margin-top: 0 !important;
+                margin-bottom: 0 !important; /* Убираем отступ между заголовком и текстом */
+                line-height: 1.1 !important;
+            }
+            
+            /* Делаем меньше отступы у описания задачи */
+            .finance-tasks > div:last-child .task-item .text-sm.text-gray-500 {
+                margin-top: 0 !important;
+                margin-bottom: 2px !important; /* Минимальный отступ снизу */
+                line-height: 1.2 !important;
+                padding-top: 0 !important;
+                padding-bottom: 0 !important;
             }
             
             /* Настройка тегов и дат внизу карточки */
