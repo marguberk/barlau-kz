@@ -273,35 +273,31 @@
                 width: 100% !important;
                 margin-bottom: 12px !important;
                 box-sizing: border-box !important;
-                border-radius: 12px !important;  /* Уменьшаем радиус скругления */
-                padding: 10px !important;        /* Уменьшаем внутренние отступы еще больше */
-                min-height: 70px !important;     /* Уменьшаем минимальную высоту */
+                border-radius: 8px !important;  /* Уменьшаем радиус скругления */
+                padding: 8px 10px !important;  /* Минимальные отступы */
+                min-height: 0 !important;       /* Убираем минимальную высоту */
             }
             
-            /* Уменьшаем размер текста и отступы в карточках задач для планшетов */
-            .finance-tasks > div:last-child .task-item .text-sm {
-                font-size: 0.8125rem !important;
-                line-height: 1.25 !important;    /* Подстраиваем высоту строки */
+            /* Уменьшаем отступы у чекбокса */
+            .finance-tasks > div:last-child .task-item > div:first-child {
+                padding: 0 !important;
+                margin: 0 !important;
+                margin-right: 10px !important;
+                align-self: flex-start !important; /* Выравниваем сверху */
+                margin-top: 4px !important; /* Выравниваем с первой строкой текста */
             }
             
-            /* Настраиваем отступы между блоками внутри карточки */
-            .finance-tasks > div:last-child .task-item .flex-1 {
-                gap: 0.5rem !important;
-            }
-            
-            /* Уменьшаем размер и отступы снизу у заголовка и описания */
-            .finance-tasks > div:last-child .task-item .flex-1 > div:first-child {
-                gap: 0 !important;
-                margin-bottom: 0.25rem !important;
+            /* Уменьшаем размер самого чекбокса */
+            .finance-tasks > div:last-child .task-item .task-checkbox-container {
+                transform: scale(0.9) !important;
             }
             
             /* Сокращаем вертикальные отступы внутри заголовка задачи */
             .finance-tasks > div:last-child .task-item .font-medium.text-gray-900 {
-                padding-top: 0 !important;
-                padding-bottom: 0 !important;
-                margin-top: 0 !important;
-                margin-bottom: 3px !important;
+                padding: 0 !important;
+                margin: 0 !important;
                 line-height: 1.1 !important;
+                font-size: 0.9rem !important;
             }
             
             /* Делаем меньше отступы у описания задачи */
