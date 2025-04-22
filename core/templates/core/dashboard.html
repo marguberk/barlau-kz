@@ -31,11 +31,14 @@
         .finance-tasks {
             display: flex;
             gap: 1rem;
+            margin-bottom: 1rem !important; /* Равный отступ как сверху, так и снизу */
         }
         
         .finance-tasks > div {
             display: flex;
             flex-direction: column;
+            min-height: 400px !important; /* Фиксированная минимальная высота */
+            height: 100% !important; /* Занимает всю доступную высоту */
         }
         
         /* Уменьшение вертикального отступа между рядами */
@@ -1371,11 +1374,11 @@
             financeBlock.style.height = 'auto';
             tasksBlock.style.height = 'auto';
             
-            // Затем устанавливаем максимальную высоту
+            // Затем устанавливаем максимальную высоту с небольшой задержкой для корректного рендеринга
             setTimeout(() => {
                 const financeHeight = financeBlock.offsetHeight;
                 const tasksHeight = tasksBlock.offsetHeight;
-                const maxHeight = Math.max(financeHeight, tasksHeight);
+                const maxHeight = Math.max(financeHeight, tasksHeight, 400); // Минимальная высота 400px
                 
                 // Устанавливаем одинаковую высоту обоим блокам
                 financeBlock.style.height = `${maxHeight}px`;
@@ -1401,6 +1404,12 @@
                 const financeTasksContainer = financeBlock.parentElement;
                 if (financeTasksContainer) {
                     financeTasksContainer.style.marginBottom = '1rem';
+                }
+                
+                // Уменьшаем вертикальный отступ между рядами
+                const activeTripsContainer = document.querySelector('.w-full.px-8.pt-8.pb-8');
+                if (activeTripsContainer) {
+                    activeTripsContainer.style.paddingTop = '1rem';
                 }
             }, 100);
         }
