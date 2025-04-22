@@ -1323,32 +1323,38 @@
     
     // Функция для адаптации макета под планшет
     function adjustLayoutForTablet() {
-        const isTablet = window.innerWidth <= 1100;
-        
-        if (isTablet) {
-            // Заменяем десктопные иконки на мобильные
-            document.querySelectorAll('.sidebar-menu a .desktop-icon').forEach(function(icon) {
-                icon.style.display = 'none';
+        if (window.innerWidth <= 1100) {
+            // Заменяем иконки на мобильные
+            document.querySelectorAll('.sidebar-menu a').forEach(function(item) {
+                // Находим элементы иконок
+                const desktopIcon = item.querySelector('.desktop-icon');
+                const mobileIcon = item.querySelector('.mobile-icon');
+                
+                if (desktopIcon && mobileIcon) {
+                    // Скрываем десктопную иконку
+                    desktopIcon.style.display = 'none';
+                    // Показываем мобильную иконку
+                    mobileIcon.style.display = 'block';
+                    // Увеличиваем размер иконки
+                    mobileIcon.style.width = '32px';
+                    mobileIcon.style.height = '32px';
+                }
             });
             
-            document.querySelectorAll('.sidebar-menu a .mobile-icon').forEach(function(icon) {
-                icon.style.display = 'block';
-                icon.style.width = '32px';
-                icon.style.height = '32px';
-            });
-            
-            // Настройка изображений грузовиков
+            // Настраиваем изображения грузовиков
             document.querySelectorAll('.truck-card img').forEach(function(img) {
-                img.style.transform = 'translateY(-50%)';
-                img.style.width = '204px';
-                img.style.height = '75px';
+                img.style.maxWidth = '50%';
                 img.style.opacity = '0.4';
             });
             
-            // Активному грузовику устанавливаем повышенную непрозрачность
-            document.querySelectorAll('.truck-card.active img').forEach(function(img) {
-                img.style.opacity = '0.9';
-            });
+            // Выделяем активную карточку
+            const activeCard = document.querySelector('.truck-card.active');
+            if (activeCard) {
+                const img = activeCard.querySelector('img');
+                if (img) {
+                    img.style.opacity = '0.9';
+                }
+            }
             
             // Настройка меню навигации для планшетов
             const sidebarMenu = document.querySelector('.sidebar-menu');
@@ -1391,15 +1397,28 @@
                     // Добавляем полоску внизу активного пункта
                     activeItem.style.position = 'relative';
                     
-                    const activeIndicator = document.createElement('div');
-                    activeIndicator.className = 'active-indicator';
-                    activeIndicator.style.position = 'absolute';
-                    activeIndicator.style.bottom = '0';
-                    activeIndicator.style.left = '0';
-                    activeIndicator.style.width = '100%';
-                    activeIndicator.style.height = '2px';
-                    activeIndicator.style.backgroundColor = '#2563EB';
-                    activeItem.appendChild(activeIndicator);
+                    if (!activeItem.querySelector('.active-indicator')) {
+                        const activeIndicator = document.createElement('div');
+                        activeIndicator.className = 'active-indicator';
+                        activeIndicator.style.position = 'absolute';
+                        activeIndicator.style.bottom = '0';
+                        activeIndicator.style.left = '0';
+                        activeIndicator.style.width = '100%';
+                        activeIndicator.style.height = '2px';
+                        activeIndicator.style.backgroundColor = '#2563EB';
+                        activeItem.appendChild(activeIndicator);
+                    }
+                    
+                    // Для активного пункта меняем цвет иконки SVG
+                    const activeMobileIcon = activeItem.querySelector('.mobile-icon');
+                    if (activeMobileIcon) {
+                        const svgElement = activeMobileIcon.querySelector('svg');
+                        if (svgElement) {
+                            svgElement.style.color = '#2563EB';
+                        } else {
+                            activeMobileIcon.style.filter = 'invert(34%) sepia(85%) saturate(3303%) hue-rotate(213deg) brightness(99%) contrast(91%)';
+                        }
+                    }
                 }
                 
                 // Скрываем полоски слева от активных пунктов
