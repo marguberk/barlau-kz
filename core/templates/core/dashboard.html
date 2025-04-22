@@ -234,7 +234,7 @@
             .finance-tasks > div {
                 border-radius: 16px !important;
                 min-height: 400px !important; /* Фиксированная минимальная высота */
-                height: 400px !important; /* Фиксированная высота вместо auto */
+                height: 400px !important; /* Принудительная фиксированная высота для обоих элементов */
             }
             
             /* Распределение ширины между блоками */
@@ -246,11 +246,7 @@
                 width: 35% !important; /* Задачи занимают 35% */
             }
             
-            /* Стилизация секции финансовой отчетности */
-            .finance-tasks > div:first-child {
-                height: auto !important;
-            }
-            
+            /* Стилизация секции финансовой отчетности - удаляем переопределение высоты */
             /* Секция с графиком финансов */
             .finance-tasks > div:first-child .self-stretch.p-5.h-48 {
                 height: 16rem !important;
@@ -258,16 +254,30 @@
             
             /* Секция с задачами - ограничиваем высоту */
             .finance-tasks > div:last-child {
-                max-height: none !important; /* Убираем ограничение высоты */
+                max-height: 400px !important; /* Фиксированная максимальная высота */
                 display: flex !important;
                 flex-direction: column !important;
+                overflow: hidden !important; /* Предотвращаем скролл самого контейнера */
             }
             
             /* Прокрутка для задач, если их много */
             .finance-tasks > div:last-child .self-stretch.px-5.py-4 {
                 flex: 1 !important;
                 overflow-y: auto !important;
-                max-height: 24rem !important; /* Максимальная высота для скролла */
+                max-height: 330px !important; /* Максимальная высота для скролла (400px минус высота заголовка) */
+                padding-right: 10px !important; /* Добавляем отступ для скроллбара */
+            }
+            
+            /* Стилизация карточек задач в карточке задач */
+            .finance-tasks > div:last-child .task-item {
+                width: 100% !important;
+                margin-bottom: 12px !important;
+                box-sizing: border-box !important;
+            }
+            
+            /* Уменьшаем размер текста в карточках задач для планшетов */
+            .finance-tasks > div:last-child .task-item .text-sm {
+                font-size: 0.8125rem !important;
             }
             
             /* Общие отступы */
@@ -1380,8 +1390,8 @@
             // Устанавливаем фиксированную высоту для обоих блоков
             const fixedHeight = 400; // Абсолютно одинаковая высота для обоих блоков
             
-            financeBlock.style.height = `${fixedHeight}px`;
-            tasksBlock.style.height = `${fixedHeight}px`;
+            financeBlock.style.height = fixedHeight + 'px';
+            tasksBlock.style.height = fixedHeight + 'px';
             
             // Обеспечиваем прокрутку внутреннего содержимого
             const financeContent = financeBlock.querySelector('.self-stretch.p-5.h-48');
@@ -1389,15 +1399,24 @@
             
             if (financeContent) {
                 financeContent.style.height = 'auto';
-                financeContent.style.maxHeight = `${fixedHeight - 100}px`; // Вычитаем высоту заголовка
+                financeContent.style.maxHeight = (fixedHeight - 100) + 'px'; // Вычитаем высоту заголовка
                 financeContent.style.overflowY = 'auto';
             }
             
             if (tasksContent) {
                 tasksContent.style.flex = '1';
-                tasksContent.style.maxHeight = `${fixedHeight - 60}px`; // Вычитаем высоту заголовка
+                tasksContent.style.maxHeight = (fixedHeight - 70) + 'px'; // Вычитаем высоту заголовка
                 tasksContent.style.overflowY = 'auto';
+                tasksContent.style.paddingRight = '10px'; // Добавляем отступ для скроллбара
             }
+            
+            // Убедимся, что карточки задач корректно отображаются
+            const taskItems = tasksBlock.querySelectorAll('.task-item');
+            taskItems.forEach(function(item) {
+                item.style.width = '100%';
+                item.style.marginBottom = '12px';
+                item.style.boxSizing = 'border-box';
+            });
             
             // Уменьшаем отступ после блоков
             const financeTasksContainer = financeBlock.parentElement;
