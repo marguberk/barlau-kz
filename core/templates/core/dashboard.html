@@ -1366,7 +1366,7 @@
         const financeBlock = document.querySelector('.finance-tasks > div:first-child');
         const tasksBlock = document.querySelector('.finance-tasks > div:last-child');
         
-        if (financeBlock && tasksBlock && window.innerWidth <= 1100) {
+        if (financeBlock && tasksBlock) {
             // Сначала сбрасываем высоту
             financeBlock.style.height = 'auto';
             tasksBlock.style.height = 'auto';
@@ -1395,6 +1395,12 @@
                     tasksContent.style.flex = '1';
                     tasksContent.style.maxHeight = `${maxHeight - 60}px`; // Вычитаем высоту заголовка
                     tasksContent.style.overflowY = 'auto';
+                }
+                
+                // Уменьшаем отступ после блоков
+                const financeTasksContainer = financeBlock.parentElement;
+                if (financeTasksContainer) {
+                    financeTasksContainer.style.marginBottom = '1rem';
                 }
             }, 100);
         }
