@@ -273,11 +273,43 @@
                 width: 100% !important;
                 margin-bottom: 12px !important;
                 box-sizing: border-box !important;
+                border-radius: 12px !important;  /* Уменьшаем радиус скругления */
+                padding: 12px !important;        /* Уменьшаем внутренние отступы */
+                min-height: 76px !important;     /* Фиксированная минимальная высота */
             }
             
-            /* Уменьшаем размер текста в карточках задач для планшетов */
+            /* Уменьшаем размер текста и отступы в карточках задач для планшетов */
             .finance-tasks > div:last-child .task-item .text-sm {
                 font-size: 0.8125rem !important;
+                line-height: 1.25 !important;    /* Подстраиваем высоту строки */
+            }
+            
+            /* Настраиваем отступы между блоками внутри карточки */
+            .finance-tasks > div:last-child .task-item .flex-1 {
+                gap: 0.5rem !important;
+            }
+            
+            /* Уменьшаем размер и отступы снизу у заголовка и описания */
+            .finance-tasks > div:last-child .task-item .flex-1 > div:first-child {
+                gap: 0 !important;
+                margin-bottom: 0.25rem !important;
+            }
+            
+            /* Уменьшаем отступ между чекбоксом и контентом */
+            .finance-tasks > div:last-child .task-item > div:first-child {
+                padding-top: 0 !important;
+                margin-right: 0.5rem !important;
+            }
+            
+            /* Настройка тегов и дат внизу карточки */
+            .finance-tasks > div:last-child .task-item .self-stretch.flex.justify-between.items-center {
+                margin-top: 0.25rem !important;
+            }
+            
+            /* Уменьшаем размер тегов и улучшаем их отображение */
+            .finance-tasks > div:last-child .task-item .px-1\.5.py-px {
+                padding: 2px 4px !important;
+                margin-left: 4px !important;
             }
             
             /* Общие отступы */
