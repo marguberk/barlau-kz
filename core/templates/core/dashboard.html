@@ -651,17 +651,36 @@
                                     <div class="absolute left-0 right-0 bottom-1/2 border-b border-gray-200"></div>
                                     <div class="absolute left-0 right-0 bottom-3/4 border-b border-gray-200"></div>
                                     
-                                    <!-- График - синяя линия (текущий месяц) -->
+                                    <!-- Заглушка графика - улучшенная версия -->
                                     <div class="absolute left-0 right-0 bottom-0 h-full">
                                         <svg viewBox="0 0 100 40" preserveAspectRatio="none" class="h-full w-full">
-                                            <path d="M0,35 C10,32 20,28 30,25 C40,22 50,30 60,28 C70,26 80,15 90,10 L100,5" stroke="#2679DB" stroke-width="2" fill="none" />
-                                        </svg>
-                                    </div>
-                                    
-                                    <!-- График - голубая линия (прошлый месяц) -->
-                                    <div class="absolute left-0 right-0 bottom-0 h-full">
-                                        <svg viewBox="0 0 100 40" preserveAspectRatio="none" class="h-full w-full">
-                                            <path d="M0,30 C10,32 20,33 30,30 C40,27 50,24 60,25 C70,26 80,24 90,22 L100,20" stroke="#38BDF8" stroke-width="2" stroke-dasharray="2 2" fill="none" />
+                                            <defs>
+                                                <linearGradient id="blueGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                                    <stop offset="0%" style="stop-color:rgba(37, 99, 235, 0.1)"></stop>
+                                                    <stop offset="100%" style="stop-color:rgba(37, 99, 235, 0.01)"></stop>
+                                                </linearGradient>
+                                            </defs>
+                                            <path d="M0,35 C10,32 20,28 30,25 C40,22 50,30 60,28 C70,26 80,15 90,10 L100,5 L100,40 L0,40 Z" fill="url(#blueGradient)"></path>
+                                            <path d="M0,35 C10,32 20,28 30,25 C40,22 50,30 60,28 C70,26 80,15 90,10 L100,5" stroke="#2563eb" stroke-width="2" fill="none"></path>
+                                            
+                                            <!-- Точки данных на линии текущего месяца -->
+                                            <circle cx="0" cy="35" r="1.5" fill="#2563eb"></circle>
+                                            <circle cx="20" cy="28" r="1.5" fill="#2563eb"></circle>
+                                            <circle cx="40" cy="22" r="1.5" fill="#2563eb"></circle>
+                                            <circle cx="60" cy="28" r="1.5" fill="#2563eb"></circle>
+                                            <circle cx="80" cy="15" r="1.5" fill="#2563eb"></circle>
+                                            <circle cx="100" cy="5" r="1.5" fill="#2563eb"></circle>
+                                            
+                                            <!-- Линия прошлого месяца -->
+                                            <path d="M0,30 C10,32 20,33 30,30 C40,27 50,24 60,25 C70,26 80,24 90,22 L100,20" stroke="#38bdf8" stroke-width="2" stroke-dasharray="2 2" fill="none"></path>
+                                            
+                                            <!-- Вертикальные метки -->
+                                            <line x1="0" y1="40" x2="0" y2="38" stroke="#d1d5db" stroke-width="0.5"></line>
+                                            <line x1="20" y1="40" x2="20" y2="38" stroke="#d1d5db" stroke-width="0.5"></line>
+                                            <line x1="40" y1="40" x2="40" y2="38" stroke="#d1d5db" stroke-width="0.5"></line>
+                                            <line x1="60" y1="40" x2="60" y2="38" stroke="#d1d5db" stroke-width="0.5"></line>
+                                            <line x1="80" y1="40" x2="80" y2="38" stroke="#d1d5db" stroke-width="0.5"></line>
+                                            <line x1="100" y1="40" x2="100" y2="38" stroke="#d1d5db" stroke-width="0.5"></line>
                                         </svg>
                                     </div>
                                 </div>
