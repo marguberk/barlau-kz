@@ -504,27 +504,42 @@
             
             /* Стилизация карточек задач для планшетной версии */
             .finance-tasks > div:last-child .task-item {
-                border-radius: 12px !important;
-                background-color: white !important;
-                box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
-                padding: 10px 12px !important;
-                margin-bottom: 12px !important;
+                border-radius: 0 !important;
+                background-color: transparent !important;
+                box-shadow: none !important;
+                padding: 8px 12px !important;
+                margin-bottom: 8px !important;
                 min-height: 0 !important;
                 display: flex !important;
                 align-items: center !important;
                 gap: 10px !important;
-                border: 1px solid rgba(0,0,0,0.05) !important;
+                border: none !important;
+                border-bottom: 1px solid rgba(0,0,0,0.05) !important;
             }
             
             /* Стилизация чекбокса */
             .finance-tasks > div:last-child .circle-checkbox {
                 margin: 0 !important;
                 padding: 0 !important;
-                width: 16px !important;
-                height: 16px !important;
                 display: flex !important;
                 align-items: center !important;
                 justify-content: center !important;
+            }
+            
+            /* Круглый чекбокс */
+            .finance-tasks > div:last-child .circle-checkbox button {
+                width: 20px !important;
+                height: 20px !important;
+                padding: 0 !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+            }
+            
+            .finance-tasks > div:last-child .circle-checkbox button img,
+            .finance-tasks > div:last-child .circle-checkbox button .w-4.h-4 {
+                width: 20px !important;
+                height: 20px !important;
             }
             
             /* Скрываем описания задач */
@@ -541,11 +556,22 @@
                 line-height: 1.2 !important;
                 margin: 0 !important;
                 padding: 0 !important;
+                color: #333 !important;
             }
             
             /* Скрываем теги и даты */
             .finance-tasks > div:last-child .task-item .flex.justify-between {
                 display: none !important;
+            }
+            
+            /* Стилизация статистики */
+            .stats-cards > div {
+                box-shadow: none !important;
+                border: 1px solid rgba(0,0,0,0.1) !important;
+            }
+            
+            .stats-cards .text-4xl {
+                font-size: 2.5rem !important;
             }
         }
     </style>
@@ -762,7 +788,7 @@
                         {% if request.user.is_authenticated %}
                             {% if recent_tasks %}
                                 {% for task in recent_tasks|slice:":3" %}
-                                    <div class="self-stretch bg-white shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 rounded-lg p-3 flex items-center gap-3 task-item">
+                                    <div class="self-stretch flex items-center gap-3 task-item">
                                         <div class="circle-checkbox">
                                             {% if task.status == 'COMPLETED' %}
                                                 <button onclick="toggleTaskStatus({{ task.id }}, 'NEW')" class="cursor-pointer">
@@ -1200,6 +1226,60 @@
                     }
                 }
             }
+            
+            // Настройка карточек задач для планшетной версии
+            const tasks = document.querySelectorAll('.finance-tasks > div:last-child .task-item');
+            tasks.forEach(task => {
+                // Упрощаем стили карточек
+                task.style.borderRadius = '0';
+                task.style.backgroundColor = 'transparent';
+                task.style.boxShadow = 'none';
+                task.style.border = 'none';
+                task.style.borderBottom = '1px solid rgba(0,0,0,0.05)';
+                task.style.padding = '8px 12px';
+                task.style.margin = '0 0 8px 0';
+                
+                // Настраиваем чекбоксы
+                const checkbox = task.querySelector('.circle-checkbox button');
+                if (checkbox) {
+                    checkbox.style.width = '20px';
+                    checkbox.style.height = '20px';
+                    const img = checkbox.querySelector('img, .w-4.h-4');
+                    if (img) {
+                        img.style.width = '20px';
+                        img.style.height = '20px';
+                    }
+                }
+                
+                // Скрываем описание и теги
+                const descriptions = task.querySelectorAll('.text-gray-500, .flex.justify-between');
+                descriptions.forEach(desc => {
+                    if (desc) desc.style.display = 'none';
+                });
+                
+                // Настраиваем заголовок
+                const title = task.querySelector('.text-sm');
+                if (title) {
+                    title.style.fontSize = '14px';
+                    title.style.lineHeight = '1.2';
+                    title.style.whiteSpace = 'nowrap';
+                    title.style.overflow = 'hidden';
+                    title.style.textOverflow = 'ellipsis';
+                    title.style.color = '#333';
+                }
+            });
+            
+            // Настраиваем статистику
+            const statsCards = document.querySelectorAll('.stats-cards > div');
+            statsCards.forEach(card => {
+                card.style.boxShadow = 'none';
+                card.style.border = '1px solid rgba(0,0,0,0.1)';
+                
+                const statValue = card.querySelector('.text-4xl');
+                if (statValue) {
+                    statValue.style.fontSize = '2.5rem';
+                }
+            });
         } else {
             // Возвращаем стандартные стили для десктопа
             resetLayoutToDesktop();
