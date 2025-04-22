@@ -274,8 +274,8 @@
                 margin-bottom: 12px !important;
                 box-sizing: border-box !important;
                 border-radius: 12px !important;  /* Уменьшаем радиус скругления */
-                padding: 12px !important;        /* Уменьшаем внутренние отступы */
-                min-height: 76px !important;     /* Фиксированная минимальная высота */
+                padding: 10px !important;        /* Уменьшаем внутренние отступы еще больше */
+                min-height: 70px !important;     /* Уменьшаем минимальную высоту */
             }
             
             /* Уменьшаем размер текста и отступы в карточках задач для планшетов */
@@ -326,30 +326,26 @@
                 padding-top: 0 !important;
                 margin-right: 0.5rem !important;
                 align-self: flex-start !important; /* Выравниваем сверху */
-                margin-top: 2px !important; /* Немного смещаем вниз */
+                margin-top: 1px !important; /* Минимальный сдвиг вниз */
             }
             
             /* Сокращаем вертикальные отступы внутри заголовка задачи */
             .finance-tasks > div:last-child .task-item .font-medium.text-gray-900 {
-                padding-top: 0 !important;
-                padding-bottom: 0 !important;
-                margin-top: 0 !important;
-                margin-bottom: 0 !important; /* Убираем отступ между заголовком и текстом */
-                line-height: 1.1 !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                line-height: 1 !important; /* Минимально возможный межстрочный интервал */
             }
             
             /* Делаем меньше отступы у описания задачи */
             .finance-tasks > div:last-child .task-item .text-sm.text-gray-500 {
-                margin-top: 0 !important;
-                margin-bottom: 2px !important; /* Минимальный отступ снизу */
-                line-height: 1.2 !important;
-                padding-top: 0 !important;
-                padding-bottom: 0 !important;
+                margin: 0 !important;
+                line-height: 1.1 !important; /* Минимальный межстрочный интервал */
+                padding: 0 !important;
             }
             
             /* Настройка тегов и дат внизу карточки */
             .finance-tasks > div:last-child .task-item .self-stretch.flex.justify-between.items-center {
-                margin-top: 0.25rem !important;
+                margin-top: 4px !important; /* Минимальный отступ сверху */
             }
             
             /* Уменьшаем размер тегов и улучшаем их отображение */
