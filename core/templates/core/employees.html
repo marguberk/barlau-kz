@@ -123,7 +123,7 @@
                     <div class="px-4 py-3 border-b border-zinc-200 flex justify-between items-start">
                         <div class="flex items-center gap-3">
                             <div class="w-8 h-8 rounded-full bg-neutral-300 overflow-hidden">
-                                <img src="{% static 'core/img/avatars/avatar1.jpg' %}" alt="Алия Молдагулова" class="w-full h-full object-cover" />
+                                <img src="{% static 'core/img/avatars/placeholder.jpg' %}" alt="Алия Молдагулова" class="w-full h-full object-cover">
                             </div>
                             <div class="font-semibold text-zinc-950">Алия Молдагулова</div>
                         </div>
@@ -167,7 +167,7 @@
                     <div class="px-4 py-3 border-b border-zinc-200 flex justify-between items-start">
                         <div class="flex items-center gap-3">
                             <div class="w-8 h-8 rounded-full bg-neutral-300 overflow-hidden">
-                                <img src="{% static 'core/img/avatars/avatar2.jpg' %}" alt="Арман Жарасов" class="w-full h-full object-cover" />
+                                <img src="{% static 'core/img/avatars/placeholder.jpg' %}" alt="Арман Жарасов" class="w-full h-full object-cover">
                             </div>
                             <div class="font-semibold text-zinc-950">Арман Жарасов</div>
                         </div>
@@ -211,7 +211,7 @@
                     <div class="px-4 py-3 border-b border-zinc-200 flex justify-between items-start">
                         <div class="flex items-center gap-3">
                             <div class="w-8 h-8 rounded-full bg-neutral-300 overflow-hidden">
-                                <img src="{% static 'core/img/avatars/avatar3.jpg' %}" alt="Жаксыбек Парижов" class="w-full h-full object-cover" />
+                                <img src="{% static 'core/img/avatars/placeholder.jpg' %}" alt="Жаксыбек Парижов" class="w-full h-full object-cover">
                             </div>
                             <div class="font-semibold text-zinc-950">Жаксыбек Парижов</div>
                         </div>
@@ -292,28 +292,27 @@
 </nav>
 
 <style>
+    /* Обновленные стили для боковых иконок меню */
+    .sidebar-menu a {
+        color: #6B7280 !important; /* Серый цвет для неактивных пунктов */
+    }
+    
+    .sidebar-menu a.bg-gray-50 {
+        color: #2563EB !important; /* Синий цвет для активного пункта */
+    }
+    
+    .sidebar-menu a img.desktop-icon {
+        filter: brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(142deg) brightness(96%) contrast(91%); /* Серый фильтр для неактивных иконок */
+    }
+    
+    .sidebar-menu a.bg-gray-50 img.desktop-icon {
+        filter: brightness(0) saturate(100%) invert(32%) sepia(96%) saturate(7461%) hue-rotate(220deg) brightness(97%) contrast(98%); /* Синий фильтр для активной иконки */
+    }
+    
     /* Общие стили для фиксации цветов иконок в меню */
     a, a:visited, a:link, a:hover, a:active, 
     a *, a:visited *, a:link *, a:hover *, a:active * {
-        color: inherit !important;
-        fill: inherit !important;
-        stroke: inherit !important;
         text-decoration: none !important;
-    }
-    
-    /* Сбрасываем стили для всех пользовательских агентов */
-    @media all {
-        .sidebar-menu a:visited svg,
-        .sidebar-menu a:visited svg path {
-            stroke: #6B7280 !important;
-            fill: none !important;
-        }
-        
-        .sidebar-menu a.bg-gray-50:visited svg,
-        .sidebar-menu a.bg-gray-50:visited svg path {
-            stroke: #2563EB !important;
-            fill: none !important;
-        }
     }
 
     @media (max-width: 1100px) {
