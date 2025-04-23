@@ -636,10 +636,32 @@ class TaskCreateView(LoginRequiredMixin, View):
         try:
             task.save()
             messages.success(request, 'Задача успешно создана')
+            # Перенаправляем на страницу со всеми задачами
             return redirect('core:tasks')
         except Exception as e:
+            # Обрабатываем возможные ошибки при создании задачи
             messages.error(request, f'Ошибка при создании задачи: {str(e)}')
-            return redirect('core:tasks')
+            
+            # Готовим контекст для повторного отображения формы
+            User = get_user_model()
+            employees = User.objects.filter(is_active=True)
+            vehicles = Vehicle.objects.all()
+            
+            context = {
+                'employees': employees,
+                'vehicles': vehicles,
+                'form_title': 'Новая задача',
+                'active_page': 'tasks',
+                'form_data': {
+                    'title': title,
+                    'description': description,
+                    'priority': priority,
+                    'due_date': due_date,
+                    'assigned_to_id': assigned_to_id,
+                    'vehicle_id': vehicle_id
+                }
+            }
+            return render(request, self.template_name, context)
 
 class TaskUpdateView(LoginRequiredMixin, View):
     template_name = 'core/task_form.html'
@@ -787,21 +809,34 @@ class FinanceView(LoginRequiredMixin, TemplateView):
         
         return context
 
-class EmployeesView(LoginRequiredMixin, TemplateView):
+class EmployeesView(LoginRequiredMixin, View):
     template_name = 'core/employees.html'
     
-    def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            return self.handle_no_permission()
-        if not request.user.role in ['DIRECTOR', 'SUPERADMIN'] and not request.user.is_superuser:
-            return HttpResponseForbidden("У вас нет прав для просмотра этой страницы")
-        return super().dispatch(request, *args, **kwargs)
-    
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['active_page'] = 'employees'
-        context['can_manage_employees'] = self.request.user.role in ['DIRECTOR', 'SUPERADMIN'] or self.request.user.is_superuser
-        return context
+    def get(self, request):
+        # Получаем список сотрудников
+        employees = User.objects.all().order_by('last_name', 'first_name')
+        
+        # Фильтрация по роли, если указана
+        role = request.GET.get('role')
+        if role:
+            employees = employees.filter(role=role)
+            
+        # Поиск по имени, фамилии или email
+        search = request.GET.get('search')
+        if search:
+            employees = employees.filter(
+                models.Q(first_name__icontains=search) | 
+                models.Q(last_name__icontains=search) | 
+                models.Q(email__icontains=search) |
+                models.Q(position__icontains=search)
+            )
+            
+        return render(request, self.template_name, {
+            'employees': employees,
+            'roles': User.Role.choices,
+            'current_role': role,
+            'search': search,
+        })
 
 class WaybillViewSet(viewsets.ModelViewSet):
     queryset = Waybill.objects.all()
@@ -1207,290 +1242,6 @@ class EmployeePhotoUploadView(LoginRequiredMixin, View):
             })
         else:
             return JsonResponse({'error': 'Файл не был загружен'}, status=400)
-
-class EmployeeListView(LoginRequiredMixin, View):
-    template_name = 'core/employee_list.html'
-    
-    def get(self, request):
-        # Проверяем права доступа
-        if not request.user.role in ['DIRECTOR', 'ACCOUNTANT', 'SUPERADMIN'] and not request.user.is_superuser:
-            messages.error(request, 'У вас нет прав для просмотра списка сотрудников')
-            return redirect('core:home')
-            
-        # Получаем список сотрудников
-        employees = User.objects.all().order_by('last_name', 'first_name')
-        
-        # Фильтрация по роли, если указана
-        role = request.GET.get('role')
-        if role:
-            employees = employees.filter(role=role)
-            
-        # Поиск по имени, фамилии или email
-        search = request.GET.get('search')
-        if search:
-            employees = employees.filter(
-                models.Q(first_name__icontains=search) | 
-                models.Q(last_name__icontains=search) | 
-                models.Q(email__icontains=search) |
-                models.Q(position__icontains=search)
-            )
-            
-        return render(request, self.template_name, {
-            'employees': employees,
-            'roles': User.Role.choices,
-            'current_role': role,
-            'search': search
-        })
-
-class EmployeeCreateView(View):
-    template_name = 'core/employee_form.html'
-    
-    def get(self, request):
-        # Проверка прав доступа
-        if not request.user.is_authenticated or request.user.role not in ['DIRECTOR', 'SUPERADMIN'] and not request.user.is_superuser:
-            messages.error(request, 'У вас нет прав для добавления сотрудников')
-            return redirect('core:index')
-            
-        # Получение списка ролей для формы
-        roles = User.Role.choices
-        
-        context = {
-            'roles': roles,
-            'is_new': True,
-            'title': 'Добавление нового сотрудника'
-        }
-        return render(request, self.template_name, context)
-    
-    def post(self, request):
-        # Проверка прав доступа
-        if not request.user.is_authenticated or request.user.role not in ['DIRECTOR', 'SUPERADMIN'] and not request.user.is_superuser:
-            messages.error(request, 'У вас нет прав для добавления сотрудников')
-            return redirect('core:index')
-        
-        # Получение данных из формы
-        first_name = request.POST.get('first_name', '')
-        last_name = request.POST.get('last_name', '')
-        email = request.POST.get('email', '')
-        phone = request.POST.get('phone', '')
-        position = request.POST.get('position', '')
-        role = request.POST.get('role', '')
-        
-        # Базовая валидация
-        errors = {}
-        if not first_name:
-            errors['first_name'] = 'Имя обязательно для заполнения'
-        if not last_name:
-            errors['last_name'] = 'Фамилия обязательна для заполнения'
-        if not email:
-            errors['email'] = 'Email обязателен для заполнения'
-        elif User.objects.filter(email=email).exists():
-            errors['email'] = 'Пользователь с таким email уже существует'
-        
-        # Если есть ошибки, возвращаем форму с ошибками
-        if errors:
-            context = {
-                'errors': errors,
-                'first_name': first_name,
-                'last_name': last_name,
-                'email': email,
-                'phone': phone,
-                'position': position,
-                'selected_role': role,
-                'roles': User.Role.choices,
-                'is_new': True,
-                'title': 'Добавление нового сотрудника'
-            }
-            return render(request, self.template_name, context)
-        
-        # Создание нового пользователя
-        username = email.split('@')[0]
-        # Генерация уникального имени пользователя
-        base_username = username
-        counter = 1
-        while User.objects.filter(username=username).exists():
-            username = f"{base_username}{counter}"
-            counter += 1
-        
-        # Генерация случайного пароля
-        password = ''.join(random.choices(string.ascii_letters + string.digits, k=12))
-        
-        # Создание пользователя
-        user = User.objects.create_user(
-            username=username,
-            email=email,
-            password=password,
-            first_name=first_name,
-            last_name=last_name,
-            phone=phone,
-            position=position,
-            role=role
-        )
-        
-        # Дополнительные поля из формы
-        user.desired_salary = request.POST.get('desired_salary', '')
-        user.age = request.POST.get('age', '')
-        user.location = request.POST.get('location', '')
-        user.skills = request.POST.get('skills', '')
-        user.experience = request.POST.get('experience', '')
-        user.education = request.POST.get('education', '')
-        user.certifications = request.POST.get('certifications', '')
-        user.languages = request.POST.get('languages', '')
-        user.hobbies = request.POST.get('hobbies', '')
-        
-        # Обработка загрузки фото
-        if 'photo' in request.FILES:
-            user.photo = request.FILES['photo']
-            
-        # Обработка загрузки файла рекомендации
-        if 'recommendation_file' in request.FILES:
-            user.recommendation_file = request.FILES['recommendation_file']
-        
-        user.save()
-        
-        messages.success(request, f'Сотрудник {user.get_full_name()} успешно создан. Логин: {username}, пароль: {password}')
-        return redirect('core:employee_edit', pk=user.pk)
-
-class EmployeeEditView(View):
-    template_name = 'core/employee_form.html'
-    
-    def get(self, request, pk):
-        # Проверка прав доступа
-        if not request.user.is_authenticated or request.user.role not in ['DIRECTOR', 'SUPERADMIN'] and not request.user.is_superuser:
-            messages.error(request, 'У вас нет прав для редактирования сотрудников')
-            return redirect('core:index')
-            
-        # Получение сотрудника
-        try:
-            employee = User.objects.get(pk=pk)
-        except User.DoesNotExist:
-            messages.error(request, 'Сотрудник не найден')
-            return redirect('core:employees')
-        
-        # Получение списка ролей для формы
-        roles = User.Role.choices
-        
-        context = {
-            'employee': employee,
-            'roles': roles,
-            'is_new': False,
-            'title': f'Редактирование сотрудника: {employee.get_full_name()}'
-        }
-        return render(request, self.template_name, context)
-    
-    def post(self, request, pk):
-        # Проверка прав доступа
-        if not request.user.is_authenticated or request.user.role not in ['DIRECTOR', 'SUPERADMIN'] and not request.user.is_superuser:
-            messages.error(request, 'У вас нет прав для редактирования сотрудников')
-            return redirect('core:index')
-        
-        # Получение сотрудника
-        try:
-            employee = User.objects.get(pk=pk)
-        except User.DoesNotExist:
-            messages.error(request, 'Сотрудник не найден')
-            return redirect('core:employees')
-        
-        # Получение данных из формы
-        first_name = request.POST.get('first_name', '')
-        last_name = request.POST.get('last_name', '')
-        email = request.POST.get('email', '')
-        phone = request.POST.get('phone', '')
-        position = request.POST.get('position', '')
-        role = request.POST.get('role', '')
-        
-        # Базовая валидация
-        errors = {}
-        if not first_name:
-            errors['first_name'] = 'Имя обязательно для заполнения'
-        if not last_name:
-            errors['last_name'] = 'Фамилия обязательна для заполнения'
-        if not email:
-            errors['email'] = 'Email обязателен для заполнения'
-        elif User.objects.filter(email=email).exclude(pk=pk).exists():
-            errors['email'] = 'Пользователь с таким email уже существует'
-        
-        # Если есть ошибки, возвращаем форму с ошибками
-        if errors:
-            context = {
-                'employee': employee,
-                'errors': errors,
-                'roles': User.Role.choices,
-                'is_new': False,
-                'title': f'Редактирование сотрудника: {employee.get_full_name()}'
-            }
-            return render(request, self.template_name, context)
-        
-        # Обновление данных сотрудника
-        employee.first_name = first_name
-        employee.last_name = last_name
-        employee.email = email
-        employee.phone = phone
-        employee.position = position
-        employee.role = role
-        
-        # Дополнительные поля из формы
-        employee.desired_salary = request.POST.get('desired_salary', '')
-        employee.age = request.POST.get('age', '')
-        employee.location = request.POST.get('location', '')
-        employee.skills = request.POST.get('skills', '')
-        employee.experience = request.POST.get('experience', '')
-        employee.education = request.POST.get('education', '')
-        employee.certifications = request.POST.get('certifications', '')
-        employee.languages = request.POST.get('languages', '')
-        employee.hobbies = request.POST.get('hobbies', '')
-        
-        # Обработка загрузки фото
-        if 'photo' in request.FILES:
-            # Если было предыдущее фото, удаляем его
-            if employee.photo:
-                try:
-                    old_photo_path = employee.photo.path
-                    if os.path.exists(old_photo_path):
-                        os.remove(old_photo_path)
-                except Exception as e:
-                    # Логирование ошибки, но продолжаем выполнение
-                    print(f"Ошибка при удалении старого фото: {e}")
-            
-            employee.photo = request.FILES['photo']
-            
-        # Обработка загрузки файла рекомендации
-        if 'recommendation_file' in request.FILES:
-            # Если был предыдущий файл, удаляем его
-            if employee.recommendation_file:
-                try:
-                    old_file_path = employee.recommendation_file.path
-                    if os.path.exists(old_file_path):
-                        os.remove(old_file_path)
-                except Exception as e:
-                    # Логирование ошибки, но продолжаем выполнение
-                    print(f"Ошибка при удалении старого файла рекомендации: {e}")
-            
-            employee.recommendation_file = request.FILES['recommendation_file']
-        
-        employee.save()
-        
-        messages.success(request, f'Данные сотрудника {employee.get_full_name()} успешно обновлены')
-        return redirect('core:employee_edit', pk=employee.pk)
-
-class VehiclesView(LoginRequiredMixin, TemplateView):
-    template_name = 'core/vehicles.html'
-    
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['active_page'] = 'vehicles'
-        
-        # Загружаем транспорт из базы данных для начального рендеринга страницы
-        from logistics.models import Vehicle
-        
-        # Получаем весь транспорт
-        vehicles = Vehicle.objects.all().select_related('driver')
-        
-        # Если пользователь водитель, показываем только его транспорт
-        if self.request.user.role == 'DRIVER':
-            vehicles = vehicles.filter(driver=self.request.user)
-        
-        context['initial_vehicles'] = vehicles
-        return context
 
 class VehicleCreateView(LoginRequiredMixin, View):
     template_name = 'core/vehicle_form.html'
