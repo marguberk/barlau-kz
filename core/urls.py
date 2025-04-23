@@ -68,7 +68,8 @@ urlpatterns = [
     path('api/users/me/stats/', get_profile_stats, name='api-profile-stats'),
     
     # Employees
-    path('employees/', EmployeeListView.as_view(), name='employees'),
+    path('employees/', EmployeesView.as_view(), name='employees'),
+    path('employees/mobile/', EmployeesView.as_view(template_name='core/employees_mobile.html'), name='employees_mobile'),
     path('employees/<int:pk>/', EmployeeDetailView.as_view(), name='employee-detail'),
     path('employees/<int:pk>/pdf/', EmployeePDFView.as_view(), name='employee-pdf'),
     path('employees/add/', EmployeeCreateView.as_view(), name='employee_add'),
