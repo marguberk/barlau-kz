@@ -257,35 +257,36 @@
 <!-- Нижнее мобильное меню -->
 <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 hidden">
     <div class="flex justify-around items-center px-4 py-2">
-        <a href="{% url 'core:home' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600">
+        <a href="{% url 'core:home' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600 relative">
             <div class="icon-container relative w-8 h-8 flex items-center justify-center">
                 <img src="{% static 'core/img/mobile/home.svg' %}" alt="Home" class="w-8 h-8">
             </div>
-            <span class="text-xs mt-1">Главная</span>
+            <span class="text-xs text-[10px] mt-1">Главная</span>
         </a>
-        <a href="{% url 'core:tasks' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600">
+        <a href="{% url 'core:tasks' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600 relative">
             <div class="icon-container relative w-8 h-8 flex items-center justify-center">
                 <img src="{% static 'core/img/mobile/check-square.svg' %}" alt="Tasks" class="w-8 h-8">
             </div>
-            <span class="text-xs mt-1">Задачи</span>
+            <span class="text-xs text-[10px] mt-1">Задачи</span>
         </a>
-        <a href="{% url 'core:map' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600">
+        <a href="{% url 'core:map' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600 relative">
             <div class="icon-container relative w-8 h-8 flex items-center justify-center">
                 <img src="{% static 'core/img/mobile/location.svg' %}" alt="Map" class="w-8 h-8">
             </div>
-            <span class="text-xs mt-1">Карта</span>
+            <span class="text-xs text-[10px] mt-1">Карта</span>
         </a>
-        <a href="{% url 'core:vehicles' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600">
+        <a href="{% url 'core:vehicles' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600 relative">
             <div class="icon-container relative w-8 h-8 flex items-center justify-center">
                 <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Vehicles" class="w-8 h-8">
             </div>
-            <span class="text-xs mt-1">Грузовики</span>
+            <span class="text-xs text-[10px] mt-1">Грузовики</span>
         </a>
-        <a href="{% url 'core:employees' %}" class="flex flex-col items-center text-blue-600">
+        <a href="{% url 'core:employees' %}" class="flex flex-col items-center text-blue-600 relative">
             <div class="icon-container relative w-8 h-8 flex items-center justify-center">
                 <img src="{% static 'core/img/mobile/employee.svg' %}" alt="Employees" class="w-8 h-8">
             </div>
-            <span class="text-xs mt-1">Сотрудники</span>
+            <span class="text-xs text-[10px] mt-1">Сотрудники</span>
+            <div class="absolute -bottom-2 left-0 right-0 h-0.5 bg-blue-600 rounded-full"></div>
         </a>
     </div>
 </nav>
