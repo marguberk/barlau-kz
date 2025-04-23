@@ -4,14 +4,14 @@
 {% block title %}Сотрудники - BARLAU.KZ{% endblock %}
 
 {% block content %}
-<div class="container mx-auto px-4 py-4 sm:py-6">
+<div class="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
     <!-- Заголовок -->
     <div class="mb-4 flex justify-between items-center">
         <h1 class="text-xl sm:text-2xl font-bold text-black">Сотрудники</h1>
     </div>
 
     <!-- Панель поиска и фильтра -->
-    <div class="mb-6 flex flex-col sm:flex-row justify-between gap-2">
+    <div class="mb-6 flex flex-col sm:flex-row justify-center gap-2">
         <div class="flex-grow relative">
             <div class="flex h-10 w-full rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] border border-zinc-200 bg-white">
                 <div class="flex items-center pl-3">
@@ -20,11 +20,23 @@
                         <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                     </svg>
                 </div>
-                <input type="text" placeholder="Поиск" class="px-2 py-2 w-full focus:outline-none text-gray-700 rounded-lg" id="searchInput" />
+                <input type="text" placeholder="Поиск" class="px-2 py-2 w-full focus:outline-none text-gray-700 rounded-lg" />
+                <div class="flex gap-1 pr-2">
+                    <button class="flex items-center justify-center p-1 w-5 h-5 bg-gray-100 rounded shadow-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        </svg>
+                    </button>
+                    <button class="flex items-center justify-center p-1 w-5 h-5 bg-gray-100 rounded shadow-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="6" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                    </button>
+                </div>
             </div>
         </div>
         <div class="shrink-0">
-            <button id="filterButton" class="h-10 px-3 py-2 bg-white rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] border border-zinc-200 flex items-center justify-center">
+            <button class="h-10 px-3 py-2 bg-white rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] border border-zinc-200 flex items-center justify-center">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500">
                     <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
                 </svg>
@@ -32,45 +44,34 @@
         </div>
     </div>
 
-    <!-- Фильтры (скрыты по умолчанию) -->
-    <div id="filterPanel" class="mb-4 hidden bg-gray-50 p-4 rounded-lg">
-        <div class="flex flex-wrap gap-3">
-            <button class="px-3 py-1 rounded bg-white border border-gray-300 text-sm">Все</button>
-            <button class="px-3 py-1 rounded bg-indigo-50 border border-blue-300 text-blue-600 text-sm">Бухгалтер</button>
-            <button class="px-3 py-1 rounded bg-orange-50 border border-orange-300 text-amber-600 text-sm">Водитель</button>
-            <button class="px-3 py-1 rounded bg-green-50 border border-green-300 text-green-600 text-sm">Снабженец</button>
-        </div>
-    </div>
-
     <!-- Список сотрудников -->
-    <div class="space-y-4 employee-grid">
+    <div class="space-y-4">
         <!-- Карточка сотрудника - 1 -->
-        <div class="bg-white rounded-xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] border border-zinc-200 overflow-hidden employee-card" data-position="Бухгалтер">
+        <div class="bg-white rounded-xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] border border-zinc-200 overflow-hidden">
             <div class="px-4 py-3 border-b border-zinc-200 flex justify-between items-start">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-full bg-neutral-300 overflow-hidden">
-                        <img src="{% static 'core/img/avatars/avatar1.jpg' %}" onerror="this.src='{% static 'core/img/avatars/placeholder.jpg' %}'" alt="Алия Молдагулова" class="w-full h-full object-cover" loading="lazy" />
+                    <div class="w-8 h-8 rounded-full bg-neutral-300 overflow-hidden">
+                        <img src="{% static 'core/img/avatars/avatar1.jpg' %}" onerror="this.onerror=null; this.src='{% static 'core/img/avatars/placeholder.jpg' %}'" alt="Алия Молдагулова" class="w-full h-full object-cover" />
                     </div>
                     <div class="font-semibold text-zinc-950">Алия Молдагулова</div>
                 </div>
             </div>
             <div class="px-4 py-3 space-y-3">
                 <div class="flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500 desktop-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500">
                         <path d="M20 7h-3a2 2 0 0 1-2-2V2"></path>
                         <path d="M16 2H8a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path>
                     </svg>
-                    <img src="{% static 'core/img/mobile/check-square.svg' %}" alt="Должность" class="mobile-icon hidden w-5 h-5" />
                     <span class="px-2 py-0.5 bg-indigo-50 rounded text-blue-600 text-sm font-medium">Бухгалтер</span>
                 </div>
                 <div class="flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500 desktop-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500">
                         <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
                     </svg>
                     <span class="text-gray-500 text-sm font-medium">+7 (708) 555-0122</span>
                 </div>
                 <div class="flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500 desktop-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500">
                         <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
                         <line x1="16" y1="2" x2="16" y2="6"></line>
                         <line x1="8" y1="2" x2="8" y2="6"></line>
@@ -90,32 +91,31 @@
         </div>
 
         <!-- Карточка сотрудника - 2 -->
-        <div class="bg-white rounded-xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] border border-zinc-200 overflow-hidden employee-card" data-position="Водитель">
+        <div class="bg-white rounded-xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] border border-zinc-200 overflow-hidden">
             <div class="px-4 py-3 border-b border-zinc-200 flex justify-between items-start">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-full bg-neutral-300 overflow-hidden">
-                        <img src="{% static 'core/img/avatars/avatar2.jpg' %}" onerror="this.src='{% static 'core/img/avatars/placeholder.jpg' %}'" alt="Арман Жарасов" class="w-full h-full object-cover" loading="lazy" />
+                    <div class="w-8 h-8 rounded-full bg-neutral-300 overflow-hidden">
+                        <img src="{% static 'core/img/avatars/avatar2.jpg' %}" onerror="this.onerror=null; this.src='{% static 'core/img/avatars/placeholder.jpg' %}'" alt="Арман Жарасов" class="w-full h-full object-cover" />
                     </div>
                     <div class="font-semibold text-zinc-950">Арман Жарасов</div>
                 </div>
             </div>
             <div class="px-4 py-3 space-y-3">
                 <div class="flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500 desktop-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500">
                         <path d="M20 7h-3a2 2 0 0 1-2-2V2"></path>
                         <path d="M16 2H8a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path>
                     </svg>
-                    <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Должность" class="mobile-icon hidden w-5 h-5" />
                     <span class="px-2 py-0.5 bg-orange-100 rounded text-amber-600 text-sm font-medium">Водитель</span>
                 </div>
                 <div class="flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500 desktop-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500">
                         <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
                     </svg>
                     <span class="text-gray-500 text-sm font-medium">+7 (778) 555-2100</span>
                 </div>
                 <div class="flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500 desktop-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500">
                         <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
                         <line x1="16" y1="2" x2="16" y2="6"></line>
                         <line x1="8" y1="2" x2="8" y2="6"></line>
@@ -135,32 +135,31 @@
         </div>
 
         <!-- Карточка сотрудника - 3 -->
-        <div class="bg-white rounded-xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] border border-zinc-200 overflow-hidden employee-card" data-position="Снабженец">
+        <div class="bg-white rounded-xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] border border-zinc-200 overflow-hidden">
             <div class="px-4 py-3 border-b border-zinc-200 flex justify-between items-start">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-full bg-neutral-300 overflow-hidden">
-                        <img src="{% static 'core/img/avatars/avatar3.jpg' %}" onerror="this.src='{% static 'core/img/avatars/placeholder.jpg' %}'" alt="Жаксыбек Парижов" class="w-full h-full object-cover" loading="lazy" />
+                    <div class="w-8 h-8 rounded-full bg-neutral-300 overflow-hidden">
+                        <img src="{% static 'core/img/avatars/avatar3.jpg' %}" onerror="this.onerror=null; this.src='{% static 'core/img/avatars/placeholder.jpg' %}'" alt="Жаксыбек Парижов" class="w-full h-full object-cover" />
                     </div>
                     <div class="font-semibold text-zinc-950">Жаксыбек Парижов</div>
                 </div>
             </div>
             <div class="px-4 py-3 space-y-3">
                 <div class="flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500 desktop-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500">
                         <path d="M20 7h-3a2 2 0 0 1-2-2V2"></path>
                         <path d="M16 2H8a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path>
                     </svg>
-                    <img src="{% static 'core/img/mobile/employee.svg' %}" alt="Должность" class="mobile-icon hidden w-5 h-5" />
                     <span class="px-2 py-0.5 bg-green-50 rounded text-green-600 text-sm font-medium">Снабженец</span>
                 </div>
                 <div class="flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500 desktop-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500">
                         <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
                     </svg>
                     <span class="text-gray-500 text-sm font-medium">+7 (778) 121-9029</span>
                 </div>
                 <div class="flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500 desktop-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500">
                         <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
                         <line x1="16" y1="2" x2="16" y2="6"></line>
                         <line x1="8" y1="2" x2="8" y2="6"></line>
@@ -183,9 +182,18 @@
 
 <!-- Специальные стили для адаптивности -->
 <style>
+    /* Общие стили для фиксации цветов иконок в меню */
+    a, a:visited, a:link, a:hover, a:active, 
+    a *, a:visited *, a:link *, a:hover *, a:active * {
+        color: inherit !important;
+        fill: inherit !important;
+        stroke: inherit !important;
+        text-decoration: none !important;
+    }
+    
     /* Стили для десктопной версии - сетка из карточек */
     @media (min-width: 768px) {
-        .employee-grid {
+        .space-y-4 {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 1rem;
@@ -194,46 +202,17 @@
     
     /* Стили для планшетной версии - увеличенные иконки в нижнем меню */
     @media (max-width: 1100px) and (min-width: 641px) {
-        /* Увеличение размера изображений сотрудников */
-        .w-10.h-10 {
-            width: 3rem !important;
-            height: 3rem !important;
+        /* Адаптация для нижнего меню */
+        .fixed.bottom-0 .flex.justify-around.items-center {
+            justify-content: space-evenly;
         }
         
-        /* Улучшение адаптивности поиска и фильтра */
-        .mb-6.flex {
-            gap: 0.5rem !important;
+        .fixed.bottom-0 .flex.flex-col.items-center i {
+            font-size: 2rem !important;
+            margin-bottom: 0.5rem;
         }
         
-        /* Увеличиваем высоту фотографий */
-        img.object-cover {
-            width: 100% !important;
-            height: 100% !important;
-            object-fit: cover !important;
-        }
-        
-        /* Скрываем десктопные иконки и показываем мобильные */
-        .desktop-icon {
-            display: none !important;
-        }
-        
-        .mobile-icon {
-            display: block !important;
-            width: 32px !important;
-            height: 32px !important;
-        }
-        
-        /* Стили для нижнего меню в планшетном режиме */
-        .fixed.bottom-0 .flex.justify-around {
-            justify-content: space-evenly !important;
-        }
-        
-        .fixed.bottom-0 .flex.flex-col i {
-            font-size: 1.75rem !important;
-            margin-bottom: 0.25rem !important;
-        }
-        
-        .fixed.bottom-0 .text-xs {
+        .fixed.bottom-0 .flex.flex-col.items-center .text-xs {
             font-size: 0.875rem !important;
         }
     }
@@ -244,181 +223,21 @@
             padding-left: 1rem;
             padding-right: 1rem;
         }
-        
-        /* Фиксированная высота картинки профиля */
-        .w-10.h-10 img {
-            object-fit: cover !important;
-            width: 100% !important;
-            height: 100% !important;
-        }
-        
-        /* Скрываем десктопные иконки и показываем мобильные */
-        .desktop-icon {
-            display: none !important;
-        }
-        
-        .mobile-icon {
-            display: block !important;
-            width: 24px !important;
-            height: 24px !important;
-        }
-        
-        /* Горизонтальное меню внизу экрана */
-        .fixed.bottom-0 {
-            z-index: 50 !important;
-        }
-    }
-    
-    /* Гарантированная загрузка аватаров */
-    img.object-cover {
-        width: 100% !important;
-        height: 100% !important;
-        object-fit: cover !important;
     }
 </style>
 {% endblock %}
 
 {% block extra_js %}
 <script>
+    // Обработчик для отображения резюме сотрудников
     document.addEventListener('DOMContentLoaded', function() {
-        // Переменные для поиска и фильтрации
-        const searchInput = document.getElementById('searchInput');
-        const filterButton = document.getElementById('filterButton');
-        const filterPanel = document.getElementById('filterPanel');
-        const employeeCards = document.querySelectorAll('.employee-card');
-        const filterButtons = filterPanel.querySelectorAll('button');
-        
-        // Показать/скрыть панель фильтров
-        filterButton.addEventListener('click', function() {
-            filterPanel.classList.toggle('hidden');
-        });
-        
-        // Поиск по имени сотрудника
-        searchInput.addEventListener('input', function() {
-            const searchText = this.value.toLowerCase();
-            
-            employeeCards.forEach(card => {
-                const employeeName = card.querySelector('.font-semibold').textContent.toLowerCase();
-                const employeePosition = card.querySelector('.px-2.py-0.5').textContent.toLowerCase();
-                
-                // Проверяем, соответствует ли карточка поиску
-                if (employeeName.includes(searchText) || employeePosition.includes(searchText)) {
-                    card.style.display = '';
-                } else {
-                    card.style.display = 'none';
-                }
-            });
-        });
-        
-        // Фильтрация по должности
-        filterButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                const selectedPosition = this.textContent.trim();
-                
-                // Сбрасываем стили всех кнопок
-                filterButtons.forEach(btn => {
-                    btn.style.fontWeight = 'normal';
-                });
-                
-                // Выделяем выбранную кнопку
-                this.style.fontWeight = 'bold';
-                
-                // Фильтруем карточки
-                employeeCards.forEach(card => {
-                    if (selectedPosition === 'Все') {
-                        card.style.display = '';
-                    } else {
-                        const position = card.getAttribute('data-position');
-                        if (position === selectedPosition) {
-                            card.style.display = '';
-                        } else {
-                            card.style.display = 'none';
-                        }
-                    }
-                });
-            });
-        });
-        
-        // Обработчик для кнопок "Посмотреть резюме"
-        const resumeButtons = document.querySelectorAll('button span');
+        const resumeButtons = document.querySelectorAll('button:contains("Посмотреть резюме")');
         resumeButtons.forEach(button => {
-            if (button.textContent.includes('Посмотреть резюме')) {
-                button.parentElement.addEventListener('click', function() {
-                    const employeeName = this.closest('.bg-white').querySelector('.font-semibold').textContent;
-                    alert(`Резюме сотрудника ${employeeName}`);
-                });
-            }
-        });
-        
-        // Функция для адаптации макета под планшетный режим
-        function adjustLayoutForTablet() {
-            const windowWidth = window.innerWidth;
-            
-            if (windowWidth <= 1100) {
-                // Находим и обрабатываем все иконки
-                document.querySelectorAll('.desktop-icon').forEach(icon => {
-                    icon.style.display = 'none';
-                });
-                
-                document.querySelectorAll('.mobile-icon').forEach(icon => {
-                    icon.style.display = 'block';
-                    icon.style.width = windowWidth <= 640 ? '24px' : '32px';
-                    icon.style.height = windowWidth <= 640 ? '24px' : '32px';
-                });
-            } else {
-                // Возвращаем к десктопному виду
-                document.querySelectorAll('.desktop-icon').forEach(icon => {
-                    icon.style.display = 'inline';
-                });
-                
-                document.querySelectorAll('.mobile-icon').forEach(icon => {
-                    icon.style.display = 'none';
-                });
-            }
-        }
-        
-        // Вызываем функцию при загрузке и изменении размера окна
-        window.addEventListener('resize', adjustLayoutForTablet);
-        adjustLayoutForTablet();
-        
-        // Предзагрузка изображений для улучшения производительности
-        function preloadImages() {
-            // Полные пути к изображениям для правильной загрузки
-            const imgSources = [
-                '/static/core/img/avatars/avatar1.jpg',
-                '/static/core/img/avatars/avatar2.jpg',
-                '/static/core/img/avatars/avatar3.jpg',
-                '/static/core/img/avatars/placeholder.jpg',
-                '/static/core/img/mobile/check-square.svg',
-                '/static/core/img/mobile/employee.svg',
-                '/static/core/img/mobile/home.svg',
-                '/static/core/img/mobile/location.svg',
-                '/static/core/img/mobile/truck.svg'
-            ];
-            
-            imgSources.forEach(src => {
-                const img = new Image();
-                img.src = src;
-                console.log('Предзагрузка изображения:', src);
+            button.addEventListener('click', function() {
+                const employeeName = this.closest('.bg-white').querySelector('.font-semibold').textContent;
+                alert(`Резюме сотрудника ${employeeName} будет отображено здесь`);
             });
-        }
-        
-        // Принудительная загрузка картинок
-        document.querySelectorAll('.w-10.h-10 img').forEach(img => {
-            const originalSrc = img.getAttribute('src');
-            const errorSrc = img.getAttribute('onerror').match(/'([^']+)'/)[1];
-            
-            // Проверка изображения
-            img.onerror = function() {
-                console.log('Ошибка загрузки изображения, устанавливаю запасное:', errorSrc);
-                this.src = errorSrc;
-            };
-            
-            // Принудительная перезагрузка
-            img.src = originalSrc + '?t=' + new Date().getTime();
         });
-        
-        preloadImages();
     });
 </script>
 {% endblock %} 
