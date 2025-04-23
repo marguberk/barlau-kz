@@ -203,41 +203,25 @@
             
             /* Адаптация для карточек статистики */
             .stats-cards {
-                display: flex !important;
-                flex-direction: row !important;
-                flex-wrap: nowrap !important;
+                flex-direction: row !important; /* Для планшета сохраняем горизонтальное расположение */
                 gap: 1rem !important;
-                width: 100% !important;
                 padding: 0 32px !important;
             }
             
             .stats-cards > div {
-                flex: 1 1 0 !important;
-                width: 0 !important; /* Заставляет flex работать корректно */
-                min-width: 0 !important; /* Предотвращает переполнение */
-                height: auto !important; /* Автоматическая высота */
+                height: 124px !important; /* Уменьшена высота карточек */
                 border-radius: 16px !important;
+                padding-bottom: 16px !important; /* Уменьшен нижний padding */
             }
             
-            @media (max-width: 1100px) {
-                .stats-cards {
-                    padding: 0 16px !important;
-                }
-                
-                .stats-cards > div {
-                    padding: 12px !important;
-                }
+            /* Уменьшаем вертикальный отступ между рядами */
+            .w-full.px-8.pt-8 {
+                padding-top: 16px !important;
             }
             
-            /* Уменьшаем отступы для планшетов/мобильных */
-            @media (max-width: 768px) {
-                .stats-cards > div {
-                    padding: 10px !important;
-                }
-                
-                .stats-cards > div .text-4xl {
-                    font-size: 1.75rem !important;
-                }
+            /* Уменьшаем расстояние между первым и вторым рядом */
+            .stats-cards + .w-full.px-8.pt-8 {
+                padding-top: 16px !important;
             }
             
             /* Адаптация для финансов и задач */
@@ -1337,124 +1321,111 @@
         }
     }
     
-    // Функция для адаптации макета под планшет
+    // Функция для адаптации интерфейса под планшеты
     function adjustLayoutForTablet() {
-        if (window.innerWidth <= 1100 && window.innerWidth > 640) {
-            // Заменяем десктопные иконки на мобильные в навигации
-            const menuItems = document.querySelectorAll('.sidebar-menu a');
-            
-            menuItems.forEach(function(menuItem) {
-                // Скрываем десктопную иконку
-                const desktopIconContainer = menuItem.querySelector('.desktop-icon');
-                if (desktopIconContainer) {
-                    desktopIconContainer.style.display = 'none';
-                }
-                
-                // Показываем мобильную иконку
-                const mobileIconContainer = menuItem.querySelector('.mobile-icon');
-                if (mobileIconContainer) {
-                    mobileIconContainer.style.display = 'block';
-                    mobileIconContainer.style.width = '32px';
-                    mobileIconContainer.style.height = '32px';
-                }
-                
-                // Изменяем структуру пункта меню
-                menuItem.style.display = 'flex';
-                menuItem.style.flexDirection = 'column';
-                menuItem.style.alignItems = 'center';
-                menuItem.style.justifyContent = 'center';
-                menuItem.style.padding = '10px 0';
-                menuItem.style.textAlign = 'center';
-                menuItem.style.position = 'relative';
-                
-                // Стили для текста
-                const text = menuItem.querySelector('.flex-1');
-                if (text) {
-                    text.style.fontSize = '12px';
-                    text.style.margin = '8px 0 0 0';
-                    text.style.padding = '0';
-                }
-                
-                // Скрываем лишние элементы
-                const lineMarker = menuItem.querySelector('.w-1.h-6');
-                if (lineMarker) {
-                    lineMarker.style.display = 'none';
-                }
-            });
-            
-            // Настройка меню навигации для планшетов
-            const sidebarMenu = document.querySelector('.sidebar-menu');
+        if (window.innerWidth <= 1100) {
+            // Устанавливаем стили для отображения на планшете
+            var sidebarMenu = document.querySelector('.sidebar-menu');
             if (sidebarMenu) {
+                // Устанавливаем горизонтальное меню
                 sidebarMenu.style.display = 'flex';
                 sidebarMenu.style.flexDirection = 'row';
                 sidebarMenu.style.justifyContent = 'space-around';
-                sidebarMenu.style.width = '100%';
-                sidebarMenu.style.maxWidth = '600px';
-                sidebarMenu.style.margin = '0 auto';
-            }
-            
-            // Особое выделение для активного пункта
-            const activeItem = document.querySelector('.sidebar-menu a.bg-gray-50');
-            if (activeItem) {
-                // Убираем фон
-                activeItem.style.backgroundColor = 'transparent';
+                sidebarMenu.style.alignItems = 'center';
+                sidebarMenu.style.padding = '10px 0';
                 
-                // Изменяем цвет текста
-                const text = activeItem.querySelector('.flex-1');
-                if (text) {
-                    text.style.color = '#2563EB';
-                    text.style.fontWeight = '500';
-                }
-                
-                // Добавляем полоску внизу активного пункта
-                if (!activeItem.querySelector('.active-indicator')) {
-                    const activeIndicator = document.createElement('div');
-                    activeIndicator.className = 'active-indicator';
-                    activeIndicator.style.position = 'absolute';
-                    activeIndicator.style.bottom = '0';
-                    activeIndicator.style.left = '0';
-                    activeIndicator.style.width = '100%';
-                    activeIndicator.style.height = '2px';
-                    activeIndicator.style.backgroundColor = '#2563EB';
-                    activeItem.appendChild(activeIndicator);
-                }
-                
-                // Для активного пункта меняем цвет иконки
-                const activeMobileIcon = activeItem.querySelector('.mobile-icon');
-                if (activeMobileIcon) {
-                    // Пробуем найти SVG
-                    const svgElement = activeMobileIcon.querySelector('svg');
-                    if (svgElement) {
-                        // Это SVG, меняем его цвет
-                        const paths = svgElement.querySelectorAll('path');
-                        paths.forEach(function(path) {
-                            path.setAttribute('fill', '#2563EB');
-                        });
-                    } else {
-                        // Это может быть IMG
-                        const imgElement = activeMobileIcon.querySelector('img');
-                        if (imgElement) {
-                            // Применяем синий фильтр к изображению
-                            imgElement.style.filter = 'invert(34%) sepia(85%) saturate(3303%) hue-rotate(213deg) brightness(99%) contrast(91%)';
+                // Настраиваем стиль пунктов меню
+                var menuItems = sidebarMenu.querySelectorAll('a');
+                for (var i = 0; i < menuItems.length; i++) {
+                    var menuItem = menuItems[i];
+                    // Настройка отображения пунктов меню
+                    menuItem.style.display = 'flex';
+                    menuItem.style.flexDirection = 'column';
+                    menuItem.style.alignItems = 'center';
+                    menuItem.style.justifyContent = 'center';
+                    menuItem.style.padding = '8px 12px';
+                    menuItem.style.position = 'relative';
+                    
+                    // Скрываем десктопные иконки
+                    var desktopIcon = menuItem.querySelector('.desktop-icon');
+                    if (desktopIcon) {
+                        desktopIcon.style.display = 'none';
+                    }
+                    
+                    // Отображаем мобильные иконки из папки img/mobile
+                    var mobileIcon = menuItem.querySelector('.mobile-icon');
+                    if (mobileIcon) {
+                        mobileIcon.style.display = 'block';
+                        mobileIcon.style.width = '32px';
+                        mobileIcon.style.height = '32px';
+                    }
+                    
+                    // Настраиваем стиль текста
+                    var text = menuItem.querySelector('.flex-1');
+                    if (text) {
+                        text.style.marginLeft = '0';
+                        text.style.marginTop = '8px';
+                        text.style.fontSize = '12px';
+                        text.style.textAlign = 'center';
+                        text.style.fontWeight = '500';
+                    }
+                    
+                    // Обрабатываем активный пункт меню
+                    if (menuItem.classList.contains('bg-blue-50')) {
+                        // Меняем стиль активного пункта
+                        menuItem.classList.remove('bg-blue-50');
+                        menuItem.style.backgroundColor = 'transparent';
+                        
+                        // Добавляем индикатор активного пункта
+                        if (!menuItem.querySelector('.active-indicator')) {
+                            var activeIndicator = document.createElement('div');
+                            activeIndicator.className = 'active-indicator';
+                            activeIndicator.style.position = 'absolute';
+                            activeIndicator.style.bottom = '0';
+                            activeIndicator.style.left = '0';
+                            activeIndicator.style.width = '100%';
+                            activeIndicator.style.height = '2px';
+                            activeIndicator.style.backgroundColor = '#2563EB';
+                            menuItem.appendChild(activeIndicator);
+                        }
+                        
+                        // Меняем цвет иконки для активного пункта
+                        var activeMobileIcon = menuItem.querySelector('.mobile-icon');
+                        if (activeMobileIcon) {
+                            var svgElement = activeMobileIcon.querySelector('svg');
+                            if (svgElement) {
+                                svgElement.style.color = '#2563EB';
+                            } else {
+                                // Применяем фильтр для SVG-изображений
+                                activeMobileIcon.style.filter = 'invert(34%) sepia(85%) saturate(3303%) hue-rotate(213deg) brightness(99%) contrast(91%)';
+                            }
                         }
                     }
                 }
-            }
-            
-            // Настраиваем изображения грузовиков
-            document.querySelectorAll('.truck-card img').forEach(function(img) {
-                img.style.maxWidth = '50%';
-                img.style.opacity = '0.4';
-            });
-            
-            // Выделяем активную карточку грузовика
-            const activeCard = document.querySelector('.truck-card.active');
-            if (activeCard) {
-                const img = activeCard.querySelector('img');
-                if (img) {
-                    img.style.opacity = '0.9';
+                
+                // Скрываем полоски слева от активных пунктов
+                var activeLines = document.querySelectorAll('.sidebar-menu a .w-1.h-6');
+                for (var j = 0; j < activeLines.length; j++) {
+                    activeLines[j].style.display = 'none';
                 }
             }
+            
+            // Уменьшаем размер изображений грузовиков
+            var truckImages = document.querySelectorAll('.truck-card img');
+            for (var k = 0; k < truckImages.length; k++) {
+                truckImages[k].style.width = '50px';
+                truckImages[k].style.height = '50px';
+                truckImages[k].style.opacity = '0.4';
+            }
+            
+            // Выделяем активный грузовик
+            var activeCard = document.querySelector('.truck-card.active img');
+            if (activeCard) {
+                activeCard.style.opacity = '0.9';
+            }
+            
+            // Запускаем выравнивание высоты блоков финансов и задач
+            equalizeFinanceTasksHeight();
         } else {
             // Возвращаем стандартные стили для десктопа
             resetLayoutToDesktop();
