@@ -836,6 +836,7 @@ class EmployeesView(LoginRequiredMixin, View):
             'roles': User.Role.choices,
             'current_role': role,
             'search': search,
+            'active_page': 'employees',
         })
 
 class WaybillViewSet(viewsets.ModelViewSet):
