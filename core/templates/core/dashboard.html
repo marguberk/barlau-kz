@@ -669,6 +669,60 @@
                 margin-bottom: 4px !important;
             }
         }
+        
+        /* Стили для нижней навигации */
+        .mobile-nav {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            width: 100%;
+            background: white;
+            padding: 12px 0;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 50;
+            box-shadow: 0 -1px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .mobile-nav a {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #6b7280;
+            font-size: 12px;
+            flex: 1;
+            text-decoration: none !important;
+        }
+        
+        .mobile-nav a:hover, 
+        .mobile-nav a:visited, 
+        .mobile-nav a:focus {
+            color: #6b7280 !important;
+            text-decoration: none !important;
+        }
+        
+        .mobile-nav a.active {
+            color: #2563EB !important;
+        }
+        
+        .mobile-nav a.active::after {
+            content: '';
+            display: block;
+            width: 18px; /* Уже */
+            height: 5px; /* Толще */
+            background-color: #2563EB;
+            border-radius: 2px;
+            margin-top: 4px;
+        }
+        
+        .mobile-nav .mobile-icon {
+            width: 28px;
+            height: 28px;
+            margin-bottom: 4px;
+        }
     </style>
 </head>
 <body class="bg-gray-50">
@@ -760,11 +814,11 @@
             </div>
 
             <!-- Карточки статистики -->
-            <div class="w-full px-8 pt-8 flex justify-start items-start gap-4 stats-cards">
-                <div class="flex-1 px-5 py-6 bg-white rounded-2xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex flex-col justify-start items-start gap-4 overflow-hidden">
+            <div class="w-full px-8 pt-8 pb-2 flex justify-start items-start gap-4 stats-cards">
+                <div class="flex-1 px-5 py-4 bg-white rounded-2xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex flex-col justify-start items-start gap-4 overflow-hidden">
                     <div class="self-stretch flex flex-col justify-start items-start gap-2">
                         <div class="self-stretch inline-flex justify-between items-center">
-                            <div class="justify-start text-zinc-950 text-6xl font-semibold leading-10">{{ tasks_count|default:"0" }}</div>
+                            <div class="justify-start text-zinc-950 text-5xl font-semibold leading-10">{{ tasks_count|default:"0" }}</div>
                             <div class="w-10 h-10 p-2 bg-blue-600 rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.10)] flex justify-center items-center gap-2 overflow-hidden" style="background: linear-gradient(135deg, #4287f5 0%, #2869db 100%);">
                                 <img src="{% static 'core/img/check-square.svg' %}" alt="Tasks" class="w-5 h-5 invert" style="filter: brightness(0) invert(1);">
                             </div>
@@ -772,10 +826,10 @@
                         <div class="self-stretch justify-start text-gray-500 text-base font-normal leading-normal">Задач на сегодня</div>
                     </div>
                 </div>
-                <div class="flex-1 px-5 py-6 bg-white rounded-2xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex flex-col justify-start items-start gap-4 overflow-hidden">
+                <div class="flex-1 px-5 py-4 bg-white rounded-2xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex flex-col justify-start items-start gap-4 overflow-hidden">
                     <div class="self-stretch flex flex-col justify-start items-start gap-2">
                         <div class="self-stretch inline-flex justify-between items-center">
-                            <div class="justify-start text-zinc-950 text-6xl font-semibold leading-10">{{ vehicles_count|default:"0" }}</div>
+                            <div class="justify-start text-zinc-950 text-5xl font-semibold leading-10">{{ vehicles_count|default:"0" }}</div>
                             <div class="w-10 h-10 p-2 bg-blue-600 rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.10)] flex justify-center items-center gap-2 overflow-hidden" style="background: linear-gradient(135deg, #4287f5 0%, #2869db 100%);">
                                 <img src="{% static 'core/img/truck.svg' %}" alt="Vehicles" class="w-5 h-5 invert" style="filter: brightness(0) invert(1);">
                             </div>
