@@ -322,6 +322,8 @@
                 margin-bottom: 16px !important;
                 padding: 16px !important;
                 position: relative !important;
+                width: 94% !important; /* Делаем карточки уже, чтобы не перекрывали скролл */
+                margin-right: 6% !important; /* Отступ справа для скроллбара */
             }
             
             /* Карта и детали */
@@ -749,6 +751,64 @@
             stroke: #2563EB !important;
             color: #2563EB !important;
             filter: invert(39%) sepia(42%) saturate(2086%) hue-rotate(203deg) brightness(99%) contrast(101%) !important;
+        }
+        
+        /* Кардинальное решение - запрещаем браузеру менять цвет посещенных ссылок */
+        a {
+            -webkit-tap-highlight-color: transparent !important;
+        }
+        
+        .sidebar-menu a:link svg *,
+        .sidebar-menu a:visited svg *,
+        .sidebar-menu a:hover svg *,
+        .sidebar-menu a:active svg * {
+            stroke: #6B7280 !important;
+            fill: none !important;
+        }
+        
+        /* Радикальные меры против фиолетового цвета */
+        .sidebar-menu a {
+            color: #6B7280 !important;
+        }
+        
+        .sidebar-menu a:visited {
+            color: #6B7280 !important;
+        }
+        
+        .sidebar-menu a svg path,
+        .sidebar-menu a svg line,
+        .sidebar-menu a svg rect,
+        .sidebar-menu a svg circle {
+            stroke: #6B7280 !important;
+            fill: none !important;
+        }
+        
+        .sidebar-menu a:visited svg path,
+        .sidebar-menu a:visited svg line,
+        .sidebar-menu a:visited svg rect,
+        .sidebar-menu a:visited svg circle {
+            stroke: #6B7280 !important;
+            fill: none !important;
+        }
+        
+        /* Принудительно делаем активную иконку синей */
+        .sidebar-menu a.bg-gray-50 {
+            color: #2563EB !important;
+        }
+        
+        .sidebar-menu a.bg-gray-50 svg path,
+        .sidebar-menu a.bg-gray-50 svg line,
+        .sidebar-menu a.bg-gray-50 svg rect,
+        .sidebar-menu a.bg-gray-50 svg circle {
+            stroke: #2563EB !important;
+            fill: none !important;
+        }
+        
+        /* При загрузке страницы принудительно перекрашиваем иконки с помощью JS */
+        @media (max-width: 1100px) {
+            .desktop-icon, .mobile-icon {
+                pointer-events: none;
+            }
         }
     </style>
 </head>
@@ -1348,6 +1408,9 @@
         // Выравниваем высоту карточек
         equalizeCardHeights();
         
+        // Принудительно корректируем цвета иконок, чтобы избежать фиолетового цвета
+        fixIconColors();
+        
         // Обработка клика по карточкам грузовиков
         document.querySelectorAll('.truck-card').forEach(card => {
             card.addEventListener('click', function() {
@@ -1796,6 +1859,33 @@
                 activeTripsContainer.style.paddingTop = '1rem';
             }
         }
+    }
+    
+    // Функция для фиксации цветов иконок в боковом/нижнем меню
+    function fixIconColors() {
+        // Устанавливаем серый цвет для всех неактивных иконок
+        document.querySelectorAll('.sidebar-menu a:not(.bg-gray-50) svg path').forEach(path => {
+            path.setAttribute('stroke', '#6B7280');
+            path.setAttribute('fill', 'none');
+            path.style.stroke = '#6B7280';
+            path.style.fill = 'none';
+        });
+        
+        // Устанавливаем синий цвет для активной иконки
+        document.querySelectorAll('.sidebar-menu a.bg-gray-50 svg path').forEach(path => {
+            path.setAttribute('stroke', '#2563EB');
+            path.setAttribute('fill', 'none');
+            path.style.stroke = '#2563EB';
+            path.style.fill = 'none';
+        });
+        
+        // Перекрашиваем SVG при переходе между страницами
+        document.querySelectorAll('.sidebar-menu a').forEach(link => {
+            link.addEventListener('click', function() {
+                // Небольшая задержка для перерисовки после перехода
+                setTimeout(fixIconColors, 50);
+            });
+        });
     }
 </script>
 </html> 
