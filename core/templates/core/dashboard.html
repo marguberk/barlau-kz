@@ -12,6 +12,16 @@
         body {
             font-family: 'Inter Tight', sans-serif;
         }
+        
+        /* Глобальный сброс цвета всех ссылок и посещенных ссылок на странице */
+        a, a:visited, a:link, a:hover, a:active, 
+        a *, a:visited *, a:link *, a:hover *, a:active * {
+            color: inherit !important;
+            fill: inherit !important;
+            stroke: inherit !important;
+            text-decoration: none !important;
+        }
+        
         .item-row {
             display: flex;
             justify-content: space-between;
@@ -880,6 +890,80 @@
             fill: none !important;
             color: #2563EB !important;
         }
+        
+        /* МАКСИМАЛЬНО АГРЕССИВНЫЕ ПРАВИЛА ДЛЯ ФИОЛЕТОВЫХ ИКОНОК */
+        /* Увеличиваем специфичность до максимума */
+        html body .sidebar-menu a:visited svg,
+        html body .sidebar-menu a:visited svg path,
+        html body .sidebar-menu a:visited svg *,
+        html body div.sidebar-menu a:visited svg,
+        html body div.sidebar-menu a:visited svg path,
+        html body div.sidebar-menu a:visited svg *,
+        html body div.sidebar div.sidebar-menu a:visited svg,
+        html body div.sidebar div.sidebar-menu a:visited svg path,
+        html body div.sidebar div.sidebar-menu a:visited svg * {
+            stroke: #6B7280 !important;
+            fill: none !important;
+            color: #6B7280 !important;
+            filter: none !important;
+        }
+        
+        /* Принудительно устанавливаем цвет для самих ссылок */
+        html body div.sidebar div.sidebar-menu a,
+        html body div.sidebar div.sidebar-menu a:visited,
+        html body div.sidebar div.sidebar-menu a:link,
+        html body div.sidebar div.sidebar-menu a:hover,
+        html body div.sidebar div.sidebar-menu a:active {
+            color: #6B7280 !important;
+        }
+        
+        /* Активный элемент меню */
+        html body div.sidebar div.sidebar-menu a.bg-gray-50,
+        html body div.sidebar div.sidebar-menu a.bg-gray-50:visited,
+        html body div.sidebar div.sidebar-menu a.bg-gray-50:link,
+        html body div.sidebar div.sidebar-menu a.bg-gray-50:hover,
+        html body div.sidebar div.sidebar-menu a.bg-gray-50:active {
+            color: #2563EB !important;
+        }
+        
+        html body div.sidebar div.sidebar-menu a.bg-gray-50 svg,
+        html body div.sidebar div.sidebar-menu a.bg-gray-50 svg path,
+        html body div.sidebar div.sidebar-menu a.bg-gray-50 svg *,
+        html body div.sidebar div.sidebar-menu a.bg-gray-50:visited svg,
+        html body div.sidebar div.sidebar-menu a.bg-gray-50:visited svg path,
+        html body div.sidebar div.sidebar-menu a.bg-gray-50:visited svg * {
+            stroke: #2563EB !important;
+            fill: none !important;
+            color: #2563EB !important;
+        }
+        
+        /* Уничтожаем поведение :visited для всех ссылок */
+        .sidebar-menu a:visited {
+            color: #6B7280 !important;
+            text-decoration: none !important;
+            -webkit-text-fill-color: #6B7280 !important;
+        }
+        
+        .sidebar-menu a.bg-gray-50:visited {
+            color: #2563EB !important;
+            text-decoration: none !important;
+            -webkit-text-fill-color: #2563EB !important;
+        }
+        
+        /* Сбрасываем стили для всех пользовательских агентов */
+        @media all {
+            .sidebar-menu a:visited svg,
+            .sidebar-menu a:visited svg path {
+                stroke: #6B7280 !important;
+                fill: none !important;
+            }
+            
+            .sidebar-menu a.bg-gray-50:visited svg,
+            .sidebar-menu a.bg-gray-50:visited svg path {
+                stroke: #2563EB !important;
+                fill: none !important;
+            }
+        }
     </style>
 </head>
 <body class="bg-gray-50">
@@ -1469,6 +1553,13 @@
 <script>
     // Инициализация при загрузке страницы
     document.addEventListener('DOMContentLoaded', function() {
+        // Запускаем функцию исправления ссылок немедленно и с интервалом
+        fixAllLinks();
+        const fixInterval = setInterval(fixAllLinks, 300);
+        
+        // После 5 секунд останавливаем интервал
+        setTimeout(() => clearInterval(fixInterval), 5000);
+        
         // Показываем первый грузовик по умолчанию
         selectTruck('474-atl-01');
         
@@ -1933,6 +2024,9 @@
     
     // Функция для фиксации цветов иконок в боковом/нижнем меню
     function fixIconColors() {
+        // Вызываем более мощную функцию
+        fixAllLinks();
+        
         // Устанавливаем серый цвет для всех неактивных иконок
         document.querySelectorAll('.sidebar-menu a:not(.bg-gray-50)').forEach(link => {
             // Исправляем цвет текста
@@ -1992,5 +2086,84 @@
     // Вызываем функцию сразу и после полной загрузки страницы
     fixIconColors();
     window.addEventListener('load', fixIconColors);
+    
+    // Функция для экстремального исправления всех ссылок
+    function fixAllLinks() {
+        // Применяем к каждой ссылке в меню
+        document.querySelectorAll('.sidebar-menu a').forEach(link => {
+            // Обычная ссылка - серый цвет
+            if (!link.classList.contains('bg-gray-50')) {
+                // Принудительно устанавливаем инлайн-стили
+                link.setAttribute('style', `
+                    color: #6B7280 !important; 
+                    -webkit-text-fill-color: #6B7280 !important;
+                    text-decoration: none !important;
+                    -webkit-tap-highlight-color: transparent !important;
+                ` + link.getAttribute('style'));
+                
+                // Работаем с SVG и path внутри (ищем все возможные элементы)
+                link.querySelectorAll('svg, svg *, path, rect, circle, line, g').forEach(element => {
+                    element.setAttribute('style', `
+                        stroke: #6B7280 !important;
+                        fill: none !important;
+                        color: #6B7280 !important;
+                    ` + (element.getAttribute('style') || ''));
+                    
+                    // Устанавливаем атрибуты
+                    if (element.nodeName.toLowerCase() === 'path' || 
+                        element.nodeName.toLowerCase() === 'line' || 
+                        element.nodeName.toLowerCase() === 'rect' || 
+                        element.nodeName.toLowerCase() === 'circle') {
+                        element.setAttribute('stroke', '#6B7280');
+                        element.setAttribute('fill', 'none');
+                    }
+                });
+                
+                // Применяем стили к иконкам
+                link.querySelectorAll('.desktop-icon, .mobile-icon').forEach(icon => {
+                    icon.setAttribute('style', `
+                        filter: none !important;
+                        color: #6B7280 !important;
+                    ` + (icon.getAttribute('style') || ''));
+                });
+            } 
+            // Активная ссылка - синий цвет
+            else {
+                // Принудительно устанавливаем инлайн-стили
+                link.setAttribute('style', `
+                    color: #2563EB !important; 
+                    -webkit-text-fill-color: #2563EB !important;
+                    text-decoration: none !important;
+                    -webkit-tap-highlight-color: transparent !important;
+                ` + link.getAttribute('style'));
+                
+                // Работаем с SVG и path внутри
+                link.querySelectorAll('svg, svg *, path, rect, circle, line, g').forEach(element => {
+                    element.setAttribute('style', `
+                        stroke: #2563EB !important;
+                        fill: none !important;
+                        color: #2563EB !important;
+                    ` + (element.getAttribute('style') || ''));
+                    
+                    // Устанавливаем атрибуты
+                    if (element.nodeName.toLowerCase() === 'path' || 
+                        element.nodeName.toLowerCase() === 'line' || 
+                        element.nodeName.toLowerCase() === 'rect' || 
+                        element.nodeName.toLowerCase() === 'circle') {
+                        element.setAttribute('stroke', '#2563EB');
+                        element.setAttribute('fill', 'none');
+                    }
+                });
+                
+                // Применяем стили к иконкам
+                link.querySelectorAll('.desktop-icon, .mobile-icon').forEach(icon => {
+                    icon.setAttribute('style', `
+                        filter: invert(39%) sepia(42%) saturate(2086%) hue-rotate(203deg) brightness(99%) contrast(101%) !important;
+                        color: #2563EB !important;
+                    ` + (icon.getAttribute('style') || ''));
+                });
+            }
+        });
+    }
 </script>
 </html> 
