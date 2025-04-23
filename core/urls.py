@@ -19,7 +19,6 @@ from .views import (
     AboutPageView,
     EmployeeFormView,
     EmployeePhotoUploadView,
-    EmployeeListView,
     EmployeeCreateView,
     EmployeeEditView,
     WaybillCreateView,
