@@ -1649,7 +1649,7 @@
             // Добавляем класс для планшетного режима к body
             document.body.classList.add('tablet-mode');
             
-            // Скрываем десктопные иконки в боковом меню и показываем мобильные
+            // Скрываем десктопные иконки и показываем мобильные в боковом меню
             document.querySelectorAll('.sidebar-menu a .desktop-icon').forEach(function(icon) {
                 icon.style.display = 'none';
             });
@@ -1660,13 +1660,13 @@
                 icon.style.height = '32px';
             });
             
-            // Обрабатываем иконки в нижнем меню
+            // Скрываем десктопные иконки и показываем мобильные в нижнем меню
             document.querySelectorAll('.fixed.bottom-0 .flex.justify-around.items-center a .desktop-icon').forEach(function(icon) {
                 icon.style.display = 'none';
             });
             
             document.querySelectorAll('.fixed.bottom-0 .flex.justify-around.items-center a .mobile-icon').forEach(function(icon) {
-                icon.style.display = 'block';
+                icon.style.display = 'inline-block';
                 icon.style.width = '32px';
                 icon.style.height = '32px';
             });
@@ -1676,25 +1676,21 @@
                 item.style.display = 'flex';
                 item.style.flexDirection = 'column';
                 item.style.alignItems = 'center';
-                item.style.padding = '12px 8px';
+                item.style.padding = '16px 0';
                 
-                // Добавляем индикатор активного элемента
-                const activeIndicator = item.querySelector('div[class="w-1 h-6 left-[-16px] top-[14px] absolute bg-blue-600 rounded-tr-lg rounded-br-lg"]');
-                if (activeIndicator) {
-                    activeIndicator.style.display = 'none';
-                }
-                
-                // Если элемент активный, добавляем подчеркивание снизу
+                // Добавляем нижнюю границу для активного элемента
                 if (item.classList.contains('bg-gray-50')) {
                     item.style.borderBottom = '2px solid #2563EB';
                     
-                    // Находим все SVG внутри активного элемента
-                    const svgElements = item.querySelectorAll('svg path');
-                    svgElements.forEach(function(svg) {
-                        svg.style.stroke = '#2563EB';
-                    });
+                    // Добавляем вертикальную линию-индикатор активного пункта
+                    const existingIndicator = item.querySelector('div[class="w-1 h-6 left-[-16px] top-[14px] absolute bg-blue-600 rounded-tr-lg rounded-br-lg"]');
+                    if (!existingIndicator) {
+                        const activeIndicator = document.createElement('div');
+                        activeIndicator.className = 'w-1 h-6 left-[-16px] top-[14px] absolute bg-blue-600 rounded-tr-lg rounded-br-lg';
+                        item.appendChild(activeIndicator);
+                    }
                     
-                    // Для мобильных иконок установим стиль напрямую
+                    // Устанавливаем цвет для активной иконки
                     const mobileIcon = item.querySelector('.mobile-icon');
                     if (mobileIcon) {
                         mobileIcon.style.filter = 'invert(37%) sepia(74%) saturate(1775%) hue-rotate(211deg) brightness(95%) contrast(98%)';
@@ -1740,6 +1736,14 @@
             document.querySelectorAll('.truck-img').forEach(function(img) {
                 img.style.opacity = '1';
             });
+            
+            // Проверяем существование функции перед вызовом
+            if (typeof fixIconColors === 'function') {
+                fixIconColors();
+            }
+            
+            // Выравнивание высоты блоков
+            equalizeFinanceTasksHeight();
         } else {
             // Возвращаем десктопный режим
             resetLayoutToDesktop();
@@ -1779,7 +1783,7 @@
             // Восстанавливаем индикатор активного элемента
             const activeIndicator = item.querySelector('div[class="w-1 h-6 left-[-16px] top-[14px] absolute bg-blue-600 rounded-tr-lg rounded-br-lg"]');
             if (activeIndicator) {
-                activeIndicator.style.display = '';
+                activeIndicator.remove();
             }
             
             // Настраиваем стиль текста
@@ -1800,6 +1804,12 @@
                 if (text) {
                     text.style.fontSize = '';
                 }
+                
+                // Сбрасываем фильтр для иконок
+                const mobileIcon = item.querySelector('.mobile-icon');
+                if (mobileIcon) {
+                    mobileIcon.style.filter = '';
+                }
             });
         }
         
@@ -1811,6 +1821,24 @@
         // Восстанавливаем opacity для truck-img
         document.querySelectorAll('.truck-img').forEach(function(img) {
             img.style.opacity = '';
+        });
+        
+        // Проверяем существование функции перед вызовом
+        if (typeof fixIconColors === 'function') {
+            fixIconColors();
+        }
+    }
+    
+    // Добавляем функцию для исправления цветов иконок
+    function fixIconColors() {
+        // Находим все активные элементы меню
+        const activeItems = document.querySelectorAll('.sidebar-menu a.bg-gray-50');
+        activeItems.forEach(function(item) {
+            // Для мобильных иконок в активных элементах устанавливаем стиль
+            const mobileIcon = item.querySelector('.mobile-icon');
+            if (mobileIcon && document.body.classList.contains('tablet-mode')) {
+                mobileIcon.style.filter = 'invert(37%) sepia(74%) saturate(1775%) hue-rotate(211deg) brightness(95%) contrast(98%)';
+            }
         });
     }
     
