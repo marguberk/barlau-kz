@@ -1,533 +1,243 @@
 {% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}Сотрудники - BARLAU.KZ{% endblock %}
 
 {% block content %}
-{% csrf_token %}
-<div class="container mx-auto px-4 py-8">
-    <div class="max-w-6xl mx-auto">
-        <!-- Заголовок и кнопки -->
-        <div class="flex justify-between items-center mb-6">
-            <h1 class="text-2xl font-bold text-gray-800">Сотрудники</h1>
-            <div class="flex items-center space-x-4">
-                <!-- Массовые действия -->
-                <div id="bulkActions" class="hidden">
-                    <button id="activateSelectedBtn" class="inline-flex items-center justify-center rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-green-700 mr-2">
-                        <i class="fas fa-check mr-2"></i>Активировать выбранных
+<div class="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+    <!-- Заголовок -->
+    <div class="mb-4 flex justify-between items-center">
+        <h1 class="text-xl sm:text-2xl font-bold text-black">Сотрудники</h1>
+    </div>
+
+    <!-- Панель поиска и фильтра -->
+    <div class="mb-6 flex flex-col sm:flex-row justify-center gap-2">
+        <div class="flex-grow relative">
+            <div class="flex h-10 w-full rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] border border-zinc-200 bg-white">
+                <div class="flex items-center pl-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                </div>
+                <input type="text" placeholder="Поиск" class="px-2 py-2 w-full focus:outline-none text-gray-700 rounded-lg" />
+                <div class="flex gap-1 pr-2">
+                    <button class="flex items-center justify-center p-1 w-5 h-5 bg-gray-100 rounded shadow-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        </svg>
                     </button>
-                    <button id="deactivateSelectedBtn" class="inline-flex items-center justify-center rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700">
-                        <i class="fas fa-times mr-2"></i>Деактивировать выбранных
+                    <button class="flex items-center justify-center p-1 w-5 h-5 bg-gray-100 rounded shadow-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="6" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
                     </button>
                 </div>
-                {% if user.role == 'DIRECTOR' or user.role == 'SUPERADMIN' or user.is_superuser %}
-                <button id="addEmployeeBtn" class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700">
-                    <i class="fas fa-plus mr-2"></i>Добавить сотрудника
-                </button>
-                {% endif %}
             </div>
         </div>
+        <div class="shrink-0">
+            <button class="h-10 px-3 py-2 bg-white rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] border border-zinc-200 flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500">
+                    <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+                </svg>
+            </button>
+        </div>
+    </div>
 
-        <!-- Фильтры и сортировка -->
-        <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <!-- Поиск -->
-                <div class="space-y-2">
-                    <label class="text-sm font-medium text-gray-700">Поиск</label>
-                    <div class="relative">
-                        <input type="text" id="searchInput" placeholder="Поиск по имени, email..." 
-                               class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-blue-500">
-                        <i class="fas fa-search absolute right-3 top-3 text-gray-400"></i>
+    <!-- Список сотрудников -->
+    <div class="space-y-4">
+        <!-- Карточка сотрудника - 1 -->
+        <div class="bg-white rounded-xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] border border-zinc-200 overflow-hidden">
+            <div class="px-4 py-3 border-b border-zinc-200 flex justify-between items-start">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-neutral-300 overflow-hidden">
+                        <img src="{% static 'core/img/avatars/avatar1.jpg' %}" onerror="this.src='{% static 'core/img/avatars/placeholder.jpg' %}'" alt="Алия Молдагулова" class="w-full h-full object-cover" />
                     </div>
+                    <div class="font-semibold text-zinc-950">Алия Молдагулова</div>
                 </div>
-                <!-- Фильтр по роли -->
-                <div class="space-y-2">
-                    <label class="text-sm font-medium text-gray-700">Роль</label>
-                    <select id="roleFilter" class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-blue-500">
-                        <option value="">Все роли</option>
-                        <option value="DIRECTOR">Директор</option>
-                        <option value="ACCOUNTANT">Бухгалтер</option>
-                        <option value="DRIVER">Водитель</option>
-                        <option value="SUPPLIER">Снабженец</option>
-                        <option value="TECH">Техотдел</option>
-                    </select>
+            </div>
+            <div class="px-4 py-3 space-y-3">
+                <div class="flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500">
+                        <path d="M20 7h-3a2 2 0 0 1-2-2V2"></path>
+                        <path d="M16 2H8a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path>
+                    </svg>
+                    <span class="px-2 py-0.5 bg-indigo-50 rounded text-blue-600 text-sm font-medium">Бухгалтер</span>
                 </div>
-                <!-- Фильтр по архиву -->
-                <div class="space-y-2">
-                    <label class="text-sm font-medium text-gray-700">Статус архива</label>
-                    <select id="archivedFilter" class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-blue-500">
-                        <option value="false">Активные сотрудники</option>
-                        <option value="true">Архивные сотрудники</option>
-                        <option value="">Все сотрудники</option>
-                    </select>
+                <div class="flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500">
+                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                    </svg>
+                    <span class="text-gray-500 text-sm font-medium">+7 (708) 555-0122</span>
                 </div>
-                <!-- Сортировка -->
-                <div class="space-y-2">
-                    <label class="text-sm font-medium text-gray-700">Сортировка</label>
-                    <select id="sortFilter" class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-blue-500">
-                        <option value="-date_joined">Сначала новые</option>
-                        <option value="date_joined">Сначала старые</option>
-                        <option value="first_name">По имени (А-Я)</option>
-                        <option value="-first_name">По имени (Я-А)</option>
-                        <option value="role">По роли (А-Я)</option>
-                        <option value="-role">По роли (Я-А)</option>
-                    </select>
+                <div class="flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                    </svg>
+                    <span class="text-gray-500 text-sm font-medium">Работает с 21.02.2023</span>
                 </div>
+            </div>
+            <div class="px-4 py-3 border-t border-zinc-200">
+                <button class="w-full h-10 px-3 py-2 bg-white rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] border border-zinc-200 flex justify-center items-center gap-1.5 text-sm font-semibold">
+                    <span>Посмотреть резюме</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m9 18 6-6-6-6"></path>
+                    </svg>
+                </button>
             </div>
         </div>
 
-        <!-- Список сотрудников -->
-        <div class="bg-white rounded-xl shadow-sm overflow-hidden">
-            <!-- Индикатор загрузки -->
-            <div id="loadingIndicator" class="hidden p-8 text-center">
-                <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                <p class="mt-2 text-gray-600">Загрузка сотрудников...</p>
-            </div>
-            
-            <!-- Пустое состояние -->
-            <div id="emptyState" class="hidden p-8 text-center">
-                <div class="text-gray-500">
-                    <i class="fas fa-users text-4xl mb-2"></i>
-                    <p>Сотрудники не найдены</p>
+        <!-- Карточка сотрудника - 2 -->
+        <div class="bg-white rounded-xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] border border-zinc-200 overflow-hidden">
+            <div class="px-4 py-3 border-b border-zinc-200 flex justify-between items-start">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-neutral-300 overflow-hidden">
+                        <img src="{% static 'core/img/avatars/avatar2.jpg' %}" onerror="this.src='{% static 'core/img/avatars/placeholder.jpg' %}'" alt="Арман Жарасов" class="w-full h-full object-cover" />
+                    </div>
+                    <div class="font-semibold text-zinc-950">Арман Жарасов</div>
                 </div>
             </div>
-            
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="w-12 px-6 py-3">
-                                <input type="checkbox" id="selectAll" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Сотрудник
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Контакты
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Роль
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Статус
-                            </th>
-                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Действия
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody id="employeesList" class="bg-white divide-y divide-gray-200">
-                        <!-- Сюда будут добавляться сотрудники через JavaScript -->
-                    </tbody>
-                </table>
+            <div class="px-4 py-3 space-y-3">
+                <div class="flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500">
+                        <path d="M20 7h-3a2 2 0 0 1-2-2V2"></path>
+                        <path d="M16 2H8a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path>
+                    </svg>
+                    <span class="px-2 py-0.5 bg-orange-100 rounded text-amber-600 text-sm font-medium">Водитель</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500">
+                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                    </svg>
+                    <span class="text-gray-500 text-sm font-medium">+7 (778) 555-2100</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                    </svg>
+                    <span class="text-gray-500 text-sm font-medium">Работает с 15.11.2024</span>
+                </div>
+            </div>
+            <div class="px-4 py-3 border-t border-zinc-200">
+                <button class="w-full h-10 px-3 py-2 bg-white rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] border border-zinc-200 flex justify-center items-center gap-1.5 text-sm font-semibold">
+                    <span>Посмотреть резюме</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m9 18 6-6-6-6"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Карточка сотрудника - 3 -->
+        <div class="bg-white rounded-xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] border border-zinc-200 overflow-hidden">
+            <div class="px-4 py-3 border-b border-zinc-200 flex justify-between items-start">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-neutral-300 overflow-hidden">
+                        <img src="{% static 'core/img/avatars/avatar3.jpg' %}" onerror="this.src='{% static 'core/img/avatars/placeholder.jpg' %}'" alt="Жаксыбек Парижов" class="w-full h-full object-cover" />
+                    </div>
+                    <div class="font-semibold text-zinc-950">Жаксыбек Парижов</div>
+                </div>
+            </div>
+            <div class="px-4 py-3 space-y-3">
+                <div class="flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500">
+                        <path d="M20 7h-3a2 2 0 0 1-2-2V2"></path>
+                        <path d="M16 2H8a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path>
+                    </svg>
+                    <span class="px-2 py-0.5 bg-green-50 rounded text-green-600 text-sm font-medium">Снабженец</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500">
+                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                    </svg>
+                    <span class="text-gray-500 text-sm font-medium">+7 (778) 121-9029</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                    </svg>
+                    <span class="text-gray-500 text-sm font-medium">Работает с 09.10.2024</span>
+                </div>
+            </div>
+            <div class="px-4 py-3 border-t border-zinc-200">
+                <button class="w-full h-10 px-3 py-2 bg-white rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] border border-zinc-200 flex justify-center items-center gap-1.5 text-sm font-semibold">
+                    <span>Посмотреть резюме</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m9 18 6-6-6-6"></path>
+                    </svg>
+                </button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Модальное окно добавления/редактирования сотрудника -->
-<div id="employeeModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 overflow-y-auto">
-    <div class="relative min-h-screen flex items-center justify-center p-4">
-        <div class="w-full max-w-md bg-white rounded-xl shadow-lg">
-            <div class="sticky top-0 flex justify-between items-center p-4 border-b bg-white rounded-t-xl z-10">
-                <h3 id="modalTitle" class="text-lg font-semibold">Добавить сотрудника</h3>
-                <button class="closeModal text-gray-500 hover:text-gray-700">
-                    <i class="fas fa-times text-xl"></i>
-                </button>
-            </div>
-            <div class="max-h-[calc(100vh-8rem)] overflow-y-auto">
-                <form id="employeeForm" class="p-4 space-y-4">
-                    <input type="hidden" name="id" id="employeeId">
-                    
-                    <!-- Фото -->
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Фото</label>
-                        <div class="flex items-center space-x-4">
-                            <div id="photoPreview" class="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center">
-                                <i class="fas fa-user text-gray-400 text-2xl"></i>
-                            </div>
-                            <div class="flex-1">
-                                <input type="file" 
-                                       name="photo" 
-                                       id="photoInput"
-                                       accept="image/*"
-                                       class="hidden"
-                                       onchange="previewPhoto(this)">
-                                <button type="button" 
-                                        onclick="document.getElementById('photoInput').click()"
-                                        class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                                    <i class="fas fa-camera mr-2"></i>
-                                    Загрузить фото
-                                </button>
-                                <button type="button" 
-                                        onclick="removePhoto()"
-                                        id="removePhotoBtn"
-                                        class="ml-2 inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-red-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                                        style="display: none;">
-                                    <i class="fas fa-trash-alt mr-2"></i>
-                                    Удалить
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Имя</label>
-                            <input type="text" name="first_name" required
-                                   class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Фамилия</label>
-                            <input type="text" name="last_name" required
-                                   class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                        <input type="email" name="email" required
-                               class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Телефон</label>
-                        <input type="tel" name="phone" required
-                               class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Роль</label>
-                        <select name="role" required
-                                class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                            <option value="DRIVER">Водитель</option>
-                            <option value="ACCOUNTANT">Бухгалтер</option>
-                            <option value="SUPPLIER">Снабженец</option>
-                            <option value="TECH">Техотдел</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Должность</label>
-                        <input type="text" name="position"
-                               class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Логин</label>
-                        <input type="text" name="username" required
-                               class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Пароль</label>
-                        <input type="password" name="password" required
-                               class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Подтверждение пароля</label>
-                        <input type="password" name="password2" required
-                               class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                    </div>
-                    <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700">
-                        Сохранить
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
+<!-- Специальные стили для адаптивности -->
+<style>
+    /* Общие стили для фиксации цветов иконок в меню */
+    a, a:visited, a:link, a:hover, a:active, 
+    a *, a:visited *, a:link *, a:hover *, a:active * {
+        color: inherit !important;
+        fill: inherit !important;
+        stroke: inherit !important;
+        text-decoration: none !important;
+    }
+    
+    /* Стили для десктопной версии - сетка из карточек */
+    @media (min-width: 768px) {
+        .space-y-4 {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1rem;
+        }
+    }
+    
+    /* Стили для планшетной версии - увеличенные иконки в нижнем меню */
+    @media (max-width: 1100px) and (min-width: 641px) {
+        /* Адаптация для нижнего меню */
+        .fixed.bottom-0 .flex.justify-around.items-center {
+            justify-content: space-evenly;
+        }
+        
+        .fixed.bottom-0 .flex.flex-col.items-center i {
+            font-size: 2rem !important;
+            margin-bottom: 0.5rem;
+        }
+        
+        .fixed.bottom-0 .flex.flex-col.items-center .text-xs {
+            font-size: 0.875rem !important;
+        }
+    }
+    
+    /* Стили для мобильной версии */
+    @media (max-width: 640px) {
+        .container {
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+    }
+</style>
 {% endblock %}
 
-{% block extra_scripts %}
+{% block extra_js %}
 <script>
-    // Получаем CSRF токен
-    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-    
-    // Получаем ссылки на DOM элементы
-    const employeesList = document.getElementById('employeesList');
-    const loadingIndicator = document.getElementById('loadingIndicator');
-    const emptyState = document.getElementById('emptyState');
-    
-    // Функция для загрузки сотрудников
-    async function loadEmployees() {
-        try {
-            // Показываем индикатор загрузки
-            loadingIndicator.style.display = 'block';
-            employeesList.style.display = 'none';
-            emptyState.style.display = 'none';
-
-            // Получаем значения фильтров
-            const searchQuery = document.getElementById('searchInput').value;
-            const roleFilter = document.getElementById('roleFilter').value;
-            const archivedFilter = document.getElementById('archivedFilter').value;
-            const sortFilter = document.getElementById('sortFilter').value;
-
-            // Формируем параметры запроса
-            let params = new URLSearchParams();
-            if (searchQuery) params.append('search', searchQuery);
-            if (roleFilter) params.append('role', roleFilter);
-            if (archivedFilter !== '') params.append('is_archived', archivedFilter);
-            if (sortFilter) params.append('ordering', sortFilter);
-
-            // Делаем запрос к API
-            const response = await fetch(`/api/employees/?${params}`, {
-                method: 'GET',
-                headers: {
-                    'Accept': 'application/json',
-                    'X-CSRFToken': csrfToken
-                },
-                credentials: 'same-origin'
+    // Обработчик для отображения резюме сотрудников
+    document.addEventListener('DOMContentLoaded', function() {
+        const resumeButtons = document.querySelectorAll('button:contains("Посмотреть резюме")');
+        resumeButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const employeeName = this.closest('.bg-white').querySelector('.font-semibold').textContent;
+                alert(`Резюме сотрудника ${employeeName} будет отображено здесь`);
             });
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            // Получаем данные
-            const data = await response.json();
-            console.log('Received data:', data);
-
-            // Обрабатываем данные
-            const employees = data.results || data;
-            
-            if (employees && employees.length > 0) {
-                // Очищаем список
-                employeesList.innerHTML = '';
-                
-                // Добавляем сотрудников
-                employees.forEach(employee => {
-                    const row = createEmployeeRow(employee);
-                    employeesList.appendChild(row);
-                });
-                
-                // Показываем таблицу
-                employeesList.style.display = 'table-row-group';
-                emptyState.style.display = 'none';
-            } else {
-                // Показываем пустое состояние
-                employeesList.style.display = 'none';
-                emptyState.style.display = 'block';
-            }
-        } catch (error) {
-            console.error('Error loading employees:', error);
-            employeesList.style.display = 'none';
-            emptyState.style.display = 'block';
-        } finally {
-            // Скрываем индикатор загрузки
-            loadingIndicator.style.display = 'none';
-        }
-    }
-
-    // Функция для создания строки таблицы
-    function createEmployeeRow(employee) {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td class="px-6 py-4">
-                <input type="checkbox" class="employee-checkbox rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                       data-id="${employee.id}">
-            </td>
-            <td class="px-6 py-4">
-                <a href="/employees/${employee.id}/" class="group">
-                    <div class="flex items-center">
-                        <div class="h-10 w-10 flex-shrink-0">
-                            ${employee.photo ? 
-                                `<img class="h-10 w-10 rounded-full object-cover" src="${employee.photo}" alt="">` :
-                                `<div class="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
-                                    <i class="fas fa-user text-gray-400"></i>
-                                 </div>`
-                            }
-                        </div>
-                        <div class="ml-4">
-                            <div class="font-medium text-gray-900 group-hover:text-blue-600">${employee.first_name} ${employee.last_name}</div>
-                            <div class="text-sm text-gray-500">${employee.position || 'Не указана должность'}</div>
-                        </div>
-                    </div>
-                </a>
-            </td>
-            <td class="px-6 py-4">
-                <div class="text-sm text-gray-900">${employee.email || 'Нет email'}</div>
-                <div class="text-sm text-gray-500">${employee.phone || 'Нет телефона'}</div>
-            </td>
-            <td class="px-6 py-4">
-                <span class="inline-flex rounded-full px-2 text-xs font-semibold leading-5 ${getRoleBadgeClass(employee.role)}">
-                    ${getRoleDisplay(employee.role)}
-                </span>
-            </td>
-            <td class="px-6 py-4">
-                <span class="inline-flex rounded-full px-2 text-xs font-semibold leading-5 
-                    ${employee.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
-                    ${employee.is_active ? 'Активен' : 'Неактивен'}
-                </span>
-                ${employee.is_archived ? 
-                    `<span class="ml-2 inline-flex rounded-full px-2 text-xs font-semibold leading-5 bg-gray-100 text-gray-800">
-                        В архиве
-                    </span>` : ''}
-            </td>
-            <td class="px-6 py-4 text-right text-sm font-medium">
-                <a href="/employees/${employee.id}/" class="text-blue-600 hover:text-blue-900 mr-3" title="Просмотреть">
-                    <i class="fas fa-eye"></i>
-                </a>
-                <button onclick="editEmployee(${employee.id})" class="text-blue-600 hover:text-blue-900 mr-3" title="Редактировать">
-                    <i class="fas fa-edit"></i>
-                </button>
-                <button onclick="toggleEmployeeStatus(${employee.id}, ${employee.is_active})" 
-                    class="text-${employee.is_active ? 'red' : 'green'}-600 hover:text-${employee.is_active ? 'red' : 'green'}-900 mr-3"
-                    title="${employee.is_active ? 'Деактивировать' : 'Активировать'}">
-                    <i class="fas fa-${employee.is_active ? 'times' : 'check'}"></i>
-                </button>
-                <button onclick="toggleArchiveStatus(${employee.id}, ${employee.is_archived})" 
-                    class="text-${employee.is_archived ? 'blue' : 'gray'}-600 hover:text-${employee.is_archived ? 'blue' : 'gray'}-900"
-                    title="${employee.is_archived ? 'Вернуть из архива' : 'Архивировать'}">
-                    <i class="fas fa-${employee.is_archived ? 'box-open' : 'archive'}"></i>
-                </button>
-            </td>
-        `;
-        return tr;
-    }
-
-    // Функции для работы с ролями
-    function getRoleBadgeClass(role) {
-        const classes = {
-            'DIRECTOR': 'bg-purple-100 text-purple-800',
-            'ACCOUNTANT': 'bg-green-100 text-green-800',
-            'DRIVER': 'bg-blue-100 text-blue-800',
-            'SUPPLIER': 'bg-yellow-100 text-yellow-800',
-            'TECH': 'bg-gray-100 text-gray-800',
-            'SUPERADMIN': 'bg-red-100 text-red-800'
-        };
-        return classes[role] || 'bg-gray-100 text-gray-800';
-    }
-
-    function getRoleDisplay(role) {
-        const roles = {
-            'DIRECTOR': 'Директор',
-            'ACCOUNTANT': 'Бухгалтер',
-            'DRIVER': 'Водитель',
-            'SUPPLIER': 'Снабженец',
-            'TECH': 'Техотдел',
-            'SUPERADMIN': 'Суперадмин'
-        };
-        return roles[role] || role;
-    }
-
-    // Функция для архивирования/разархивирования сотрудника
-    async function toggleArchiveStatus(employeeId, isArchived) {
-        try {
-            const response = await fetch(`/api/employees/${employeeId}/archive/`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': csrfToken
-                },
-                body: JSON.stringify({ is_archived: !isArchived }),
-                credentials: 'same-origin'
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            // Перезагружаем список сотрудников
-            loadEmployees();
-        } catch (error) {
-            console.error('Error toggling archive status:', error);
-            alert('Произошла ошибка при изменении статуса архива сотрудника');
-        }
-    }
-
-    // Функция для активации/деактивации сотрудника
-    async function toggleEmployeeStatus(employeeId, isActive) {
-        try {
-            const response = await fetch(`/api/employees/${employeeId}/activate/`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': csrfToken
-                },
-                body: JSON.stringify({ is_active: !isActive }),
-                credentials: 'same-origin'
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            // Перезагружаем список сотрудников
-            loadEmployees();
-        } catch (error) {
-            console.error('Error toggling employee status:', error);
-            alert('Произошла ошибка при изменении статуса сотрудника');
-        }
-    }
-
-    // Функция для редактирования сотрудника
-    async function editEmployee(employeeId) {
-        try {
-            // Показываем индикатор загрузки
-            document.getElementById('modalTitle').textContent = 'Редактирование сотрудника';
-            
-            // Получаем данные сотрудника
-            const response = await fetch(`/api/employees/${employeeId}/`, {
-                method: 'GET',
-                headers: {
-                    'Accept': 'application/json',
-                    'X-CSRFToken': csrfToken
-                },
-                credentials: 'same-origin'
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const employee = await response.json();
-            
-            // Заполняем форму данными
-            const form = document.getElementById('employeeForm');
-            form.reset();
-            
-            document.getElementById('employeeId').value = employee.id;
-            form.elements['first_name'].value = employee.first_name || '';
-            form.elements['last_name'].value = employee.last_name || '';
-            form.elements['email'].value = employee.email || '';
-            form.elements['phone'].value = employee.phone || '';
-            form.elements['role'].value = employee.role || 'DRIVER';
-            form.elements['position'].value = employee.position || '';
-            form.elements['username'].value = employee.username || '';
-            
-            // Очищаем поля пароля
-            form.elements['password'].value = '';
-            form.elements['password2'].value = '';
-            
-            // Обновляем превью фото
-            const photoPreview = document.getElementById('photoPreview');
-            if (employee.photo) {
-                photoPreview.innerHTML = `<img src="${employee.photo}" class="w-20 h-20 rounded-full object-cover">`;
-                document.getElementById('removePhotoBtn').style.display = 'inline-flex';
-            } else {
-                photoPreview.innerHTML = `<i class="fas fa-user text-gray-400 text-2xl"></i>`;
-                document.getElementById('removePhotoBtn').style.display = 'none';
-            }
-            
-            // Показываем модальное окно
-            document.getElementById('employeeModal').classList.remove('hidden');
-        } catch (error) {
-            console.error('Error loading employee:', error);
-            alert('Произошла ошибка при загрузке данных сотрудника');
-        }
-    }
-
-    // Добавляем обработчики событий для фильтров
-    document.getElementById('searchInput').addEventListener('input', debounce(loadEmployees, 500));
-    document.getElementById('roleFilter').addEventListener('change', loadEmployees);
-    document.getElementById('archivedFilter').addEventListener('change', loadEmployees);
-    document.getElementById('sortFilter').addEventListener('change', loadEmployees);
-
-    // Функция debounce для предотвращения слишком частых запросов при вводе в поле поиска
-    function debounce(func, wait) {
-        let timeout;
-        return function() {
-            const context = this, args = arguments;
-            clearTimeout(timeout);
-            timeout = setTimeout(() => {
-                func.apply(context, args);
-            }, wait);
-        };
-    }
-
-    // Загружаем сотрудников при загрузке страницы
-    document.addEventListener('DOMContentLoaded', loadEmployees);
+        });
+    });
 </script>
 {% endblock %} 
