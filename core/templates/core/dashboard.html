@@ -755,13 +755,6 @@
                                 </svg>
                             </div>
                         {% endif %}
-                        <div class="justify-center text-zinc-950 text-sm font-semibold leading-tight tracking-tight">
-                            {% if request.user.is_authenticated %}
-                                {{ request.user.get_full_name|default:request.user.username }}
-                            {% else %}
-                                Гость
-                            {% endif %}
-                        </div>
                     </div>
                 </div>
             </div>
