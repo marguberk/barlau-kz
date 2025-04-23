@@ -99,7 +99,7 @@
                 flex-direction: row !important;
                 justify-content: space-around !important;
                 align-items: center !important;
-                padding: 0 !important;
+                padding: 0 16px !important; /* Увеличиваем боковые отступы */
                 max-width: 600px !important;
                 margin: 0 auto !important;
             }
@@ -170,14 +170,16 @@
                 font-weight: 500 !important;
             }
             
+            /* Модифицируем индикатор активного пункта меню (нижняя синяя линия) */
             .sidebar-menu a.bg-gray-50::after {
-                content: "";
-                width: 100%;
-                height: 2px;
-                background-color: #2563EB;
-                position: absolute;
-                bottom: 0;
-                left: 0;
+                content: "" !important;
+                width: 80% !important; /* Уменьшаем ширину линии */
+                height: 3px !important; /* Увеличиваем высоту линии */
+                background-color: #2563EB !important;
+                position: absolute !important;
+                bottom: 0 !important;
+                left: 10% !important; /* Центрируем линию */
+                border-radius: 6px 6px 0 0 !important; /* Закругляем верхние углы */
             }
             
             /* Исправляем стили для иконок */
