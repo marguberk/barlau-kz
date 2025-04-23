@@ -337,8 +337,8 @@
                 right: 2px !important;
                 top: 50% !important;
                 transform: translateY(-50%) !important; /* Убрано rotate(180deg) */
-                width: 204px !important;
-                height: 75px !important;
+                width: 102px !important; /* Уменьшено вдвое с 204px */
+                height: 37px !important; /* Уменьшено вдвое с 75px */
                 opacity: 0.4 !important;
             }
             
@@ -670,58 +670,34 @@
             }
         }
         
-        /* Стили для нижней навигации */
-        .mobile-nav {
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            width: 100%;
-            background: white;
-            padding: 12px 0;
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            z-index: 50;
-            box-shadow: 0 -1px 10px rgba(0, 0, 0, 0.05);
+        /* Убираем фиолетовое подсвечивание посещенных ссылок */
+        .sidebar-menu a:visited,
+        .sidebar-menu a:visited .flex-1,
+        .sidebar-menu a:visited img {
+            color: inherit !important;
+            filter: none !important;
         }
         
-        .mobile-nav a {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: #6b7280;
-            font-size: 12px;
-            flex: 1;
-            text-decoration: none !important;
-        }
-        
-        .mobile-nav a:hover, 
-        .mobile-nav a:visited, 
-        .mobile-nav a:focus {
-            color: #6b7280 !important;
-            text-decoration: none !important;
-        }
-        
-        .mobile-nav a.active {
+        /* Только активные ссылки должны иметь синий цвет */
+        .sidebar-menu a.active .flex-1,
+        .sidebar-menu a.bg-gray-50 .flex-1 {
             color: #2563EB !important;
         }
         
-        .mobile-nav a.active::after {
-            content: '';
-            display: block;
-            width: 18px; /* Уже */
-            height: 5px; /* Толще */
-            background-color: #2563EB;
-            border-radius: 2px;
-            margin-top: 4px;
+        /* Убираем фиолетовый цвет у всех элементов в нижнем меню после посещения */
+        .sidebar a:visited,
+        .sidebar a:visited *,
+        .sidebar-menu a:visited,
+        .sidebar-menu a:visited * {
+            color: #6B7280 !important;
+            fill: currentColor !important;
+            stroke: currentColor !important;
         }
         
-        .mobile-nav .mobile-icon {
-            width: 28px;
-            height: 28px;
-            margin-bottom: 4px;
+        /* Восстанавливаем правильный цвет для активных ссылок */
+        .sidebar-menu a.bg-gray-50,
+        .sidebar-menu a.bg-gray-50 * {
+            color: #2563EB !important;
         }
     </style>
 </head>
@@ -814,11 +790,11 @@
             </div>
 
             <!-- Карточки статистики -->
-            <div class="w-full px-8 pt-8 pb-2 flex justify-start items-start gap-4 stats-cards">
-                <div class="flex-1 px-5 py-4 bg-white rounded-2xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex flex-col justify-start items-start gap-4 overflow-hidden">
+            <div class="w-full px-8 pt-8 flex justify-start items-start gap-4 stats-cards">
+                <div class="flex-1 px-5 py-6 bg-white rounded-2xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex flex-col justify-start items-start gap-4 overflow-hidden">
                     <div class="self-stretch flex flex-col justify-start items-start gap-2">
                         <div class="self-stretch inline-flex justify-between items-center">
-                            <div class="justify-start text-zinc-950 text-5xl font-semibold leading-10">{{ tasks_count|default:"0" }}</div>
+                            <div class="justify-start text-zinc-950 text-4xl font-semibold leading-10">{{ tasks_count|default:"0" }}</div>
                             <div class="w-10 h-10 p-2 bg-blue-600 rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.10)] flex justify-center items-center gap-2 overflow-hidden" style="background: linear-gradient(135deg, #4287f5 0%, #2869db 100%);">
                                 <img src="{% static 'core/img/check-square.svg' %}" alt="Tasks" class="w-5 h-5 invert" style="filter: brightness(0) invert(1);">
                             </div>
@@ -826,10 +802,10 @@
                         <div class="self-stretch justify-start text-gray-500 text-base font-normal leading-normal">Задач на сегодня</div>
                     </div>
                 </div>
-                <div class="flex-1 px-5 py-4 bg-white rounded-2xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex flex-col justify-start items-start gap-4 overflow-hidden">
+                <div class="flex-1 px-5 py-6 bg-white rounded-2xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex flex-col justify-start items-start gap-4 overflow-hidden">
                     <div class="self-stretch flex flex-col justify-start items-start gap-2">
                         <div class="self-stretch inline-flex justify-between items-center">
-                            <div class="justify-start text-zinc-950 text-5xl font-semibold leading-10">{{ vehicles_count|default:"0" }}</div>
+                            <div class="justify-start text-zinc-950 text-4xl font-semibold leading-10">{{ vehicles_count|default:"0" }}</div>
                             <div class="w-10 h-10 p-2 bg-blue-600 rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.10)] flex justify-center items-center gap-2 overflow-hidden" style="background: linear-gradient(135deg, #4287f5 0%, #2869db 100%);">
                                 <img src="{% static 'core/img/truck.svg' %}" alt="Vehicles" class="w-5 h-5 invert" style="filter: brightness(0) invert(1);">
                             </div>
@@ -855,107 +831,106 @@
                         </div>
                     </div>
                     {% if request.user.is_authenticated %}
-                    <div class="self-stretch p-5 flex flex-col justify-start items-start gap-2">
-                        <div class="w-full flex justify-between items-baseline">
-                            <div class="justify-start text-zinc-950 text-3xl font-semibold leading-loose">${{ "23,569" }}</div>
-                            <div class="flex items-center gap-1.5">
-                                <div class="flex justify-start items-center gap-0.5">
-                                    <svg class="w-3.5 h-3.5" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M7 3L10 7H4L7 3Z" fill="#34D399" />
-                                    </svg>
-                                    <div class="justify-start text-emerald-400 text-sm font-semibold leading-tight tracking-tight">10,5%</div>
-                                </div>
-                                <div class="text-right justify-start text-gray-500 text-sm font-normal leading-tight tracking-tight">с прошлого месяца</div>
+                    <div class="self-stretch p-5 flex justify-start items-baseline gap-2">
+                        <div class="justify-start text-zinc-950 text-2xl font-semibold leading-loose">$23,569.00</div>
+                        <div class="flex-1 flex justify-start items-center gap-1.5">
+                            <div class="flex justify-start items-center gap-0.5">
+                                <svg class="w-3.5 h-3.5" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M7 3L10 7H4L7 3Z" fill="#34D399" />
+                                </svg>
+                                <div class="justify-start text-emerald-400 text-sm font-semibold leading-tight tracking-tight">10,5%</div>
                             </div>
+                            <div class="text-right justify-start text-gray-500 text-sm font-normal leading-tight tracking-tight">в сравнении с прошлым месяцем</div>
                         </div>
-                        <div class="flex justify-start items-baseline gap-5 mt-2">
+                        <div class="flex justify-start items-baseline gap-3">
                             <div class="flex justify-end items-center gap-1.5">
-                                <div class="w-3 h-3 bg-blue-600 rounded-sm"></div>
+                                <div class="w-2 h-2 bg-blue-600 rounded-sm"></div>
                                 <div class="text-right justify-start text-gray-500 text-sm font-normal leading-tight tracking-tight">Этот месяц</div>
                             </div>
                             <div class="flex justify-end items-center gap-1.5">
-                                <div class="w-3 h-3 bg-sky-400 rounded-sm"></div>
+                                <div class="w-2 h-2 bg-sky-400 rounded-sm"></div>
                                 <div class="text-right justify-start text-gray-500 text-sm font-normal leading-tight tracking-tight">Прошлый месяц</div>
                             </div>
                         </div>
                     </div>
-                    <div class="self-stretch p-5 h-64 flex items-end justify-center">
-                        <!-- Современный график финансов -->
-                        <div class="w-full h-full bg-white rounded">
+                    <div class="self-stretch p-5 h-48 flex items-end justify-center">
+                        <!-- График финансов -->
+                        <div class="w-full h-full bg-gray-50 rounded">
                             <div class="w-full h-full flex flex-col">
-                                <!-- Основная область графика -->
-                                <div class="flex-1 relative">
-                                    <!-- Горизонтальные линии сетки -->
-                                    <div class="absolute left-0 right-0 h-full">
-                                        <div class="h-1/4 border-b border-gray-100"></div>
-                                        <div class="h-1/4 border-b border-gray-100"></div>
-                                        <div class="h-1/4 border-b border-gray-100"></div>
-                                        <div class="h-1/4 border-b border-gray-100"></div>
-                                    </div>
+                                <!-- Линии сетки -->
+                                <div class="flex-1 border-b border-gray-200 relative">
+                                    <div class="absolute left-0 right-0 bottom-1/4 border-b border-gray-200"></div>
+                                    <div class="absolute left-0 right-0 bottom-1/2 border-b border-gray-200"></div>
+                                    <div class="absolute left-0 right-0 bottom-3/4 border-b border-gray-200"></div>
                                     
-                                    <!-- Вертикальные линии сетки -->
-                                    <div class="absolute top-0 bottom-0 w-full flex">
-                                        <div class="flex-1 border-r border-gray-100"></div>
-                                        <div class="flex-1 border-r border-gray-100"></div>
-                                        <div class="flex-1 border-r border-gray-100"></div>
-                                        <div class="flex-1 border-r border-gray-100"></div>
-                                        <div class="flex-1 border-r border-gray-100"></div>
-                                        <div class="flex-1"></div>
-                                    </div>
-                                    
-                                    <!-- Ценовая шкала слева -->
-                                    <div class="absolute left-2 top-0 bottom-0 flex flex-col justify-between text-xs text-gray-500 py-2">
-                                        <div>$25K</div>
-                                        <div>$20K</div>
-                                        <div>$15K</div>
-                                        <div>$10K</div>
-                                    </div>
-                                    
-                                    <!-- График -->
-                                    <div class="absolute inset-0 px-12">
-                                        <!-- Линия текущего месяца -->
-                                        <svg viewBox="0 0 100 50" preserveAspectRatio="none" class="h-full w-full">
-                                            <!-- Заливка под линией текущего месяца -->
+                                    <!-- Новый усовершенствованный график -->
+                                    <div class="absolute left-0 right-0 bottom-0 h-full">
+                                        <svg viewBox="0 0 100 40" preserveAspectRatio="none" class="h-full w-full">
+                                            <!-- Градиенты для заливок -->
                                             <defs>
                                                 <linearGradient id="blueGradient" x1="0%" y1="0%" x2="0%" y2="100%">
                                                     <stop offset="0%" stop-color="rgba(37, 99, 235, 0.15)"></stop>
                                                     <stop offset="100%" stop-color="rgba(37, 99, 235, 0.01)"></stop>
                                                 </linearGradient>
+                                                <linearGradient id="blueLine" x1="0%" y1="0%" x2="100%" y2="0%">
+                                                    <stop offset="0%" stop-color="#2563eb"></stop>
+                                                    <stop offset="100%" stop-color="#3b82f6"></stop>
+                                                </linearGradient>
+                                                <linearGradient id="lightBlueLine" x1="0%" y1="0%" x2="100%" y2="0%">
+                                                    <stop offset="0%" stop-color="#93c5fd"></stop>
+                                                    <stop offset="100%" stop-color="#38bdf8"></stop>
+                                                </linearGradient>
                                             </defs>
                                             
+                                            <!-- Вертикальные направляющие -->
+                                            <line x1="0" y1="0" x2="0" y2="40" stroke="#f3f4f6" stroke-width="0.5"></line>
+                                            <line x1="20" y1="0" x2="20" y2="40" stroke="#f3f4f6" stroke-width="0.5"></line>
+                                            <line x1="40" y1="0" x2="40" y2="40" stroke="#f3f4f6" stroke-width="0.5"></line>
+                                            <line x1="60" y1="0" x2="60" y2="40" stroke="#f3f4f6" stroke-width="0.5"></line>
+                                            <line x1="80" y1="0" x2="80" y2="40" stroke="#f3f4f6" stroke-width="0.5"></line>
+                                            <line x1="100" y1="0" x2="100" y2="40" stroke="#f3f4f6" stroke-width="0.5"></line>
+                                            
+                                            <!-- Заливка под линией текущего месяца -->
+                                            <path d="M0,35 C10,32 20,28 30,25 C40,22 50,30 60,28 C70,26 80,15 90,10 L100,5 L100,40 L0,40 Z" fill="url(#blueGradient)" class="graph-line"/>
+                                            
                                             <!-- Линия прошлого месяца (пунктирная) -->
-                                            <path d="M0,35 C10,32 20,33 30,34 C40,35 50,32 60,33 C70,34 80,33 90,35 L100,34" stroke="#38bdf8" stroke-width="2" stroke-dasharray="3 3" fill="none" />
+                                            <path d="M0,30 C10,32 20,33 30,30 C40,27 50,24 60,25 C70,26 80,24 90,22 L100,20" stroke="url(#lightBlueLine)" stroke-width="2" stroke-dasharray="2 2" fill="none" class="graph-line graph-line-delayed"/>
                                             
-                                            <!-- Линия текущего месяца и заливка -->
-                                            <path d="M0,30 C10,25 20,20 30,15 C40,15 50,15 60,15 C70,15 80,15 90,15 L100,15 L100,50 L0,50 Z" fill="url(#blueGradient)" />
-                                            <path d="M0,30 C10,25 20,20 30,15 C40,15 50,15 60,15 C70,15 80,15 90,15 L100,15" stroke="#2563eb" stroke-width="2.5" fill="none" />
+                                            <!-- Линия текущего месяца -->
+                                            <path d="M0,35 C10,32 20,28 30,25 C40,22 50,30 60,28 C70,26 80,15 90,10 L100,5" stroke="url(#blueLine)" stroke-width="2.5" fill="none" class="graph-line"/>
                                             
-                                            <!-- Точки с данными на линии текущего месяца -->
-                                            <circle cx="30" cy="15" r="5" fill="#2563eb" stroke="white" stroke-width="2" />
-                                            <circle cx="60" cy="15" r="5" fill="#2563eb" stroke="white" stroke-width="2" />
+                                            <!-- Точки данных на текущей линии -->
+                                            <circle cx="0" cy="35" r="2.5" fill="#2563eb" stroke="white" stroke-width="1" class="graph-line"/>
+                                            <circle cx="20" cy="28" r="2.5" fill="#2563eb" stroke="white" stroke-width="1" class="graph-line"/>
+                                            <circle cx="40" cy="22" r="2.5" fill="#2563eb" stroke="white" stroke-width="1" class="graph-line"/>
+                                            <circle cx="60" cy="28" r="2.5" fill="#2563eb" stroke="white" stroke-width="1" class="graph-line"/>
+                                            <circle cx="80" cy="15" r="2.5" fill="#2563eb" stroke="white" stroke-width="1" class="graph-line"/>
+                                            <circle cx="100" cy="5" r="2.5" fill="#2563eb" stroke="white" stroke-width="1" class="graph-line"/>
                                             
-                                            <!-- Точки на линии прошлого месяца -->
-                                            <circle cx="30" cy="34" r="4" fill="#38bdf8" stroke="white" stroke-width="2" />
+                                            <!-- Скрытые точки данных на линии прошлого месяца (можно показать при наведении) -->
+                                            <circle cx="0" cy="30" r="0" fill="#38bdf8" class="graph-line-delayed hover-visible"/>
+                                            <circle cx="30" cy="30" r="0" fill="#38bdf8" class="graph-line-delayed hover-visible"/>
+                                            <circle cx="60" cy="25" r="0" fill="#38bdf8" class="graph-line-delayed hover-visible"/>
+                                            <circle cx="100" cy="20" r="0" fill="#38bdf8" class="graph-line-delayed hover-visible"/>
+                                            
+                                            <!-- Метки временной шкалы -->
+                                            <line x1="0" y1="40" x2="0" y2="38" stroke="#d1d5db" stroke-width="0.5"></line>
+                                            <line x1="20" y1="40" x2="20" y2="38" stroke="#d1d5db" stroke-width="0.5"></line>
+                                            <line x1="40" y1="40" x2="40" y2="38" stroke="#d1d5db" stroke-width="0.5"></line>
+                                            <line x1="60" y1="40" x2="60" y2="38" stroke="#d1d5db" stroke-width="0.5"></line>
+                                            <line x1="80" y1="40" x2="80" y2="38" stroke="#d1d5db" stroke-width="0.5"></line>
+                                            <line x1="100" y1="40" x2="100" y2="38" stroke="#d1d5db" stroke-width="0.5"></line>
                                         </svg>
-                                        
-                                        <!-- Всплывающие подсказки для точек с данными -->
-                                        <div class="absolute top-1/4 left-[30%] bg-white p-2 rounded-md shadow-md text-xs">
-                                            <div class="font-semibold">Доходы</div>
-                                            <div class="text-blue-600 font-bold">Мар 12, 2025</div>
-                                            <div class="text-blue-600 font-bold">$18.5K</div>
-                                        </div>
-                                        
-                                        <div class="absolute top-3/4 left-[30%] bg-white p-2 rounded-md shadow-md text-xs">
-                                            <div class="font-semibold">Апр 12, 2025</div>
-                                            <div class="text-sky-400 font-bold">$12.8K</div>
-                                        </div>
                                     </div>
                                 </div>
                                 
-                                <!-- Временная шкала внизу -->
-                                <div class="h-6 flex justify-between px-2 text-xs text-gray-600 pt-1">
-                                    <span>Март 28, 2025</span>
-                                    <span class="ml-auto">Март 28, 2025</span>
+                                <!-- Шкала времени -->
+                                <div class="h-6 flex justify-between px-4 text-xs text-gray-500">
+                                    <span>1 апр</span>
+                                    <span>8 апр</span>
+                                    <span>15 апр</span>
+                                    <span>22 апр</span>
+                                    <span>29 апр</span>
                                 </div>
                             </div>
                         </div>
