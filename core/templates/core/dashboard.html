@@ -1553,356 +1553,549 @@
 <script>
     // Инициализация при загрузке страницы
     document.addEventListener('DOMContentLoaded', function() {
-        // Получаем все элементы, требующие equal height
-        const financeBlock = document.querySelector('.finance-tasks > div:first-child');
-        const tasksBlock = document.querySelector('.finance-tasks > div:last-child');
+        // Запускаем функцию исправления ссылок немедленно и с интервалом
+        fixAllLinks();
+        const fixInterval = setInterval(fixAllLinks, 300);
         
-        // Выравниваем высоту блоков финансов и задач
-        window.equalizeFinanceTasksHeight = function() {
-            if (financeBlock && tasksBlock) {
-                const fixedHeight = 400;
-                financeBlock.style.height = `${fixedHeight}px`;
-                tasksBlock.style.height = `${fixedHeight}px`;
+        // После 5 секунд останавливаем интервал
+        setTimeout(() => clearInterval(fixInterval), 5000);
+        
+        // Показываем первый грузовик по умолчанию
+        selectTruck('474-atl-01');
+        
+        // Настройка для планшетной/мобильной версии
+        handleResponsiveLayout();
+        
+        // Выравниваем высоту карточек
+        equalizeCardHeights();
+        
+        // Принудительно корректируем цвета иконок, чтобы избежать фиолетового цвета
+        fixIconColors();
+        
+        // Обработка клика по карточкам грузовиков
+        document.querySelectorAll('.truck-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const truckId = this.dataset.truck;
+                selectTruck(truckId);
                 
-                // Настройка внутренних блоков для прокрутки
-                const financeContent = financeBlock.querySelector('.p-5');
-                const tasksContent = tasksBlock.querySelector('.tasks-container');
-                
-                if (financeContent) {
-                    const financeHeader = financeBlock.querySelector('.px-5.py-4');
-                    const headerHeight = financeHeader ? financeHeader.offsetHeight : 60;
-                    financeContent.style.maxHeight = `${fixedHeight - headerHeight}px`;
-                    financeContent.style.overflowY = 'auto';
-                    financeContent.style.margin = '0';
-                    financeContent.style.padding = '20px';
-                }
-                
-                if (tasksContent) {
-                    const tasksHeader = tasksBlock.querySelector('.px-5.py-4');
-                    const headerHeight = tasksHeader ? tasksHeader.offsetHeight : 60;
-                    tasksContent.style.maxHeight = `${fixedHeight - headerHeight}px`;
-                    tasksContent.style.overflowY = 'auto';
-                    tasksContent.style.margin = '0';
-                    tasksContent.style.padding = '0 20px';
-                }
-            }
-        };
-
-        // Функция для адаптации макета под планшет
-        window.adjustLayoutForTablet = function() {
-            const windowWidth = window.innerWidth;
-            
-            if (windowWidth <= 1100) {
-                // Найти и обработать все элементы меню
-                const menuItems = document.querySelectorAll('.sidebar-menu a');
-                menuItems.forEach(item => {
-                    // Настраиваем стиль для элементов меню
-                    item.style.display = 'flex';
-                    item.style.flexDirection = 'column';
-                    item.style.alignItems = 'center';
-                    item.style.textAlign = 'center';
-                    
-                    // Находим иконки внутри элемента меню
-                    const desktopIcon = item.querySelector('.desktop-icon');
-                    const mobileIcon = item.querySelector('.mobile-icon');
-                    
-                    // Скрываем десктопные иконки и показываем мобильные
-                    if (desktopIcon) {
-                        desktopIcon.style.display = 'none';
+                // Для планшетов прокручиваем к карте после выбора
+                if (window.innerWidth <= 1100) {
+                    const mapElement = document.querySelector('.trucks-map > div:last-child');
+                    if (mapElement) {
+                        mapElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
                     }
-                    if (mobileIcon) {
-                        mobileIcon.style.display = 'block';
-                        mobileIcon.style.width = '32px';
-                        mobileIcon.style.height = '32px';
-                    }
-                    
-                    // Настраиваем стиль для текста
-                    const textDiv = item.querySelector('div.flex-1');
-                    if (textDiv) {
-                        textDiv.style.flexBasis = 'auto';
-                        textDiv.style.marginTop = '8px';
-                        textDiv.style.fontSize = '14px';
-                    }
-                    
-                    // Добавляем индикатор активности (полоска снизу)
-                    if (item.classList.contains('bg-gray-50')) {
-                        // Удаляем старый индикатор, если он есть
-                        const oldIndicator = item.querySelector('div.bg-blue-600');
-                        if (oldIndicator) {
-                            oldIndicator.remove();
-                        }
-                        
-                        // Добавляем новый индикатор снизу
-                        const newIndicator = document.createElement('div');
-                        newIndicator.className = 'active-indicator';
-                        newIndicator.style.width = '100%';
-                        newIndicator.style.height = '2px';
-                        newIndicator.style.backgroundColor = '#2563EB';
-                        newIndicator.style.position = 'absolute';
-                        newIndicator.style.bottom = '0';
-                        newIndicator.style.left = '0';
-                        
-                        // Позиционируем родительский элемент для индикатора
-                        item.style.position = 'relative';
-                        item.appendChild(newIndicator);
-                    }
-                });
-                
-                // Настраиваем стили для изображений грузовиков
-                const truckImages = document.querySelectorAll('.card-vehicle img');
-                truckImages.forEach(img => {
-                    img.style.opacity = '0.8';
-                    img.style.maxWidth = '80%';
-                });
-                
-                // Настраиваем активные карточки
-                const activeCards = document.querySelectorAll('.card-vehicle.active');
-                activeCards.forEach(card => {
-                    card.style.border = '2px solid #2563EB';
-                });
-                
-                // Устанавливаем равную высоту для блоков финансов и задач
-                window.equalizeFinanceTasksHeight();
-            } else {
-                // Возвращаем макет к десктопному виду
-                window.resetLayoutToDesktop();
-            }
-        };
-
-        // Функция для возврата к десктопному макету
-        window.resetLayoutToDesktop = function() {
-            // Сбрасываем стили элементов меню
-            const menuItems = document.querySelectorAll('.sidebar-menu a');
-            menuItems.forEach(item => {
-                // Сбрасываем стили для элементов меню
-                item.style.display = '';
-                item.style.flexDirection = '';
-                item.style.alignItems = '';
-                item.style.textAlign = '';
-                item.style.position = '';
-                
-                // Находим иконки внутри элемента меню
-                const desktopIcon = item.querySelector('.desktop-icon');
-                const mobileIcon = item.querySelector('.mobile-icon');
-                
-                // Показываем десктопные иконки и скрываем мобильные
-                if (desktopIcon) {
-                    desktopIcon.style.display = '';
-                }
-                if (mobileIcon) {
-                    mobileIcon.style.display = 'none';
-                    mobileIcon.style.width = '';
-                    mobileIcon.style.height = '';
-                }
-                
-                // Сбрасываем стили для текста
-                const textDiv = item.querySelector('div.flex-1');
-                if (textDiv) {
-                    textDiv.style.flexBasis = '';
-                    textDiv.style.marginTop = '';
-                    textDiv.style.fontSize = '';
-                }
-                
-                // Удаляем индикатор активности
-                const activeIndicator = item.querySelector('.active-indicator');
-                if (activeIndicator) {
-                    activeIndicator.remove();
                 }
             });
-            
-            // Сбрасываем стили для изображений грузовиков
-            const truckImages = document.querySelectorAll('.card-vehicle img');
-            truckImages.forEach(img => {
-                img.style.opacity = '';
-                img.style.maxWidth = '';
-            });
-            
-            // Сбрасываем стили активных карточек
-            const activeCards = document.querySelectorAll('.card-vehicle.active');
-            activeCards.forEach(card => {
-                card.style.border = '';
-            });
-            
-            // Сбрасываем высоту блоков финансов и задач
+        });
+        
+        // Через небольшую задержку выравниваем высоту блоков
+        setTimeout(() => {
+            equalizeFinanceTasksHeight();
+            equalizeCardHeights();
+        }, 300);
+        
+        // Обработка изменения размера окна с защитой от частых вызовов
+        let resizeTimeout;
+        window.addEventListener('resize', function() {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(function() {
+                handleResponsiveLayout();
+                equalizeCardHeights();
+            }, 250);
+        });
+    });
+    
+    // Функция для выравнивания высоты карточек в ПК-версии
+    function equalizeCardHeights() {
+        // Выравниваем высоту блоков финансов и задач в ПК-версии
+        if (window.innerWidth > 1100) {
             const financeBlock = document.querySelector('.finance-tasks > div:first-child');
             const tasksBlock = document.querySelector('.finance-tasks > div:last-child');
             
-            if (financeBlock) {
-                financeBlock.style.height = '';
-                const financeContent = financeBlock.querySelector('.p-5');
-                if (financeContent) {
-                    financeContent.style.maxHeight = '';
-                    financeContent.style.overflowY = '';
-                    financeContent.style.margin = '';
-                    financeContent.style.padding = '';
-                }
-            }
-            
-            if (tasksBlock) {
-                tasksBlock.style.height = '';
-                const tasksContent = tasksBlock.querySelector('.tasks-container');
-                if (tasksContent) {
-                    tasksContent.style.maxHeight = '';
-                    tasksContent.style.overflowY = '';
-                    tasksContent.style.margin = '';
-                    tasksContent.style.padding = '';
-                }
-            }
-        };
-
-        // Обработчик изменения размера окна
-        window.addEventListener('resize', function() {
-            window.adjustLayoutForTablet();
-        });
-        
-        // Вызываем функцию при загрузке страницы
-        window.adjustLayoutForTablet();
-        
-        // Функция выбора грузовика
-        function selectTruck(truckId) {
-            // Скрываем все карты
-            document.querySelectorAll('[id^="map-"]').forEach(map => {
-                map.classList.add('hidden');
-            });
-            
-            // Показываем выбранную карту
-            const selectedMap = document.getElementById(`map-${truckId}`);
-            if (selectedMap) {
-                selectedMap.classList.remove('hidden');
-            }
-            
-            // Скрываем все детали
-            document.querySelectorAll('.truck-details').forEach(details => {
-                details.classList.add('hidden');
-            });
-            
-            // Показываем детали выбранного грузовика
-            const selectedDetails = document.getElementById(`details-${truckId}`);
-            if (selectedDetails) {
-                selectedDetails.classList.remove('hidden');
-            }
-            
-            // Сбрасываем стили для всех карточек
-            document.querySelectorAll('.truck-card').forEach(card => {
-                card.classList.remove('active');
-            });
-            
-            // Выделяем выбранную карточку
-            const selectedCard = document.querySelector(`.truck-card[data-truck="${truckId}"]`);
-            if (selectedCard) {
-                selectedCard.classList.add('active');
+            if (financeBlock && tasksBlock) {
+                // Сбрасываем высоту для правильного измерения
+                financeBlock.style.height = 'auto';
+                tasksBlock.style.height = 'auto';
                 
-                // На планшетах обновляем стиль изображения активной карточки
-                if (window.innerWidth <= 1100) {
-                    document.querySelectorAll('.truck-card img').forEach(img => {
-                        img.style.opacity = '0.4';
+                // Небольшая задержка для корректного рендеринга
+                setTimeout(() => {
+                    const financeHeight = financeBlock.offsetHeight;
+                    const tasksHeight = tasksBlock.offsetHeight;
+                    const maxHeight = Math.max(financeHeight, tasksHeight);
+                    
+                    financeBlock.style.height = `${maxHeight}px`;
+                    tasksBlock.style.height = `${maxHeight}px`;
+                }, 50);
+            }
+        }
+    }
+    
+    // Функция для обработки адаптивного макета
+    function handleResponsiveLayout() {
+        const isTablet = window.innerWidth <= 1100;
+        
+        if (isTablet) {
+            adjustLayoutForTablet();
+            equalizeFinanceTasksHeight(); // Выравниваем высоту блоков
+        } else {
+            resetLayoutToDesktop();
+            equalizeCardHeights(); // Выравниваем высоту карточек в ПК-версии
+        }
+    }
+    
+    // Функция для адаптации интерфейса под планшеты
+    function adjustLayoutForTablet() {
+        if (window.innerWidth <= 1100) {
+            // Скрываем десктопные иконки и показываем мобильные
+            document.querySelectorAll('.sidebar-menu a .desktop-icon').forEach(function(icon) {
+                icon.style.display = 'none';
+            });
+            
+            document.querySelectorAll('.sidebar-menu a .mobile-icon').forEach(function(icon) {
+                icon.style.display = 'block';
+                icon.style.width = '32px';
+                icon.style.height = '32px';
+            });
+            
+            // Настраиваем отображение пунктов меню
+            document.querySelectorAll('.sidebar-menu a').forEach(function(item) {
+                item.style.display = 'flex';
+                item.style.flexDirection = 'column';
+                item.style.alignItems = 'center';
+                item.style.padding = '12px 8px';
+                
+                // Добавляем индикатор активного элемента
+                const activeIndicator = item.querySelector('div[class="w-1 h-6 left-[-16px] top-[14px] absolute bg-blue-600 rounded-tr-lg rounded-br-lg"]');
+                if (activeIndicator) {
+                    activeIndicator.style.display = 'none';
+                }
+                
+                // Если элемент активный, добавляем подчеркивание снизу
+                if (item.classList.contains('bg-gray-50')) {
+                    item.style.borderBottom = '2px solid #2563EB';
+                    
+                    // Находим все SVG внутри активного элемента
+                    const svgElements = item.querySelectorAll('svg path');
+                    svgElements.forEach(function(svg) {
+                        svg.style.stroke = '#2563EB';
                     });
                     
-                    const selectedImg = selectedCard.querySelector('img');
-                    if (selectedImg) {
-                        selectedImg.style.opacity = '0.9';
+                    // Для мобильных иконок установим стиль напрямую
+                    const mobileIcon = item.querySelector('.mobile-icon');
+                    if (mobileIcon) {
+                        mobileIcon.style.filter = 'invert(37%) sepia(74%) saturate(1775%) hue-rotate(211deg) brightness(95%) contrast(98%)';
                     }
                 }
-            }
-        }
-        
-        // Функция для изменения статуса задачи
-        function toggleTaskStatus(taskId, newStatus) {
-            // Получаем CSRF токен из cookie
-            const csrftoken = getCookie('csrftoken');
-            
-            // Показываем индикатор загрузки или блокируем кнопку
-            const container = document.querySelector(`.task-checkbox-container button[onclick*="${taskId}"]`).parentNode;
-            const originalContent = container.innerHTML;
-            container.innerHTML = '<div class="w-4 h-4 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin"></div>';
-            
-            fetch(`/api/v1/tasks/${taskId}/change_status/`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': csrftoken
-                },
-                body: JSON.stringify({ status: newStatus })
-            })
-            .then(response => {
-                if (!response.ok) {
-                    let errorMsg = 'Не удалось обновить статус задачи';
-                    
-                    // Особая обработка ошибки 403 Forbidden
-                    if (response.status === 403) {
-                        errorMsg = 'У вас нет прав для изменения этой задачи';
-                    }
-                    
-                    throw new Error(errorMsg);
+                
+                // Настраиваем стиль текста
+                const textElement = item.querySelector('div[class*="text-"]');
+                if (textElement) {
+                    textElement.style.fontSize = '12px';
+                    textElement.style.marginTop = '8px';
+                    textElement.style.textAlign = 'center';
                 }
-                return response.json();
-            })
-            .then(data => {
-                // Обновляем UI после успешного обновления
-                const taskItem = container.closest('.task-item');
-                const titleEl = taskItem.querySelector('div.text-zinc-950');
-                const descEl = taskItem.querySelector('div.text-gray-500');
-                const dateEl = taskItem.querySelector('div.justify-start.text-gray-500');
-                
-                if (newStatus === 'COMPLETED') {
-                    // Меняем на выполненную
-                    container.innerHTML = `<button onclick="toggleTaskStatus(${taskId}, 'NEW')" class="cursor-pointer">
-                        <div class="w-4 h-4 rounded-full bg-blue-600 flex justify-center items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-white" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-                            </svg>
-                        </div>
-                    </button>`;
-                    titleEl.classList.add('line-through', 'text-slate-500');
-                    descEl.classList.add('text-slate-500');
-                    dateEl.classList.add('text-slate-500');
-                } else {
-                    // Меняем на новую
-                    container.innerHTML = `<button onclick="toggleTaskStatus(${taskId}, 'COMPLETED')" class="cursor-pointer">
-                        <img src="{% static 'core/img/check-circle.svg' %}" alt="Not completed" class="w-4 h-4">
-                    </button>`;
-                    titleEl.classList.remove('line-through', 'text-slate-500');
-                    descEl.classList.remove('text-slate-500');
-                    dateEl.classList.remove('text-slate-500');
-                }
-            })
-            .catch(error => {
-                // Возвращаем оригинальное состояние в случае ошибки
-                container.innerHTML = originalContent;
-                
-                console.error('Ошибка при обновлении задачи:', error);
-                
-                // Показываем пользовательское сообщение об ошибке
-                const modal = document.createElement('div');
-                modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
-                modal.innerHTML = `
-                    <div class="bg-white rounded-lg p-6 max-w-md mx-auto">
-                        <h3 class="text-lg font-medium mb-2">Подтвердите действие на ${window.location.hostname}</h3>
-                        <p class="text-gray-700 mb-6">${error.message}. Пожалуйста, попробуйте еще раз.</p>
-                        <div class="flex justify-end">
-                            <button class="px-4 py-2 bg-teal-700 text-white rounded-lg" onclick="this.closest('.fixed').remove()">ОК</button>
-                        </div>
-                    </div>
-                `;
-                document.body.appendChild(modal);
             });
+            
+            // Полноразмерные карточки для грузовиков
+            document.querySelectorAll('.truck-card').forEach(function(card) {
+                card.classList.add('tablet-full-width');
+            });
+            
+            // Изменяем opacity для truck-img
+            document.querySelectorAll('.truck-img').forEach(function(img) {
+                img.style.opacity = '1';
+            });
+            
+            // Добавляем класс для планшетного режима к body
+            document.body.classList.add('tablet-mode');
+        } else {
+            // Возвращаем десктопный режим
+            resetLayoutToDesktop();
+        }
+    }
+    
+    // Функция для возврата к десктопной версии
+    function resetLayoutToDesktop() {
+        // Возвращаем десктопные иконки и скрываем мобильные
+        document.querySelectorAll('.sidebar-menu a .desktop-icon').forEach(function(icon) {
+            icon.style.display = 'block';
+        });
+        
+        document.querySelectorAll('.sidebar-menu a .mobile-icon').forEach(function(icon) {
+            icon.style.display = 'none';
+        });
+        
+        // Восстанавливаем отображение пунктов меню
+        document.querySelectorAll('.sidebar-menu a').forEach(function(item) {
+            item.style.display = '';
+            item.style.flexDirection = '';
+            item.style.alignItems = '';
+            item.style.padding = '';
+            item.style.borderBottom = '';
+            
+            // Восстанавливаем индикатор активного элемента
+            const activeIndicator = item.querySelector('div[class="w-1 h-6 left-[-16px] top-[14px] absolute bg-blue-600 rounded-tr-lg rounded-br-lg"]');
+            if (activeIndicator) {
+                activeIndicator.style.display = '';
+            }
+            
+            // Настраиваем стиль текста
+            const textElement = item.querySelector('div[class*="text-"]');
+            if (textElement) {
+                textElement.style.fontSize = '';
+                textElement.style.marginTop = '';
+                textElement.style.textAlign = '';
+            }
+        });
+        
+        // Удаляем полноразмерные карточки для грузовиков
+        document.querySelectorAll('.truck-card').forEach(function(card) {
+            card.classList.remove('tablet-full-width');
+        });
+        
+        // Восстанавливаем opacity для truck-img
+        document.querySelectorAll('.truck-img').forEach(function(img) {
+            img.style.opacity = '';
+        });
+        
+        // Удаляем класс для планшетного режима у body
+        document.body.classList.remove('tablet-mode');
+    }
+    
+    // Запускаем функцию при загрузке и изменении размера окна
+    window.addEventListener('load', adjustLayoutForTablet);
+    window.addEventListener('resize', adjustLayoutForTablet);
+    
+    // Функция для выбора грузовика и отображения его маршрута
+    function selectTruck(truckId) {
+        // Скрываем все карты
+        document.querySelectorAll('[id^="map-"]').forEach(map => {
+            map.classList.add('hidden');
+        });
+        
+        // Показываем выбранную карту
+        const selectedMap = document.getElementById(`map-${truckId}`);
+        if (selectedMap) {
+            selectedMap.classList.remove('hidden');
         }
         
-        // Функция для получения CSRF токена из cookie
-        function getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                const cookies = document.cookie.split(';');
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
+        // Скрываем все детали
+        document.querySelectorAll('.truck-details').forEach(details => {
+            details.classList.add('hidden');
+        });
+        
+        // Показываем детали выбранного грузовика
+        const selectedDetails = document.getElementById(`details-${truckId}`);
+        if (selectedDetails) {
+            selectedDetails.classList.remove('hidden');
+        }
+        
+        // Сбрасываем стили для всех карточек
+        document.querySelectorAll('.truck-card').forEach(card => {
+            card.classList.remove('active');
+        });
+        
+        // Выделяем выбранную карточку
+        const selectedCard = document.querySelector(`.truck-card[data-truck="${truckId}"]`);
+        if (selectedCard) {
+            selectedCard.classList.add('active');
+            
+            // На планшетах обновляем стиль изображения активной карточки
+            if (window.innerWidth <= 1100) {
+                document.querySelectorAll('.truck-card img').forEach(img => {
+                    img.style.opacity = '0.4';
+                });
+                
+                const selectedImg = selectedCard.querySelector('img');
+                if (selectedImg) {
+                    selectedImg.style.opacity = '0.9';
                 }
             }
-            return cookieValue;
         }
-    });
+    }
+    
+    // Функция для изменения статуса задачи
+    function toggleTaskStatus(taskId, newStatus) {
+        // Получаем CSRF токен из cookie
+        const csrftoken = getCookie('csrftoken');
+        
+        // Показываем индикатор загрузки или блокируем кнопку
+        const container = document.querySelector(`.task-checkbox-container button[onclick*="${taskId}"]`).parentNode;
+        const originalContent = container.innerHTML;
+        container.innerHTML = '<div class="w-4 h-4 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin"></div>';
+        
+        fetch(`/api/v1/tasks/${taskId}/change_status/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken
+            },
+            body: JSON.stringify({ status: newStatus })
+        })
+        .then(response => {
+            if (!response.ok) {
+                let errorMsg = 'Не удалось обновить статус задачи';
+                
+                // Особая обработка ошибки 403 Forbidden
+                if (response.status === 403) {
+                    errorMsg = 'У вас нет прав для изменения этой задачи';
+                }
+                
+                throw new Error(errorMsg);
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Обновляем UI после успешного обновления
+            const taskItem = container.closest('.task-item');
+            const titleEl = taskItem.querySelector('div.text-zinc-950');
+            const descEl = taskItem.querySelector('div.text-gray-500');
+            const dateEl = taskItem.querySelector('div.justify-start.text-gray-500');
+            
+            if (newStatus === 'COMPLETED') {
+                // Меняем на выполненную
+                container.innerHTML = `<button onclick="toggleTaskStatus(${taskId}, 'NEW')" class="cursor-pointer">
+                    <div class="w-4 h-4 rounded-full bg-blue-600 flex justify-center items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-white" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                </button>`;
+                titleEl.classList.add('line-through', 'text-slate-500');
+                descEl.classList.add('text-slate-500');
+                dateEl.classList.add('text-slate-500');
+            } else {
+                // Меняем на новую
+                container.innerHTML = `<button onclick="toggleTaskStatus(${taskId}, 'COMPLETED')" class="cursor-pointer">
+                    <img src="{% static 'core/img/check-circle.svg' %}" alt="Not completed" class="w-4 h-4">
+                </button>`;
+                titleEl.classList.remove('line-through', 'text-slate-500');
+                descEl.classList.remove('text-slate-500');
+                dateEl.classList.remove('text-slate-500');
+            }
+        })
+        .catch(error => {
+            // Возвращаем оригинальное состояние в случае ошибки
+            container.innerHTML = originalContent;
+            
+            console.error('Ошибка при обновлении задачи:', error);
+            
+            // Показываем пользовательское сообщение об ошибке
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+            modal.innerHTML = `
+                <div class="bg-white rounded-lg p-6 max-w-md mx-auto">
+                    <h3 class="text-lg font-medium mb-2">Подтвердите действие на ${window.location.hostname}</h3>
+                    <p class="text-gray-700 mb-6">${error.message}. Пожалуйста, попробуйте еще раз.</p>
+                    <div class="flex justify-end">
+                        <button class="px-4 py-2 bg-teal-700 text-white rounded-lg" onclick="this.closest('.fixed').remove()">ОК</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        });
+    }
+    
+    // Функция для получения CSRF токена из cookie
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    
+    // Функция для выравнивания высоты блоков финансов и задач в планшетной версии
+    function equalizeFinanceTasksHeight() {
+        const financeBlock = document.querySelector('.finance-tasks > div:first-child');
+        const tasksBlock = document.querySelector('.finance-tasks > div:last-child');
+        
+        if (financeBlock && tasksBlock) {
+            // Устанавливаем фиксированную высоту для обоих блоков
+            const fixedHeight = 400; // Абсолютно одинаковая высота для обоих блоков
+            
+            financeBlock.style.height = `${fixedHeight}px`;
+            tasksBlock.style.height = `${fixedHeight}px`;
+            
+            // Обеспечиваем прокрутку внутреннего содержимого
+            const financeContent = financeBlock.querySelector('.self-stretch.p-5.h-48');
+            const tasksContent = tasksBlock.querySelector('.self-stretch.px-5.py-4');
+            
+            if (financeContent) {
+                financeContent.style.height = 'auto';
+                financeContent.style.maxHeight = `${fixedHeight - 100}px`; // Вычитаем высоту заголовка
+                financeContent.style.overflowY = 'auto';
+            }
+            
+            if (tasksContent) {
+                tasksContent.style.flex = '1';
+                tasksContent.style.maxHeight = `${fixedHeight - 60}px`; // Вычитаем высоту заголовка
+                tasksContent.style.overflowY = 'auto';
+            }
+            
+            // Уменьшаем отступ после блоков
+            const financeTasksContainer = financeBlock.parentElement;
+            if (financeTasksContainer) {
+                financeTasksContainer.style.marginBottom = '1rem';
+            }
+            
+            // Уменьшаем вертикальный отступ между рядами
+            const activeTripsContainer = document.querySelector('.w-full.px-8.pt-8.pb-8');
+            if (activeTripsContainer) {
+                activeTripsContainer.style.paddingTop = '1rem';
+            }
+        }
+    }
+    
+    // Функция для фиксации цветов иконок в боковом/нижнем меню
+    function fixIconColors() {
+        // Вызываем более мощную функцию
+        fixAllLinks();
+        
+        // Устанавливаем серый цвет для всех неактивных иконок
+        document.querySelectorAll('.sidebar-menu a:not(.bg-gray-50)').forEach(link => {
+            // Исправляем цвет текста
+            link.style.color = '#6B7280';
+
+            // Исправляем все пути SVG
+            const paths = link.querySelectorAll('svg path, svg line, svg rect, svg circle');
+            paths.forEach(path => {
+                path.setAttribute('stroke', '#6B7280');
+                path.setAttribute('fill', 'none');
+                path.style.stroke = '#6B7280';
+                path.style.fill = 'none';
+            });
+            
+            // Исправляем сами SVG
+            const svgs = link.querySelectorAll('svg');
+            svgs.forEach(svg => {
+                svg.style.color = '#6B7280';
+                svg.setAttribute('color', '#6B7280');
+            });
+        });
+        
+        // Устанавливаем синий цвет для активной иконки
+        document.querySelectorAll('.sidebar-menu a.bg-gray-50').forEach(link => {
+            // Исправляем цвет текста
+            link.style.color = '#2563EB';
+            
+            // Исправляем все пути SVG
+            const paths = link.querySelectorAll('svg path, svg line, svg rect, svg circle');
+            paths.forEach(path => {
+                path.setAttribute('stroke', '#2563EB');
+                path.setAttribute('fill', 'none');
+                path.style.stroke = '#2563EB';
+                path.style.fill = 'none';
+            });
+            
+            // Исправляем сами SVG
+            const svgs = link.querySelectorAll('svg');
+            svgs.forEach(svg => {
+                svg.style.color = '#2563EB';
+                svg.setAttribute('color', '#2563EB');
+            });
+        });
+        
+        // Перекрашиваем SVG при переходе между страницами
+        document.querySelectorAll('.sidebar-menu a').forEach(link => {
+            link.addEventListener('click', function() {
+                // Небольшая задержка для перерисовки после перехода
+                setTimeout(fixIconColors, 50);
+            });
+        });
+        
+        // Добавляем повторный вызов после полной загрузки
+        setTimeout(fixIconColors, 500);
+    }
+    
+    // Вызываем функцию сразу и после полной загрузки страницы
+    fixIconColors();
+    window.addEventListener('load', fixIconColors);
+    
+    // Функция для экстремального исправления всех ссылок
+    function fixAllLinks() {
+        // Применяем к каждой ссылке в меню
+        document.querySelectorAll('.sidebar-menu a').forEach(link => {
+            // Обычная ссылка - серый цвет
+            if (!link.classList.contains('bg-gray-50')) {
+                // Принудительно устанавливаем инлайн-стили
+                link.setAttribute('style', `
+                    color: #6B7280 !important; 
+                    -webkit-text-fill-color: #6B7280 !important;
+                    text-decoration: none !important;
+                    -webkit-tap-highlight-color: transparent !important;
+                ` + link.getAttribute('style'));
+                
+                // Работаем с SVG и path внутри (ищем все возможные элементы)
+                link.querySelectorAll('svg, svg *, path, rect, circle, line, g').forEach(element => {
+                    element.setAttribute('style', `
+                        stroke: #6B7280 !important;
+                        fill: none !important;
+                        color: #6B7280 !important;
+                    ` + (element.getAttribute('style') || ''));
+                    
+                    // Устанавливаем атрибуты
+                    if (element.nodeName.toLowerCase() === 'path' || 
+                        element.nodeName.toLowerCase() === 'line' || 
+                        element.nodeName.toLowerCase() === 'rect' || 
+                        element.nodeName.toLowerCase() === 'circle') {
+                        element.setAttribute('stroke', '#6B7280');
+                        element.setAttribute('fill', 'none');
+                    }
+                });
+                
+                // Применяем стили к иконкам
+                link.querySelectorAll('.desktop-icon, .mobile-icon').forEach(icon => {
+                    icon.setAttribute('style', `
+                        filter: none !important;
+                        color: #6B7280 !important;
+                    ` + (icon.getAttribute('style') || ''));
+                });
+            } 
+            // Активная ссылка - синий цвет
+            else {
+                // Принудительно устанавливаем инлайн-стили
+                link.setAttribute('style', `
+                    color: #2563EB !important; 
+                    -webkit-text-fill-color: #2563EB !important;
+                    text-decoration: none !important;
+                    -webkit-tap-highlight-color: transparent !important;
+                ` + link.getAttribute('style'));
+                
+                // Работаем с SVG и path внутри
+                link.querySelectorAll('svg, svg *, path, rect, circle, line, g').forEach(element => {
+                    element.setAttribute('style', `
+                        stroke: #2563EB !important;
+                        fill: none !important;
+                        color: #2563EB !important;
+                    ` + (element.getAttribute('style') || ''));
+                    
+                    // Устанавливаем атрибуты
+                    if (element.nodeName.toLowerCase() === 'path' || 
+                        element.nodeName.toLowerCase() === 'line' || 
+                        element.nodeName.toLowerCase() === 'rect' || 
+                        element.nodeName.toLowerCase() === 'circle') {
+                        element.setAttribute('stroke', '#2563EB');
+                        element.setAttribute('fill', 'none');
+                    }
+                });
+                
+                // Применяем стили к иконкам
+                link.querySelectorAll('.desktop-icon, .mobile-icon').forEach(icon => {
+                    icon.setAttribute('style', `
+                        filter: invert(39%) sepia(42%) saturate(2086%) hue-rotate(203deg) brightness(99%) contrast(101%) !important;
+                        color: #2563EB !important;
+                    ` + (icon.getAttribute('style') || ''));
+                });
+            }
+        });
+    }
 </script>
 </html> 
