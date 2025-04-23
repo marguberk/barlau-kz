@@ -123,7 +123,7 @@
                     <div class="px-4 py-3 border-b border-zinc-200 flex justify-between items-start">
                         <div class="flex items-center gap-3">
                             <div class="w-8 h-8 rounded-full bg-neutral-300 overflow-hidden">
-                                <img src="{% static 'core/img/avatars/avatar1.jpg' %}" alt="Алия Молдагулова" class="w-full h-full object-cover" onerror="this.src='{% static 'core/img/avatars/placeholder.jpg' %}'">
+                                <img src="{% static 'core/img/avatars/avatar1.jpg' %}" alt="Алия Молдагулова" class="w-full h-full object-cover" />
                             </div>
                             <div class="font-semibold text-zinc-950">Алия Молдагулова</div>
                         </div>
@@ -167,7 +167,7 @@
                     <div class="px-4 py-3 border-b border-zinc-200 flex justify-between items-start">
                         <div class="flex items-center gap-3">
                             <div class="w-8 h-8 rounded-full bg-neutral-300 overflow-hidden">
-                                <img src="{% static 'core/img/avatars/avatar2.jpg' %}" alt="Арман Жарасов" class="w-full h-full object-cover" onerror="this.src='{% static 'core/img/avatars/placeholder.jpg' %}'">
+                                <img src="{% static 'core/img/avatars/avatar2.jpg' %}" alt="Арман Жарасов" class="w-full h-full object-cover" />
                             </div>
                             <div class="font-semibold text-zinc-950">Арман Жарасов</div>
                         </div>
@@ -211,7 +211,7 @@
                     <div class="px-4 py-3 border-b border-zinc-200 flex justify-between items-start">
                         <div class="flex items-center gap-3">
                             <div class="w-8 h-8 rounded-full bg-neutral-300 overflow-hidden">
-                                <img src="{% static 'core/img/avatars/avatar3.jpg' %}" alt="Жаксыбек Парижов" class="w-full h-full object-cover" onerror="this.src='{% static 'core/img/avatars/placeholder.jpg' %}'">
+                                <img src="{% static 'core/img/avatars/avatar3.jpg' %}" alt="Жаксыбек Парижов" class="w-full h-full object-cover" />
                             </div>
                             <div class="font-semibold text-zinc-950">Жаксыбек Парижов</div>
                         </div>
@@ -288,6 +288,11 @@
         .main-content {
             margin-left: 0;
         }
+    }
+    
+    /* Скрываем нижнее меню на этой странице */
+    body > nav.fixed.bottom-0 {
+        display: none !important;
     }
 </style>
 {% endblock %}
