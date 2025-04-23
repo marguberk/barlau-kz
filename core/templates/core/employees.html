@@ -254,6 +254,36 @@
     </div>
 </div>
 
+<!-- Нижнее мобильное меню -->
+<nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 md:hidden">
+    <div class="flex justify-around items-center px-4 py-2">
+        <a href="{% url 'core:home' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600">
+            <div class="icon-container relative w-8 h-8 flex items-center justify-center">
+                <img src="{% static 'core/img/mobile/home.svg' %}" alt="Home" class="w-8 h-8">
+            </div>
+            <span class="text-xs mt-1">Главная</span>
+        </a>
+        <a href="{% url 'core:tasks' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600">
+            <div class="icon-container relative w-8 h-8 flex items-center justify-center">
+                <img src="{% static 'core/img/mobile/check-square.svg' %}" alt="Tasks" class="w-8 h-8">
+            </div>
+            <span class="text-xs mt-1">Задачи</span>
+        </a>
+        <a href="{% url 'core:map' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600">
+            <div class="icon-container relative w-8 h-8 flex items-center justify-center">
+                <img src="{% static 'core/img/mobile/location.svg' %}" alt="Map" class="w-8 h-8">
+            </div>
+            <span class="text-xs mt-1">Карта</span>
+        </a>
+        <a href="{% url 'core:employees' %}" class="flex flex-col items-center text-blue-600">
+            <div class="icon-container relative w-8 h-8 flex items-center justify-center">
+                <img src="{% static 'core/img/mobile/employee.svg' %}" alt="Employees" class="w-8 h-8">
+            </div>
+            <span class="text-xs mt-1">Сотрудники</span>
+        </a>
+    </div>
+</nav>
+
 <style>
     /* Общие стили для фиксации цветов иконок в меню */
     a, a:visited, a:link, a:hover, a:active, 
@@ -293,6 +323,28 @@
     /* Скрываем нижнее меню на этой странице */
     body > nav.fixed.bottom-0 {
         display: none !important;
+    }
+    
+    /* Показываем наше собственное нижнее меню только на мобильных устройствах */
+    nav.fixed.bottom-0.md\\:hidden {
+        display: block !important;
+    }
+    
+    /* Добавляем отступ снизу для основного контента на мобильных устройствах */
+    @media (max-width: 768px) {
+        .main-content {
+            padding-bottom: 70px;
+        }
+    }
+    
+    /* Скрываем верхнюю панель и корректируем отступы */
+    body > header.fixed.top-0 {
+        display: none !important;
+    }
+    
+    /* Убираем отступ от верхней панели */
+    main.mt-16 {
+        margin-top: 0 !important;
     }
 </style>
 {% endblock %}
