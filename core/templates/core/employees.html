@@ -45,13 +45,13 @@
                         </div>
                         <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Грузовики</div>
                     </a>
-                    <a href="{% url 'core:employees' %}" class="self-stretch px-3 py-3.5 bg-gray-50 rounded-lg inline-flex justify-start items-center gap-2">
+                    <a href="{% url 'core:employees' %}" class="self-stretch px-3 py-3.5 bg-gray-50 rounded-lg inline-flex justify-start items-center gap-2 relative">
+                        <div class="w-1 h-6 left-0 top-[calc(50%-12px)] absolute bg-blue-600 rounded-tr-lg rounded-br-lg"></div>
                         <div class="w-5 h-5 relative overflow-hidden">
                             <img src="{% static 'core/img/employee.svg' %}" alt="Employees" class="w-4 h-4 desktop-icon">
                             <img src="{% static 'core/img/mobile/employee.svg' %}" alt="Employees" class="mobile-icon hidden">
                         </div>
                         <div class="flex-1 justify-start text-blue-600 text-base font-medium leading-normal tracking-tight">Сотрудники</div>
-                        <div class="w-1 h-6 left-0 top-[14px] absolute bg-blue-600 rounded-tr-lg rounded-br-lg"></div>
                     </a>
                 </div>
             </div>
