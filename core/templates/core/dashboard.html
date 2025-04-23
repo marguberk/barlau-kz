@@ -694,10 +694,46 @@
             stroke: currentColor !important;
         }
         
+        /* Более строгие правила для полного предотвращения перекрашивания ссылок */
+        .sidebar-menu a:link,
+        .sidebar-menu a:visited,
+        .sidebar-menu a:hover,
+        .sidebar-menu a:active {
+            color: #6B7280 !important;
+            text-decoration: none !important;
+        }
+        
+        /* Обнуляем изменение цвета SVG для посещенных ссылок */
+        .sidebar-menu a:visited svg,
+        .sidebar-menu a:visited svg path,
+        .sidebar-menu a:visited img {
+            fill: #6B7280 !important;
+            stroke: #6B7280 !important;
+            color: #6B7280 !important;
+            filter: none !important;
+        }
+        
+        /* Явно устанавливаем цвет для мобильных иконок */
+        .sidebar-menu a:visited .mobile-icon,
+        .sidebar-menu a:visited .desktop-icon {
+            filter: none !important;
+        }
+        
         /* Восстанавливаем правильный цвет для активных ссылок */
         .sidebar-menu a.bg-gray-50,
-        .sidebar-menu a.bg-gray-50 * {
+        .sidebar-menu a.bg-gray-50 .flex-1 {
             color: #2563EB !important;
+        }
+        
+        /* Переопределяем стили для активной иконки Дома */
+        .sidebar-menu a.bg-gray-50 .w-5.h-5 img,
+        .sidebar-menu a.bg-gray-50 .w-5.h-5 svg,
+        .sidebar-menu a.bg-gray-50 .desktop-icon,
+        .sidebar-menu a.bg-gray-50 .mobile-icon {
+            fill: #2563EB !important;
+            stroke: #2563EB !important;
+            color: #2563EB !important;
+            filter: invert(39%) sepia(42%) saturate(2086%) hue-rotate(203deg) brightness(99%) contrast(101%) !important;
         }
     </style>
 </head>
