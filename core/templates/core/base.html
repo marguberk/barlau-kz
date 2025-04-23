@@ -84,19 +84,31 @@
     <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200">
         <div class="flex justify-around items-center px-4 py-2">
             <a href="{% url 'core:home' %}" class="flex flex-col items-center {% if request.path == '/' %}text-blue-600{% else %}text-gray-600 hover:text-blue-600{% endif %}">
-                <i class="fas fa-home text-xl"></i>
+                <div class="icon-container relative w-8 h-8 flex items-center justify-center">
+                    <i class="fas fa-home text-xl desktop-icon"></i>
+                    <img src="{% static 'core/img/mobile/home.svg' %}" alt="Home" class="w-8 h-8 mobile-icon hidden">
+                </div>
                 <span class="text-xs mt-1">Главная</span>
             </a>
             <a href="{% url 'core:tasks' %}" class="flex flex-col items-center {% if active_page == 'tasks' %}text-blue-600{% else %}text-gray-600 hover:text-blue-600{% endif %}">
-                <i class="fas fa-tasks text-xl"></i>
+                <div class="icon-container relative w-8 h-8 flex items-center justify-center">
+                    <i class="fas fa-tasks text-xl desktop-icon"></i>
+                    <img src="{% static 'core/img/mobile/check-square.svg' %}" alt="Tasks" class="w-8 h-8 mobile-icon hidden">
+                </div>
                 <span class="text-xs mt-1">Задачи</span>
             </a>
             <a href="{% url 'core:map' %}" class="flex flex-col items-center {% if active_page == 'map' %}text-blue-600{% else %}text-gray-600 hover:text-blue-600{% endif %}">
-                <i class="fas fa-map-marker-alt text-xl"></i>
+                <div class="icon-container relative w-8 h-8 flex items-center justify-center">
+                    <i class="fas fa-map-marker-alt text-xl desktop-icon"></i>
+                    <img src="{% static 'core/img/mobile/location.svg' %}" alt="Map" class="w-8 h-8 mobile-icon hidden">
+                </div>
                 <span class="text-xs mt-1">Карта</span>
             </a>
             <a href="{% url 'core:profile' %}" class="flex flex-col items-center {% if active_page == 'profile' %}text-blue-600{% else %}text-gray-600 hover:text-blue-600{% endif %}">
-                <i class="fas fa-user text-xl"></i>
+                <div class="icon-container relative w-8 h-8 flex items-center justify-center">
+                    <i class="fas fa-user text-xl desktop-icon"></i>
+                    <img src="{% static 'core/img/mobile/employee.svg' %}" alt="Profile" class="w-8 h-8 mobile-icon hidden">
+                </div>
                 <span class="text-xs mt-1">Профиль</span>
             </a>
         </div>

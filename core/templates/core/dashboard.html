@@ -1646,12 +1646,26 @@
     // Функция для адаптации интерфейса под планшеты
     function adjustLayoutForTablet() {
         if (window.innerWidth <= 1100) {
-            // Скрываем десктопные иконки и показываем мобильные
+            // Добавляем класс для планшетного режима к body
+            document.body.classList.add('tablet-mode');
+            
+            // Скрываем десктопные иконки в боковом меню и показываем мобильные
             document.querySelectorAll('.sidebar-menu a .desktop-icon').forEach(function(icon) {
                 icon.style.display = 'none';
             });
             
             document.querySelectorAll('.sidebar-menu a .mobile-icon').forEach(function(icon) {
+                icon.style.display = 'block';
+                icon.style.width = '32px';
+                icon.style.height = '32px';
+            });
+            
+            // Обрабатываем иконки в нижнем меню
+            document.querySelectorAll('.fixed.bottom-0 .flex.justify-around.items-center a .desktop-icon').forEach(function(icon) {
+                icon.style.display = 'none';
+            });
+            
+            document.querySelectorAll('.fixed.bottom-0 .flex.justify-around.items-center a .mobile-icon').forEach(function(icon) {
                 icon.style.display = 'block';
                 icon.style.width = '32px';
                 icon.style.height = '32px';
@@ -1696,6 +1710,27 @@
                 }
             });
             
+            // Применяем стили к нижнему меню
+            const bottomNav = document.querySelector('.fixed.bottom-0');
+            if (bottomNav) {
+                const navItems = bottomNav.querySelectorAll('.flex.flex-col.items-center');
+                navItems.forEach(function(item) {
+                    // Увеличиваем размер шрифта текста
+                    const text = item.querySelector('.text-xs');
+                    if (text) {
+                        text.style.fontSize = '12px';
+                    }
+                    
+                    // Настраиваем цвет для активного элемента
+                    if (item.classList.contains('text-blue-600')) {
+                        const mobileIcon = item.querySelector('.mobile-icon');
+                        if (mobileIcon) {
+                            mobileIcon.style.filter = 'invert(37%) sepia(74%) saturate(1775%) hue-rotate(211deg) brightness(95%) contrast(98%)';
+                        }
+                    }
+                });
+            }
+            
             // Полноразмерные карточки для грузовиков
             document.querySelectorAll('.truck-card').forEach(function(card) {
                 card.classList.add('tablet-full-width');
@@ -1705,23 +1740,31 @@
             document.querySelectorAll('.truck-img').forEach(function(img) {
                 img.style.opacity = '1';
             });
-            
-            // Добавляем класс для планшетного режима к body
-            document.body.classList.add('tablet-mode');
         } else {
             // Возвращаем десктопный режим
             resetLayoutToDesktop();
         }
     }
     
-    // Функция для возврата к десктопной версии
     function resetLayoutToDesktop() {
-        // Возвращаем десктопные иконки и скрываем мобильные
+        // Удаляем класс для планшетного режима у body
+        document.body.classList.remove('tablet-mode');
+        
+        // Возвращаем десктопные иконки и скрываем мобильные в боковом меню
         document.querySelectorAll('.sidebar-menu a .desktop-icon').forEach(function(icon) {
             icon.style.display = 'block';
         });
         
         document.querySelectorAll('.sidebar-menu a .mobile-icon').forEach(function(icon) {
+            icon.style.display = 'none';
+        });
+        
+        // Восстанавливаем иконки в нижнем меню
+        document.querySelectorAll('.fixed.bottom-0 .flex.justify-around.items-center a .desktop-icon').forEach(function(icon) {
+            icon.style.display = 'inline-block';
+        });
+        
+        document.querySelectorAll('.fixed.bottom-0 .flex.justify-around.items-center a .mobile-icon').forEach(function(icon) {
             icon.style.display = 'none';
         });
         
@@ -1748,6 +1791,18 @@
             }
         });
         
+        // Восстанавливаем стили нижнего меню
+        const bottomNav = document.querySelector('.fixed.bottom-0');
+        if (bottomNav) {
+            const navItems = bottomNav.querySelectorAll('.flex.flex-col.items-center');
+            navItems.forEach(function(item) {
+                const text = item.querySelector('.text-xs');
+                if (text) {
+                    text.style.fontSize = '';
+                }
+            });
+        }
+        
         // Удаляем полноразмерные карточки для грузовиков
         document.querySelectorAll('.truck-card').forEach(function(card) {
             card.classList.remove('tablet-full-width');
@@ -1757,9 +1812,6 @@
         document.querySelectorAll('.truck-img').forEach(function(img) {
             img.style.opacity = '';
         });
-        
-        // Удаляем класс для планшетного режима у body
-        document.body.classList.remove('tablet-mode');
     }
     
     // Запускаем функцию при загрузке и изменении размера окна
