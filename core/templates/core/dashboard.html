@@ -322,8 +322,8 @@
                 margin-bottom: 16px !important;
                 padding: 16px !important;
                 position: relative !important;
-                width: 94% !important; /* Делаем карточки уже, чтобы не перекрывали скролл */
-                margin-right: 6% !important; /* Отступ справа для скроллбара */
+                width: 100% !important; /* Возвращаем полную ширину */
+                margin-right: 0 !important; /* Убираем отступ */
             }
             
             /* Карта и детали */
@@ -809,6 +809,76 @@
             .desktop-icon, .mobile-icon {
                 pointer-events: none;
             }
+        }
+        
+        /* Убираем фейковый скроллбар */
+        .trucks-container::after,
+        .trucks-container::before {
+            display: none !important;
+            content: none !important;
+            width: 0 !important;
+            height: 0 !important;
+            opacity: 0 !important;
+            visibility: hidden !important;
+        }
+        
+        /* Еще более радикальное решение для фиолетовых иконок - через !important и атрибуты */
+        .sidebar-menu a svg path {
+            stroke: #6B7280 !important;
+            fill: none !important;
+            color: #6B7280 !important;
+        }
+        
+        .sidebar-menu a.bg-gray-50 svg path {
+            stroke: #2563EB !important;
+            fill: none !important;
+            color: #2563EB !important;
+        }
+        
+        /* Принудительно контролируем все состояния ссылок */
+        .sidebar-menu a:visited,
+        .sidebar-menu a:-webkit-any-link {
+            color: #6B7280 !important;
+        }
+        
+        .sidebar-menu a.bg-gray-50:visited,
+        .sidebar-menu a.bg-gray-50:-webkit-any-link {
+            color: #2563EB !important;
+        }
+        
+        /* Переопределение для SVG через все возможные селекторы */
+        .sidebar-menu a:link svg,
+        .sidebar-menu a:link svg path,
+        .sidebar-menu a:visited svg,
+        .sidebar-menu a:visited svg path,
+        .sidebar-menu a:active svg,
+        .sidebar-menu a:active svg path,
+        .sidebar-menu a:hover svg,
+        .sidebar-menu a:hover svg path,
+        .sidebar-menu a:-webkit-any-link svg,
+        .sidebar-menu a:-webkit-any-link svg path,
+        .sidebar-menu a:any-link svg,
+        .sidebar-menu a:any-link svg path {
+            stroke: #6B7280 !important;
+            fill: none !important;
+            color: #6B7280 !important;
+        }
+        
+        .sidebar-menu a.bg-gray-50:link svg,
+        .sidebar-menu a.bg-gray-50:link svg path,
+        .sidebar-menu a.bg-gray-50:visited svg,
+        .sidebar-menu a.bg-gray-50:visited svg path,
+        .sidebar-menu a.bg-gray-50:active svg,
+        .sidebar-menu a.bg-gray-50:active svg path,
+        .sidebar-menu a.bg-gray-50:hover svg,
+        .sidebar-menu a.bg-gray-50:hover svg path,
+        .sidebar-menu a.bg-gray-50:-webkit-any-link svg,
+        .sidebar-menu a.bg-gray-50:-webkit-any-link svg path,
+        .sidebar-menu a.bg-gray-50:any-link svg,
+        .sidebar-menu a.bg-gray-50:any-link svg path {
+            stroke: #2563EB !important;
+            fill: none !important;
+            color: #2563EB !important;
         }
     </style>
 </head>
@@ -1864,19 +1934,47 @@
     // Функция для фиксации цветов иконок в боковом/нижнем меню
     function fixIconColors() {
         // Устанавливаем серый цвет для всех неактивных иконок
-        document.querySelectorAll('.sidebar-menu a:not(.bg-gray-50) svg path').forEach(path => {
-            path.setAttribute('stroke', '#6B7280');
-            path.setAttribute('fill', 'none');
-            path.style.stroke = '#6B7280';
-            path.style.fill = 'none';
+        document.querySelectorAll('.sidebar-menu a:not(.bg-gray-50)').forEach(link => {
+            // Исправляем цвет текста
+            link.style.color = '#6B7280';
+
+            // Исправляем все пути SVG
+            const paths = link.querySelectorAll('svg path, svg line, svg rect, svg circle');
+            paths.forEach(path => {
+                path.setAttribute('stroke', '#6B7280');
+                path.setAttribute('fill', 'none');
+                path.style.stroke = '#6B7280';
+                path.style.fill = 'none';
+            });
+            
+            // Исправляем сами SVG
+            const svgs = link.querySelectorAll('svg');
+            svgs.forEach(svg => {
+                svg.style.color = '#6B7280';
+                svg.setAttribute('color', '#6B7280');
+            });
         });
         
         // Устанавливаем синий цвет для активной иконки
-        document.querySelectorAll('.sidebar-menu a.bg-gray-50 svg path').forEach(path => {
-            path.setAttribute('stroke', '#2563EB');
-            path.setAttribute('fill', 'none');
-            path.style.stroke = '#2563EB';
-            path.style.fill = 'none';
+        document.querySelectorAll('.sidebar-menu a.bg-gray-50').forEach(link => {
+            // Исправляем цвет текста
+            link.style.color = '#2563EB';
+            
+            // Исправляем все пути SVG
+            const paths = link.querySelectorAll('svg path, svg line, svg rect, svg circle');
+            paths.forEach(path => {
+                path.setAttribute('stroke', '#2563EB');
+                path.setAttribute('fill', 'none');
+                path.style.stroke = '#2563EB';
+                path.style.fill = 'none';
+            });
+            
+            // Исправляем сами SVG
+            const svgs = link.querySelectorAll('svg');
+            svgs.forEach(svg => {
+                svg.style.color = '#2563EB';
+                svg.setAttribute('color', '#2563EB');
+            });
         });
         
         // Перекрашиваем SVG при переходе между страницами
@@ -1886,6 +1984,13 @@
                 setTimeout(fixIconColors, 50);
             });
         });
+        
+        // Добавляем повторный вызов после полной загрузки
+        setTimeout(fixIconColors, 500);
     }
+    
+    // Вызываем функцию сразу и после полной загрузки страницы
+    fixIconColors();
+    window.addEventListener('load', fixIconColors);
 </script>
 </html> 
