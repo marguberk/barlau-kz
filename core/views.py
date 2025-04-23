@@ -1561,3 +1561,23 @@ class ChangePasswordView(LoginRequiredMixin, View):
         messages.success(request, 'Пароль успешно изменен')
         return redirect('core:profile')
 
+class VehiclesView(LoginRequiredMixin, TemplateView):
+    template_name = 'core/vehicles.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_page'] = 'vehicles'
+        
+        # Загружаем транспорт из базы данных для начального рендеринга страницы
+        from logistics.models import Vehicle
+        
+        # Получаем весь транспорт
+        vehicles = Vehicle.objects.all().select_related('driver')
+        
+        # Если пользователь водитель, показываем только его транспорт
+        if self.request.user.role == 'DRIVER':
+            vehicles = vehicles.filter(driver=self.request.user)
+        
+        context['initial_vehicles'] = vehicles
+        return context
+
