@@ -1339,23 +1339,107 @@
     
     // Функция для адаптации макета под планшет
     function adjustLayoutForTablet() {
-        if (window.innerWidth <= 1100) {
-            // Заменяем иконки на мобильные
-            document.querySelectorAll('.sidebar-menu a').forEach(function(item) {
-                // Находим элементы иконок
-                const desktopIcon = item.querySelector('.desktop-icon');
-                const mobileIcon = item.querySelector('.mobile-icon');
+        if (window.innerWidth <= 1100 && window.innerWidth > 640) {
+            // Заменяем десктопные иконки на мобильные в навигации
+            const menuItems = document.querySelectorAll('.sidebar-menu a');
+            
+            menuItems.forEach(function(menuItem) {
+                // Скрываем десктопную иконку
+                const desktopIconContainer = menuItem.querySelector('.desktop-icon');
+                if (desktopIconContainer) {
+                    desktopIconContainer.style.display = 'none';
+                }
                 
-                if (desktopIcon && mobileIcon) {
-                    // Скрываем десктопную иконку
-                    desktopIcon.style.display = 'none';
-                    // Показываем мобильную иконку
-                    mobileIcon.style.display = 'block';
-                    // Увеличиваем размер иконки
-                    mobileIcon.style.width = '32px';
-                    mobileIcon.style.height = '32px';
+                // Показываем мобильную иконку
+                const mobileIconContainer = menuItem.querySelector('.mobile-icon');
+                if (mobileIconContainer) {
+                    mobileIconContainer.style.display = 'block';
+                    mobileIconContainer.style.width = '32px';
+                    mobileIconContainer.style.height = '32px';
+                }
+                
+                // Изменяем структуру пункта меню
+                menuItem.style.display = 'flex';
+                menuItem.style.flexDirection = 'column';
+                menuItem.style.alignItems = 'center';
+                menuItem.style.justifyContent = 'center';
+                menuItem.style.padding = '10px 0';
+                menuItem.style.textAlign = 'center';
+                menuItem.style.position = 'relative';
+                
+                // Стили для текста
+                const text = menuItem.querySelector('.flex-1');
+                if (text) {
+                    text.style.fontSize = '12px';
+                    text.style.margin = '8px 0 0 0';
+                    text.style.padding = '0';
+                }
+                
+                // Скрываем лишние элементы
+                const lineMarker = menuItem.querySelector('.w-1.h-6');
+                if (lineMarker) {
+                    lineMarker.style.display = 'none';
                 }
             });
+            
+            // Настройка меню навигации для планшетов
+            const sidebarMenu = document.querySelector('.sidebar-menu');
+            if (sidebarMenu) {
+                sidebarMenu.style.display = 'flex';
+                sidebarMenu.style.flexDirection = 'row';
+                sidebarMenu.style.justifyContent = 'space-around';
+                sidebarMenu.style.width = '100%';
+                sidebarMenu.style.maxWidth = '600px';
+                sidebarMenu.style.margin = '0 auto';
+            }
+            
+            // Особое выделение для активного пункта
+            const activeItem = document.querySelector('.sidebar-menu a.bg-gray-50');
+            if (activeItem) {
+                // Убираем фон
+                activeItem.style.backgroundColor = 'transparent';
+                
+                // Изменяем цвет текста
+                const text = activeItem.querySelector('.flex-1');
+                if (text) {
+                    text.style.color = '#2563EB';
+                    text.style.fontWeight = '500';
+                }
+                
+                // Добавляем полоску внизу активного пункта
+                if (!activeItem.querySelector('.active-indicator')) {
+                    const activeIndicator = document.createElement('div');
+                    activeIndicator.className = 'active-indicator';
+                    activeIndicator.style.position = 'absolute';
+                    activeIndicator.style.bottom = '0';
+                    activeIndicator.style.left = '0';
+                    activeIndicator.style.width = '100%';
+                    activeIndicator.style.height = '2px';
+                    activeIndicator.style.backgroundColor = '#2563EB';
+                    activeItem.appendChild(activeIndicator);
+                }
+                
+                // Для активного пункта меняем цвет иконки
+                const activeMobileIcon = activeItem.querySelector('.mobile-icon');
+                if (activeMobileIcon) {
+                    // Пробуем найти SVG
+                    const svgElement = activeMobileIcon.querySelector('svg');
+                    if (svgElement) {
+                        // Это SVG, меняем его цвет
+                        const paths = svgElement.querySelectorAll('path');
+                        paths.forEach(function(path) {
+                            path.setAttribute('fill', '#2563EB');
+                        });
+                    } else {
+                        // Это может быть IMG
+                        const imgElement = activeMobileIcon.querySelector('img');
+                        if (imgElement) {
+                            // Применяем синий фильтр к изображению
+                            imgElement.style.filter = 'invert(34%) sepia(85%) saturate(3303%) hue-rotate(213deg) brightness(99%) contrast(91%)';
+                        }
+                    }
+                }
+            }
             
             // Настраиваем изображения грузовиков
             document.querySelectorAll('.truck-card img').forEach(function(img) {
@@ -1363,84 +1447,13 @@
                 img.style.opacity = '0.4';
             });
             
-            // Выделяем активную карточку
+            // Выделяем активную карточку грузовика
             const activeCard = document.querySelector('.truck-card.active');
             if (activeCard) {
                 const img = activeCard.querySelector('img');
                 if (img) {
                     img.style.opacity = '0.9';
                 }
-            }
-            
-            // Настройка меню навигации для планшетов
-            const sidebarMenu = document.querySelector('.sidebar-menu');
-            if (sidebarMenu) {
-                // Настраиваем горизонтальное меню
-                sidebarMenu.style.display = 'flex';
-                sidebarMenu.style.flexDirection = 'row';
-                sidebarMenu.style.justifyContent = 'space-around';
-                sidebarMenu.style.width = '100%';
-                sidebarMenu.style.maxWidth = '600px';
-                sidebarMenu.style.margin = '0 auto';
-                
-                // Настраиваем пункты меню
-                const menuItems = sidebarMenu.querySelectorAll('a');
-                menuItems.forEach(function(item) {
-                    // Изменяем ориентацию элементов на вертикальную
-                    item.style.display = 'flex';
-                    item.style.flexDirection = 'column';
-                    item.style.alignItems = 'center';
-                    item.style.justifyContent = 'center';
-                    item.style.padding = '10px 0';
-                    item.style.flex = '1';
-                    item.style.textAlign = 'center';
-                    item.style.position = 'relative';
-                });
-                
-                // Особое выделение для активного пункта
-                const activeItem = sidebarMenu.querySelector('a.bg-gray-50');
-                if (activeItem) {
-                    // Убираем фон
-                    activeItem.style.backgroundColor = 'transparent';
-                    
-                    // Изменяем цвет текста
-                    const text = activeItem.querySelector('.flex-1');
-                    if (text) {
-                        text.style.color = '#2563EB';
-                        text.style.fontWeight = '500';
-                    }
-                    
-                    // Добавляем полоску внизу активного пункта
-                    activeItem.style.position = 'relative';
-                    
-                    if (!activeItem.querySelector('.active-indicator')) {
-                        const activeIndicator = document.createElement('div');
-                        activeIndicator.className = 'active-indicator';
-                        activeIndicator.style.position = 'absolute';
-                        activeIndicator.style.bottom = '0';
-                        activeIndicator.style.left = '0';
-                        activeIndicator.style.width = '100%';
-                        activeIndicator.style.height = '2px';
-                        activeIndicator.style.backgroundColor = '#2563EB';
-                        activeItem.appendChild(activeIndicator);
-                    }
-                    
-                    // Для активного пункта меняем цвет иконки SVG
-                    const activeMobileIcon = activeItem.querySelector('.mobile-icon');
-                    if (activeMobileIcon) {
-                        const svgElement = activeMobileIcon.querySelector('svg');
-                        if (svgElement) {
-                            svgElement.style.color = '#2563EB';
-                        } else {
-                            activeMobileIcon.style.filter = 'invert(34%) sepia(85%) saturate(3303%) hue-rotate(213deg) brightness(99%) contrast(91%)';
-                        }
-                    }
-                }
-                
-                // Скрываем полоски слева от активных пунктов
-                document.querySelectorAll('.sidebar-menu a .w-1.h-6').forEach(function(line) {
-                    line.style.display = 'none';
-                });
             }
         } else {
             // Возвращаем стандартные стили для десктопа
