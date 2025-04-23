@@ -174,7 +174,7 @@
             .sidebar-menu a.bg-gray-50::after {
                 content: "" !important;
                 width: 80% !important; /* Уменьшаем ширину линии */
-                height: 3px !important; /* Увеличиваем высоту линии */
+                height: 5px !important; /* Увеличиваем высоту линии до 5px */
                 background-color: #2563EB !important;
                 position: absolute !important;
                 bottom: 0 !important;
@@ -182,13 +182,16 @@
                 border-radius: 6px 6px 0 0 !important; /* Закругляем верхние углы */
             }
             
-            /* Исправляем стили для иконок */
-            .sidebar-menu a.bg-gray-50 .w-5.h-5 img {
-                filter: invert(39%) sepia(42%) saturate(2086%) hue-rotate(203deg) brightness(99%) contrast(101%) !important;
+            /* Принудительно устанавливаем цвет SVG для всех навигационных элементов */
+            .sidebar-menu a svg path {
+                fill: none !important; 
+                stroke: #6B7280 !important;
             }
             
-            .sidebar-menu a.bg-gray-50 .w-5.h-5 svg path {
-                fill: #2563EB !important;
+            /* Принудительно устанавливаем цвет SVG для активного элемента */
+            .sidebar-menu a.bg-gray-50 svg path {
+                fill: none !important;
+                stroke: #2563EB !important;
             }
             
             /* Убираем полоску слева от активного пункта */
@@ -705,10 +708,17 @@
             text-decoration: none !important;
         }
         
-        /* Обнуляем изменение цвета SVG для посещенных ссылок */
+        /* Полностью переопределяем иконки в меню */
+        .sidebar-menu a .w-5.h-5 img,
+        .sidebar-menu a .w-5.h-5 svg path,
+        .sidebar-menu a:visited .w-5.h-5 img,
+        .sidebar-menu a:visited .w-5.h-5 svg path,
         .sidebar-menu a:visited svg,
         .sidebar-menu a:visited svg path,
-        .sidebar-menu a:visited img {
+        .sidebar-menu a:visited img,
+        .sidebar-menu a svg,
+        .sidebar-menu a svg path,
+        .sidebar-menu a img {
             fill: #6B7280 !important;
             stroke: #6B7280 !important;
             color: #6B7280 !important;
@@ -717,7 +727,9 @@
         
         /* Явно устанавливаем цвет для мобильных иконок */
         .sidebar-menu a:visited .mobile-icon,
-        .sidebar-menu a:visited .desktop-icon {
+        .sidebar-menu a:visited .desktop-icon,
+        .sidebar-menu a .mobile-icon,
+        .sidebar-menu a .desktop-icon {
             filter: none !important;
         }
         
@@ -727,9 +739,10 @@
             color: #2563EB !important;
         }
         
-        /* Переопределяем стили для активной иконки Дома */
+        /* Переопределяем стили для активной иконки */
         .sidebar-menu a.bg-gray-50 .w-5.h-5 img,
         .sidebar-menu a.bg-gray-50 .w-5.h-5 svg,
+        .sidebar-menu a.bg-gray-50 .w-5.h-5 svg path,
         .sidebar-menu a.bg-gray-50 .desktop-icon,
         .sidebar-menu a.bg-gray-50 .mobile-icon {
             fill: #2563EB !important;
