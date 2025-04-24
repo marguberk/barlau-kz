@@ -964,6 +964,29 @@
                 fill: none !important;
             }
         }
+        
+        /* Стили для мобильной навигации */
+        @media (max-width: 1100px) {
+            /* Устанавливаем размер и фильтр для мобильных иконок */
+            .icon-container img {
+                width: 24px;
+                height: 24px;
+            }
+            
+            /* Серый фильтр для неактивных иконок */
+            nav.fixed.bottom-0 a.text-gray-600 .icon-container img {
+                filter: brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(142deg) brightness(96%) contrast(91%);
+            }
+            
+            /* Синий фильтр для активной иконки */
+            nav.fixed.bottom-0 a.text-blue-600 .icon-container img {
+                filter: brightness(0) saturate(100%) invert(32%) sepia(96%) saturate(7461%) hue-rotate(220deg) brightness(97%) contrast(98%);
+            }
+            
+            .main-content {
+                padding-bottom: 70px;
+            }
+        }
     </style>
 </head>
 <body class="bg-gray-50">
