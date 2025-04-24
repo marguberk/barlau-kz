@@ -206,21 +206,21 @@ class NotificationViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['post'])
     def mark_all_read(self, request):
         """Отметить все уведомления как прочитанные"""
-        self.get_queryset().update(read=True)
+        self.get_queryset().update(is_read=True)
         return Response(status=status.HTTP_204_NO_CONTENT)
     
     @action(detail=True, methods=['post'])
     def mark_read(self, request, pk=None):
         """Отметить уведомление как прочитанное"""
         notification = self.get_object()
-        notification.read = True
+        notification.is_read = True
         notification.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
     
     @action(detail=False, methods=['get'])
     def unread_count(self, request):
         """Получить количество непрочитанных уведомлений"""
-        count = self.get_queryset().filter(read=False).count()
+        count = self.get_queryset().filter(is_read=False).count()
         return Response({'count': count})
     
     @action(detail=False, methods=['post'])
@@ -236,7 +236,7 @@ class NotificationViewSet(viewsets.ModelViewSet):
             type=test_type,
             title=f"Тестовое уведомление {test_type}",
             message=f"Это тестовое уведомление типа {test_type} для проверки функциональности",
-            read=False
+            is_read=False
         )
         
         serializer = self.get_serializer(notification)
@@ -293,7 +293,7 @@ class HomeView(TemplateView):
             # Получаем количество непрочитанных уведомлений
             context['unread_notifications'] = Notification.objects.filter(
                 user=self.request.user,
-                read=False
+                is_read=False
             ).count()
         
         # Основные разделы приложения
@@ -478,7 +478,7 @@ class ProfileView(LoginRequiredMixin, TemplateView):
         
         notifications = Notification.objects.filter(user=user)
         context['notifications_count'] = notifications.count()
-        context['unread_notifications_count'] = notifications.filter(read=False).count()
+        context['unread_notifications_count'] = notifications.filter(is_read=False).count()
         context['today_notifications_count'] = notifications.filter(
             created_at__range=(today_min, today_max)
         ).count()
@@ -538,7 +538,7 @@ class NotificationsView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         context['unread_notifications'] = Notification.objects.filter(
             user=self.request.user,
-            read=False
+            is_read=False
         ).count()
         return context
 

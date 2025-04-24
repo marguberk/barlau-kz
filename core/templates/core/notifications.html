@@ -118,7 +118,7 @@
         let filteredNotifications = notifications.results;
 
         if (currentFilter === 'unread') {
-            filteredNotifications = filteredNotifications.filter(n => !n.read);
+            filteredNotifications = filteredNotifications.filter(n => !n.is_read);
         } else if (currentFilter !== 'all') {
             filteredNotifications = filteredNotifications.filter(n => n.type === currentFilter);
         }
@@ -133,7 +133,7 @@
         emptyState.classList.add('hidden');
 
         notificationsList.innerHTML = filteredNotifications.map(notification => `
-            <div class="bg-white rounded-xl shadow-sm p-4 transition-all ${notification.read ? '' : 'border-l-4 border-blue-600'}">
+            <div class="bg-white rounded-xl shadow-sm p-4 transition-all ${notification.is_read ? '' : 'border-l-4 border-blue-600'}">
                 <div class="flex items-start justify-between">
                     <div class="flex items-start space-x-3">
                         <div class="w-8 h-8 rounded-full bg-${getNotificationColor(notification.type)}-100 flex items-center justify-center">
@@ -151,7 +151,7 @@
                     </div>
                     <div class="flex flex-col items-end">
                         <span class="text-xs text-gray-500">${notification.created_at_display}</span>
-                        ${!notification.read ? `
+                        ${!notification.is_read ? `
                             <button onclick="markAsRead(${notification.id})" class="text-blue-600 hover:text-blue-800 text-sm mt-2">
                                 <i class="fas fa-check"></i>
                             </button>
