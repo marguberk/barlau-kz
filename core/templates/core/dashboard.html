@@ -1,200 +1,5 @@
-{% extends 'core/base.html' %}
-{% load static %}
-
-{% block title %}Dashboard{% endblock %}
-
-{% block head %}
-<link rel="stylesheet" href="{% static 'core/css/dashboard.css' %}">
-<link rel="stylesheet" href="{% static 'core/css/custom-tablet.css' %}">
-<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdn.tailwindcss.com"></script>
-<style>
-    body {
-        font-family: 'Inter Tight', sans-serif;
-    }
-    
-    /* Глобальный сброс цвета всех ссылок и посещенных ссылок на странице */
-    a, a:visited, a:link, a:hover, a:active, 
-    a *, a:visited *, a:link *, a:hover *, a:active * {
-        color: inherit !important;
-        fill: inherit !important;
-        stroke: inherit !important;
-        text-decoration: none !important;
-    }
-    
-    .item-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 10px;
-    }
-    .item-row .label {
-        font-weight: 500;
-        color: #6b7280;
-    }
-    .item-row .value {
-        font-weight: 600;
-        color: #111827;
-    }
-    
-    /* Выравнивание высоты блоков финансов и задач в ПК-версии */
-    .finance-tasks {
-        display: flex;
-        gap: 1rem;
-        margin-bottom: 1rem !important; /* Равный отступ как сверху, так и снизу */
-    }
-    
-    .finance-tasks > div {
-        display: flex;
-        flex-direction: column;
-        min-height: 400px !important; /* Фиксированная минимальная высота */
-        height: 400px !important; /* Фиксированная высота */
-    }
-    
-    /* Уменьшение вертикального отступа между рядами */
-    .stats-cards + .w-full.px-8.pt-8 {
-        padding-top: 1rem !important;
-    }
-    
-    /* Уменьшение отступа после блоков финансов и задач */
-    .finance-tasks + .w-full.px-8.pt-8.pb-8 {
-        padding-top: 1rem !important; /* Такой же отступ как сверху */
-        margin-top: 0 !important; /* Убираем возможный верхний отступ */
-    }
-    
-    /* Пульсирующий маркер на карте */
-    .map-marker-pulse {
-        animation: pulse 1.5s infinite;
-    }
-    
-    @keyframes pulse {
-        0% {
-            transform: scale(1);
-            opacity: 1;
-        }
-        50% {
-            transform: scale(1.2);
-            opacity: 0.8;
-        }
-        100% {
-            transform: scale(1);
-            opacity: 1;
-        }
-    }
-    
-    /* Адаптивные стили для планшетов */
-    @media (max-width: 1100px) {
-        /* Скрываем боковую панель и перемещаем ее вниз */
-        .sidebar {
-            position: fixed !important;
-            bottom: 0 !important;
-            left: 0 !important;
-            width: 100% !important;
-            height: 80px !important;
-            display: flex !important;
-            flex-direction: row !important;
-            justify-content: center !important;
-            align-items: center !important;
-            border-right: none !important;
-            border-top: 1px solid #e5e7eb !important;
-            background-color: white !important;
-            z-index: 50 !important;
-            padding: 0 !important;
-            top: auto !important; /* Убираем top: 0 */
-        }
-        
-        .sidebar-menu {
-            width: 100% !important;
-            display: flex !important;
-            flex-direction: row !important;
-            justify-content: space-around !important;
-            align-items: center !important;
-            padding: 0 16px !important; /* Увеличиваем боковые отступы */
-            max-width: 600px !important;
-            margin: 0 auto !important;
-        }
-        
-        .sidebar-menu a {
-            display: flex !important;
-            flex-direction: column !important; /* Вертикальное расположение элементов */
-            align-items: center !important;
-            justify-content: center !important;
-            padding: 10px 0 !important;
-            flex: 1 !important;
-            text-align: center !important;
-            position: relative !important;
-            gap: 6px !important;
-        }
-        
-        /* Меняем горизонтальное расположение на вертикальное для пунктов меню */
-        .sidebar-menu a.inline-flex {
-            display: flex !important;
-            flex-direction: column !important;
-            align-items: center !important;
-            justify-content: center !important;
-        }
-        
-        .sidebar-menu a .w-5.h-5 {
-            width: 40px !important;
-            height: 40px !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-        }
-        
-        .sidebar-menu a .w-5.h-5 img, 
-        .sidebar-menu a .w-5.h-5 svg {
-            width: 32px !important;
-            height: 32px !important;
-        }
-        
-        .sidebar-menu a .flex-1 {
-            display: block !important;
-            font-size: 12px !important;
-            font-weight: normal !important;
-            margin-top: 4px !important;
-            line-height: 14px !important;
-            white-space: nowrap !important;
-            color: #6B7280 !important;
-        }
-        
-        /* Скрываем логотип и другие элементы в мобильном меню */
-        .sidebar-logo {
-            display: none !important;
-        }
-        
-        .sidebar-menu .self-stretch {
-            display: flex !important;
-            flex-direction: row !important;
-            justify-content: space-around !important;
-            width: 100% !important;
-        }
-        
-        /* Стилизация активной ссылки в меню */
-        .sidebar-menu a.bg-gray-50 {
-            background-color: transparent !important;
-        }
-        
-        .sidebar-menu a.bg-gray-50 .flex-1 {
-            color: #2563EB !important;
-            font-weight: 500 !important;
-        }
-        
-        /* Модифицируем индикатор активного пункта меню (нижняя синяя линия) */
-        .sidebar-menu a.bg-gray-50::after {
-            content: "" !important;
-            width: 80% !important; /* Уменьшаем ширину линии */
-            height: 5px !important; /* Увеличиваем высоту линии до 5px */
-            background-color: #2563EB !important;
-            position: absolute !important;
-            bottom: 0 !important;
-        }
-    }
-</style>
-{% endblock %}
-
-{% block content %}
 <!DOCTYPE html>
+{% load static %}
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -203,7 +8,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="{% static 'core/css/dashboard.css' %}">
-    <link rel="stylesheet" href="{% static 'core/css/custom-tablet.css' %}">
     <style>
         body {
             font-family: 'Inter Tight', sans-serif;
@@ -384,6 +188,8 @@
                 background-color: #2563EB !important;
                 position: absolute !important;
                 bottom: 0 !important;
+                left: 10% !important; /* Центрируем линию */
+                border-radius: 6px 6px 0 0 !important; /* Закругляем верхние углы */
             }
             
             /* Принудительно устанавливаем цвет SVG для всех навигационных элементов */
@@ -1745,36 +1551,36 @@
     </div>
 
     <!-- Мобильная нижняя навигация -->
-    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 mobile-nav z-50" style="height: 64px;">
-        <div class="flex justify-around items-center h-full w-full px-4">
-            <a href="{% url 'core:home' %}" class="flex flex-col items-center justify-center text-blue-600 relative">
+    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 mobile-nav z-50">
+        <div class="flex justify-around items-center px-4 py-2">
+            <a href="{% url 'core:home' %}" class="flex flex-col items-center text-blue-600 relative">
                 <div class="icon-container relative w-8 h-8 flex items-center justify-center">
-                    <img src="{% static 'core/img/mobile/home.svg' %}" alt="Home" class="w-7 h-7 mobile-icon">
+                    <img src="{% static 'core/img/mobile/home.svg' %}" alt="Home" class="w-8 h-8 mobile-icon">
                 </div>
                 <span class="text-xs mt-1">Главная</span>
-                <div class="absolute -bottom-3 left-0 right-0 h-0.5 bg-blue-600 rounded-full"></div>
+                <div class="absolute -bottom-2 left-0 right-0 h-0.5 bg-blue-600 rounded-full"></div>
             </a>
-            <a href="{% url 'core:tasks' %}" class="flex flex-col items-center justify-center text-gray-600 hover:text-blue-600 relative">
+            <a href="{% url 'core:tasks' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600 relative">
                 <div class="icon-container relative w-8 h-8 flex items-center justify-center">
-                    <img src="{% static 'core/img/mobile/check-square.svg' %}" alt="Tasks" class="w-7 h-7 mobile-icon">
+                    <img src="{% static 'core/img/mobile/check-square.svg' %}" alt="Tasks" class="w-8 h-8 mobile-icon">
                 </div>
                 <span class="text-xs mt-1">Задачи</span>
             </a>
-            <a href="{% url 'core:map' %}" class="flex flex-col items-center justify-center text-gray-600 hover:text-blue-600 relative">
+            <a href="{% url 'core:map' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600 relative">
                 <div class="icon-container relative w-8 h-8 flex items-center justify-center">
-                    <img src="{% static 'core/img/mobile/location.svg' %}" alt="Map" class="w-7 h-7 mobile-icon">
+                    <img src="{% static 'core/img/mobile/location.svg' %}" alt="Map" class="w-8 h-8 mobile-icon">
                 </div>
                 <span class="text-xs mt-1">Карта</span>
             </a>
-            <a href="{% url 'core:vehicles' %}" class="flex flex-col items-center justify-center text-gray-600 hover:text-blue-600 relative">
+            <a href="{% url 'core:vehicles' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600 relative">
                 <div class="icon-container relative w-8 h-8 flex items-center justify-center">
-                    <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Vehicles" class="w-7 h-7 mobile-icon">
+                    <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Vehicles" class="w-8 h-8 mobile-icon">
                 </div>
                 <span class="text-xs mt-1">Грузовики</span>
             </a>
-            <a href="{% url 'core:employees' %}" class="flex flex-col items-center justify-center text-gray-600 hover:text-blue-600 relative">
+            <a href="{% url 'core:employees' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600 relative">
                 <div class="icon-container relative w-8 h-8 flex items-center justify-center">
-                    <img src="{% static 'core/img/mobile/employee.svg' %}" alt="Employees" class="w-7 h-7 mobile-icon">
+                    <img src="{% static 'core/img/mobile/employee.svg' %}" alt="Employees" class="w-8 h-8 mobile-icon">
                 </div>
                 <span class="text-xs mt-1">Сотрудники</span>
             </a>
@@ -1880,6 +1686,12 @@
             // Добавляем класс для планшетного режима к body
             document.body.classList.add('tablet-mode');
             
+            // Показываем мобильную навигацию
+            const mobileNav = document.querySelector('.mobile-nav');
+            if (mobileNav) {
+                mobileNav.classList.remove('hidden');
+            }
+            
             // Базовая селекция первого грузовика, если есть карточки
             const firstTruckCard = document.querySelector('.truck-card');
             if (firstTruckCard) {
@@ -1901,6 +1713,12 @@
     function resetLayoutToDesktop() {
         // Удаляем класс для планшетного режима у body
         document.body.classList.remove('tablet-mode');
+        
+        // Скрываем мобильную навигацию
+        const mobileNav = document.querySelector('.mobile-nav');
+        if (mobileNav) {
+            mobileNav.classList.add('hidden');
+        }
         
         // Восстанавливаем стили изображений грузовиков
         document.querySelectorAll('.truck-img').forEach(function(img) {
