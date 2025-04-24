@@ -1649,100 +1649,16 @@
             // Добавляем класс для планшетного режима к body
             document.body.classList.add('tablet-mode');
             
-            // Скрываем десктопные иконки и показываем мобильные в боковом меню
-            document.querySelectorAll('.sidebar-menu a .desktop-icon').forEach(function(icon) {
-                icon.style.display = 'none';
-            });
-            
-            document.querySelectorAll('.sidebar-menu a .mobile-icon').forEach(function(icon) {
-                icon.style.display = 'block';
-                icon.style.width = '32px';
-                icon.style.height = '32px';
-            });
-            
-            // Скрываем десктопные иконки и показываем мобильные в нижнем меню
-            document.querySelectorAll('.fixed.bottom-0 .flex.justify-around.items-center a .desktop-icon').forEach(function(icon) {
-                icon.style.display = 'none';
-            });
-            
-            document.querySelectorAll('.fixed.bottom-0 .flex.justify-around.items-center a .mobile-icon').forEach(function(icon) {
-                icon.style.display = 'inline-block';
-                icon.style.width = '32px';
-                icon.style.height = '32px';
-            });
-            
-            // Настраиваем отображение пунктов меню
-            document.querySelectorAll('.sidebar-menu a').forEach(function(item) {
-                item.style.display = 'flex';
-                item.style.flexDirection = 'column';
-                item.style.alignItems = 'center';
-                item.style.padding = '16px 0';
-                
-                // Добавляем нижнюю границу для активного элемента
-                if (item.classList.contains('bg-gray-50')) {
-                    item.style.borderBottom = '2px solid #2563EB';
-                    
-                    // Добавляем вертикальную линию-индикатор активного пункта
-                    const existingIndicator = item.querySelector('div[class="w-1 h-6 left-[-16px] top-[14px] absolute bg-blue-600 rounded-tr-lg rounded-br-lg"]');
-                    if (!existingIndicator) {
-                        const activeIndicator = document.createElement('div');
-                        activeIndicator.className = 'w-1 h-6 left-[-16px] top-[14px] absolute bg-blue-600 rounded-tr-lg rounded-br-lg';
-                        item.appendChild(activeIndicator);
-                    }
-                    
-                    // Устанавливаем цвет для активной иконки
-                    const mobileIcon = item.querySelector('.mobile-icon');
-                    if (mobileIcon) {
-                        mobileIcon.style.filter = 'invert(37%) sepia(74%) saturate(1775%) hue-rotate(211deg) brightness(95%) contrast(98%)';
-                    }
+            // Базовая селекция первого грузовика, если есть карточки
+            const firstTruckCard = document.querySelector('.truck-card');
+            if (firstTruckCard) {
+                const truckId = firstTruckCard.getAttribute('data-truck');
+                if (truckId) {
+                    selectTruck(truckId);
                 }
-                
-                // Настраиваем стиль текста
-                const textElement = item.querySelector('div[class*="text-"]');
-                if (textElement) {
-                    textElement.style.fontSize = '12px';
-                    textElement.style.marginTop = '8px';
-                    textElement.style.textAlign = 'center';
-                }
-            });
-            
-            // Применяем стили к нижнему меню
-            const bottomNav = document.querySelector('.fixed.bottom-0');
-            if (bottomNav) {
-                const navItems = bottomNav.querySelectorAll('.flex.flex-col.items-center');
-                navItems.forEach(function(item) {
-                    // Увеличиваем размер шрифта текста
-                    const text = item.querySelector('.text-xs');
-                    if (text) {
-                        text.style.fontSize = '12px';
-                    }
-                    
-                    // Настраиваем цвет для активного элемента
-                    if (item.classList.contains('text-blue-600')) {
-                        const mobileIcon = item.querySelector('.mobile-icon');
-                        if (mobileIcon) {
-                            mobileIcon.style.filter = 'invert(37%) sepia(74%) saturate(1775%) hue-rotate(211deg) brightness(95%) contrast(98%)';
-                        }
-                    }
-                });
             }
             
-            // Полноразмерные карточки для грузовиков
-            document.querySelectorAll('.truck-card').forEach(function(card) {
-                card.classList.add('tablet-full-width');
-            });
-            
-            // Изменяем opacity для truck-img
-            document.querySelectorAll('.truck-img').forEach(function(img) {
-                img.style.opacity = '1';
-            });
-            
-            // Проверяем существование функции перед вызовом
-            if (typeof fixIconColors === 'function') {
-                fixIconColors();
-            }
-            
-            // Выравнивание высоты блоков
+            // Выравниваем высоту блоков финансов и задач
             equalizeFinanceTasksHeight();
         } else {
             // Возвращаем десктопный режим
@@ -1750,96 +1666,18 @@
         }
     }
     
+    // Функция для возврата к десктопному отображению
     function resetLayoutToDesktop() {
         // Удаляем класс для планшетного режима у body
         document.body.classList.remove('tablet-mode');
         
-        // Возвращаем десктопные иконки и скрываем мобильные в боковом меню
-        document.querySelectorAll('.sidebar-menu a .desktop-icon').forEach(function(icon) {
-            icon.style.display = 'block';
-        });
-        
-        document.querySelectorAll('.sidebar-menu a .mobile-icon').forEach(function(icon) {
-            icon.style.display = 'none';
-        });
-        
-        // Восстанавливаем иконки в нижнем меню
-        document.querySelectorAll('.fixed.bottom-0 .flex.justify-around.items-center a .desktop-icon').forEach(function(icon) {
-            icon.style.display = 'inline-block';
-        });
-        
-        document.querySelectorAll('.fixed.bottom-0 .flex.justify-around.items-center a .mobile-icon').forEach(function(icon) {
-            icon.style.display = 'none';
-        });
-        
-        // Восстанавливаем отображение пунктов меню
-        document.querySelectorAll('.sidebar-menu a').forEach(function(item) {
-            item.style.display = '';
-            item.style.flexDirection = '';
-            item.style.alignItems = '';
-            item.style.padding = '';
-            item.style.borderBottom = '';
-            
-            // Восстанавливаем индикатор активного элемента
-            const activeIndicator = item.querySelector('div[class="w-1 h-6 left-[-16px] top-[14px] absolute bg-blue-600 rounded-tr-lg rounded-br-lg"]');
-            if (activeIndicator) {
-                activeIndicator.remove();
-            }
-            
-            // Настраиваем стиль текста
-            const textElement = item.querySelector('div[class*="text-"]');
-            if (textElement) {
-                textElement.style.fontSize = '';
-                textElement.style.marginTop = '';
-                textElement.style.textAlign = '';
-            }
-        });
-        
-        // Восстанавливаем стили нижнего меню
-        const bottomNav = document.querySelector('.fixed.bottom-0');
-        if (bottomNav) {
-            const navItems = bottomNav.querySelectorAll('.flex.flex-col.items-center');
-            navItems.forEach(function(item) {
-                const text = item.querySelector('.text-xs');
-                if (text) {
-                    text.style.fontSize = '';
-                }
-                
-                // Сбрасываем фильтр для иконок
-                const mobileIcon = item.querySelector('.mobile-icon');
-                if (mobileIcon) {
-                    mobileIcon.style.filter = '';
-                }
-            });
-        }
-        
-        // Удаляем полноразмерные карточки для грузовиков
-        document.querySelectorAll('.truck-card').forEach(function(card) {
-            card.classList.remove('tablet-full-width');
-        });
-        
-        // Восстанавливаем opacity для truck-img
+        // Восстанавливаем стили изображений грузовиков
         document.querySelectorAll('.truck-img').forEach(function(img) {
             img.style.opacity = '';
         });
         
-        // Проверяем существование функции перед вызовом
-        if (typeof fixIconColors === 'function') {
-            fixIconColors();
-        }
-    }
-    
-    // Добавляем функцию для исправления цветов иконок
-    function fixIconColors() {
-        // Находим все активные элементы меню
-        const activeItems = document.querySelectorAll('.sidebar-menu a.bg-gray-50');
-        activeItems.forEach(function(item) {
-            // Для мобильных иконок в активных элементах устанавливаем стиль
-            const mobileIcon = item.querySelector('.mobile-icon');
-            if (mobileIcon && document.body.classList.contains('tablet-mode')) {
-                mobileIcon.style.filter = 'invert(37%) sepia(74%) saturate(1775%) hue-rotate(211deg) brightness(95%) contrast(98%)';
-            }
-        });
+        // Выравниваем высоту карточек в ПК-версии
+        equalizeCardHeights();
     }
     
     // Запускаем функцию при загрузке и изменении размера окна
