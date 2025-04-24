@@ -1552,38 +1552,38 @@
 </div>
 
 <!-- Мобильная нижняя навигация -->
-<nav class="mobile-nav hidden">
+<nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 hidden">
     <div class="flex justify-around items-center px-4 py-2">
         <a href="{% url 'core:home' %}" class="flex flex-col items-center text-blue-600 relative">
             <div class="icon-container relative w-8 h-8 flex items-center justify-center">
-                <img src="{% static 'core/img/mobile/home.svg' %}" alt="Home" class="w-8 h-8 mobile-icon">
+                <img src="{% static 'core/img/mobile/home.svg' %}" alt="Home" class="w-6 h-6">
             </div>
-            <span class="text-xs mt-1">Главная</span>
+            <span class="text-xs text-[10px] mt-1">Главная</span>
             <div class="absolute -bottom-2 left-0 right-0 h-0.5 bg-blue-600 rounded-full"></div>
         </a>
         <a href="{% url 'core:tasks' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600 relative">
             <div class="icon-container relative w-8 h-8 flex items-center justify-center">
-                <img src="{% static 'core/img/mobile/check-square.svg' %}" alt="Tasks" class="w-8 h-8 mobile-icon">
+                <img src="{% static 'core/img/mobile/check-square.svg' %}" alt="Tasks" class="w-6 h-6">
             </div>
-            <span class="text-xs mt-1">Задачи</span>
+            <span class="text-xs text-[10px] mt-1">Задачи</span>
         </a>
         <a href="{% url 'core:map' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600 relative">
             <div class="icon-container relative w-8 h-8 flex items-center justify-center">
-                <img src="{% static 'core/img/mobile/location.svg' %}" alt="Map" class="w-8 h-8 mobile-icon">
+                <img src="{% static 'core/img/mobile/location.svg' %}" alt="Map" class="w-6 h-6">
             </div>
-            <span class="text-xs mt-1">Карта</span>
+            <span class="text-xs text-[10px] mt-1">Карта</span>
         </a>
         <a href="{% url 'core:vehicles' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600 relative">
             <div class="icon-container relative w-8 h-8 flex items-center justify-center">
-                <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Vehicles" class="w-8 h-8 mobile-icon">
+                <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Vehicles" class="w-6 h-6">
             </div>
-            <span class="text-xs mt-1">Грузовики</span>
+            <span class="text-xs text-[10px] mt-1">Грузовики</span>
         </a>
         <a href="{% url 'core:employees' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600 relative">
             <div class="icon-container relative w-8 h-8 flex items-center justify-center">
-                <img src="{% static 'core/img/mobile/employee.svg' %}" alt="Employees" class="w-8 h-8 mobile-icon">
+                <img src="{% static 'core/img/mobile/employee.svg' %}" alt="Employees" class="w-6 h-6">
             </div>
-            <span class="text-xs mt-1">Сотрудники</span>
+            <span class="text-xs text-[10px] mt-1">Сотрудники</span>
         </a>
     </div>
 </nav>
@@ -1683,192 +1683,86 @@
     
     // Функция для адаптации интерфейса под планшеты
     function adjustLayoutForTablet() {
-        // Применяем стили только если ширина экрана меньше или равна 1100px
+        // Если ширина окна меньше или равна 1100px - показываем мобильный вид
         if (window.innerWidth <= 1100) {
-            const body = document.body;
-            body.classList.add('tablet-mode');
+            // Добавляем класс tablet-mode к body
+            document.body.classList.add('tablet-mode');
             
-            // Находим все элементы меню
-            const menuItems = document.querySelectorAll('.menu a');
-            menuItems.forEach(item => {
-                // Изменяем отображение для вертикального центрирования
-                item.style.display = 'flex';
-                item.style.flexDirection = 'column';
-                item.style.alignItems = 'center';
-                item.style.padding = '16px 12px';
-                
-                // Добавляем индикатор активного элемента
-                const indicator = document.createElement('div');
-                indicator.className = 'active-indicator';
-                indicator.style.height = '4px';
-                indicator.style.width = '40px';
-                indicator.style.background = 'transparent';
-                indicator.style.borderRadius = '2px';
-                indicator.style.position = 'absolute';
-                indicator.style.bottom = '0';
-                indicator.style.left = '50%';
-                indicator.style.transform = 'translateX(-50%)';
-                indicator.style.transition = 'background-color 0.3s ease';
-                
-                // Установка relative для правильного позиционирования индикатора
-                item.style.position = 'relative';
-                item.appendChild(indicator);
-                
-                // Проверяем, является ли элемент активным
-                if (item.classList.contains('active') || window.location.pathname === item.getAttribute('href')) {
-                    item.style.backgroundColor = '#edf2ff';
-                    indicator.style.backgroundColor = '#4287f5';
-                    
-                    // Находим и меняем цвет SVG внутри активного элемента
-                    const desktopIcon = item.querySelector('.desktop-icon');
-                    if (desktopIcon) {
-                        desktopIcon.style.filter = 'invert(39%) sepia(97%) saturate(1730%) hue-rotate(208deg) brightness(103%) contrast(96%)';
-                    }
-                    
-                    const mobileIcon = item.querySelector('.mobile-icon');
-                    if (mobileIcon) {
-                        mobileIcon.style.filter = 'invert(39%) sepia(97%) saturate(1730%) hue-rotate(208deg) brightness(103%) contrast(96%)';
-                    }
-                }
-                
-                // Находим и скрываем десктопные иконки, показываем мобильные
-                const desktopIcon = item.querySelector('.desktop-icon');
-                const mobileIcon = item.querySelector('.mobile-icon');
-                
-                if (desktopIcon) {
-                    desktopIcon.style.display = 'none';
-                }
-                
-                if (mobileIcon) {
-                    mobileIcon.style.display = 'block';
-                    mobileIcon.style.width = '28px';
-                    mobileIcon.style.height = '28px';
-                } else {
-                    // Если мобильная иконка не найдена, создаем её
-                    const iconPath = item.getAttribute('data-icon') || '';
-                    if (iconPath) {
-                        // Получаем имя файла из атрибута data-icon
-                        const iconFileName = iconPath.split('/').pop();
-                        // Создаем новый элемент для мобильной иконки
-                        const newMobileIcon = document.createElement('img');
-                        newMobileIcon.className = 'mobile-icon';
-                        newMobileIcon.src = `/static/core/img/mobile/${iconFileName}`;
-                        newMobileIcon.alt = 'Иконка меню';
-                        newMobileIcon.style.display = 'block';
-                        newMobileIcon.style.width = '28px';
-                        newMobileIcon.style.height = '28px';
-                        
-                        // Добавляем иконку в начало пункта меню
-                        const textDiv = item.querySelector('div.flex-1');
-                        if (textDiv) {
-                            item.insertBefore(newMobileIcon, textDiv);
-                        } else {
-                            item.appendChild(newMobileIcon);
-                        }
-                        
-                        // Если это активный пункт меню, применяем синий фильтр
-                        if (item.classList.contains('active') || window.location.pathname === item.getAttribute('href')) {
-                            newMobileIcon.style.filter = 'invert(39%) sepia(97%) saturate(1730%) hue-rotate(208deg) brightness(103%) contrast(96%)';
-                        }
-                    }
-                }
-                
-                // Центрируем текст
-                const textDiv = item.querySelector('div.flex-1');
-                if (textDiv) {
-                    textDiv.style.textAlign = 'center';
-                    textDiv.style.marginTop = '8px';
-                    textDiv.style.fontSize = '14px';
-                }
-            });
+            // Включаем мобильную навигацию
+            const mobileNav = document.querySelector('nav.fixed.bottom-0');
+            if (mobileNav) {
+                mobileNav.classList.remove('hidden');
+            }
             
-            // Делаем карточки с грузовиками на всю ширину
+            // Скрываем десктопное меню
+            const desktopMenu = document.querySelector('.sidebar-menu');
+            if (desktopMenu) {
+                desktopMenu.classList.add('hidden');
+            }
+            
+            // Преобразуем верхний блок
+            const headerControls = document.querySelector('.header-controls');
+            if (headerControls) {
+                headerControls.classList.add('justify-between');
+                headerControls.classList.remove('justify-end');
+            }
+            
+            // Показываем кнопку меню
+            const menuButton = document.querySelector('.menu-button');
+            if (menuButton) {
+                menuButton.classList.remove('hidden');
+            }
+            
+            // Грузовик на всю ширину
             const truckCards = document.querySelectorAll('.truck-card');
             truckCards.forEach(card => {
-                card.style.width = '100%';
-                card.style.flexBasis = '100%';
+                card.classList.add('w-full');
+                card.classList.remove('w-1/4');
             });
+            
+            // Уравниваем высоту блоков финансы и задачи для планшета
+            equalizeFinanceTasksHeight();
         } else {
-            // Если ширина больше 1100px, возвращаем десктопный режим
             resetLayoutToDesktop();
         }
     }
     
     // Функция для возврата к десктоп-режиму
     function resetLayoutToDesktop() {
-        // Сбрасываем стили только если мы не в планшетном режиме
-        if (window.innerWidth > 1100) {
-            const body = document.body;
-            body.classList.remove('tablet-mode');
-            
-            // Находим все элементы меню
-            const menuItems = document.querySelectorAll('.menu a');
-            menuItems.forEach(item => {
-                // Возвращаем исходное отображение
-                item.style.display = '';
-                item.style.flexDirection = '';
-                item.style.alignItems = '';
-                item.style.padding = '';
-                item.style.position = '';
-                
-                // Удаляем индикатор, если он есть
-                const indicator = item.querySelector('.active-indicator');
-                if (indicator) {
-                    item.removeChild(indicator);
-                }
-                
-                // Проверяем, является ли элемент активным и сбрасываем стили
-                if (item.classList.contains('active') || window.location.pathname === item.getAttribute('href')) {
-                    item.style.backgroundColor = '';
-                    
-                    // Находим и сбрасываем цвет SVG внутри активного элемента
-                    const desktopIcon = item.querySelector('.desktop-icon');
-                    if (desktopIcon) {
-                        desktopIcon.style.filter = '';
-                    }
-                }
-                
-                // Показываем десктопные иконки, скрываем мобильные
-                const desktopIcon = item.querySelector('.desktop-icon');
-                const mobileIcon = item.querySelector('.mobile-icon img') || item.querySelector('.mobile-icon');
-                
-                if (desktopIcon) {
-                    desktopIcon.style.display = '';
-                }
-                
-                if (mobileIcon) {
-                    // Если мобильная иконка была создана нами (это img элемент), удаляем её
-                    if (mobileIcon.tagName === 'IMG') {
-                        mobileIcon.remove();
-                    } else {
-                        // Иначе скрываем существующую
-                        mobileIcon.style.display = 'none';
-                        mobileIcon.style.width = '';
-                        mobileIcon.style.height = '';
-                    }
-                }
-                
-                // Сбрасываем стили текста
-                const textDiv = item.querySelector('div.flex-1');
-                if (textDiv) {
-                    textDiv.style.textAlign = '';
-                    textDiv.style.marginTop = '';
-                    textDiv.style.fontSize = '';
-                }
-            });
-            
-            // Сбрасываем стили карточек с грузовиками
-            const truckCards = document.querySelectorAll('.truck-card');
-            truckCards.forEach(card => {
-                card.style.width = '';
-                card.style.flexBasis = '';
-            });
-            
-            // Выравниваем высоту карточек в ПК-версии если необходимо
-            if (typeof equalizeCardHeights === 'function') {
-                equalizeCardHeights();
-            }
+        // Удаляем класс tablet-mode с body
+        document.body.classList.remove('tablet-mode');
+        
+        // Скрываем мобильную навигацию
+        const mobileNav = document.querySelector('nav.fixed.bottom-0');
+        if (mobileNav) {
+            mobileNav.classList.add('hidden');
         }
+        
+        // Показываем десктопное меню
+        const desktopMenu = document.querySelector('.sidebar-menu');
+        if (desktopMenu) {
+            desktopMenu.classList.remove('hidden');
+        }
+        
+        // Возвращаем верхний блок
+        const headerControls = document.querySelector('.header-controls');
+        if (headerControls) {
+            headerControls.classList.remove('justify-between');
+            headerControls.classList.add('justify-end');
+        }
+        
+        // Скрываем кнопку меню
+        const menuButton = document.querySelector('.menu-button');
+        if (menuButton) {
+            menuButton.classList.add('hidden');
+        }
+        
+        // Возвращаем ширину карточек грузовиков
+        const truckCards = document.querySelectorAll('.truck-card');
+        truckCards.forEach(card => {
+            card.classList.remove('w-full');
+            card.classList.add('w-1/4');
+        });
     }
     
     // Запускаем функцию при загрузке и изменении размера окна
