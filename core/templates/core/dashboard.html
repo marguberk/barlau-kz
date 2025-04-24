@@ -1707,16 +1707,14 @@
                 
                 // Добавляем индикатор активности
                 const activeIndicator = item.querySelector('.active-indicator');
-                if (activeIndicator) {
-                    if (item.classList.contains('active')) {
-                        activeIndicator.style.display = 'block';
-                        activeIndicator.style.width = '4px';
-                        activeIndicator.style.height = '24px';
-                        activeIndicator.style.backgroundColor = '#3B82F6';
-                        activeIndicator.style.marginRight = '8px';
-                    } else {
-                        activeIndicator.style.display = 'none';
-                    }
+                if (activeIndicator && item.classList.contains('active')) {
+                    activeIndicator.style.display = 'block';
+                    activeIndicator.style.width = '4px';
+                    activeIndicator.style.height = '24px';
+                    activeIndicator.style.backgroundColor = '#3B82F6';
+                    activeIndicator.style.marginRight = '8px';
+                } else if (activeIndicator) {
+                    activeIndicator.style.display = 'none';
                 }
                 
                 // Изменяем стили для текста
@@ -1729,8 +1727,10 @@
                 // Изменяем стили для SVG внутри активных пунктов
                 if (item.classList.contains('active')) {
                     const svgElements = item.querySelectorAll('svg path');
-                    svgElements.forEach(function(svg) {
-                        svg.style.fill = '#3B82F6';
+                    svgElements.forEach(function(svgPath) {
+                        if (svgPath) {
+                            svgPath.style.fill = '#3B82F6';
+                        }
                     });
                 }
             });
@@ -1795,8 +1795,10 @@
             
             // Сбрасываем стили для SVG
             const svgElements = item.querySelectorAll('svg path');
-            svgElements.forEach(function(svg) {
-                svg.style.fill = '';
+            svgElements.forEach(function(svgPath) {
+                if (svgPath) {
+                    svgPath.style.fill = '';
+                }
             });
         });
         
