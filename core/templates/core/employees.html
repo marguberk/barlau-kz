@@ -4,12 +4,6 @@
 {% block title %}Сотрудники - BARLAU.KZ{% endblock %}
 
 {% block content %}
-<!-- Отладочная информация для проверки контекста -->
-<!--
-Количество сотрудников: {{ employees|length }}
-Активная страница: {{ active_page }}
--->
-
 <div class="w-full flex">
     <!-- Боковая панель -->
     <div class="w-64 h-screen bg-white border-r border-zinc-200 flex flex-col justify-start items-start fixed left-0 bottom-0 sidebar">
@@ -101,17 +95,15 @@
         <div class="w-full px-8 pt-8">
             <div class="mb-6 flex flex-col sm:flex-row justify-start gap-2">
                 <div class="flex-grow relative">
-                    <form method="GET" action="{% url 'core:employees' %}" class="w-full">
-                        <div class="flex h-10 w-full rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] border border-zinc-200 bg-white">
-                            <div class="flex items-center pl-3">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500">
-                                    <circle cx="11" cy="11" r="8"></circle>
-                                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                                </svg>
-                            </div>
-                            <input type="text" name="search" placeholder="Поиск" value="{{ request.GET.search|default:'' }}" class="px-2 py-2 w-full focus:outline-none text-gray-700 rounded-lg" />
+                    <div class="flex h-10 w-full rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] border border-zinc-200 bg-white">
+                        <div class="flex items-center pl-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            </svg>
                         </div>
-                    </form>
+                        <input type="text" placeholder="Поиск" class="px-2 py-2 w-full focus:outline-none text-gray-700 rounded-lg" />
+                    </div>
                 </div>
                 <div class="shrink-0">
                     <button class="h-10 px-3 py-2 bg-white rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] border border-zinc-200 flex items-center justify-center">
@@ -127,14 +119,15 @@
         <div class="w-full px-8 pb-8">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {% for employee in employees %}
+                <!-- Карточка сотрудника -->
                 <div class="bg-white rounded-xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] border border-zinc-200 overflow-hidden">
                     <div class="px-4 py-3 border-b border-zinc-200 flex justify-between items-start">
                         <div class="flex items-center gap-3">
                             <div class="w-8 h-8 rounded-full bg-neutral-300 overflow-hidden">
                                 {% if employee.photo %}
-                                <img src="{{ employee.photo.url }}" alt="{{ employee.get_full_name }}" class="w-full h-full object-cover">
+                                    <img src="{{ employee.photo.url }}" alt="{{ employee.get_full_name }}" class="w-full h-full object-cover">
                                 {% else %}
-                                <img src="{% static 'core/img/avatars/placeholder.jpg' %}" alt="{{ employee.get_full_name }}" class="w-full h-full object-cover">
+                                    <img src="{% static 'core/img/avatars/placeholder.jpg' %}" alt="{{ employee.get_full_name }}" class="w-full h-full object-cover">
                                 {% endif %}
                             </div>
                             <div class="font-semibold text-zinc-950">{{ employee.get_full_name }}</div>
@@ -146,26 +139,18 @@
                                 <path d="M20 7h-3a2 2 0 0 1-2-2V2"></path>
                                 <path d="M16 2H8a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path>
                             </svg>
-                            {% if employee.role == 'ACCOUNTANT' %}
-                            <span class="px-2 py-0.5 bg-indigo-50 rounded text-blue-600 text-sm font-medium">Бухгалтер</span>
-                            {% elif employee.role == 'DRIVER' %}
-                            <span class="px-2 py-0.5 bg-orange-100 rounded text-amber-600 text-sm font-medium">Водитель</span>
-                            {% elif employee.role == 'SUPPLIER' %}
-                            <span class="px-2 py-0.5 bg-green-50 rounded text-green-600 text-sm font-medium">Снабженец</span>
-                            {% elif employee.role == 'DIRECTOR' %}
-                            <span class="px-2 py-0.5 bg-purple-50 rounded text-purple-600 text-sm font-medium">Директор</span>
-                            {% elif employee.role == 'TECH' %}
-                            <span class="px-2 py-0.5 bg-gray-100 rounded text-gray-600 text-sm font-medium">Техотдел</span>
-                            {% else %}
-                            <span class="px-2 py-0.5 bg-gray-100 rounded text-gray-600 text-sm font-medium">{{ employee.get_role_display }}</span>
-                            {% endif %}
+                            <span class="px-2 py-0.5 
+                                {% if employee.role == 'ACCOUNTANT' %}bg-indigo-50 text-blue-600{% elif employee.role == 'DRIVER' %}bg-orange-100 text-amber-600{% elif employee.role == 'SUPPLIER' %}bg-green-50 text-green-600{% elif employee.role == 'TECH' %}bg-purple-50 text-purple-600{% elif employee.role == 'DIRECTOR' %}bg-red-50 text-red-600{% else %}bg-gray-50 text-gray-600{% endif %} 
+                                rounded text-sm font-medium">{{ employee.get_role_display }}</span>
                         </div>
+                        {% if employee.phone %}
                         <div class="flex items-center gap-2">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500">
                                 <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
                             </svg>
                             <span class="text-gray-500 text-sm font-medium">{{ employee.phone }}</span>
                         </div>
+                        {% endif %}
                         <div class="flex items-center gap-2">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500">
                                 <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
@@ -177,7 +162,7 @@
                         </div>
                     </div>
                     <div class="px-4 py-3 border-t border-zinc-200">
-                        <a href="{% url 'core:employee_detail' employee.id %}" class="w-full h-10 px-3 py-2 bg-white rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] border border-zinc-200 flex justify-center items-center gap-1.5 text-sm font-semibold">
+                        <a href="{% url 'core:employee-detail' employee.id %}" class="w-full h-10 px-3 py-2 bg-white rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] border border-zinc-200 flex justify-center items-center gap-1.5 text-sm font-semibold">
                             <span>Посмотреть резюме</span>
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="m9 18 6-6-6-6"></path>
@@ -186,8 +171,8 @@
                     </div>
                 </div>
                 {% empty %}
-                <div class="col-span-3 bg-white rounded-xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] border border-zinc-200 p-8 text-center">
-                    <p class="text-gray-500">Сотрудники не найдены</p>
+                <div class="col-span-3 text-center py-12">
+                    <p class="text-gray-500 text-lg">Сотрудники не найдены</p>
                 </div>
                 {% endfor %}
             </div>
