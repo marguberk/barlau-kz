@@ -986,12 +986,7 @@
             
             /* Добавляем отступ снизу для основного контента */
             .main-content {
-                padding-bottom: 70px !important;
-            }
-            
-            /* Обеспечиваем видимость нижнего меню */
-            nav.fixed.bottom-0.hidden {
-                display: block !important;
+                padding-bottom: 20px !important; /* Уменьшен отступ, так как нижнего меню больше нет */
             }
         }
     </style>
@@ -1581,120 +1576,8 @@
     </div>
 </div>
 
-<!-- Нижнее мобильное меню -->
-<nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 hidden">
-    <div class="flex justify-around items-center px-4 py-2">
-        <a href="{% url 'core:home' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600 relative">
-            <div class="icon-container relative w-8 h-8 flex items-center justify-center">
-                <img src="{% static 'core/img/mobile/home.svg' %}" alt="Home" class="w-6 h-6">
-            </div>
-            <span class="text-xs text-[10px] mt-1">Главная</span>
-        </a>
-        <a href="{% url 'core:tasks' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600 relative">
-            <div class="icon-container relative w-8 h-8 flex items-center justify-center">
-                <img src="{% static 'core/img/mobile/check-square.svg' %}" alt="Tasks" class="w-6 h-6">
-            </div>
-            <span class="text-xs text-[10px] mt-1">Задачи</span>
-        </a>
-        <a href="{% url 'core:map' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600 relative">
-            <div class="icon-container relative w-8 h-8 flex items-center justify-center">
-                <img src="{% static 'core/img/mobile/location.svg' %}" alt="Map" class="w-6 h-6">
-            </div>
-            <span class="text-xs text-[10px] mt-1">Карта</span>
-        </a>
-        <a href="{% url 'core:vehicles' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600 relative">
-            <div class="icon-container relative w-8 h-8 flex items-center justify-center">
-                <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Vehicles" class="w-6 h-6">
-            </div>
-            <span class="text-xs text-[10px] mt-1">Грузовики</span>
-        </a>
-        <a href="{% url 'core:employees' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600 relative">
-            <div class="icon-container relative w-8 h-8 flex items-center justify-center">
-                <img src="{% static 'core/img/mobile/employee.svg' %}" alt="Employees" class="w-6 h-6">
-            </div>
-            <span class="text-xs text-[10px] mt-1">Сотрудники</span>
-        </a>
-    </div>
-</nav>
+<!-- Удалено нижнее мобильное меню -->
 
-<style>
-    /* Обновленные стили для боковых иконок меню */
-    .sidebar-menu a {
-        color: #6B7280 !important; /* Серый цвет для неактивных пунктов */
-    }
-    
-    .sidebar-menu a.bg-gray-50 {
-        color: #2563EB !important; /* Синий цвет для активного пункта */
-    }
-    
-    .sidebar-menu a img.desktop-icon {
-        filter: brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(142deg) brightness(96%) contrast(91%); /* Серый фильтр для неактивных иконок */
-    }
-    
-    .sidebar-menu a.bg-gray-50 img.desktop-icon {
-        filter: brightness(0) saturate(100%) invert(32%) sepia(96%) saturate(7461%) hue-rotate(220deg) brightness(97%) contrast(98%); /* Синий фильтр для активной иконки */
-    }
-    
-    /* Общие стили для фиксации цветов иконок в меню */
-    a, a:visited, a:link, a:hover, a:active, 
-    a *, a:visited *, a:link *, a:hover *, a:active * {
-        text-decoration: none !important;
-    }
-
-    @media (max-width: 1100px) {
-        /* Убираем меню для планшетной и мобильной версий */
-        .sidebar {
-            display: none;
-        }
-        
-        .main-content {
-            margin-left: 0;
-        }
-        
-        /* Показываем иконки для мобильного меню */
-        nav.fixed.bottom-0.hidden {
-            display: block;
-        }
-        
-        /* Устанавливаем размер и фильтр для мобильных иконок */
-        .icon-container img {
-            width: 24px;
-            height: 24px;
-        }
-        
-        /* Серый фильтр для неактивных иконок */
-        nav.fixed.bottom-0 a.text-gray-600 .icon-container img {
-            filter: brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(142deg) brightness(96%) contrast(91%);
-        }
-        
-        /* Синий фильтр для активной иконки */
-        nav.fixed.bottom-0 a.text-blue-600 .icon-container img {
-            filter: brightness(0) saturate(100%) invert(32%) sepia(96%) saturate(7461%) hue-rotate(220deg) brightness(97%) contrast(98%);
-        }
-        
-        .main-content {
-            padding-bottom: 70px;
-        }
-    }
-    
-    /* Добавляем отступ снизу для основного контента на мобильных устройствах */
-    @media (max-width: 768px) {
-        .main-content {
-            padding-bottom: 70px;
-        }
-    }
-    
-    /* Показываем наше собственное нижнее меню на устройствах с шириной 1100px и меньше */
-    @media (max-width: 1100px) {
-        nav.fixed.bottom-0.hidden {
-            display: block;
-        }
-        
-        .main-content {
-            padding-bottom: 70px;
-        }
-    }
-</style>
 </body>
 <script>
     // Инициализация при загрузке страницы
@@ -1796,11 +1679,7 @@
             // Добавляем класс tablet-mode к body
             document.body.classList.add('tablet-mode');
             
-            // Включаем мобильную навигацию
-            const mobileNav = document.querySelector('nav.fixed.bottom-0');
-            if (mobileNav) {
-                mobileNav.classList.remove('hidden');
-            }
+            // Нижнее меню удалено
             
             // Скрываем десктопное меню
             const desktopMenu = document.querySelector('.sidebar-menu');
@@ -1840,11 +1719,7 @@
         // Удаляем класс tablet-mode с body
         document.body.classList.remove('tablet-mode');
         
-        // Скрываем мобильную навигацию
-        const mobileNav = document.querySelector('nav.fixed.bottom-0');
-        if (mobileNav) {
-            mobileNav.classList.add('hidden');
-        }
+        // Нижнее меню удалено
         
         // Показываем десктопное меню
         const desktopMenu = document.querySelector('.sidebar-menu');
