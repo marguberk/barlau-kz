@@ -564,6 +564,10 @@
                 font-size: 1.5rem;
             }
             
+            .finance-graph-container {
+                height: 10rem;
+            }
+            
             /* Задачи */
             .task-item {
                 padding: 0.875rem;
@@ -988,65 +992,6 @@
             /* Обеспечиваем видимость нижнего меню */
             nav.fixed.bottom-0.hidden {
                 display: block !important;
-            }
-        }
-        
-        /* Обновленные стили для боковых иконок меню */
-        .sidebar-menu a {
-            color: #6B7280 !important; /* Серый цвет для неактивных пунктов */
-        }
-        
-        .sidebar-menu a.bg-gray-50 {
-            color: #2563EB !important; /* Синий цвет для активного пункта */
-        }
-        
-        .sidebar-menu a img.desktop-icon {
-            filter: brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(142deg) brightness(96%) contrast(91%); /* Серый фильтр для неактивных иконок */
-        }
-        
-        .sidebar-menu a.bg-gray-50 img.desktop-icon {
-            filter: brightness(0) saturate(100%) invert(32%) sepia(96%) saturate(7461%) hue-rotate(220deg) brightness(97%) contrast(98%); /* Синий фильтр для активной иконки */
-        }
-        
-        /* Общие стили для фиксации цветов иконок в меню */
-        a, a:visited, a:link, a:hover, a:active, 
-        a *, a:visited *, a:link *, a:hover *, a:active * {
-            text-decoration: none !important;
-        }
-
-        @media (max-width: 1100px) {
-            /* Убираем меню для планшетной и мобильной версий */
-            .sidebar {
-                display: none;
-            }
-            
-            .main-content {
-                margin-left: 0;
-            }
-            
-            /* Показываем иконки для мобильного меню */
-            nav.fixed.bottom-0.hidden {
-                display: block;
-            }
-            
-            /* Устанавливаем размер и фильтр для мобильных иконок */
-            .icon-container img {
-                width: 24px;
-                height: 24px;
-            }
-            
-            /* Серый фильтр для неактивных иконок */
-            nav.fixed.bottom-0 a.text-gray-600 .icon-container img {
-                filter: brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(142deg) brightness(96%) contrast(91%);
-            }
-            
-            /* Синий фильтр для активной иконки */
-            nav.fixed.bottom-0 a.text-blue-600 .icon-container img {
-                filter: brightness(0) saturate(100%) invert(32%) sepia(96%) saturate(7461%) hue-rotate(220deg) brightness(97%) contrast(98%);
-            }
-            
-            .main-content {
-                padding-bottom: 70px;
             }
         }
     </style>
@@ -1672,113 +1617,6 @@
         </a>
     </div>
 </nav>
-
-<style>
-    /* Обновленные стили для боковых иконок меню */
-    .sidebar-menu a {
-        color: #6B7280 !important; /* Серый цвет для неактивных пунктов */
-    }
-    
-    .sidebar-menu a.bg-gray-50 {
-        color: #2563EB !important; /* Синий цвет для активного пункта */
-    }
-    
-    .sidebar-menu a img.desktop-icon {
-        filter: brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(142deg) brightness(96%) contrast(91%); /* Серый фильтр для неактивных иконок */
-    }
-    
-    .sidebar-menu a.bg-gray-50 img.desktop-icon {
-        filter: brightness(0) saturate(100%) invert(32%) sepia(96%) saturate(7461%) hue-rotate(220deg) brightness(97%) contrast(98%); /* Синий фильтр для активной иконки */
-    }
-    
-    /* Общие стили для фиксации цветов иконок в меню */
-    a, a:visited, a:link, a:hover, a:active, 
-    a *, a:visited *, a:link *, a:hover *, a:active * {
-        text-decoration: none !important;
-    }
-
-    @media (max-width: 1100px) {
-        /* Убираем меню для планшетной и мобильной версий */
-        .sidebar {
-            display: none;
-        }
-        
-        .main-content {
-            margin-left: 0;
-        }
-        
-        /* Показываем иконки для мобильного меню */
-        nav.fixed.bottom-0.hidden {
-            display: block;
-        }
-        
-        /* Устанавливаем размер и фильтр для мобильных иконок */
-        .icon-container img {
-            width: 24px;
-            height: 24px;
-        }
-        
-        /* Серый фильтр для неактивных иконок */
-        nav.fixed.bottom-0 a.text-gray-600 .icon-container img {
-            filter: brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(142deg) brightness(96%) contrast(91%);
-        }
-        
-        /* Синий фильтр для активной иконки */
-        nav.fixed.bottom-0 a.text-blue-600 .icon-container img {
-            filter: brightness(0) saturate(100%) invert(32%) sepia(96%) saturate(7461%) hue-rotate(220deg) brightness(97%) contrast(98%);
-        }
-        
-        .main-content {
-            padding-bottom: 70px;
-        }
-    }
-    
-    /* Скрываем нижнее меню на этой странице */
-    body > nav.fixed.bottom-0 {
-        display: none !important;
-    }
-    
-    /* Показываем наше собственное нижнее меню только на мобильных устройствах */
-    nav.fixed.bottom-0.hidden {
-        display: block !important;
-    }
-    
-    /* Добавляем отступ снизу для основного контента на мобильных устройствах */
-    @media (max-width: 768px) {
-        .main-content {
-            padding-bottom: 70px;
-        }
-    }
-    
-    /* Скрываем верхнюю панель и корректируем отступы */
-    body > header.fixed.top-0 {
-        display: none !important;
-    }
-    
-    /* Убираем отступ от верхней панели */
-    main.mt-16 {
-        margin-top: 0 !important;
-    }
-
-    /* Показываем наше собственное нижнее меню на устройствах с шириной 1100px и меньше */
-    @media (max-width: 1100px) {
-        nav.fixed.bottom-0.hidden {
-            display: block;
-        }
-        
-        .main-content {
-            padding-bottom: 70px;
-        }
-    }
-    
-    /* Убираем старые отступы для мобильных */
-    @media (max-width: 768px) {
-        .main-content {
-            padding-bottom: 70px;
-        }
-    }
-</style>
-
 </body>
 <script>
     // Инициализация при загрузке страницы
