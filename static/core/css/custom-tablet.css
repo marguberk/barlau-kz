@@ -194,7 +194,7 @@
         display: flex !important;
         opacity: 1 !important;
         visibility: visible !important;
-        height: 60px !important;
+        height: 60px !important; /* Уменьшаем высоту панели */
         overflow: visible !important;
         pointer-events: auto !important;
         position: fixed !important;
@@ -204,8 +204,8 @@
         z-index: 9999 !important;
         box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.05) !important;
         background-color: white !important;
-        padding: 0 !important;
-        margin: 0 !important;
+        padding-bottom: env(safe-area-inset-bottom, 0) !important; /* Поддержка iPhone с вырезом */
+        border-top: 1px solid rgba(229, 231, 235, 0.8) !important; /* Добавляем тонкую границу сверху */
     }
     
     /* Скрываем базовое нижнее меню из base.html */
@@ -220,41 +220,38 @@
     
     /* Добавляем отступ снизу для контента, чтобы он не перекрывался с нижним меню */
     .main-content {
-        padding-bottom: 60px !important;
+        padding-bottom: 60px !important; /* Уменьшаем отступ снизу соответственно высоте меню */
     }
     
     /* Стили для нижней навигационной панели на мобильных устройствах */
     .mobile-nav .mobile-icon {
-        width: 24px !important;
+        width: 24px !important; /* Уменьшаем размер иконок */
         height: 24px !important;
+        margin: 0 !important;
     }
     
     .mobile-nav .text-xs {
         font-size: 10px !important;
-        margin-top: 2px !important;
+        margin-top: 2px !important; /* Уменьшаем отступ от иконки до текста */
     }
     
-    /* Стили для активного элемента в нижнем меню */
+    /* Улучшаем стили для активного элемента в нижнем меню */
     .mobile-nav a.text-blue-600 .mobile-icon {
         filter: invert(37%) sepia(74%) saturate(1775%) hue-rotate(211deg) brightness(95%) contrast(98%) !important;
     }
     
-    /* Фиксируем низ экрана для мобильной навигации */
+    /* Для лучшего выравнивания на мобильных устройствах */
     .mobile-nav > .flex {
         width: 100% !important;
         max-width: 600px !important;
         margin: 0 auto !important;
-        height: 100% !important;
-        padding: 4px 0 !important;
+        padding: 5px 0 !important; /* Добавляем небольшой вертикальный отступ */
     }
     
-    /* Добавляем стили для элементов внутри меню */
-    .mobile-nav a {
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: center !important;
-        justify-content: center !important;
-        padding: 4px 0 !important;
+    /* Улучшение касательных областей для ссылок в мобильной навигации */
+    .mobile-nav a.flex.flex-col.items-center {
+        padding: 5px 0 !important;
+        min-width: 56px !important; /* Минимальная ширина для касания */
     }
 }
 
@@ -283,4 +280,35 @@
 .fixed.bottom-0 a.text-blue-600:visited img.mobile-icon,
 .fixed.bottom-0 a.text-blue-600 img.mobile-icon {
     filter: invert(37%) sepia(74%) saturate(1775%) hue-rotate(211deg) brightness(95%) contrast(98%) !important;
+}
+
+/* Исправление для мобильных устройств (телефоны) */
+@media (max-width: 640px) {
+    .mobile-nav {
+        height: 55px !important; /* Еще меньше для мобильных */
+    }
+    
+    .mobile-nav .mobile-icon {
+        width: 22px !important;
+        height: 22px !important;
+    }
+    
+    .mobile-nav .text-xs {
+        font-size: 9px !important;
+    }
+    
+    .main-content {
+        padding-bottom: 55px !important;
+    }
+}
+
+/* Гарантируем, что мобильное меню скрыто на больших экранах */
+@media (min-width: 1101px) {
+    .mobile-nav {
+        display: none !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+        height: 0 !important;
+        pointer-events: none !important;
+    }
 } 
