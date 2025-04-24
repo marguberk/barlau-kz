@@ -1551,7 +1551,7 @@
     </div>
 
     <!-- Мобильная нижняя навигация -->
-    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 hidden mobile-nav z-50">
+    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 mobile-nav z-50">
         <div class="flex justify-around items-center px-4 py-2">
             <a href="{% url 'core:home' %}" class="flex flex-col items-center text-blue-600 relative">
                 <div class="icon-container relative w-8 h-8 flex items-center justify-center">
@@ -1686,12 +1686,6 @@
             // Добавляем класс для планшетного режима к body
             document.body.classList.add('tablet-mode');
             
-            // Показываем мобильную навигацию
-            const mobileNav = document.querySelector('.mobile-nav');
-            if (mobileNav) {
-                mobileNav.classList.remove('hidden');
-            }
-            
             // Базовая селекция первого грузовика, если есть карточки
             const firstTruckCard = document.querySelector('.truck-card');
             if (firstTruckCard) {
@@ -1713,12 +1707,6 @@
     function resetLayoutToDesktop() {
         // Удаляем класс для планшетного режима у body
         document.body.classList.remove('tablet-mode');
-        
-        // Скрываем мобильную навигацию
-        const mobileNav = document.querySelector('.mobile-nav');
-        if (mobileNav) {
-            mobileNav.classList.add('hidden');
-        }
         
         // Восстанавливаем стили изображений грузовиков
         document.querySelectorAll('.truck-img').forEach(function(img) {
