@@ -19,6 +19,7 @@ from .views import (
     AboutPageView,
     EmployeeFormView,
     EmployeePhotoUploadView,
+    EmployeeListView,
     EmployeeCreateView,
     EmployeeEditView,
     WaybillCreateView,
@@ -36,6 +37,7 @@ from .views import (
     ChangePasswordView
 )
 from .api import update_profile, upload_profile_photo, get_profile_stats
+from django.views.generic import TemplateView
 
 app_name = 'core'
 
@@ -69,7 +71,7 @@ urlpatterns = [
     # Employees
     path('employees/', EmployeesView.as_view(), name='employees'),
     path('employees/mobile/', EmployeesView.as_view(template_name='core/employees_mobile.html'), name='employees_mobile'),
-    path('employees/<int:pk>/', EmployeeDetailView.as_view(), name='employee_detail'),
+    path('employees/<int:pk>/', EmployeeDetailView.as_view(), name='employee-detail'),
     path('employees/<int:pk>/pdf/', EmployeePDFView.as_view(), name='employee-pdf'),
     path('employees/add/', EmployeeCreateView.as_view(), name='employee_add'),
     path('employees/<int:pk>/edit/', EmployeeEditView.as_view(), name='employee_edit'),
@@ -91,4 +93,7 @@ urlpatterns = [
     path('vehicles/add/', VehicleCreateView.as_view(), name='vehicle-add'),
     path('vehicles/<int:pk>/edit/', VehicleUpdateView.as_view(), name='vehicle-edit'),
     path('vehicles/<int:pk>/archive/', VehicleArchiveView.as_view(), name='vehicle-archive'),
+    
+    # Офлайн-страница для PWA
+    path('offline/', TemplateView.as_view(template_name='offline.html'), name='offline'),
 ] 

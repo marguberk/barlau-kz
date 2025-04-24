@@ -4,6 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#2563EB">
+    <meta name="description" content="BARLAU.KZ - система управления логистикой и сотрудниками">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="{% static 'manifest.json' %}">
+    <link rel="apple-touch-icon" href="{% static 'core/img/icons/icon-192x192.png' %}">
     <title>{% block title %}BARLAU.KZ{% endblock %}</title>
     
     <!-- Tailwind и Shadcn -->
@@ -136,6 +142,17 @@
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ru.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="{% static 'core/js/main.js' %}"></script>
+    <script src="{% static 'core/js/pwa.js' %}"></script>
+    
+    <!-- Кнопка установки PWA -->
+    <div id="install-button" style="display: none; position: fixed; bottom: 80px; right: 20px; z-index: 1000;">
+        <button class="px-4 py-2 bg-blue-600 text-white rounded-lg shadow-lg flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 3a1 1 0 00-1 1v5H4a1 1 0 100 2h5v5a1 1 0 102 0v-5h5a1 1 0 100-2h-5V4a1 1 0 00-1-1z" clip-rule="evenodd" />
+            </svg>
+            Установить
+        </button>
+    </div>
     
     <script>
         // Меню пользователя

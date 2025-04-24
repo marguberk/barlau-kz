@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BARLAU.KZ - Нет подключения</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f9fafb;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+            color: #1f2937;
+        }
+        .container {
+            max-width: 500px;
+            background-color: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        img {
+            width: 100px;
+            height: auto;
+            margin-bottom: 20px;
+        }
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        p {
+            font-size: 16px;
+            line-height: 1.5;
+            color: #6b7280;
+            margin-bottom: 24px;
+        }
+        button {
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        button:hover {
+            background-color: #1d4ed8;
+        }
+        .cached-content {
+            margin-top: 30px;
+            text-align: left;
+            border-top: 1px solid #e5e7eb;
+            padding-top: 20px;
+        }
+        .cached-item {
+            margin-bottom: 8px;
+            padding: 12px;
+            background-color: #f3f4f6;
+            border-radius: 6px;
+        }
+        .cached-item:hover {
+            background-color: #e5e7eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img src="/static/core/img/logo.png" alt="BARLAU.KZ Logo" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjYwIiB2aWV3Qm94PSIwIDAgMTAwIDYwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTYiIGZpbGw9IiMyNTYzRUIiLz48cmVjdCB5PSIyMiIgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxNiIgZmlsbD0iIzI1NjNFQiIvPjxyZWN0IHk9IjQ0IiB3aWR0aD0iMTAwIiBoZWlnaHQ9IjE2IiBmaWxsPSIjMjU2M0VCIi8+PC9zdmc+'">
+        <h1>Нет подключения к интернету</h1>
+        <p>К сожалению, не удалось подключиться к серверу. Проверьте ваше интернет-соединение и попробуйте снова.</p>
+        <button onclick="window.location.reload()">Повторить попытку</button>
+        
+        <div class="cached-content">
+            <h2>Доступный контент офлайн:</h2>
+            <div id="cached-pages"></div>
+        </div>
+    </div>
+
+    <script>
+        // Отображение доступных офлайн страниц
+        document.addEventListener('DOMContentLoaded', function() {
+            if ('caches' in window) {
+                caches.open('barlau-cache-v1').then(function(cache) {
+                    cache.keys().then(function(requests) {
+                        const cachedPagesContainer = document.getElementById('cached-pages');
+                        
+                        if (requests.length === 0) {
+                            cachedPagesContainer.innerHTML = '<p>Нет сохраненных страниц</p>';
+                            return;
+                        }
+                        
+                        const htmlRequests = requests.filter(request => 
+                            request.url.endsWith('/') || 
+                            request.headers.get('accept').includes('text/html')
+                        );
+                        
+                        if (htmlRequests.length === 0) {
+                            cachedPagesContainer.innerHTML = '<p>Нет сохраненных страниц</p>';
+                            return;
+                        }
+                        
+                        htmlRequests.forEach(request => {
+                            const url = new URL(request.url);
+                            const path = url.pathname;
+                            
+                            const div = document.createElement('div');
+                            div.className = 'cached-item';
+                            div.textContent = path === '/' ? 'Главная страница' : path;
+                            div.onclick = function() {
+                                window.location.href = path;
+                            };
+                            
+                            cachedPagesContainer.appendChild(div);
+                        });
+                    });
+                });
+            }
+        });
+    </script>
+</body>
+</html> 
