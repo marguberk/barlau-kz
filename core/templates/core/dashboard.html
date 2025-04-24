@@ -1741,8 +1741,36 @@
                 
                 if (mobileIcon) {
                     mobileIcon.style.display = 'block';
-                    mobileIcon.style.width = '32px';
-                    mobileIcon.style.height = '32px';
+                    mobileIcon.style.width = '28px';
+                    mobileIcon.style.height = '28px';
+                } else {
+                    // Если мобильная иконка не найдена, создаем её
+                    const iconPath = item.getAttribute('data-icon') || '';
+                    if (iconPath) {
+                        // Получаем имя файла из атрибута data-icon
+                        const iconFileName = iconPath.split('/').pop();
+                        // Создаем новый элемент для мобильной иконки
+                        const newMobileIcon = document.createElement('img');
+                        newMobileIcon.className = 'mobile-icon';
+                        newMobileIcon.src = `/static/core/img/mobile/${iconFileName}`;
+                        newMobileIcon.alt = 'Иконка меню';
+                        newMobileIcon.style.display = 'block';
+                        newMobileIcon.style.width = '28px';
+                        newMobileIcon.style.height = '28px';
+                        
+                        // Добавляем иконку в начало пункта меню
+                        const textDiv = item.querySelector('div.flex-1');
+                        if (textDiv) {
+                            item.insertBefore(newMobileIcon, textDiv);
+                        } else {
+                            item.appendChild(newMobileIcon);
+                        }
+                        
+                        // Если это активный пункт меню, применяем синий фильтр
+                        if (item.classList.contains('active') || window.location.pathname === item.getAttribute('href')) {
+                            newMobileIcon.style.filter = 'invert(39%) sepia(97%) saturate(1730%) hue-rotate(208deg) brightness(103%) contrast(96%)';
+                        }
+                    }
                 }
                 
                 // Центрируем текст
@@ -1802,16 +1830,22 @@
                 
                 // Показываем десктопные иконки, скрываем мобильные
                 const desktopIcon = item.querySelector('.desktop-icon');
-                const mobileIcon = item.querySelector('.mobile-icon');
+                const mobileIcon = item.querySelector('.mobile-icon img') || item.querySelector('.mobile-icon');
                 
                 if (desktopIcon) {
                     desktopIcon.style.display = '';
                 }
                 
                 if (mobileIcon) {
-                    mobileIcon.style.display = 'none';
-                    mobileIcon.style.width = '';
-                    mobileIcon.style.height = '';
+                    // Если мобильная иконка была создана нами (это img элемент), удаляем её
+                    if (mobileIcon.tagName === 'IMG') {
+                        mobileIcon.remove();
+                    } else {
+                        // Иначе скрываем существующую
+                        mobileIcon.style.display = 'none';
+                        mobileIcon.style.width = '';
+                        mobileIcon.style.height = '';
+                    }
                 }
                 
                 // Сбрасываем стили текста
