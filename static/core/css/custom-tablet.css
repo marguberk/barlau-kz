@@ -171,6 +171,11 @@
         margin-left: 0 !important;
     }
     
+    /* Скрываем базовое нижнее меню из base.html */
+    .base-bottom-nav {
+        display: none !important;
+    }
+    
     /* Показываем нижнее меню если оно должно быть скрыто */
     nav.fixed.bottom-0.hidden,
     nav.mobile-nav.hidden {
@@ -186,15 +191,15 @@
     .mobile-nav {
         height: 60px !important;
         box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05) !important;
-        bottom: 10px !important;
-        left: 5% !important;
-        right: 5% !important;
-        width: 90% !important;
-        margin: 0 auto !important;
-        border-radius: 12px !important;
-        z-index: 1000 !important;
+        z-index: 9999 !important; /* Увеличиваем z-index для перекрытия других элементов */
+        position: fixed !important; /* Убеждаемся что позиция фиксирована */
+        bottom: 0 !important; /* Фиксируем внизу экрана */
+        left: 0 !important;
+        right: 0 !important;
+        background-color: white !important;
     }
     
+    /* Подгоняем высоту и внешний вид иконок */
     .mobile-nav .mobile-icon {
         width: 28px !important;
         height: 28px !important;
