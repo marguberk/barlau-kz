@@ -1584,12 +1584,11 @@
 <!-- Нижнее мобильное меню -->
 <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 hidden">
     <div class="flex justify-around items-center px-4 py-2">
-        <a href="{% url 'core:home' %}" class="flex flex-col items-center text-blue-600 relative">
+        <a href="{% url 'core:home' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600 relative">
             <div class="icon-container relative w-8 h-8 flex items-center justify-center">
                 <img src="{% static 'core/img/mobile/home.svg' %}" alt="Home" class="w-6 h-6">
             </div>
             <span class="text-xs text-[10px] mt-1">Главная</span>
-            <div class="absolute -bottom-2 left-0 right-0 h-0.5 bg-blue-600 rounded-full"></div>
         </a>
         <a href="{% url 'core:tasks' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600 relative">
             <div class="icon-container relative w-8 h-8 flex items-center justify-center">
@@ -1619,7 +1618,29 @@
 </nav>
 
 <style>
-    /* Стили для отображения нижнего меню в мобильном/планшетном режиме */
+    /* Обновленные стили для боковых иконок меню */
+    .sidebar-menu a {
+        color: #6B7280 !important; /* Серый цвет для неактивных пунктов */
+    }
+    
+    .sidebar-menu a.bg-gray-50 {
+        color: #2563EB !important; /* Синий цвет для активного пункта */
+    }
+    
+    .sidebar-menu a img.desktop-icon {
+        filter: brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(142deg) brightness(96%) contrast(91%); /* Серый фильтр для неактивных иконок */
+    }
+    
+    .sidebar-menu a.bg-gray-50 img.desktop-icon {
+        filter: brightness(0) saturate(100%) invert(32%) sepia(96%) saturate(7461%) hue-rotate(220deg) brightness(97%) contrast(98%); /* Синий фильтр для активной иконки */
+    }
+    
+    /* Общие стили для фиксации цветов иконок в меню */
+    a, a:visited, a:link, a:hover, a:active, 
+    a *, a:visited *, a:link *, a:hover *, a:active * {
+        text-decoration: none !important;
+    }
+
     @media (max-width: 1100px) {
         /* Убираем меню для планшетной и мобильной версий */
         .sidebar {
@@ -1649,6 +1670,24 @@
         /* Синий фильтр для активной иконки */
         nav.fixed.bottom-0 a.text-blue-600 .icon-container img {
             filter: brightness(0) saturate(100%) invert(32%) sepia(96%) saturate(7461%) hue-rotate(220deg) brightness(97%) contrast(98%);
+        }
+        
+        .main-content {
+            padding-bottom: 70px;
+        }
+    }
+    
+    /* Добавляем отступ снизу для основного контента на мобильных устройствах */
+    @media (max-width: 768px) {
+        .main-content {
+            padding-bottom: 70px;
+        }
+    }
+    
+    /* Показываем наше собственное нижнее меню на устройствах с шириной 1100px и меньше */
+    @media (max-width: 1100px) {
+        nav.fixed.bottom-0.hidden {
+            display: block;
         }
         
         .main-content {
