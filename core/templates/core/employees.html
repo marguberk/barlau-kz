@@ -185,31 +185,31 @@
     <div class="flex justify-around items-center px-4 py-2">
         <a href="{% url 'core:home' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600 relative">
             <div class="icon-container relative w-8 h-8 flex items-center justify-center">
-                <img src="{% static 'core/img/mobile/home.svg' %}" alt="Home" class="w-8 h-8">
+                <img src="{% static 'core/img/mobile/home.svg' %}" alt="Home" class="w-6 h-6">
             </div>
             <span class="text-xs text-[10px] mt-1">Главная</span>
         </a>
         <a href="{% url 'core:tasks' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600 relative">
             <div class="icon-container relative w-8 h-8 flex items-center justify-center">
-                <img src="{% static 'core/img/mobile/check-square.svg' %}" alt="Tasks" class="w-8 h-8">
+                <img src="{% static 'core/img/mobile/check-square.svg' %}" alt="Tasks" class="w-6 h-6">
             </div>
             <span class="text-xs text-[10px] mt-1">Задачи</span>
         </a>
         <a href="{% url 'core:map' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600 relative">
             <div class="icon-container relative w-8 h-8 flex items-center justify-center">
-                <img src="{% static 'core/img/mobile/location.svg' %}" alt="Map" class="w-8 h-8">
+                <img src="{% static 'core/img/mobile/location.svg' %}" alt="Map" class="w-6 h-6">
             </div>
             <span class="text-xs text-[10px] mt-1">Карта</span>
         </a>
         <a href="{% url 'core:vehicles' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600 relative">
             <div class="icon-container relative w-8 h-8 flex items-center justify-center">
-                <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Vehicles" class="w-8 h-8">
+                <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Vehicles" class="w-6 h-6">
             </div>
             <span class="text-xs text-[10px] mt-1">Грузовики</span>
         </a>
         <a href="{% url 'core:employees' %}" class="flex flex-col items-center text-blue-600 relative">
             <div class="icon-container relative w-8 h-8 flex items-center justify-center">
-                <img src="{% static 'core/img/mobile/employee.svg' %}" alt="Employees" class="w-8 h-8">
+                <img src="{% static 'core/img/mobile/employee.svg' %}" alt="Employees" class="w-6 h-6">
             </div>
             <span class="text-xs text-[10px] mt-1">Сотрудники</span>
             <div class="absolute -bottom-2 left-0 right-0 h-0.5 bg-blue-600 rounded-full"></div>
@@ -249,6 +249,31 @@
         
         .main-content {
             margin-left: 0;
+        }
+        
+        /* Показываем иконки для мобильного меню */
+        nav.fixed.bottom-0.hidden {
+            display: block;
+        }
+        
+        /* Устанавливаем размер и фильтр для мобильных иконок */
+        .icon-container img {
+            width: 24px;
+            height: 24px;
+        }
+        
+        /* Серый фильтр для неактивных иконок */
+        nav.fixed.bottom-0 a.text-gray-600 .icon-container img {
+            filter: brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(142deg) brightness(96%) contrast(91%);
+        }
+        
+        /* Синий фильтр для активной иконки */
+        nav.fixed.bottom-0 a.text-blue-600 .icon-container img {
+            filter: brightness(0) saturate(100%) invert(32%) sepia(96%) saturate(7461%) hue-rotate(220deg) brightness(97%) contrast(98%);
+        }
+        
+        .main-content {
+            padding-bottom: 70px;
         }
     }
     
