@@ -120,7 +120,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {% for employee in employees %}
                 <!-- Карточка сотрудника -->
-                <div class="bg-white rounded-xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] border border-zinc-200 overflow-hidden">
+                <div class="bg-white rounded-xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] border border-zinc-200 overflow-hidden flex flex-col h-full">
                     <div class="px-4 py-3 border-b border-zinc-200 flex justify-between items-start">
                         <div class="flex items-center gap-3">
                             <div class="w-8 h-8 rounded-full bg-neutral-300 overflow-hidden">
@@ -133,7 +133,7 @@
                             <div class="font-semibold text-zinc-950">{{ employee.get_full_name }}</div>
                         </div>
                     </div>
-                    <div class="px-4 py-3 space-y-3">
+                    <div class="px-4 py-3 space-y-3 flex-grow">
                         <div class="flex items-center gap-2">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500">
                                 <path d="M20 7h-3a2 2 0 0 1-2-2V2"></path>
@@ -161,7 +161,7 @@
                             <span class="text-gray-500 text-sm font-medium">Работает с {{ employee.date_joined|date:"d.m.Y" }}</span>
                         </div>
                     </div>
-                    <div class="px-4 py-3 border-t border-zinc-200">
+                    <div class="px-4 py-3 border-t border-zinc-200 mt-auto">
                         <a href="{% url 'core:employee-detail' employee.id %}" class="w-full h-10 px-3 py-2 bg-white rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] border border-zinc-200 flex justify-center items-center gap-1.5 text-sm font-semibold">
                             <span>Посмотреть резюме</span>
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
