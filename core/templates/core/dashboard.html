@@ -23,6 +23,16 @@
             text-decoration: none !important;
         }
         
+        /* Скрываем нижнюю навигацию из base.html на странице dashboard */
+        .base-bottom-nav {
+            display: none !important;
+        }
+        
+        /* Убираем отступ снизу для контента, так как нижняя навигация скрыта */
+        main {
+            padding-bottom: 0 !important;
+        }
+        
         .item-row {
             display: flex;
             justify-content: space-between;
