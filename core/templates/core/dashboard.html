@@ -1683,51 +1683,158 @@
     
     // Функция для адаптации интерфейса под планшеты
     function adjustLayoutForTablet() {
+        // Применяем стили только если ширина экрана меньше или равна 1100px
         if (window.innerWidth <= 1100) {
-            // Добавляем класс для планшетного режима к body
-            document.body.classList.add('tablet-mode');
+            const body = document.body;
+            body.classList.add('tablet-mode');
             
-            // Показываем мобильную навигацию
-            const mobileNav = document.querySelector('.mobile-nav');
-            if (mobileNav) {
-                mobileNav.classList.remove('hidden');
-            }
-            
-            // Базовая селекция первого грузовика, если есть карточки
-            const firstTruckCard = document.querySelector('.truck-card');
-            if (firstTruckCard) {
-                const truckId = firstTruckCard.getAttribute('data-truck');
-                if (truckId) {
-                    selectTruck(truckId);
+            // Находим все элементы меню
+            const menuItems = document.querySelectorAll('.menu a');
+            menuItems.forEach(item => {
+                // Изменяем отображение для вертикального центрирования
+                item.style.display = 'flex';
+                item.style.flexDirection = 'column';
+                item.style.alignItems = 'center';
+                item.style.padding = '16px 12px';
+                
+                // Добавляем индикатор активного элемента
+                const indicator = document.createElement('div');
+                indicator.className = 'active-indicator';
+                indicator.style.height = '4px';
+                indicator.style.width = '40px';
+                indicator.style.background = 'transparent';
+                indicator.style.borderRadius = '2px';
+                indicator.style.position = 'absolute';
+                indicator.style.bottom = '0';
+                indicator.style.left = '50%';
+                indicator.style.transform = 'translateX(-50%)';
+                indicator.style.transition = 'background-color 0.3s ease';
+                
+                // Установка relative для правильного позиционирования индикатора
+                item.style.position = 'relative';
+                item.appendChild(indicator);
+                
+                // Проверяем, является ли элемент активным
+                if (item.classList.contains('active') || window.location.pathname === item.getAttribute('href')) {
+                    item.style.backgroundColor = '#edf2ff';
+                    indicator.style.backgroundColor = '#4287f5';
+                    
+                    // Находим и меняем цвет SVG внутри активного элемента
+                    const desktopIcon = item.querySelector('.desktop-icon');
+                    if (desktopIcon) {
+                        desktopIcon.style.filter = 'invert(39%) sepia(97%) saturate(1730%) hue-rotate(208deg) brightness(103%) contrast(96%)';
+                    }
+                    
+                    const mobileIcon = item.querySelector('.mobile-icon');
+                    if (mobileIcon) {
+                        mobileIcon.style.filter = 'invert(39%) sepia(97%) saturate(1730%) hue-rotate(208deg) brightness(103%) contrast(96%)';
+                    }
                 }
-            }
+                
+                // Находим и скрываем десктопные иконки, показываем мобильные
+                const desktopIcon = item.querySelector('.desktop-icon');
+                const mobileIcon = item.querySelector('.mobile-icon');
+                
+                if (desktopIcon) {
+                    desktopIcon.style.display = 'none';
+                }
+                
+                if (mobileIcon) {
+                    mobileIcon.style.display = 'block';
+                    mobileIcon.style.width = '32px';
+                    mobileIcon.style.height = '32px';
+                }
+                
+                // Центрируем текст
+                const textDiv = item.querySelector('div.flex-1');
+                if (textDiv) {
+                    textDiv.style.textAlign = 'center';
+                    textDiv.style.marginTop = '8px';
+                    textDiv.style.fontSize = '14px';
+                }
+            });
             
-            // Выравниваем высоту блоков финансов и задач
-            equalizeFinanceTasksHeight();
+            // Делаем карточки с грузовиками на всю ширину
+            const truckCards = document.querySelectorAll('.truck-card');
+            truckCards.forEach(card => {
+                card.style.width = '100%';
+                card.style.flexBasis = '100%';
+            });
         } else {
-            // Возвращаем десктопный режим
+            // Если ширина больше 1100px, возвращаем десктопный режим
             resetLayoutToDesktop();
         }
     }
     
-    // Функция для возврата к десктопному отображению
+    // Функция для возврата к десктоп-режиму
     function resetLayoutToDesktop() {
-        // Удаляем класс для планшетного режима у body
-        document.body.classList.remove('tablet-mode');
-        
-        // Скрываем мобильную навигацию
-        const mobileNav = document.querySelector('.mobile-nav');
-        if (mobileNav) {
-            mobileNav.classList.add('hidden');
+        // Сбрасываем стили только если мы не в планшетном режиме
+        if (window.innerWidth > 1100) {
+            const body = document.body;
+            body.classList.remove('tablet-mode');
+            
+            // Находим все элементы меню
+            const menuItems = document.querySelectorAll('.menu a');
+            menuItems.forEach(item => {
+                // Возвращаем исходное отображение
+                item.style.display = '';
+                item.style.flexDirection = '';
+                item.style.alignItems = '';
+                item.style.padding = '';
+                item.style.position = '';
+                
+                // Удаляем индикатор, если он есть
+                const indicator = item.querySelector('.active-indicator');
+                if (indicator) {
+                    item.removeChild(indicator);
+                }
+                
+                // Проверяем, является ли элемент активным и сбрасываем стили
+                if (item.classList.contains('active') || window.location.pathname === item.getAttribute('href')) {
+                    item.style.backgroundColor = '';
+                    
+                    // Находим и сбрасываем цвет SVG внутри активного элемента
+                    const desktopIcon = item.querySelector('.desktop-icon');
+                    if (desktopIcon) {
+                        desktopIcon.style.filter = '';
+                    }
+                }
+                
+                // Показываем десктопные иконки, скрываем мобильные
+                const desktopIcon = item.querySelector('.desktop-icon');
+                const mobileIcon = item.querySelector('.mobile-icon');
+                
+                if (desktopIcon) {
+                    desktopIcon.style.display = '';
+                }
+                
+                if (mobileIcon) {
+                    mobileIcon.style.display = 'none';
+                    mobileIcon.style.width = '';
+                    mobileIcon.style.height = '';
+                }
+                
+                // Сбрасываем стили текста
+                const textDiv = item.querySelector('div.flex-1');
+                if (textDiv) {
+                    textDiv.style.textAlign = '';
+                    textDiv.style.marginTop = '';
+                    textDiv.style.fontSize = '';
+                }
+            });
+            
+            // Сбрасываем стили карточек с грузовиками
+            const truckCards = document.querySelectorAll('.truck-card');
+            truckCards.forEach(card => {
+                card.style.width = '';
+                card.style.flexBasis = '';
+            });
+            
+            // Выравниваем высоту карточек в ПК-версии если необходимо
+            if (typeof equalizeCardHeights === 'function') {
+                equalizeCardHeights();
+            }
         }
-        
-        // Восстанавливаем стили изображений грузовиков
-        document.querySelectorAll('.truck-img').forEach(function(img) {
-            img.style.opacity = '';
-        });
-        
-        // Выравниваем высоту карточек в ПК-версии
-        equalizeCardHeights();
     }
     
     // Запускаем функцию при загрузке и изменении размера окна
