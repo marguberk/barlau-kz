@@ -172,13 +172,35 @@
     }
     
     /* Показываем нижнее меню если оно должно быть скрыто */
-    nav.fixed.bottom-0.hidden {
+    nav.fixed.bottom-0.hidden,
+    nav.mobile-nav.hidden {
         display: block !important;
     }
     
     /* Добавляем отступ снизу для контента, чтобы он не перекрывался с нижним меню */
     .main-content {
         padding-bottom: 70px !important;
+    }
+    
+    /* Стили для нижней навигационной панели на мобильных устройствах */
+    .mobile-nav {
+        height: 60px !important;
+        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05) !important;
+    }
+    
+    .mobile-nav .mobile-icon {
+        width: 28px !important;
+        height: 28px !important;
+    }
+    
+    .mobile-nav .text-xs {
+        font-size: 10px !important;
+        margin-top: 4px !important;
+    }
+    
+    /* Стили для активного элемента в нижнем меню */
+    .mobile-nav a.text-blue-600 .mobile-icon {
+        filter: invert(37%) sepia(74%) saturate(1775%) hue-rotate(211deg) brightness(95%) contrast(98%) !important;
     }
 }
 
