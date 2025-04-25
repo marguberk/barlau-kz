@@ -180,8 +180,8 @@
     </div>
 </div>
 
-<!-- Нижнее мобильное меню -->
-<nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 hidden">
+<!-- Нижнее мобильное меню - показываем только на мобильных устройствах -->
+<nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 hidden md:hidden">
     <div class="flex justify-around items-center px-4 py-2">
         <a href="{% url 'core:home' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600 relative">
             <div class="icon-container relative w-8 h-8 flex items-center justify-center">
@@ -251,9 +251,11 @@
             margin-left: 0;
         }
         
-        /* Показываем иконки для мобильного меню */
-        nav.fixed.bottom-0.hidden {
-            display: block;
+        /* Показываем иконки для мобильного меню только на мобильных устройствах */
+        @media (max-width: 768px) {
+            nav.fixed.bottom-0.hidden.md\:hidden {
+                display: block;
+            }
         }
         
         /* Устанавливаем размер и фильтр для мобильных иконок */
@@ -272,26 +274,17 @@
             filter: brightness(0) saturate(100%) invert(32%) sepia(96%) saturate(7461%) hue-rotate(220deg) brightness(97%) contrast(98%);
         }
         
-        .main-content {
-            padding-bottom: 70px;
+        /* Отступ снизу для контента только на мобильных устройствах */
+        @media (max-width: 768px) {
+            .main-content {
+                padding-bottom: 70px;
+            }
         }
     }
     
-    /* Скрываем нижнее меню на этой странице */
+    /* Скрываем нижнее меню на этой странице для ПК версии */
     body > nav.fixed.bottom-0 {
         display: none !important;
-    }
-    
-    /* Показываем наше собственное нижнее меню только на мобильных устройствах */
-    nav.fixed.bottom-0.md\\:hidden {
-        display: block !important;
-    }
-    
-    /* Добавляем отступ снизу для основного контента на мобильных устройствах */
-    @media (max-width: 768px) {
-        .main-content {
-            padding-bottom: 70px;
-        }
     }
     
     /* Скрываем верхнюю панель и корректируем отступы */
@@ -302,24 +295,6 @@
     /* Убираем отступ от верхней панели */
     main.mt-16 {
         margin-top: 0 !important;
-    }
-
-    /* Показываем наше собственное нижнее меню на устройствах с шириной 1100px и меньше */
-    @media (max-width: 1100px) {
-        nav.fixed.bottom-0.hidden {
-            display: block;
-        }
-        
-        .main-content {
-            padding-bottom: 70px;
-        }
-    }
-    
-    /* Убираем старые отступы для мобильных */
-    @media (max-width: 768px) {
-        .main-content {
-            padding-bottom: 70px;
-        }
     }
 </style>
 {% endblock %}
