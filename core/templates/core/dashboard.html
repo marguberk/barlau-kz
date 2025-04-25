@@ -978,88 +978,14 @@
                 padding-bottom: 20px !important; /* Уменьшен отступ, так как нижнего меню больше нет */
             }
         }
-        
-        /* Обновленные стили для боковых иконок меню */
-        .sidebar-menu a {
-            color: #6B7280 !important; /* Серый цвет для неактивных пунктов */
-        }
-        
-        .sidebar-menu a.bg-gray-50 {
-            color: #2563EB !important; /* Синий цвет для активного пункта */
-        }
-        
-        .sidebar-menu a img.desktop-icon {
-            filter: brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(142deg) brightness(96%) contrast(91%); /* Серый фильтр для неактивных иконок */
-        }
-        
-        .sidebar-menu a.bg-gray-50 img.desktop-icon {
-            filter: brightness(0) saturate(100%) invert(32%) sepia(96%) saturate(7461%) hue-rotate(220deg) brightness(97%) contrast(98%); /* Синий фильтр для активной иконки */
-        }
-        
-        /* Общие стили для фиксации цветов иконок в меню */
-        a, a:visited, a:link, a:hover, a:active, 
-        a *, a:visited *, a:link *, a:hover *, a:active * {
-            text-decoration: none !important;
-        }
     </style>
 </head>
 <body class="bg-gray-50">
     <div class="w-full flex">
-        <!-- Боковая панель -->
-        <div class="w-64 h-screen bg-white border-r border-zinc-200 flex flex-col justify-start items-start fixed left-0 bottom-0 sidebar">
-            <div class="self-stretch px-5 py-6 relative flex flex-col justify-start items-start gap-2 sidebar-logo">
-                <div class="py-1 inline-flex justify-start items-center gap-2">
-                    <img src="{% static 'core/img/logo.png' %}" alt="Barlau Logo" class="w-10 h-6">
-                    <div class="text-center justify-start text-black text-2xl font-semibold leading-normal">Barlau.kz</div>
-                </div>
-                <div class="w-56 h-0 left-[20px] top-[81px] absolute outline outline-1 outline-offset-[-0.50px] outline-zinc-200"></div>
-            </div>
-            <div class="self-stretch flex-1 px-4 pt-2 pb-4 flex flex-col justify-start items-center gap-4 sidebar-menu">
-                <div class="self-stretch flex flex-col justify-start items-start gap-1">
-                    <div class="self-stretch flex flex-col justify-start items-start">
-                        <a href="{% url 'core:home' %}" class="self-stretch px-3 py-3.5 relative bg-gray-50 rounded-lg inline-flex justify-start items-center gap-2">
-                            <div class="w-1 h-6 left-0 top-[calc(50%-12px)] absolute bg-blue-600 rounded-tr-lg rounded-br-lg"></div>
-                            <div class="w-5 h-5 relative overflow-hidden">
-                                <img src="{% static 'core/img/home.svg' %}" alt="Home" class="w-4 h-4 desktop-icon">
-                                <img src="{% static 'core/img/mobile/home.svg' %}" alt="Home" class="mobile-icon hidden">
-                            </div>
-                            <div class="flex-1 justify-start text-blue-600 text-base font-medium leading-normal tracking-tight">Главная</div>
-                        </a>
-                        <a href="{% url 'core:tasks' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex justify-start items-center gap-2">
-                            <div class="w-5 h-5 relative overflow-hidden">
-                                <img src="{% static 'core/img/check-square.svg' %}" alt="Tasks" class="w-4 h-4 desktop-icon">
-                                <img src="{% static 'core/img/mobile/check-square.svg' %}" alt="Tasks" class="mobile-icon hidden">
-                            </div>
-                            <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Задачи</div>
-                        </a>
-                        <a href="{% url 'core:map' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex justify-start items-center gap-2">
-                            <div class="w-5 h-5 relative overflow-hidden">
-                                <img src="{% static 'core/img/location.svg' %}?v={% now 'U' %}" alt="Map" class="w-4 h-4 desktop-icon" onerror="this.onerror=null; this.src='/static/core/img/location.svg'">
-                                <img src="{% static 'core/img/mobile/location.svg' %}" alt="Map" class="mobile-icon hidden">
-                            </div>
-                            <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Карта</div>
-                        </a>
-                        <a href="{% url 'core:vehicles' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex justify-start items-center gap-2">
-                            <div class="w-5 h-5 relative overflow-hidden">
-                                <img src="{% static 'core/img/truck.svg' %}" alt="Vehicles" class="w-4 h-4 desktop-icon">
-                                <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Vehicles" class="mobile-icon hidden">
-                            </div>
-                            <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Грузовики</div>
-                        </a>
-                        <a href="{% url 'core:employees' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex justify-start items-center gap-2">
-                            <div class="w-5 h-5 relative overflow-hidden">
-                                <img src="{% static 'core/img/employee.svg' %}" alt="Employees" class="w-4 h-4 desktop-icon">
-                                <img src="{% static 'core/img/mobile/employee.svg' %}" alt="Employees" class="mobile-icon hidden">
-                            </div>
-                            <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Сотрудники</div>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <!-- Удалено боковое меню (sidebar) -->
 
         <!-- Основной контент -->
-        <div class="ml-64 flex-1 min-h-screen bg-gray-50 relative main-content">
+        <div class="flex-1 min-h-screen bg-gray-50 relative main-content">
             <!-- Верхняя панель -->
             <div class="w-full h-20 px-8 py-5 bg-white flex justify-between items-center">
                 <div class="justify-start text-zinc-950 text-2xl font-semibold leading-loose">Главная</div>
@@ -1686,132 +1612,58 @@
     
     // Функция для адаптации интерфейса под планшеты
     function adjustLayoutForTablet() {
-        if (window.innerWidth <= 1100) {
-            // Добавляем класс для планшетного режима
-            document.body.classList.add('tablet-mode');
-            
-            // Удаляем код, который показывает мобильное меню, так как меню было удалено
-            
-            // Скрываем десктопные иконки и показываем мобильные
-            var menuItems = document.querySelectorAll('.menu-item');
-            menuItems.forEach(function(item) {
-                var desktopIcon = item.querySelector('.desktop-icon');
-                var mobileIcon = item.querySelector('.mobile-icon');
-                
-                if (desktopIcon) {
-                    desktopIcon.style.display = 'none';
-                }
-                
-                if (mobileIcon) {
-                    mobileIcon.style.display = 'block';
-                    mobileIcon.style.width = '24px';
-                    mobileIcon.style.height = '24px';
-                }
-                
-                // Устанавливаем flex и центрирование для пунктов меню
-                item.style.display = 'flex';
-                item.style.flexDirection = 'column';
-                item.style.alignItems = 'center';
-                
-                // Добавляем индикатор активности
-                var activeIndicator = item.querySelector('.active-indicator');
-                if (activeIndicator && item.classList.contains('active')) {
-                    activeIndicator.style.display = 'block';
-                    activeIndicator.style.width = '4px';
-                    activeIndicator.style.height = '24px';
-                    activeIndicator.style.backgroundColor = '#3B82F6';
-                    activeIndicator.style.marginRight = '8px';
-                } else if (activeIndicator) {
-                    activeIndicator.style.display = 'none';
-                }
-                
-                // Изменяем стили для текста
-                var text = item.querySelector('.menu-text');
-                if (text) {
-                    text.style.fontSize = '10px';
-                    text.style.marginTop = '4px';
-                }
-                
-                // Изменяем стили для SVG внутри активных пунктов
-                if (item.classList.contains('active')) {
-                    var svgElements = item.querySelectorAll('svg path');
-                    svgElements.forEach(function(svgPath) {
-                        if (svgPath) {
-                            svgPath.style.fill = '#3B82F6';
-                        }
-                    });
-                }
-            });
-            
-            // Адаптируем карточки грузовиков для полной ширины
-            var truckCards = document.querySelectorAll('.truck-card');
-            truckCards.forEach(function(card) {
-                card.style.width = '100%';
-                
-                // Убедимся, что активные карточки подсвечены
-                if (card.classList.contains('active')) {
-                    card.style.borderColor = '#3B82F6';
-                }
-            });
-        } else {
-            resetLayoutToDesktop();
+        // Адаптируем интерфейс для планшетного режима
+        
+        var svgElements = document.querySelectorAll('.svg-icon-blue');
+        svgElements.forEach(function(svg) {
+            svg.classList.add('svg-filter-blue');
+        });
+        
+        // Устанавливаем отступ основного контента
+        var mainContent = document.querySelector('.main-content');
+        if (mainContent) {
+            mainContent.style.marginLeft = '0';
+        }
+        
+        // Добавляем отступ для всего содержимого
+        var contentWrapper = document.querySelector('.content-wrapper');
+        if (contentWrapper) {
+            contentWrapper.style.paddingBottom = '80px';
+        }
+        
+        // Показываем нижнее мобильное меню
+        var mobileNav = document.querySelector('nav.fixed.bottom-0.hidden');
+        if (mobileNav) {
+            mobileNav.style.display = 'block';
         }
     }
     
     // Функция для возврата к десктоп-режиму
     function resetLayoutToDesktop() {
-        // Удаляем класс режима планшета
-        document.body.classList.remove('tablet-mode');
+        // Возвращаем интерфейс к десктопному режиму
         
-        // Удаляем код, который скрывает мобильное меню, так как меню было удалено
-        
-        // Возвращаем десктопные иконки и скрываем мобильные
-        var menuItems = document.querySelectorAll('.menu-item');
-        menuItems.forEach(function(item) {
-            var desktopIcon = item.querySelector('.desktop-icon');
-            var mobileIcon = item.querySelector('.mobile-icon');
-            
-            if (desktopIcon) {
-                desktopIcon.style.display = 'block';
-            }
-            
-            if (mobileIcon) {
-                mobileIcon.style.display = 'none';
-            }
-            
-            // Возвращаем оригинальные стили для пунктов меню
-            item.style.display = '';
-            item.style.flexDirection = '';
-            item.style.alignItems = '';
-            
-            // Сбрасываем индикатор активности
-            var activeIndicator = item.querySelector('.active-indicator');
-            if (activeIndicator) {
-                activeIndicator.style.display = '';
-            }
-            
-            // Возвращаем оригинальные стили для текста
-            var text = item.querySelector('.menu-text');
-            if (text) {
-                text.style.fontSize = '';
-                text.style.marginTop = '';
-            }
-            
-            // Сбрасываем стили для SVG
-            var svgElements = item.querySelectorAll('svg path');
-            svgElements.forEach(function(svgPath) {
-                if (svgPath) {
-                    svgPath.style.fill = '';
-                }
-            });
+        var svgElements = document.querySelectorAll('.svg-icon-blue');
+        svgElements.forEach(function(svg) {
+            svg.classList.remove('svg-filter-blue');
         });
         
-        // Возвращаем оригинальные стили для карточек грузовиков
-        var truckCards = document.querySelectorAll('.truck-card');
-        truckCards.forEach(function(card) {
-            card.style.width = '';
-            card.style.borderColor = '';
-        });
+        // Сбрасываем отступ основного контента
+        var mainContent = document.querySelector('.main-content');
+        if (mainContent) {
+            mainContent.style.marginLeft = '0';
+        }
+        
+        // Сбрасываем отступ для содержимого
+        var contentWrapper = document.querySelector('.content-wrapper');
+        if (contentWrapper) {
+            contentWrapper.style.paddingBottom = '0';
+        }
+        
+        // Скрываем нижнее мобильное меню
+        var mobileNav = document.querySelector('nav.fixed.bottom-0');
+        if (mobileNav) {
+            mobileNav.style.display = 'none';
+        }
     }
     
     // Запускаем функцию при загрузке и изменении размера окна
