@@ -34,7 +34,7 @@
     }
     
     /* Скрываем стандартный индикатор активной ссылки и добавляем новый */
-    .tablet-mode .sidebar-menu a div[class="w-1 h-6 left-0 top-[calc(50%-12px)] absolute bg-blue-600 rounded-tr-lg rounded-br-lg"] {
+    .tablet-mode .sidebar-menu a div[class="w-1 h-6 left-[-16px] top-[14px] absolute bg-blue-600 rounded-tr-lg rounded-br-lg"] {
         display: none !important;
     }
     
@@ -128,7 +128,7 @@
     }
 }
 
-/* Стили для скрытия верхнего меню и показа нижнего на планшетах и мобильных */
+/* Стили для скрытия верхнего меню на планшетах и мобильных */
 @media (max-width: 1100px) {
     /* Скрываем боковое меню */
     .sidebar {
@@ -138,16 +138,12 @@
     /* Удаляем отступ слева для основного контента */
     .main-content {
         margin-left: 0 !important;
+        padding-bottom: 20px !important;
     }
     
     /* Скрываем базовое нижнее меню из base.html */
     .base-bottom-nav {
         display: none !important;
-    }
-    
-    /* Добавляем отступ снизу для основного контента */
-    .main-content {
-        padding-bottom: 20px !important; /* Уменьшен отступ, так как нижнего меню больше нет */
     }
 }
 
@@ -166,53 +162,4 @@
 .sidebar-menu a.bg-gray-50:visited svg circle {
     stroke: #2563EB !important;
     fill: none !important;
-}
-
-/* Стили для боковой панели на ПК */
-.sidebar {
-    width: 256px !important;
-    position: fixed !important;
-    height: 100% !important;
-    background-color: white !important;
-    z-index: 10 !important;
-    overflow-y: auto !important;
-    border-right: 1px solid #e5e7eb !important;
-}
-
-/* Стили для отображения иконок в боковом меню */
-.sidebar-menu a .desktop-icon {
-    filter: brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(142deg) brightness(96%) contrast(91%);
-}
-
-.sidebar-menu a.bg-gray-50 .desktop-icon {
-    filter: brightness(0) saturate(100%) invert(32%) sepia(96%) saturate(7461%) hue-rotate(220deg) brightness(97%) contrast(98%);
-}
-
-/* Стили для мобильного меню в нижней части экрана */
-@media (max-width: 1100px) {
-    /* Показываем иконки для мобильного меню */
-    nav.fixed.bottom-0.hidden {
-        display: block !important;
-    }
-    
-    /* Устанавливаем размер и фильтр для мобильных иконок */
-    .icon-container img {
-        width: 24px !important;
-        height: 24px !important;
-    }
-    
-    /* Серый фильтр для неактивных иконок */
-    nav.fixed.bottom-0 a.text-gray-600 .icon-container img {
-        filter: brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(142deg) brightness(96%) contrast(91%) !important;
-    }
-    
-    /* Синий фильтр для активной иконки */
-    nav.fixed.bottom-0 a.text-blue-600 .icon-container img {
-        filter: brightness(0) saturate(100%) invert(32%) sepia(96%) saturate(7461%) hue-rotate(220deg) brightness(97%) contrast(98%) !important;
-    }
-    
-    /* Отступ для основного контента, чтобы он не перекрывался с нижним меню */
-    .main-content {
-        padding-bottom: 70px !important;
-    }
 } 
