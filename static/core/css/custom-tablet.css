@@ -149,6 +149,28 @@
     .main-content {
         padding-bottom: 20px !important; /* Уменьшен отступ, так как нижнего меню больше нет */
     }
+    
+    /* Принудительно скрываем все нижние меню в планшетном режиме */
+    nav.fixed.bottom-0,
+    nav.fixed.bottom-0.hidden,
+    nav.mobile-nav,
+    nav.mobile-nav.hidden,
+    #mobile-nav,
+    body > nav.fixed.bottom-0,
+    nav.fixed.bottom-0.md\:hidden {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        z-index: -9999 !important;
+        height: 0 !important;
+        min-height: 0 !important;
+        max-height: 0 !important;
+        overflow: hidden !important;
+        position: absolute !important;
+        bottom: -9999px !important;
+        left: -9999px !important;
+    }
 }
 
 /* Фиксы для цветов иконок в посещенных ссылках */
@@ -166,4 +188,25 @@
 .sidebar-menu a.bg-gray-50:visited svg circle {
     stroke: #2563EB !important;
     fill: none !important;
+}
+
+/* Обрабатываем SVG иконки в мобильной навигации */
+.mobile-icon svg path,
+.mobile-icon svg line,
+.mobile-icon svg rect,
+.mobile-icon svg circle {
+    stroke: currentColor !important;
+    fill: none !important;
+}
+
+/* Фиксы для мобильных иконок */
+.mobile-icon {
+    width: 24px !important;
+    height: 24px !important;
+    display: inline-block !important;
+}
+
+/* Фильтры для активных иконок в мобильном меню */
+.active-mobile-icon {
+    filter: invert(37%) sepia(74%) saturate(1775%) hue-rotate(211deg) brightness(95%) contrast(98%) !important;
 } 
