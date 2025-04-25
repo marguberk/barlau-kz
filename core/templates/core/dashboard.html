@@ -1517,38 +1517,38 @@
 <!-- Удалено нижнее мобильное меню -->
 
 <!-- Нижнее мобильное меню - показываем только на мобильных устройствах -->
-<nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 hidden max-lg:block mobile-bottom-nav">
+<nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 hidden max-lg:block">
     <div class="flex justify-around items-center px-4 py-2">
         <a href="{% url 'core:home' %}" class="flex flex-col items-center text-blue-600 relative">
             <div class="icon-container relative w-8 h-8 flex items-center justify-center">
-                <img src="{% static 'core/img/mobile/home.svg' %}" alt="Home" class="w-6 h-6 mobile-icon">
+                <img src="{% static 'core/img/mobile/home.svg' %}" alt="Home" class="w-6 h-6">
             </div>
-            <span class="text-xs mt-1 nav-text">Главная</span>
+            <span class="text-xs text-[10px] mt-1">Главная</span>
             <div class="absolute -bottom-2 left-0 right-0 h-0.5 bg-blue-600 rounded-full"></div>
         </a>
         <a href="{% url 'core:tasks' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600 relative">
             <div class="icon-container relative w-8 h-8 flex items-center justify-center">
-                <img src="{% static 'core/img/mobile/check-square.svg' %}" alt="Tasks" class="w-6 h-6 mobile-icon">
+                <img src="{% static 'core/img/mobile/check-square.svg' %}" alt="Tasks" class="w-6 h-6">
             </div>
-            <span class="text-xs mt-1 nav-text">Задачи</span>
+            <span class="text-xs text-[10px] mt-1">Задачи</span>
         </a>
         <a href="{% url 'core:map' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600 relative">
             <div class="icon-container relative w-8 h-8 flex items-center justify-center">
-                <img src="{% static 'core/img/mobile/location.svg' %}" alt="Map" class="w-6 h-6 mobile-icon">
+                <img src="{% static 'core/img/mobile/location.svg' %}" alt="Map" class="w-6 h-6">
             </div>
-            <span class="text-xs mt-1 nav-text">Карта</span>
+            <span class="text-xs text-[10px] mt-1">Карта</span>
         </a>
         <a href="{% url 'core:vehicles' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600 relative">
             <div class="icon-container relative w-8 h-8 flex items-center justify-center">
-                <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Vehicles" class="w-6 h-6 mobile-icon">
+                <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Vehicles" class="w-6 h-6">
             </div>
-            <span class="text-xs mt-1 nav-text">Грузовики</span>
+            <span class="text-xs text-[10px] mt-1">Грузовики</span>
         </a>
         <a href="{% url 'core:employees' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600 relative">
             <div class="icon-container relative w-8 h-8 flex items-center justify-center">
-                <img src="{% static 'core/img/mobile/employee.svg' %}" alt="Employees" class="w-6 h-6 mobile-icon">
+                <img src="{% static 'core/img/mobile/employee.svg' %}" alt="Employees" class="w-6 h-6">
             </div>
-            <span class="text-xs mt-1 nav-text">Сотрудники</span>
+            <span class="text-xs text-[10px] mt-1">Сотрудники</span>
         </a>
     </div>
 </nav>
@@ -1556,62 +1556,50 @@
 <style>
     /* Стили для мобильного меню */
     @media (max-width: 1100px) {
-        /* Устанавливаем размер и фильтр для мобильных иконок */
-        .icon-container img, .mobile-icon {
-            width: 24px !important;
-            height: 24px !important;
+        /* Убираем меню для планшетной и мобильной версий */
+        .sidebar {
+            display: none;
         }
         
-        /* Стили для текста в мобильном меню */
-        .mobile-bottom-nav .nav-text, 
-        .mobile-bottom-nav span.text-xs {
-            font-size: 10px !important;
-            line-height: 1.2 !important;
-            margin-top: 4px !important;
-            text-align: center !important;
-            white-space: nowrap !important;
-            font-weight: normal !important;
+        .main-content {
+            margin-left: 0;
+        }
+        
+        /* Устанавливаем размер и фильтр для мобильных иконок */
+        .icon-container img {
+            width: 24px;
+            height: 24px;
         }
         
         /* Серый фильтр для неактивных иконок */
         nav.fixed.bottom-0 a.text-gray-600 .icon-container img {
-            filter: brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(142deg) brightness(96%) contrast(91%) !important;
+            filter: brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(142deg) brightness(96%) contrast(91%);
         }
         
         /* Синий фильтр для активной иконки */
         nav.fixed.bottom-0 a.text-blue-600 .icon-container img {
-            filter: brightness(0) saturate(100%) invert(32%) sepia(96%) saturate(7461%) hue-rotate(220deg) brightness(97%) contrast(98%) !important;
+            filter: brightness(0) saturate(100%) invert(32%) sepia(96%) saturate(7461%) hue-rotate(220deg) brightness(97%) contrast(98%);
         }
         
-        /* Отступ снизу для контента */
-        .main-content, .content-wrapper {
-            padding-bottom: 70px !important;
-        }
-        
-        /* Единые стили для нижней навигации */
-        .mobile-bottom-nav, nav.fixed.bottom-0 {
-            height: 60px !important;
-            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05) !important;
-            z-index: 9999 !important;
-        }
-        
-        /* Стили для активного элемента */
-        .mobile-bottom-nav a.text-blue-600, 
-        nav.fixed.bottom-0 a.text-blue-600 {
-            font-weight: 500 !important;
-        }
-        
-        /* Индикатор активного пункта */
-        .mobile-bottom-nav a.text-blue-600 .absolute, 
-        nav.fixed.bottom-0 a.text-blue-600 .absolute {
-            height: 3px !important;
-            border-radius: 3px 3px 0 0 !important;
+        /* Отступ снизу для контента на устройствах до 1100px */
+        .main-content {
+            padding-bottom: 70px;
         }
     }
     
-    /* Скрываем базовое нижнее меню */
-    body > nav.fixed.bottom-0:not(.mobile-bottom-nav) {
+    /* Скрываем нижнее меню на этой странице для ПК версии */
+    body > nav.fixed.bottom-0 {
         display: none !important;
+    }
+    
+    /* Скрываем верхнюю панель и корректируем отступы */
+    body > header.fixed.top-0 {
+        display: none !important;
+    }
+    
+    /* Убираем отступ от верхней панели */
+    main.mt-16 {
+        margin-top: 0 !important;
     }
 </style>
 </script></html> 
