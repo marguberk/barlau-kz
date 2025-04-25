@@ -149,10 +149,7 @@
     .main-content {
         padding-bottom: 20px !important; /* Уменьшен отступ, так как нижнего меню больше нет */
     }
-}
-
-/* Стили только для мобильных устройств (до 768px) */
-@media (max-width: 768px) {
+    
     /* Показываем нижнее меню если оно должно быть скрыто */
     nav.fixed.bottom-0.hidden,
     nav.mobile-nav.hidden {
