@@ -564,20 +564,6 @@
                 font-size: 1.5rem;
             }
             
-            .finance-graph-container {
-                height: 10rem;
-            }
-            
-            /* Задачи */
-            .task-item {
-                padding: 0.875rem;
-            }
-            
-            .task-meta {
-                flex-wrap: wrap;
-                gap: 0.5rem;
-            }
-            
             /* Активные поездки */
             .trips-container {
                 margin-top: 0.75rem;
@@ -2153,32 +2139,32 @@
             <div class="icon-container relative w-8 h-8 flex items-center justify-center">
                 <img src="{% static 'core/img/mobile/home.svg' %}" alt="Home" class="w-6 h-6">
             </div>
-            <span class="text-xs text-[10px] mt-1">Главная</span>
+            <span class="text-xs mt-1">Главная</span>
             <div class="absolute -bottom-2 left-0 right-0 h-0.5 bg-blue-600 rounded-full"></div>
         </a>
         <a href="{% url 'core:tasks' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600 relative">
             <div class="icon-container relative w-8 h-8 flex items-center justify-center">
                 <img src="{% static 'core/img/mobile/check-square.svg' %}" alt="Tasks" class="w-6 h-6">
             </div>
-            <span class="text-xs text-[10px] mt-1">Задачи</span>
+            <span class="text-xs mt-1">Задачи</span>
         </a>
         <a href="{% url 'core:map' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600 relative">
             <div class="icon-container relative w-8 h-8 flex items-center justify-center">
                 <img src="{% static 'core/img/mobile/location.svg' %}" alt="Map" class="w-6 h-6">
             </div>
-            <span class="text-xs text-[10px] mt-1">Карта</span>
+            <span class="text-xs mt-1">Карта</span>
         </a>
         <a href="{% url 'core:vehicles' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600 relative">
             <div class="icon-container relative w-8 h-8 flex items-center justify-center">
                 <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Vehicles" class="w-6 h-6">
             </div>
-            <span class="text-xs text-[10px] mt-1">Грузовики</span>
+            <span class="text-xs mt-1">Грузовики</span>
         </a>
         <a href="{% url 'core:employees' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600 relative">
             <div class="icon-container relative w-8 h-8 flex items-center justify-center">
                 <img src="{% static 'core/img/mobile/employee.svg' %}" alt="Employees" class="w-6 h-6">
             </div>
-            <span class="text-xs text-[10px] mt-1">Сотрудники</span>
+            <span class="text-xs mt-1">Сотрудники</span>
         </a>
     </div>
 </nav>
@@ -2219,13 +2205,28 @@
         
         /* Показываем иконки для мобильного меню */
         nav.fixed.bottom-0.hidden {
-            display: block;
+            display: block !important;
+            height: 60px !important;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05) !important;
+            z-index: 9999 !important;
+            border-top: 1px solid #E5E7EB !important;
         }
         
         /* Устанавливаем размер и фильтр для мобильных иконок */
         .icon-container img {
             width: 24px;
             height: 24px;
+        }
+        
+        /* Стили для текста в меню */
+        nav.fixed.bottom-0 span {
+            font-size: 12px;
+            color: #4B5563;
+        }
+        
+        /* Синий текст для активного пункта */
+        nav.fixed.bottom-0 a.text-blue-600 span {
+            color: #2563EB;
         }
         
         /* Серый фильтр для неактивных иконок */
