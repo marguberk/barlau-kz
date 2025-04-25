@@ -1750,7 +1750,12 @@
             // Добавляем класс для планшетного режима
             document.body.classList.add('tablet-mode');
             
-            // Удаляем код, который показывает мобильное меню, так как меню было удалено
+            // Показываем мобильное меню
+            const mobileNav = document.querySelector('nav.fixed.bottom-0.hidden');
+            if (mobileNav) {
+                mobileNav.classList.remove('hidden');
+                mobileNav.style.display = 'block';
+            }
             
             // Скрываем десктопные иконки и показываем мобильные
             const menuItems = document.querySelectorAll('.menu-item');
@@ -1823,7 +1828,12 @@
         // Удаляем класс режима планшета
         document.body.classList.remove('tablet-mode');
         
-        // Удаляем код, который скрывает мобильное меню, так как меню было удалено
+        // Скрываем мобильное меню
+        const mobileNav = document.querySelector('nav.fixed.bottom-0');
+        if (mobileNav) {
+            mobileNav.classList.add('hidden');
+            mobileNav.style.display = 'none';
+        }
         
         // Возвращаем десктопные иконки и скрываем мобильные
         const menuItems = document.querySelectorAll('.menu-item');
