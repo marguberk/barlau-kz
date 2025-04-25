@@ -626,128 +626,171 @@
         
         /* CSS для очень узких мобильных устройств (384px и меньше) */
         @media screen and (max-width: 384px) {
-            /* Финансы и задачи в колонку */
-            .finance-tasks {
-                flex-direction: column !important; /* Переопределяем tablet-mode */
-                gap: 1rem !important;
+            /* Скрываем имя пользователя полностью */
+            .user-name, 
+            .header-container .user-profile span,
+            .user-profile .ml-2 {
+                display: none !important;
             }
             
-            .finance-tasks > div {
-                width: 100% !important; /* И финансы и задачи занимают полную ширину */
+            /* Уменьшаем отступ в шапке */
+            .user-profile {
+                margin-left: 0 !important;
             }
             
-            /* Маленькие карточки для узких экранов */
+            /* Карточки статистики всегда в одну строку */
+            .stats-cards {
+                display: flex !important;
+                flex-direction: row !important;
+                flex-wrap: nowrap !important;
+                gap: 0.5rem !important;
+                padding: 0 0.75rem !important;
+            }
+            
             .stats-cards > div {
-                padding: 16px !important; /* Уменьшаем внутренние отступы */
+                width: 50% !important;
+                flex: 1 1 50% !important;
+                min-width: 0 !important;
+                padding: 0.75rem !important;
             }
             
-            .stats-cards > div .text-4xl {
-                font-size: 1.5rem !important; /* Уменьшаем основную цифру */
-            }
-            
-            /* Настройка шрифтов */
-            .text-4xl {
-                font-size: 1.75rem !important;
-            }
-            
-            .text-3xl {
-                font-size: 1.5rem !important;
-            }
-            
-            .text-2xl {
-                font-size: 1.25rem !important;
-            }
-            
-            .text-xl {
-                font-size: 1.125rem !important;
-            }
-            
-            /* Уменьшаем отступы */
-            .px-8 {
-                padding-left: 1rem !important;
-                padding-right: 1rem !important;
-            }
-            
-            /* Вся ширина экрана для мобильных */
-            .w-1/2 {
-                width: 100% !important;
-            }
-            
-            /* Отображаем карту и список грузовиков в колонку */
-            .trucks-map {
+            /* Стили для карточек */
+            .stat-card {
+                padding: 16px !important;
+                height: auto !important;
+                min-height: 100px !important;
+                display: flex !important;
                 flex-direction: column !important;
             }
             
-            .trucks-map > div {
-                width: 100% !important;
-                padding-left: 0 !important;
-                padding-right: 0 !important;
+            /* Карточки статистики */
+            .stat-card-number {
+                font-size: 28px !important;
+                line-height: 1 !important;
+            }
+            
+            .stat-card-label {
+                font-size: 12px !important;
+                line-height: 1.2 !important;
+            }
+            
+            /* Нижнее меню навигации */
+            .mobile-nav a {
+                font-size: 0.5rem !important;
+                max-width: 48px !important;
+                letter-spacing: -0.01em !important;
+            }
+            
+            .mobile-nav .mobile-icon {
+                width: 24px !important;
+                height: 24px !important;
+                margin-bottom: 4px !important;
             }
         }
         
-        /* Фиксы для SVG-иконок в Chrome */
-        svg path {
-            fill: inherit !important;
-            stroke: inherit !important;
+        /* Убираем фиолетовое подсвечивание посещенных ссылок */
+        .sidebar-menu a:visited,
+        .sidebar-menu a:visited .flex-1,
+        .sidebar-menu a:visited img {
+            color: inherit !important;
+            filter: none !important;
         }
         
-        /* Принудительно устанавливаем цвет для активных элементов меню */
-        .sidebar-menu a.bg-gray-50 {
+        /* Только активные ссылки должны иметь синий цвет */
+        .sidebar-menu a.active .flex-1,
+        .sidebar-menu a.bg-gray-50 .flex-1 {
             color: #2563EB !important;
         }
         
-        .sidebar-menu a:not(.bg-gray-50) {
+        /* Убираем фиолетовый цвет у всех элементов в нижнем меню после посещения */
+        .sidebar a:visited,
+        .sidebar a:visited *,
+        .sidebar-menu a:visited,
+        .sidebar-menu a:visited * {
             color: #6B7280 !important;
+            fill: currentColor !important;
+            stroke: currentColor !important;
         }
         
-        /* Принудительно устанавливаем цвет SVG-иконок в меню */
-        .sidebar-menu a:not(.bg-gray-50) svg path {
-            stroke: #6B7280 !important;
-            fill: none !important;
+        /* Более строгие правила для полного предотвращения перекрашивания ссылок */
+        .sidebar-menu a:link,
+        .sidebar-menu a:visited,
+        .sidebar-menu a:hover,
+        .sidebar-menu a:active {
+            color: #6B7280 !important;
+            text-decoration: none !important;
         }
         
-        .sidebar-menu a.bg-gray-50 svg path {
-            stroke: #2563EB !important;
-            fill: none !important;
-        }
-        
-        /* Фиксы для цветов иконок в посещенных ссылках */
+        /* Полностью переопределяем иконки в меню */
+        .sidebar-menu a .w-5.h-5 img,
+        .sidebar-menu a .w-5.h-5 svg path,
+        .sidebar-menu a:visited .w-5.h-5 img,
+        .sidebar-menu a:visited .w-5.h-5 svg path,
+        .sidebar-menu a:visited svg,
         .sidebar-menu a:visited svg path,
-        .sidebar-menu a:visited svg line,
-        .sidebar-menu a:visited svg rect,
-        .sidebar-menu a:visited svg circle {
+        .sidebar-menu a:visited img,
+        .sidebar-menu a svg,
+        .sidebar-menu a svg path,
+        .sidebar-menu a img {
+            fill: #6B7280 !important;
             stroke: #6B7280 !important;
-            fill: none !important;
+            color: #6B7280 !important;
+            filter: none !important;
         }
         
-        /* Принудительно устанавливаем цвет SVG для активного элемента */
-        .sidebar-menu a.bg-gray-50 svg path {
-            fill: none !important;
-            stroke: #2563EB !important;
+        /* Явно устанавливаем цвет для мобильных иконок */
+        .sidebar-menu a:visited .mobile-icon,
+        .sidebar-menu a:visited .desktop-icon,
+        .sidebar-menu a .mobile-icon,
+        .sidebar-menu a .desktop-icon {
+            filter: none !important;
         }
         
-        /* Убираем полоску слева от активного пункта */
-        .sidebar-menu a .w-1.h-6 {
-            display: none !important;
-        }
-        
-        /* Принудительно устанавливаем цвет для активных элементов меню */
-        .sidebar-menu a.bg-gray-50 {
+        /* Восстанавливаем правильный цвет для активных ссылок */
+        .sidebar-menu a.bg-gray-50,
+        .sidebar-menu a.bg-gray-50 .flex-1 {
             color: #2563EB !important;
         }
         
-        .sidebar-menu a:not(.bg-gray-50) {
-            color: #6B7280 !important;
+        /* Переопределяем стили для активной иконки */
+        .sidebar-menu a.bg-gray-50 .w-5.h-5 img,
+        .sidebar-menu a.bg-gray-50 .w-5.h-5 svg,
+        .sidebar-menu a.bg-gray-50 .w-5.h-5 svg path,
+        .sidebar-menu a.bg-gray-50 .desktop-icon,
+        .sidebar-menu a.bg-gray-50 .mobile-icon {
+            fill: #2563EB !important;
+            stroke: #2563EB !important;
+            color: #2563EB !important;
+            filter: invert(39%) sepia(42%) saturate(2086%) hue-rotate(203deg) brightness(99%) contrast(101%) !important;
         }
         
-        /* Принудительно устанавливаем цвет SVG-иконок в меню */
-        .sidebar-menu a:not(.bg-gray-50) svg path {
+        /* Кардинальное решение - запрещаем браузеру менять цвет посещенных ссылок */
+        a {
+            -webkit-tap-highlight-color: transparent !important;
+        }
+        
+        .sidebar-menu a:link svg *,
+        .sidebar-menu a:visited svg *,
+        .sidebar-menu a:hover svg *,
+        .sidebar-menu a:active svg * {
             stroke: #6B7280 !important;
             fill: none !important;
         }
         
-        .sidebar-menu a.bg-gray-50 svg path {
-            stroke: #2563EB !important;
+        /* Радикальные меры против фиолетового цвета */
+        .sidebar-menu a {
+            color: #6B7280 !important;
+        }
+        
+        .sidebar-menu a:visited {
+            color: #6B7280 !important;
+        }
+        
+        .sidebar-menu a svg path,
+        .sidebar-menu a svg line,
+        .sidebar-menu a svg rect,
+        .sidebar-menu a svg circle {
+            stroke: #6B7280 !important;
             fill: none !important;
         }
         
@@ -931,7 +974,15 @@
                 height: 24px !important;
             }
             
-            /* Удалены стили для мобильной навигации */
+            /* Серый фильтр для неактивных иконок */
+            nav.fixed.bottom-0 a.text-gray-600 .icon-container img {
+                filter: brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(142deg) brightness(96%) contrast(91%) !important;
+            }
+            
+            /* Синий фильтр для активной иконки */
+            nav.fixed.bottom-0 a.text-blue-600 .icon-container img {
+                filter: brightness(0) saturate(100%) invert(32%) sepia(96%) saturate(7461%) hue-rotate(220deg) brightness(97%) contrast(98%) !important;
+            }
             
             /* Добавляем отступ снизу для основного контента */
             .main-content {
@@ -1525,7 +1576,42 @@
     </div>
 </div>
 
-<!-- Удалено нижнее мобильное меню -->
+<!-- Нижнее мобильное меню -->
+<nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 hidden">
+    <div class="grid grid-cols-5 h-16">
+        <a href="{% url 'core:dashboard' %}" class="flex flex-col items-center text-blue-600 relative">
+            <div class="icon-container relative w-8 h-8 flex items-center justify-center">
+                <img src="{% static 'core/img/mobile/home.svg' %}" alt="Home" class="w-6 h-6">
+            </div>
+            <span class="text-xs text-[10px] mt-1">Главная</span>
+            <div class="absolute -bottom-2 left-0 right-0 h-0.5 bg-blue-600 rounded-full"></div>
+        </a>
+        <a href="{% url 'core:tasks' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600 relative">
+            <div class="icon-container relative w-8 h-8 flex items-center justify-center">
+                <img src="{% static 'core/img/mobile/task.svg' %}" alt="Tasks" class="w-6 h-6">
+            </div>
+            <span class="text-xs text-[10px] mt-1">Задачи</span>
+        </a>
+        <a href="{% url 'core:map' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600 relative">
+            <div class="icon-container relative w-8 h-8 flex items-center justify-center">
+                <img src="{% static 'core/img/mobile/location.svg' %}" alt="Map" class="w-6 h-6">
+            </div>
+            <span class="text-xs text-[10px] mt-1">Карта</span>
+        </a>
+        <a href="{% url 'core:vehicles' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600 relative">
+            <div class="icon-container relative w-8 h-8 flex items-center justify-center">
+                <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Vehicles" class="w-6 h-6">
+            </div>
+            <span class="text-xs text-[10px] mt-1">Грузовики</span>
+        </a>
+        <a href="{% url 'core:employees' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600 relative">
+            <div class="icon-container relative w-8 h-8 flex items-center justify-center">
+                <img src="{% static 'core/img/mobile/employee.svg' %}" alt="Employees" class="w-6 h-6">
+            </div>
+            <span class="text-xs text-[10px] mt-1">Сотрудники</span>
+        </a>
+    </div>
+</nav>
 
 </body>
 <script>
@@ -1623,20 +1709,61 @@
     
     // Функция для адаптации интерфейса под планшеты
     function adjustLayoutForTablet() {
-        // Адаптируем интерфейс для планшетов если ширина окна меньше или равна 1100px
         if (window.innerWidth <= 1100) {
-            // Добавляем класс режима планшета
+            // Добавляем класс для планшетного режима
             document.body.classList.add('tablet-mode');
             
-            // Скрываем десктопные иконки и показываем мобильные
-            document.querySelectorAll('.desktop-icon').forEach(function(icon) {
-                icon.style.display = 'none';
-            });
+            // Удаляем код, который показывает мобильное меню, так как меню было удалено
             
-            document.querySelectorAll('.mobile-icon').forEach(function(icon) {
-                icon.style.display = 'block';
-                icon.style.width = '24px';
-                icon.style.height = '24px';
+            // Скрываем десктопные иконки и показываем мобильные
+            const menuItems = document.querySelectorAll('.menu-item');
+            menuItems.forEach(function(item) {
+                const desktopIcon = item.querySelector('.desktop-icon');
+                const mobileIcon = item.querySelector('.mobile-icon');
+                
+                if (desktopIcon) {
+                    desktopIcon.style.display = 'none';
+                }
+                
+                if (mobileIcon) {
+                    mobileIcon.style.display = 'block';
+                    mobileIcon.style.width = '24px';
+                    mobileIcon.style.height = '24px';
+                }
+                
+                // Устанавливаем flex и центрирование для пунктов меню
+                item.style.display = 'flex';
+                item.style.flexDirection = 'column';
+                item.style.alignItems = 'center';
+                
+                // Добавляем индикатор активности
+                const activeIndicator = item.querySelector('.active-indicator');
+                if (activeIndicator && item.classList.contains('active')) {
+                    activeIndicator.style.display = 'block';
+                    activeIndicator.style.width = '4px';
+                    activeIndicator.style.height = '24px';
+                    activeIndicator.style.backgroundColor = '#3B82F6';
+                    activeIndicator.style.marginRight = '8px';
+                } else if (activeIndicator) {
+                    activeIndicator.style.display = 'none';
+                }
+                
+                // Изменяем стили для текста
+                const text = item.querySelector('.menu-text');
+                if (text) {
+                    text.style.fontSize = '10px';
+                    text.style.marginTop = '4px';
+                }
+                
+                // Изменяем стили для SVG внутри активных пунктов
+                if (item.classList.contains('active')) {
+                    const svgElements = item.querySelectorAll('svg path');
+                    svgElements.forEach(function(svgPath) {
+                        if (svgPath) {
+                            svgPath.style.fill = '#3B82F6';
+                        }
+                    });
+                }
             });
             
             // Адаптируем карточки грузовиков для полной ширины
@@ -1659,13 +1786,47 @@
         // Удаляем класс режима планшета
         document.body.classList.remove('tablet-mode');
         
-        // Возвращаем десктопные иконки и скрываем мобильные
-        document.querySelectorAll('.desktop-icon').forEach(function(icon) {
-            icon.style.display = 'block';
-        });
+        // Удаляем код, который скрывает мобильное меню, так как меню было удалено
         
-        document.querySelectorAll('.mobile-icon').forEach(function(icon) {
-            icon.style.display = 'none';
+        // Возвращаем десктопные иконки и скрываем мобильные
+        const menuItems = document.querySelectorAll('.menu-item');
+        menuItems.forEach(function(item) {
+            const desktopIcon = item.querySelector('.desktop-icon');
+            const mobileIcon = item.querySelector('.mobile-icon');
+            
+            if (desktopIcon) {
+                desktopIcon.style.display = 'block';
+            }
+            
+            if (mobileIcon) {
+                mobileIcon.style.display = 'none';
+            }
+            
+            // Возвращаем оригинальные стили для пунктов меню
+            item.style.display = '';
+            item.style.flexDirection = '';
+            item.style.alignItems = '';
+            
+            // Сбрасываем индикатор активности
+            const activeIndicator = item.querySelector('.active-indicator');
+            if (activeIndicator) {
+                activeIndicator.style.display = '';
+            }
+            
+            // Возвращаем оригинальные стили для текста
+            const text = item.querySelector('.menu-text');
+            if (text) {
+                text.style.fontSize = '';
+                text.style.marginTop = '';
+            }
+            
+            // Сбрасываем стили для SVG
+            const svgElements = item.querySelectorAll('svg path');
+            svgElements.forEach(function(svgPath) {
+                if (svgPath) {
+                    svgPath.style.fill = '';
+                }
+            });
         });
         
         // Возвращаем оригинальные стили для карточек грузовиков
@@ -2012,81 +2173,3 @@
         });
     }
 </script>
-
-<!-- Нижнее мобильное меню -->
-<nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 hidden">
-    <div class="flex justify-around items-center px-4 py-2">
-        <a href="{% url 'core:home' %}" class="flex flex-col items-center text-blue-600 relative">
-            <div class="icon-container relative w-8 h-8 flex items-center justify-center">
-                <img src="{% static 'core/img/mobile/home.svg' %}" alt="Home" class="w-6 h-6">
-            </div>
-            <span class="text-xs text-[10px] mt-1">Главная</span>
-            <div class="absolute -bottom-2 left-0 right-0 h-0.5 bg-blue-600 rounded-full"></div>
-        </a>
-        <a href="{% url 'core:tasks' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600 relative">
-            <div class="icon-container relative w-8 h-8 flex items-center justify-center">
-                <img src="{% static 'core/img/mobile/check-square.svg' %}" alt="Tasks" class="w-6 h-6">
-            </div>
-            <span class="text-xs text-[10px] mt-1">Задачи</span>
-        </a>
-        <a href="{% url 'core:map' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600 relative">
-            <div class="icon-container relative w-8 h-8 flex items-center justify-center">
-                <img src="{% static 'core/img/mobile/location.svg' %}" alt="Map" class="w-6 h-6">
-            </div>
-            <span class="text-xs text-[10px] mt-1">Карта</span>
-        </a>
-        <a href="{% url 'core:vehicles' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600 relative">
-            <div class="icon-container relative w-8 h-8 flex items-center justify-center">
-                <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Vehicles" class="w-6 h-6">
-            </div>
-            <span class="text-xs text-[10px] mt-1">Грузовики</span>
-        </a>
-        <a href="{% url 'core:employees' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600 relative">
-            <div class="icon-container relative w-8 h-8 flex items-center justify-center">
-                <img src="{% static 'core/img/mobile/employee.svg' %}" alt="Employees" class="w-6 h-6">
-            </div>
-            <span class="text-xs text-[10px] mt-1">Сотрудники</span>
-        </a>
-    </div>
-</nav>
-
-<style>
-    /* Стили для мобильного меню */
-    @media (max-width: 1100px) {
-        /* Убираем меню для планшетной и мобильной версий */
-        .sidebar {
-            display: none;
-        }
-        
-        .main-content {
-            margin-left: 0;
-        }
-        
-        /* Показываем иконки для мобильного меню */
-        nav.fixed.bottom-0.hidden {
-            display: block;
-        }
-        
-        /* Устанавливаем размер и фильтр для мобильных иконок */
-        .icon-container img {
-            width: 24px;
-            height: 24px;
-        }
-        
-        /* Серый фильтр для неактивных иконок */
-        nav.fixed.bottom-0 a.text-gray-600 .icon-container img {
-            filter: brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(142deg) brightness(96%) contrast(91%);
-        }
-        
-        /* Синий фильтр для активной иконки */
-        nav.fixed.bottom-0 a.text-blue-600 .icon-container img {
-            filter: brightness(0) saturate(100%) invert(32%) sepia(96%) saturate(7461%) hue-rotate(220deg) brightness(97%) contrast(98%);
-        }
-        
-        .main-content {
-            padding-bottom: 70px;
-        }
-    }
-</style>
-
-</html>
