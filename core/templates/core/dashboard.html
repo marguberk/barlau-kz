@@ -674,18 +674,7 @@
                 line-height: 1.2 !important;
             }
             
-            /* Нижнее меню навигации */
-            .mobile-nav a {
-                font-size: 0.5rem !important;
-                max-width: 48px !important;
-                letter-spacing: -0.01em !important;
-            }
-            
-            .mobile-nav .mobile-icon {
-                width: 24px !important;
-                height: 24px !important;
-                margin-bottom: 4px !important;
-            }
+            /* Удалены стили для мобильного меню */
         }
         
         /* Убираем фиолетовое подсвечивание посещенных ссылок */
@@ -1630,10 +1619,10 @@
             // Удаляем код, который показывает мобильное меню, так как меню было удалено
             
             // Скрываем десктопные иконки и показываем мобильные
-            const menuItems = document.querySelectorAll('.menu-item');
+            var menuItems = document.querySelectorAll('.menu-item');
             menuItems.forEach(function(item) {
-                const desktopIcon = item.querySelector('.desktop-icon');
-                const mobileIcon = item.querySelector('.mobile-icon');
+                var desktopIcon = item.querySelector('.desktop-icon');
+                var mobileIcon = item.querySelector('.mobile-icon');
                 
                 if (desktopIcon) {
                     desktopIcon.style.display = 'none';
@@ -1651,7 +1640,7 @@
                 item.style.alignItems = 'center';
                 
                 // Добавляем индикатор активности
-                const activeIndicator = item.querySelector('.active-indicator');
+                var activeIndicator = item.querySelector('.active-indicator');
                 if (activeIndicator && item.classList.contains('active')) {
                     activeIndicator.style.display = 'block';
                     activeIndicator.style.width = '4px';
@@ -1663,7 +1652,7 @@
                 }
                 
                 // Изменяем стили для текста
-                const text = item.querySelector('.menu-text');
+                var text = item.querySelector('.menu-text');
                 if (text) {
                     text.style.fontSize = '10px';
                     text.style.marginTop = '4px';
@@ -1671,7 +1660,7 @@
                 
                 // Изменяем стили для SVG внутри активных пунктов
                 if (item.classList.contains('active')) {
-                    const svgElements = item.querySelectorAll('svg path');
+                    var svgElements = item.querySelectorAll('svg path');
                     svgElements.forEach(function(svgPath) {
                         if (svgPath) {
                             svgPath.style.fill = '#3B82F6';
@@ -1681,7 +1670,7 @@
             });
             
             // Адаптируем карточки грузовиков для полной ширины
-            const truckCards = document.querySelectorAll('.truck-card');
+            var truckCards = document.querySelectorAll('.truck-card');
             truckCards.forEach(function(card) {
                 card.style.width = '100%';
                 
@@ -1703,10 +1692,10 @@
         // Удаляем код, который скрывает мобильное меню, так как меню было удалено
         
         // Возвращаем десктопные иконки и скрываем мобильные
-        const menuItems = document.querySelectorAll('.menu-item');
+        var menuItems = document.querySelectorAll('.menu-item');
         menuItems.forEach(function(item) {
-            const desktopIcon = item.querySelector('.desktop-icon');
-            const mobileIcon = item.querySelector('.mobile-icon');
+            var desktopIcon = item.querySelector('.desktop-icon');
+            var mobileIcon = item.querySelector('.mobile-icon');
             
             if (desktopIcon) {
                 desktopIcon.style.display = 'block';
@@ -1722,20 +1711,20 @@
             item.style.alignItems = '';
             
             // Сбрасываем индикатор активности
-            const activeIndicator = item.querySelector('.active-indicator');
+            var activeIndicator = item.querySelector('.active-indicator');
             if (activeIndicator) {
                 activeIndicator.style.display = '';
             }
             
             // Возвращаем оригинальные стили для текста
-            const text = item.querySelector('.menu-text');
+            var text = item.querySelector('.menu-text');
             if (text) {
                 text.style.fontSize = '';
                 text.style.marginTop = '';
             }
             
             // Сбрасываем стили для SVG
-            const svgElements = item.querySelectorAll('svg path');
+            var svgElements = item.querySelectorAll('svg path');
             svgElements.forEach(function(svgPath) {
                 if (svgPath) {
                     svgPath.style.fill = '';
@@ -1744,7 +1733,7 @@
         });
         
         // Возвращаем оригинальные стили для карточек грузовиков
-        const truckCards = document.querySelectorAll('.truck-card');
+        var truckCards = document.querySelectorAll('.truck-card');
         truckCards.forEach(function(card) {
             card.style.width = '';
             card.style.borderColor = '';
@@ -2115,16 +2104,10 @@
                 mainContent.style.marginLeft = '0';
             }
             
-            // Добавляем отступ для всего содержимого, чтобы оно не перекрывалось нижним меню
+            // Добавляем отступ для всего содержимого
             var contentWrapper = document.querySelector('.content-wrapper');
             if (contentWrapper) {
                 contentWrapper.style.paddingBottom = '80px';
-            }
-            
-            // Показываем мобильное меню
-            var mobileNav = document.querySelector('.mobile-nav');
-            if (mobileNav) {
-                mobileNav.classList.remove('hidden');
             }
         }
         
@@ -2146,12 +2129,6 @@
             var contentWrapper = document.querySelector('.content-wrapper');
             if (contentWrapper) {
                 contentWrapper.style.paddingBottom = '0';
-            }
-            
-            // Скрываем мобильное меню
-            var mobileNav = document.querySelector('.mobile-nav');
-            if (mobileNav) {
-                mobileNav.classList.add('hidden');
             }
         }
     });
