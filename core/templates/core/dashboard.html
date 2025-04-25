@@ -2153,32 +2153,32 @@
             <div class="icon-container relative w-8 h-8 flex items-center justify-center">
                 <img src="{% static 'core/img/mobile/home.svg' %}" alt="Home" class="w-6 h-6">
             </div>
-            <span class="text-xs text-[10px] mt-1">Главная</span>
+            <span class="text-xs text-[10px] mt-1 text-gray-500" style="font-size: 0.7rem;">Главная</span>
             <div class="absolute -bottom-2 left-0 right-0 h-0.5 bg-blue-600 rounded-full"></div>
         </a>
         <a href="{% url 'core:tasks' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600 relative">
             <div class="icon-container relative w-8 h-8 flex items-center justify-center">
                 <img src="{% static 'core/img/mobile/check-square.svg' %}" alt="Tasks" class="w-6 h-6">
             </div>
-            <span class="text-xs text-[10px] mt-1">Задачи</span>
+            <span class="text-xs text-[10px] mt-1 text-gray-500" style="font-size: 0.7rem;">Задачи</span>
         </a>
         <a href="{% url 'core:map' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600 relative">
             <div class="icon-container relative w-8 h-8 flex items-center justify-center">
                 <img src="{% static 'core/img/mobile/location.svg' %}" alt="Map" class="w-6 h-6">
             </div>
-            <span class="text-xs text-[10px] mt-1">Карта</span>
+            <span class="text-xs text-[10px] mt-1 text-gray-500" style="font-size: 0.7rem;">Карта</span>
         </a>
         <a href="{% url 'core:vehicles' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600 relative">
             <div class="icon-container relative w-8 h-8 flex items-center justify-center">
                 <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Vehicles" class="w-6 h-6">
             </div>
-            <span class="text-xs text-[10px] mt-1">Грузовики</span>
+            <span class="text-xs text-[10px] mt-1 text-gray-500" style="font-size: 0.7rem;">Грузовики</span>
         </a>
         <a href="{% url 'core:employees' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600 relative">
             <div class="icon-container relative w-8 h-8 flex items-center justify-center">
                 <img src="{% static 'core/img/mobile/employee.svg' %}" alt="Employees" class="w-6 h-6">
             </div>
-            <span class="text-xs text-[10px] mt-1">Сотрудники</span>
+            <span class="text-xs text-[10px] mt-1 text-gray-500" style="font-size: 0.7rem;">Сотрудники</span>
         </a>
     </div>
 </nav>
@@ -2208,8 +2208,15 @@
         .fixed.bottom-0 a.text-gray-600 img {
             filter: brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(142deg) brightness(96%) contrast(91%) !important;
         }
+        
+        /* Стили для текста в меню */
+        .fixed.bottom-0 span {
+            color: #6B7280 !important;
+            font-size: 0.7rem !important;
+        }
     }
 </style>
+
 </script>
 </script>
 </script>
