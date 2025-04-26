@@ -1,259 +1,122 @@
 {% extends "core/base.html" %}
-{% load static %}
 
-{% block title %}Задачи - BARLAU.KZ{% endblock %}
+{% block title %}Задачи | BARLAU.KZ{% endblock %}
 
 {% block content %}
-<div class="w-full flex">
-    <!-- Боковая панель -->
-    <div class="w-64 h-screen bg-white border-r border-zinc-200 flex flex-col justify-start items-start fixed left-0 bottom-0 sidebar">
-        <div class="self-stretch px-5 py-6 relative flex flex-col justify-start items-start gap-2 sidebar-logo">
-            <div class="py-1 inline-flex justify-start items-center gap-2">
-                <img src="{% static 'core/img/logo.png' %}" alt="Barlau Logo" class="w-10 h-6">
-                <div class="text-center justify-start text-black text-2xl font-semibold leading-normal">Barlau.kz</div>
+<div class="container mx-auto px-4 py-6">
+    <div class="max-w-6xl mx-auto">
+        <!-- CSRF Token -->
+        <div style="display: none">{% csrf_token %}</div>
+        <!-- Заголовок и кнопка добавления -->
+        <div class="flex justify-between items-center mb-6">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-800">Задачи</h1>
+                <p class="text-gray-600 mt-1">Управление рабочими задачами</p>
             </div>
-            <div class="w-56 h-0 left-[20px] top-[81px] absolute outline outline-1 outline-offset-[-0.50px] outline-zinc-200"></div>
-        </div>
-        <div class="self-stretch flex-1 px-4 pt-2 pb-4 flex flex-col justify-start items-center gap-4 sidebar-menu">
-            <div class="self-stretch flex flex-col justify-start items-start gap-1">
-                <div class="self-stretch flex flex-col justify-start items-start">
-                    <a href="{% url 'core:home' %}" class="self-stretch px-3 py-3.5 relative bg-white rounded-lg inline-flex justify-start items-center gap-2">
-                        <div class="w-5 h-5 relative overflow-hidden">
-                            <img src="{% static 'core/img/home.svg' %}" alt="Home" class="w-4 h-4 desktop-icon">
-                            <img src="{% static 'core/img/mobile/home.svg' %}" alt="Home" class="mobile-icon hidden">
-                        </div>
-                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Главная</div>
-                    </a>
-                    <a href="{% url 'core:tasks' %}" class="self-stretch px-3 py-3.5 bg-gray-50 rounded-lg inline-flex justify-start items-center gap-2 relative">
-                        <div class="w-1 h-6 left-0 top-[calc(50%-12px)] absolute bg-blue-600 rounded-tr-lg rounded-br-lg"></div>
-                        <div class="w-5 h-5 relative overflow-hidden">
-                            <img src="{% static 'core/img/check-square.svg' %}" alt="Tasks" class="w-4 h-4 desktop-icon">
-                            <img src="{% static 'core/img/mobile/check-square.svg' %}" alt="Tasks" class="mobile-icon hidden">
-                        </div>
-                        <div class="flex-1 justify-start text-blue-600 text-base font-medium leading-normal tracking-tight">Задачи</div>
-                    </a>
-                    <a href="{% url 'core:map' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex justify-start items-center gap-2">
-                        <div class="w-5 h-5 relative overflow-hidden">
-                            <img src="{% static 'core/img/location.svg' %}?v={% now 'U' %}" alt="Map" class="w-4 h-4 desktop-icon" onerror="this.onerror=null; this.src='/static/core/img/location.svg'">
-                            <img src="{% static 'core/img/mobile/location.svg' %}" alt="Map" class="mobile-icon hidden">
-                        </div>
-                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Карта</div>
-                    </a>
-                    <a href="{% url 'core:vehicles' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex justify-start items-center gap-2">
-                        <div class="w-5 h-5 relative overflow-hidden">
-                            <img src="{% static 'core/img/truck.svg' %}" alt="Vehicles" class="w-4 h-4 desktop-icon">
-                            <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Vehicles" class="mobile-icon hidden">
-                        </div>
-                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Грузовики</div>
-                    </a>
-                    <a href="{% url 'core:employees' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex justify-start items-center gap-2">
-                        <div class="w-5 h-5 relative overflow-hidden">
-                            <img src="{% static 'core/img/employee.svg' %}" alt="Employees" class="w-4 h-4 desktop-icon">
-                            <img src="{% static 'core/img/mobile/employee.svg' %}" alt="Employees" class="mobile-icon hidden">
-                        </div>
-                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Сотрудники</div>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Основной контент -->
-    <div class="ml-64 flex-1 min-h-screen bg-gray-50 relative main-content">
-        <!-- Верхняя панель -->
-        <div class="w-full h-20 px-8 py-5 bg-white flex justify-between items-center">
-            <div class="justify-start text-zinc-950 text-2xl font-semibold leading-loose">Задачи</div>
-            <div class="flex justify-start items-center gap-3">
-                <div class="flex justify-start items-start gap-2">
-                    <a href="{% url 'core:notifications' %}" class="w-10 h-10 px-3 py-2 bg-white rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex justify-center items-center gap-1.5">
-                        <img src="{% static 'core/img/bell.svg' %}" alt="Notifications" class="w-5 h-5">
-                    </a>
-                </div>
-                <div class="flex justify-start items-center gap-1.5">
-                    {% if request.user.is_authenticated %}
-                        {% if request.user.photo %}
-                            <img class="w-8 h-8 rounded-full object-cover" src="{{ request.user.photo.url }}" />
-                        {% else %}
-                            <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
-                                </svg>
-                            </div>
-                        {% endif %}
-                    {% else %}
-                        <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
-                            </svg>
-                        </div>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-
-        <!-- Панель поиска и фильтра -->
-        <div class="w-full px-8 pt-8">
-            <div class="mb-6 flex flex-col sm:flex-row justify-between items-center gap-4">
-                <div class="flex-grow relative">
-                    <div class="flex h-10 w-full rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] border border-zinc-200 bg-white">
-                        <div class="flex items-center pl-3">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500">
-                                <circle cx="11" cy="11" r="8"></circle>
-                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                            </svg>
-                        </div>
-                        <input type="text" id="searchInput" placeholder="Поиск задач" class="px-2 py-2 w-full focus:outline-none text-gray-700 rounded-lg" />
-                    </div>
-                </div>
-                {% if user.role == 'DIRECTOR' or user.role == 'SUPERADMIN' or user.role == 'DISPATCHER' or user.is_superuser %}
-                <a href="{% url 'core:task-add' %}" id="addTaskBtn" 
-                        class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
-                        <line x1="12" y1="5" x2="12" y2="19"></line>
-                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                    </svg>
-                    Добавить задачу
-                </a>
-                {% endif %}
-            </div>
+            {% if user.role == 'DIRECTOR' or user.role == 'SUPERADMIN' or user.role == 'DISPATCHER' or user.is_superuser %}
+            <a href="{% url 'core:task-add' %}" id="addTaskBtn" 
+                    class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200">
+                <i class="fas fa-plus mr-2"></i>Добавить задачу
+            </a>
+            {% endif %}
         </div>
 
         <!-- Статистика -->
-        <div class="w-full px-8 pb-6">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div class="bg-white rounded-xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] border border-zinc-200 p-4">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm font-medium text-gray-600">Всего задач</p>
-                            <h3 class="text-2xl font-bold text-gray-800" id="totalTasks">0</h3>
-                        </div>
-                        <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-600">
-                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                                <line x1="9" y1="9" x2="15" y2="9"></line>
-                                <line x1="9" y1="12" x2="15" y2="12"></line>
-                                <line x1="9" y1="15" x2="15" y2="15"></line>
-                            </svg>
-                        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-6">
+            <div class="bg-white rounded-xl shadow-sm p-4 hover:shadow-md transition-shadow duration-200">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Всего задач</p>
+                        <h3 class="text-2xl font-bold text-gray-800" id="totalTasks">0</h3>
+                    </div>
+                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                        <i class="fas fa-tasks text-blue-600 text-xl"></i>
                     </div>
                 </div>
-                <div class="bg-white rounded-xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] border border-zinc-200 p-4">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm font-medium text-gray-600">Новые</p>
-                            <h3 class="text-2xl font-bold text-gray-800" id="newTasks">0</h3>
-                        </div>
-                        <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-600">
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <line x1="12" y1="8" x2="12" y2="16"></line>
-                                <line x1="8" y1="12" x2="16" y2="12"></line>
-                            </svg>
-                        </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm p-4 hover:shadow-md transition-shadow duration-200">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Новые</p>
+                        <h3 class="text-2xl font-bold text-gray-800" id="newTasks">0</h3>
+                    </div>
+                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                        <i class="fas fa-plus-circle text-blue-600 text-xl"></i>
                     </div>
                 </div>
-                <div class="bg-white rounded-xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] border border-zinc-200 p-4">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm font-medium text-gray-600">В работе</p>
-                            <h3 class="text-2xl font-bold text-gray-800" id="inProgressTasks">0</h3>
-                        </div>
-                        <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-yellow-600">
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <polyline points="12 6 12 12 16 14"></polyline>
-                            </svg>
-                        </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm p-4 hover:shadow-md transition-shadow duration-200">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">В работе</p>
+                        <h3 class="text-2xl font-bold text-gray-800" id="inProgressTasks">0</h3>
+                    </div>
+                    <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
+                        <i class="fas fa-spinner text-yellow-600 text-xl"></i>
                     </div>
                 </div>
-                <div class="bg-white rounded-xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] border border-zinc-200 p-4">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm font-medium text-gray-600">Завершенные</p>
-                            <h3 class="text-2xl font-bold text-gray-800" id="completedTasks">0</h3>
-                        </div>
-                        <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-600">
-                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                                <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                            </svg>
-                        </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm p-4 hover:shadow-md transition-shadow duration-200">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Завершенные</p>
+                        <h3 class="text-2xl font-bold text-gray-800" id="completedTasks">0</h3>
+                    </div>
+                    <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                        <i class="fas fa-check-circle text-green-600 text-xl"></i>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Фильтры задач -->
-        <div class="w-full px-8 pb-6">
-            <div class="bg-white rounded-xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] border border-zinc-200 p-6">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <!-- Статус -->
-                    <div class="space-y-2">
-                        <label class="text-sm font-medium text-gray-700 flex items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400 mr-2">
-                                <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path>
-                                <path d="M7 12h10"></path>
-                            </svg>
-                            Статус
-                        </label>
-                        <select id="statusFilter" 
-                                class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <option value="">Все статусы</option>
-                            <option value="NEW">Новые</option>
-                            <option value="IN_PROGRESS">В работе</option>
-                            <option value="COMPLETED">Завершенные</option>
-                            <option value="CANCELLED">Отмененные</option>
-                        </select>
+        <!-- Фильтры -->
+        <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- Поиск -->
+                <div class="space-y-2">
+                    <label class="text-sm font-medium text-gray-700 flex items-center">
+                        <i class="fas fa-search text-gray-400 mr-2"></i>Поиск
+                    </label>
+                    <div class="relative">
+                        <input type="text" id="searchInput" 
+                               class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm placeholder:text-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+                               placeholder="Поиск по названию...">
                     </div>
+                </div>
 
-                    <!-- Приоритет -->
-                    <div class="space-y-2">
-                        <label class="text-sm font-medium text-gray-700 flex items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400 mr-2">
-                                <path d="M2 20h.01"></path>
-                                <path d="M7 20v-4"></path>
-                                <path d="M12 20v-8"></path>
-                                <path d="M17 20v-12"></path>
-                                <path d="M22 4v16"></path>
-                            </svg>
-                            Приоритет
-                        </label>
-                        <select id="priorityFilter"
-                                class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <option value="">Все приоритеты</option>
-                            <option value="HIGH">Высокий</option>
-                            <option value="MEDIUM">Средний</option>
-                            <option value="LOW">Низкий</option>
-                        </select>
-                    </div>
+                <!-- Статус -->
+                <div class="space-y-2">
+                    <label class="text-sm font-medium text-gray-700 flex items-center">
+                        <i class="fas fa-flag text-gray-400 mr-2"></i>Статус
+                    </label>
+                    <select id="statusFilter" 
+                            class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500">
+                        <option value="">Все статусы</option>
+                        <option value="NEW">Новые</option>
+                        <option value="IN_PROGRESS">В работе</option>
+                        <option value="COMPLETED">Завершенные</option>
+                        <option value="CANCELLED">Отмененные</option>
+                    </select>
+                </div>
 
-                    <!-- Дата -->
-                    <div class="space-y-2">
-                        <label class="text-sm font-medium text-gray-700 flex items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400 mr-2">
-                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                                <line x1="16" y1="2" x2="16" y2="6"></line>
-                                <line x1="8" y1="2" x2="8" y2="6"></line>
-                                <line x1="3" y1="10" x2="21" y2="10"></line>
-                            </svg>
-                            Срок выполнения
-                        </label>
-                        <select id="dateFilter"
-                                class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <option value="">Любая дата</option>
-                            <option value="today">Сегодня</option>
-                            <option value="tomorrow">Завтра</option>
-                            <option value="week">На этой неделе</option>
-                            <option value="month">В этом месяце</option>
-                            <option value="overdue">Просроченные</option>
-                        </select>
-                    </div>
+                <!-- Приоритет -->
+                <div class="space-y-2">
+                    <label class="text-sm font-medium text-gray-700 flex items-center">
+                        <i class="fas fa-exclamation-circle text-gray-400 mr-2"></i>Приоритет
+                    </label>
+                    <select id="priorityFilter"
+                            class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500">
+                        <option value="">Все приоритеты</option>
+                        <option value="HIGH">Высокий</option>
+                        <option value="MEDIUM">Средний</option>
+                        <option value="LOW">Низкий</option>
+                    </select>
                 </div>
             </div>
         </div>
 
         <!-- Список задач -->
-        <div id="tasksList" class="w-full px-8 pb-8 space-y-4 hidden">
+        <div id="tasksList" class="space-y-4 hidden">
             <!-- Задачи будут добавлены через JavaScript -->
         </div>
 
@@ -265,25 +128,16 @@
 
         <!-- Нет задач -->
         <div id="emptyState" class="hidden">
-            <div class="text-center py-12 px-8 bg-white rounded-xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] border border-zinc-200 mx-8">
+            <div class="text-center py-12 bg-white rounded-xl shadow-sm">
                 <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400">
-                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                        <line x1="9" y1="9" x2="15" y2="9"></line>
-                        <line x1="9" y1="12" x2="15" y2="12"></line>
-                        <line x1="9" y1="15" x2="15" y2="15"></line>
-                    </svg>
+                    <i class="fas fa-tasks text-gray-400 text-2xl"></i>
                 </div>
                 <h3 class="text-xl font-medium text-gray-800 mb-2">Нет задач</h3>
                 <p class="text-gray-600 mb-6 max-w-md mx-auto">Задачи пока не созданы или не найдены по выбранным фильтрам</p>
                 
                 {% if user.role == 'DIRECTOR' or user.role == 'SUPERADMIN' or user.role == 'DISPATCHER' or user.is_superuser %}
                 <a href="{% url 'core:task-add' %}" class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
-                        <line x1="12" y1="5" x2="12" y2="19"></line>
-                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                    </svg>
-                    Создать первую задачу
+                    <i class="fas fa-plus mr-2"></i>Создать первую задачу
                 </a>
                 {% endif %}
             </div>
@@ -291,162 +145,27 @@
 
         <!-- Ошибка -->
         <div id="errorState" class="hidden">
-            <div class="text-center py-12 px-8 bg-white rounded-xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] border border-zinc-200 mx-8">
+            <div class="text-center py-12 bg-white rounded-xl shadow-sm">
                 <div class="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-red-500">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <line x1="12" y1="8" x2="12" y2="12"></line>
-                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                    </svg>
+                    <i class="fas fa-exclamation-triangle text-red-500 text-2xl"></i>
                 </div>
                 <h3 class="text-xl font-medium text-gray-800 mb-2">Ошибка загрузки</h3>
                 <p class="text-gray-600 mb-6 max-w-md mx-auto" id="errorMessage">Не удалось загрузить данные. Попробуйте обновить страницу.</p>
                 
                 <button id="retryButton" class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
-                        <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38"></path>
-                    </svg>
-                    Повторить
+                    <i class="fas fa-sync-alt mr-2"></i>Повторить
                 </button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Нижнее мобильное меню - показываем только на мобильных устройствах -->
-<nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 hidden max-lg:block">
-    <div class="flex justify-around items-center px-4 py-2">
-        <a href="{% url 'core:home' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600 relative">
-            <div class="icon-container relative w-8 h-8 flex items-center justify-center">
-                <img src="{% static 'core/img/mobile/home.svg' %}" alt="Home" class="w-6 h-6">
-            </div>
-            <span class="text-xs text-[10px] mt-1">Главная</span>
-        </a>
-        <a href="{% url 'core:tasks' %}" class="flex flex-col items-center text-blue-600 relative">
-            <div class="icon-container relative w-8 h-8 flex items-center justify-center">
-                <img src="{% static 'core/img/mobile/check-square.svg' %}" alt="Tasks" class="w-6 h-6">
-            </div>
-            <span class="text-xs text-[10px] mt-1">Задачи</span>
-            <div class="absolute -bottom-2 left-0 right-0 h-0.5 bg-blue-600 rounded-full"></div>
-        </a>
-        <a href="{% url 'core:map' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600 relative">
-            <div class="icon-container relative w-8 h-8 flex items-center justify-center">
-                <img src="{% static 'core/img/mobile/location.svg' %}" alt="Map" class="w-6 h-6">
-            </div>
-            <span class="text-xs text-[10px] mt-1">Карта</span>
-        </a>
-        <a href="{% url 'core:vehicles' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600 relative">
-            <div class="icon-container relative w-8 h-8 flex items-center justify-center">
-                <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Vehicles" class="w-6 h-6">
-            </div>
-            <span class="text-xs text-[10px] mt-1">Грузовики</span>
-        </a>
-        <a href="{% url 'core:employees' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600 relative">
-            <div class="icon-container relative w-8 h-8 flex items-center justify-center">
-                <img src="{% static 'core/img/mobile/employee.svg' %}" alt="Employees" class="w-6 h-6">
-            </div>
-            <span class="text-xs text-[10px] mt-1">Сотрудники</span>
-        </a>
+<div class="self-stretch px-5 py-6 relative flex flex-col justify-start items-start gap-2 sidebar-logo">
+    <div class="py-1 inline-flex justify-start items-center gap-2">
+        <img src="{% static 'core/img/logo.png' %}" alt="Barlau Logo" class="w-10 h-6">
+        <div class="text-center justify-start text-black text-2xl font-semibold leading-normal">Barlau.kz</div>
     </div>
-</nav>
-
-<style>
-    /* Обновленные стили для боковых иконок меню */
-    .sidebar-menu a {
-        color: #6B7280 !important; /* Серый цвет для неактивных пунктов */
-    }
-    
-    .sidebar-menu a.bg-gray-50 {
-        color: #2563EB !important; /* Синий цвет для активного пункта */
-    }
-    
-    .sidebar-menu a img.desktop-icon {
-        filter: brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(142deg) brightness(96%) contrast(91%); /* Серый фильтр для неактивных иконок */
-    }
-    
-    .sidebar-menu a.bg-gray-50 img.desktop-icon {
-        filter: brightness(0) saturate(100%) invert(32%) sepia(96%) saturate(7461%) hue-rotate(220deg) brightness(97%) contrast(98%); /* Синий фильтр для активной иконки */
-    }
-    
-    /* Общие стили для фиксации цветов иконок в меню */
-    a, a:visited, a:link, a:hover, a:active, 
-    a *, a:visited *, a:link *, a:hover *, a:active * {
-        text-decoration: none !important;
-    }
-
-    @media (max-width: 1100px) {
-        /* Убираем меню для планшетной и мобильной версий */
-        .sidebar {
-            display: none;
-        }
-        
-        .main-content {
-            margin-left: 0;
-        }
-        
-        /* Устанавливаем размер и фильтр для мобильных иконок */
-        .icon-container img {
-            width: 24px;
-            height: 24px;
-        }
-        
-        /* Серый фильтр для неактивных иконок */
-        nav.fixed.bottom-0 a.text-gray-600 .icon-container img {
-            filter: brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(142deg) brightness(96%) contrast(91%);
-        }
-        
-        /* Синий фильтр для активной иконки */
-        nav.fixed.bottom-0 a.text-blue-600 .icon-container img {
-            filter: brightness(0) saturate(100%) invert(32%) sepia(96%) saturate(7461%) hue-rotate(220deg) brightness(97%) contrast(98%);
-        }
-        
-        /* Отступ снизу для контента на устройствах до 1100px */
-        .main-content {
-            padding-bottom: 70px;
-        }
-    }
-    
-    /* Скрываем нижнее меню на этой странице для ПК версии */
-    body > nav.fixed.bottom-0 {
-        display: none !important;
-    }
-    
-    /* Скрываем верхнюю панель и корректируем отступы */
-    body > header.fixed.top-0 {
-        display: none !important;
-    }
-    
-    /* Убираем отступ от верхней панели */
-    main.mt-16 {
-        margin-top: 0 !important;
-    }
-
-    /* Стили для карточек задач */
-    .task-card {
-        transition: transform 0.2s, box-shadow 0.2s;
-    }
-    
-    .task-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-    }
-    
-    /* Стили для приоритетов задач */
-    .priority-high {
-        background-color: #FEE2E2;
-        color: #DC2626;
-    }
-    
-    .priority-medium {
-        background-color: #FEF3C7;
-        color: #D97706;
-    }
-    
-    .priority-low {
-        background-color: #DBEAFE;
-        color: #2563EB;
-    }
-</style>
+</div>
 {% endblock %}
 
 {% block extra_js %}
@@ -456,30 +175,12 @@
     const searchInput = document.getElementById('searchInput');
     const statusFilter = document.getElementById('statusFilter');
     const priorityFilter = document.getElementById('priorityFilter');
-    const dateFilter = document.getElementById('dateFilter');
     const tasksList = document.getElementById('tasksList');
     const loadingIndicator = document.getElementById('loadingIndicator');
     const emptyState = document.getElementById('emptyState');
     const errorState = document.getElementById('errorState');
     const errorMessage = document.getElementById('errorMessage');
     const retryButton = document.getElementById('retryButton');
-    const totalTasksCounter = document.getElementById('totalTasks');
-    const newTasksCounter = document.getElementById('newTasks');
-    const inProgressTasksCounter = document.getElementById('inProgressTasks');
-    const completedTasksCounter = document.getElementById('completedTasks');
-
-    // Инициализация страницы
-    document.addEventListener('DOMContentLoaded', function() {
-        // Загрузка задач при загрузке страницы
-        loadTasks();
-        
-        // Обработчики событий для фильтров
-        if (searchInput) searchInput.addEventListener('input', applyFilters);
-        if (statusFilter) statusFilter.addEventListener('change', applyFilters);
-        if (priorityFilter) priorityFilter.addEventListener('change', applyFilters);
-        if (dateFilter) dateFilter.addEventListener('change', applyFilters);
-        if (retryButton) retryButton.addEventListener('click', loadTasks);
-    });
 
     // Загрузка данных о задачах с API
     async function loadTasks() {
@@ -487,16 +188,10 @@
         
         try {
             console.log('Загрузка задач...');
-            // Получаем CSRF токен из cookies
-            const csrfToken = document.cookie
-                .split('; ')
-                .find(row => row.startsWith('csrftoken='))
-                ?.split('=')[1];
-                
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
             const response = await fetch('/api/v1/tasks/?token=' + new Date().getTime(), {
                 headers: {
-                    'X-CSRFToken': csrfToken || '',
-                    'Content-Type': 'application/json'
+                    'X-CSRFToken': csrfToken || ''
                 }
             });
             
@@ -520,6 +215,7 @@
             } else {
                 displayTasks(allTasks);
                 updateStats(allTasks);
+                populateFilters(allTasks);
             }
         } catch (error) {
             console.error('Ошибка при загрузке данных:', error);
@@ -541,97 +237,159 @@
         tasksList.classList.remove('hidden');
         tasksList.innerHTML = tasks.map(task => {
             // Определение стилей в зависимости от статуса и приоритета
-            let statusClass, statusText, statusBg;
-            let priorityClass = '';
+            let statusClass, statusText, statusIcon;
             
             switch(task.status) {
                 case 'NEW':
                     statusClass = 'bg-blue-100 text-blue-800';
                     statusText = 'Новая';
-                    statusBg = 'border-l-4 border-blue-500';
+                    statusIcon = 'fas fa-file-alt';
                     break;
                 case 'IN_PROGRESS':
                     statusClass = 'bg-yellow-100 text-yellow-800';
                     statusText = 'В процессе';
-                    statusBg = 'border-l-4 border-yellow-500';
+                    statusIcon = 'fas fa-spinner fa-spin';
                     break;
                 case 'COMPLETED':
                     statusClass = 'bg-green-100 text-green-800';
                     statusText = 'Завершена';
-                    statusBg = 'border-l-4 border-green-500';
+                    statusIcon = 'fas fa-check-circle';
                     break;
                 case 'CANCELLED':
-                    statusClass = 'bg-gray-100 text-gray-800';
+                    statusClass = 'bg-red-100 text-red-800';
                     statusText = 'Отменена';
-                    statusBg = 'border-l-4 border-gray-500';
+                    statusIcon = 'fas fa-times-circle';
                     break;
                 default:
                     statusClass = 'bg-gray-100 text-gray-800';
-                    statusText = 'Статус не определен';
-                    statusBg = '';
+                    statusText = 'Неизвестно';
+                    statusIcon = 'fas fa-question-circle';
             }
             
+            let priorityClass, priorityText, priorityIcon;
+            
             switch(task.priority) {
-                case 'HIGH':
-                    priorityClass = 'priority-high';
-                    priorityText = 'Высокий';
+                case 'LOW':
+                    priorityClass = 'bg-gray-100 text-gray-800';
+                    priorityText = 'Низкий';
+                    priorityIcon = 'fas fa-arrow-down';
                     break;
                 case 'MEDIUM':
-                    priorityClass = 'priority-medium';
+                    priorityClass = 'bg-yellow-100 text-yellow-800';
                     priorityText = 'Средний';
+                    priorityIcon = 'fas fa-arrow-right';
                     break;
-                case 'LOW':
-                    priorityClass = 'priority-low';
-                    priorityText = 'Низкий';
+                case 'HIGH':
+                    priorityClass = 'bg-red-100 text-red-800';
+                    priorityText = 'Высокий';
+                    priorityIcon = 'fas fa-arrow-up';
                     break;
                 default:
-                    priorityClass = 'bg-gray-100 text-gray-600';
-                    priorityText = 'Не указан';
+                    priorityClass = 'bg-gray-100 text-gray-800';
+                    priorityText = 'Неизвестно';
+                    priorityIcon = 'fas fa-question';
             }
             
             // Форматирование даты
-            const dueDate = task.due_date ? new Date(task.due_date) : null;
-            const dueDateFormatted = dueDate ? dueDate.toLocaleDateString('ru-RU') : 'Не указан';
+            const dueDate = new Date(task.due_date);
+            const now = new Date();
+            const isOverdue = dueDate < now && task.status !== 'COMPLETED';
             
-            // Вычисление просрочки
-            const isOverdue = dueDate && new Date() > dueDate && task.status !== 'COMPLETED';
-            const overdueBadge = isOverdue ? '<span class="px-2 py-0.5 bg-red-100 text-red-800 rounded text-xs font-medium ml-2">Просрочена</span>' : '';
+            let dueDateClass = 'text-gray-700';
+            if (isOverdue) {
+                dueDateClass = 'text-red-600 font-semibold';
+            }
+            
+            const formattedDate = dueDate.toLocaleDateString('ru-RU', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit', 
+                minute: '2-digit'
+            });
             
             return `
-                <div class="bg-white rounded-xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] border border-zinc-200 p-4 task-card ${statusBg}">
-                    <div class="flex justify-between items-start mb-3">
-                        <div>
-                            <h3 class="text-lg font-semibold text-gray-800">${task.title}</h3>
-                            <div class="flex flex-wrap gap-2 mt-1">
-                                <span class="px-2 py-0.5 ${statusClass} rounded text-xs font-medium">${statusText}</span>
-                                <span class="px-2 py-0.5 ${priorityClass} rounded text-xs font-medium">${priorityText}</span>
-                                ${task.category ? `<span class="px-2 py-0.5 bg-purple-100 text-purple-800 rounded text-xs font-medium">${task.category}</span>` : ''}
+                <div class="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-200">
+                    <div class="p-6">
+                        <div class="flex justify-between items-start">
+                            <div class="flex-1">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-2">${task.title}</h3>
+                                <p class="text-gray-600 text-sm mb-3">${task.description || 'Без описания'}</p>
+                                
+                                <div class="flex flex-wrap gap-2 mb-4">
+                                    <span class="${statusClass} text-xs px-2.5 py-1 rounded-full flex items-center">
+                                        <i class="${statusIcon} mr-1"></i>${statusText}
+                                    </span>
+                                    <span class="${priorityClass} text-xs px-2.5 py-1 rounded-full flex items-center">
+                                        <i class="${priorityIcon} mr-1"></i>${priorityText}
+                                    </span>
+                                </div>
+                                
+                                <!-- Кнопки изменения статуса -->
+                                <div class="flex flex-wrap gap-2 mb-4">
+                                    ${task.status !== 'IN_PROGRESS' && task.status !== 'COMPLETED' && task.status !== 'CANCELLED' ? `
+                                        <button type="button" 
+                                                onclick="updateTaskStatus(${task.id}, 'IN_PROGRESS')" 
+                                                class="bg-yellow-100 text-yellow-800 text-xs px-3 py-1 rounded-full flex items-center hover:bg-yellow-200 transition">
+                                            <i class="fas fa-play mr-1"></i>Взять в работу
+                                        </button>
+                                    ` : ''}
+                                    
+                                    ${task.status !== 'COMPLETED' && task.status !== 'CANCELLED' ? `
+                                        <button type="button" 
+                                                onclick="updateTaskStatus(${task.id}, 'COMPLETED')" 
+                                                class="bg-green-100 text-green-800 text-xs px-3 py-1 rounded-full flex items-center hover:bg-green-200 transition">
+                                            <i class="fas fa-check mr-1"></i>Завершить
+                                        </button>
+                                    ` : ''}
+                                </div>
                             </div>
                         </div>
-                        <a href="/tasks/${task.id}/" class="text-blue-600 hover:text-blue-800">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M5 12h14"></path>
-                                <path d="m12 5 7 7-7 7"></path>
-                            </svg>
-                        </a>
-                    </div>
-                    <p class="text-gray-600 text-sm mb-3 line-clamp-2">${task.description || 'Нет описания'}</p>
-                    <div class="flex flex-wrap justify-between mt-4 pt-3 border-t border-gray-100">
-                        <div class="flex items-center text-sm text-gray-500">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1">
-                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                                <line x1="16" y1="2" x2="16" y2="6"></line>
-                                <line x1="8" y1="2" x2="8" y2="6"></line>
-                                <line x1="3" y1="10" x2="21" y2="10"></line>
-                            </svg>
-                            <span>Срок: ${dueDateFormatted} ${overdueBadge}</span>
+                        
+                        <div class="border-t border-gray-100 mt-3 pt-4">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <div class="flex items-center text-sm">
+                                    <i class="fas fa-user text-gray-400 mr-2"></i>
+                                    <span class="text-gray-700">
+                                        ${task.assigned_user_details ? `${task.assigned_user_details.first_name} ${task.assigned_user_details.last_name}` : 'Не назначен'}
+                                    </span>
+                                </div>
+                                <div class="flex items-center text-sm">
+                                    <i class="fas fa-truck text-gray-400 mr-2"></i>
+                                    <span class="text-gray-700">
+                                        ${task.vehicle_details ? `${task.vehicle_details.number} (${task.vehicle_details.brand})` : 'Не назначен'}
+                                    </span>
+                                </div>
+                                <div class="flex items-center text-sm">
+                                    <i class="fas fa-calendar text-gray-400 mr-2"></i>
+                                    <span class="${dueDateClass}">
+                                        ${formattedDate}${isOverdue ? ' (просрочено)' : ''}
+                                    </span>
+                                </div>
+                                <div class="flex items-center text-sm">
+                                    <i class="fas fa-user-edit text-gray-400 mr-2"></i>
+                                    <span class="text-gray-700">
+                                        ${task.created_by_details ? `${task.created_by_details.first_name} ${task.created_by_details.last_name}` : 'Система'}
+                                    </span>
+                                </div>
+                            </div>
                         </div>
-                        <div class="flex items-center text-sm text-gray-500">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1">
-                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                <circle cx="12" cy="7" r="4"></circle>
-                            </svg>
-                            <span>${task.assigned_to ? task.assigned_to : 'Не назначено'}</span>
+                        
+                        <div class="mt-4 flex justify-end space-x-2">
+                            {% if user.role == 'DIRECTOR' or user.role == 'SUPERADMIN' or user.role == 'DISPATCHER' or user.is_superuser %}
+                            <a href="/tasks/${task.id}/edit/" class="text-blue-600 hover:text-blue-800 text-sm flex items-center">
+                                <i class="fas fa-edit mr-1"></i> Редактировать
+                            </a>
+                            
+                            ${task.status !== 'COMPLETED' && task.status !== 'CANCELLED' ? `
+                                <form action="/tasks/${task.id}/archive/" method="post" class="inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="text-red-600 hover:text-red-800 text-sm ml-3 flex items-center" onclick="return confirm('Вы уверены, что хотите архивировать задачу?')">
+                                        <i class="fas fa-archive mr-1"></i> Архивировать
+                                    </button>
+                                </form>
+                            ` : ''}
+                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -641,84 +399,18 @@
     
     // Обновление статистики
     function updateStats(tasks) {
-        const newTasks = tasks.filter(task => task.status === 'NEW').length;
-        const inProgressTasks = tasks.filter(task => task.status === 'IN_PROGRESS').length;
-        const completedTasks = tasks.filter(task => task.status === 'COMPLETED').length;
+        const totalTasks = tasks.length;
+        const newTasks = tasks.filter(t => t.status === 'NEW').length;
+        const inProgressTasks = tasks.filter(t => t.status === 'IN_PROGRESS').length;
+        const completedTasks = tasks.filter(t => t.status === 'COMPLETED').length;
         
-        if (totalTasksCounter) totalTasksCounter.textContent = tasks.length;
-        if (newTasksCounter) newTasksCounter.textContent = newTasks;
-        if (inProgressTasksCounter) inProgressTasksCounter.textContent = inProgressTasks;
-        if (completedTasksCounter) completedTasksCounter.textContent = completedTasks;
+        document.getElementById('totalTasks').textContent = totalTasks;
+        document.getElementById('newTasks').textContent = newTasks;
+        document.getElementById('inProgressTasks').textContent = inProgressTasks;
+        document.getElementById('completedTasks').textContent = completedTasks;
     }
     
-    // Применение фильтров
-    function applyFilters() {
-        const searchTerm = searchInput.value.toLowerCase();
-        const statusValue = statusFilter.value;
-        const priorityValue = priorityFilter.value;
-        const dateValue = dateFilter.value;
-        
-        let filteredTasks = allTasks;
-        
-        // Фильтр по поиску
-        if (searchTerm) {
-            filteredTasks = filteredTasks.filter(task => 
-                task.title.toLowerCase().includes(searchTerm) || 
-                (task.description && task.description.toLowerCase().includes(searchTerm))
-            );
-        }
-        
-        // Фильтр по статусу
-        if (statusValue) {
-            filteredTasks = filteredTasks.filter(task => task.status === statusValue);
-        }
-        
-        // Фильтр по приоритету
-        if (priorityValue) {
-            filteredTasks = filteredTasks.filter(task => task.priority === priorityValue);
-        }
-        
-        // Фильтр по дате
-        if (dateValue) {
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            
-            const tomorrow = new Date(today);
-            tomorrow.setDate(tomorrow.getDate() + 1);
-            
-            const endOfWeek = new Date(today);
-            endOfWeek.setDate(today.getDate() + (7 - today.getDay()));
-            
-            const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-            
-            filteredTasks = filteredTasks.filter(task => {
-                if (!task.due_date) return false;
-                
-                const dueDate = new Date(task.due_date);
-                dueDate.setHours(0, 0, 0, 0);
-                
-                switch(dateValue) {
-                    case 'today':
-                        return dueDate.getTime() === today.getTime();
-                    case 'tomorrow':
-                        return dueDate.getTime() === tomorrow.getTime();
-                    case 'week':
-                        return dueDate >= today && dueDate <= endOfWeek;
-                    case 'month':
-                        return dueDate >= today && dueDate <= endOfMonth;
-                    case 'overdue':
-                        return dueDate < today && task.status !== 'COMPLETED';
-                    default:
-                        return true;
-                }
-            });
-        }
-        
-        // Отображение отфильтрованных задач
-        displayTasks(filteredTasks);
-    }
-    
-    // Управление отображением состояний интерфейса
+    // Вспомогательные функции для отображения UI
     function showLoading() {
         loadingIndicator.classList.remove('hidden');
         tasksList.classList.add('hidden');
@@ -731,10 +423,10 @@
     }
     
     function showEmpty() {
-        hideLoading();
-        hideError();
-        tasksList.classList.add('hidden');
         emptyState.classList.remove('hidden');
+        tasksList.classList.add('hidden');
+        loadingIndicator.classList.add('hidden');
+        errorState.classList.add('hidden');
     }
     
     function hideEmpty() {
@@ -742,15 +434,133 @@
     }
     
     function showError(message) {
-        hideLoading();
-        tasksList.classList.add('hidden');
-        emptyState.classList.add('hidden');
+        errorMessage.textContent = message || 'Не удалось загрузить данные. Попробуйте обновить страницу.';
         errorState.classList.remove('hidden');
-        errorMessage.textContent = message || 'Произошла ошибка при загрузке данных.';
+        tasksList.classList.add('hidden');
+        loadingIndicator.classList.add('hidden');
+        emptyState.classList.add('hidden');
     }
     
     function hideError() {
         errorState.classList.add('hidden');
     }
+    
+    // Применение фильтров
+    function applyFilters() {
+        const search = searchInput.value.toLowerCase();
+        const status = statusFilter.value;
+        const priority = priorityFilter.value;
+        
+        let filteredData = [...allTasks];
+        
+        if (search) {
+            filteredData = filteredData.filter(t => {
+                return (t.title && t.title.toLowerCase().includes(search)) || 
+                       (t.description && t.description.toLowerCase().includes(search));
+            });
+        }
+        
+        if (status) {
+            filteredData = filteredData.filter(t => t.status === status);
+        }
+        
+        if (priority) {
+            filteredData = filteredData.filter(t => t.priority === priority);
+        }
+        
+        displayTasks(filteredData);
+        updateStats(filteredData);
+    }
+    
+    // Обновление статуса задачи
+    async function updateTaskStatus(taskId, newStatus) {
+        try {
+            // Показываем индикатор загрузки
+            showLoading();
+            
+            const response = await fetch(`/api/v1/tasks/${taskId}/`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: JSON.stringify({ status: newStatus })
+            });
+            
+            if (!response.ok) {
+                if (response.status === 403 || response.status === 401) {
+                    window.location.href = '/accounts/login/?next=/tasks/';
+                    return;
+                }
+                throw new Error(`Ошибка HTTP: ${response.status}`);
+            }
+            
+            // Обновляем данные
+            await loadTasks();
+            
+        } catch (error) {
+            console.error('Ошибка при обновлении статуса задачи:', error);
+            showError(error.message);
+        }
+    }
+    
+    // Заполнение фильтров уникальными значениями из полученных данных
+    function populateFilters(tasks) {
+        // Заполняем фильтр статусов (хотя он уже статически заполнен в HTML)
+        // statusFilter.innerHTML = '<option value="">Все статусы</option>';
+        // const statuses = [...new Set(tasks.map(t => t.status).filter(Boolean))];
+        // statuses.forEach(status => {
+        //     const option = document.createElement('option');
+        //     option.value = status;
+        //     option.textContent = getStatusText(status);
+        //     statusFilter.appendChild(option);
+        // });
+        
+        // Заполняем фильтр приоритетов (хотя он уже статически заполнен в HTML)
+        // priorityFilter.innerHTML = '<option value="">Все приоритеты</option>';
+        // const priorities = [...new Set(tasks.map(t => t.priority).filter(Boolean))];
+        // priorities.forEach(priority => {
+        //     const option = document.createElement('option');
+        //     option.value = priority;
+        //     option.textContent = getPriorityText(priority);
+        //     priorityFilter.appendChild(option);
+        // });
+        
+        // Функция уже реализована статически в HTML, поэтому здесь ничего не делаем
+        console.log('Фильтры задач уже настроены в HTML');
+    }
+    
+    // Вспомогательная функция для получения текстового представления статуса
+    function getStatusText(status) {
+        switch(status) {
+            case 'NEW': return 'Новые';
+            case 'IN_PROGRESS': return 'В работе';
+            case 'COMPLETED': return 'Завершенные';
+            case 'CANCELLED': return 'Отмененные';
+            default: return 'Неизвестно';
+        }
+    }
+    
+    // Вспомогательная функция для получения текстового представления приоритета
+    function getPriorityText(priority) {
+        switch(priority) {
+            case 'HIGH': return 'Высокий';
+            case 'MEDIUM': return 'Средний';
+            case 'LOW': return 'Низкий';
+            default: return 'Неизвестно';
+        }
+    }
+    
+    // Инициализация
+    document.addEventListener('DOMContentLoaded', () => {
+        // Загрузка данных
+        loadTasks();
+        
+        // Обработчики событий
+        searchInput.addEventListener('input', applyFilters);
+        statusFilter.addEventListener('change', applyFilters);
+        priorityFilter.addEventListener('change', applyFilters);
+        retryButton.addEventListener('click', loadTasks);
+    });
 </script>
 {% endblock %} 
