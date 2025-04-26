@@ -26,7 +26,7 @@ class Notification(models.Model):
     title = models.CharField(max_length=200, verbose_name='Заголовок')
     message = models.TextField(verbose_name='Сообщение')
     link = models.CharField(max_length=200, verbose_name='Ссылка', blank=True)
-    is_read = models.BooleanField(default=False, verbose_name='Прочитано')
+    read = models.BooleanField(default=False, verbose_name='Прочитано')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Создано')
     
     class Meta:

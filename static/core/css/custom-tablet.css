@@ -3,6 +3,93 @@
  * Файл содержит стили, оптимизированные для планшетных устройств
  */
 
+/* Общие стили для боковой панели на ПК-версии */
+.sidebar {
+    width: 256px !important;
+    height: 100vh !important;
+    background-color: white !important;
+    border-right: 1px solid #e5e7eb !important;
+    position: fixed !important;
+    left: 0 !important;
+    bottom: 0 !important;
+    top: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow-y: auto !important;
+    z-index: 40 !important;
+}
+
+.sidebar-logo {
+    padding: 1.25rem !important;
+    border-bottom: 1px solid #e5e7eb !important;
+}
+
+.sidebar-menu {
+    padding: 0.5rem 1rem 1rem 1rem !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.5rem !important;
+    flex: 1 !important;
+}
+
+.sidebar-menu a {
+    padding: 0.875rem 0.75rem !important;
+    border-radius: 0.5rem !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    color: #6B7280 !important;
+    text-decoration: none !important;
+    position: relative !important;
+}
+
+.sidebar-menu a:hover {
+    background-color: #F9FAFB !important;
+}
+
+.sidebar-menu a.bg-gray-50 {
+    background-color: #F3F4F6 !important;
+    color: #2563EB !important;
+}
+
+.sidebar-menu a .w-1.h-6 {
+    width: 4px !important;
+    height: 24px !important;
+    background-color: #2563EB !important;
+    border-radius: 0 0.25rem 0.25rem 0 !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: calc(50% - 12px) !important;
+}
+
+.main-content {
+    margin-left: 256px !important;
+    flex: 1 !important;
+    background-color: #F9FAFB !important;
+    min-height: 100vh !important;
+    position: relative !important;
+}
+
+/* Стили для иконок в боковом меню */
+.sidebar-menu a .desktop-icon {
+    width: 16px !important;
+    height: 16px !important;
+}
+
+.sidebar-menu a.bg-gray-50 .desktop-icon {
+    filter: brightness(0) saturate(100%) invert(32%) sepia(96%) saturate(7461%) hue-rotate(220deg) brightness(97%) contrast(98%) !important;
+}
+
+.sidebar-menu a .flex-1 {
+    font-size: 1rem !important;
+    font-weight: 500 !important;
+    color: #6B7280 !important;
+}
+
+.sidebar-menu a.bg-gray-50 .flex-1 {
+    color: #2563EB !important;
+}
+
 /* Основные стили для планшетного режима */
 @media (max-width: 1100px) and (min-width: 641px) {
     /* Модификации основного макета */
@@ -103,37 +190,6 @@
         display: none !important;
     }
     
-    /* Оптимизация отображения нижнего меню */
-    .tablet-mode .fixed.bottom-0 {
-        display: flex !important;
-    }
-    
-    .tablet-mode .fixed.bottom-0 .flex.justify-around.items-center {
-        display: flex !important;
-        justify-content: space-evenly !important;
-        width: 100% !important;
-    }
-    
-    .tablet-mode .fixed.bottom-0 .flex.flex-col.items-center {
-        padding: 0.75rem 0 !important;
-    }
-    
-    .tablet-mode .fixed.bottom-0 .mobile-icon {
-        width: 32px !important;
-        height: 32px !important;
-        margin-bottom: 0.25rem !important;
-    }
-    
-    .tablet-mode .fixed.bottom-0 .text-xs {
-        font-size: 12px !important;
-    }
-    
-    /* Специфические стили для мобильных иконок в активном состоянии */
-    .tablet-mode a.bg-gray-50 .mobile-icon,
-    .tablet-mode a.text-blue-600 .mobile-icon {
-        filter: invert(37%) sepia(74%) saturate(1775%) hue-rotate(211deg) brightness(95%) contrast(98%) !important;
-    }
-    
     /* Оптимизация высоты и скроллинга для блоков в основном контенте */
     .tablet-mode .finance-block, 
     .tablet-mode .tasks-block {
@@ -176,69 +232,68 @@
         display: none !important;
     }
     
+    /* Добавляем отступ снизу для основного контента */
+    .main-content {
+        padding-bottom: 70px !important; /* Отступ для мобильного меню */
+    }
+    
     /* Показываем нижнее меню если оно должно быть скрыто */
     nav.fixed.bottom-0.hidden,
     nav.mobile-nav.hidden {
         display: block !important;
     }
     
-    /* Добавляем отступ снизу для контента, чтобы он не перекрывался с нижним меню */
-    .main-content {
-        padding-bottom: 70px !important;
-    }
-    
     /* Стили для нижней навигационной панели на мобильных устройствах */
-    .mobile-nav {
+    .fixed.bottom-0 {
         height: 60px !important;
         box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05) !important;
         z-index: 9999 !important; /* Значительно увеличиваем z-index для перекрытия всех элементов */
-        position: fixed !important;
-        bottom: 0 !important;
-        left: 0 !important;
-        right: 0 !important;
         background-color: white !important;
-        padding: 0 !important;
-        margin: 0 !important;
         border-top: 1px solid #E5E7EB !important;
-        transform: translateY(0) !important; /* Гарантия отсутствия трансформаций */
+    }
+    
+    /* Стили для иконок в нижнем меню */
+    .fixed.bottom-0 .icon-container {
+        width: 32px !important;
+        height: 32px !important;
         display: flex !important;
         justify-content: center !important;
         align-items: center !important;
-        box-sizing: border-box !important;
     }
     
-    /* Внутренний контейнер нижней навигации */
-    .mobile-nav .flex.justify-around {
-        width: 100% !important;
-        padding: 6px 0 !important; /* Уменьшаем отступы сверху и снизу */
-        margin: 0 !important;
+    .fixed.bottom-0 .icon-container img {
+        width: 24px !important;
+        height: 24px !important;
     }
     
-    /* Подгоняем высоту и внешний вид иконок */
-    .mobile-nav .mobile-icon {
-        width: 28px !important;
-        height: 28px !important;
-    }
-    
-    .mobile-nav .text-xs {
+    /* Стили для текста в нижнем меню */
+    .fixed.bottom-0 span {
         font-size: 10px !important;
+        line-height: 1.2 !important;
         margin-top: 4px !important;
+        text-align: center !important;
     }
     
-    /* Стили для активного элемента в нижнем меню */
-    .mobile-nav a.text-blue-600 .mobile-icon {
-        filter: invert(37%) sepia(74%) saturate(1775%) hue-rotate(211deg) brightness(95%) contrast(98%) !important;
+    /* Серый фильтр для неактивных иконок */
+    .fixed.bottom-0 a.text-gray-600 .icon-container img {
+        filter: brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(142deg) brightness(96%) contrast(91%) !important;
     }
     
-    /* Полностью и абсолютно скрываем базовое нижнее меню */
-    .base-bottom-nav {
-        display: none !important;
-        opacity: 0 !important;
-        visibility: hidden !important;
-        pointer-events: none !important;
-        z-index: -1 !important;
-        position: absolute !important;
-        bottom: -100px !important; /* Отодвигаем его далеко за пределы экрана */
+    /* Синий фильтр для активной иконки */
+    .fixed.bottom-0 a.text-blue-600 .icon-container img {
+        filter: brightness(0) saturate(100%) invert(32%) sepia(96%) saturate(7461%) hue-rotate(220deg) brightness(97%) contrast(98%) !important;
+    }
+    
+    /* Стили для активного пункта меню */
+    .fixed.bottom-0 a.text-blue-600 span {
+        color: #2563EB !important;
+    }
+    
+    /* Индикатор активного пункта меню */
+    .fixed.bottom-0 a.text-blue-600 .absolute {
+        height: 2px !important;
+        background-color: #2563EB !important;
+        border-radius: 9999px !important;
     }
 }
 
@@ -260,20 +315,13 @@
 }
 
 /* Обрабатываем SVG иконки в мобильной навигации */
-.fixed.bottom-0 a:visited img.mobile-icon {
-    filter: none !important;
+.fixed.bottom-0 a:visited img.mobile-icon,
+.fixed.bottom-0 a.text-gray-600:visited img {
+    filter: brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(142deg) brightness(96%) contrast(91%) !important;
 }
 
 .fixed.bottom-0 a.text-blue-600:visited img.mobile-icon,
-.fixed.bottom-0 a.text-blue-600 img.mobile-icon {
-    filter: invert(37%) sepia(74%) saturate(1775%) hue-rotate(211deg) brightness(95%) contrast(98%) !important;
-}
-
-.sidebar-logo {
-    padding: 1.25rem !important;
-    border-bottom: 1px solid #E5E7EB !important;
-}
-
-.sidebar-menu {
-    padding: 1.25rem !important;
+.fixed.bottom-0 a.text-blue-600:visited img,
+.fixed.bottom-0 a.text-blue-600 img {
+    filter: brightness(0) saturate(100%) invert(32%) sepia(96%) saturate(7461%) hue-rotate(220deg) brightness(97%) contrast(98%) !important;
 } 

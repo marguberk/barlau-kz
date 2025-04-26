@@ -35,6 +35,13 @@
                 </div>
             </div>
         </div>
+        <div class="shrink-0 ml-2">
+            <button class="h-10 px-3 py-2 bg-white rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] border border-zinc-200 flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500">
+                    <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+                </svg>
+            </button>
+        </div>
     </div>
 
     <!-- Список сотрудников -->
@@ -215,6 +222,17 @@
         .container {
             padding-left: 1rem;
             padding-right: 1rem;
+        }
+        
+        /* Улучшение размещения поиска и фильтра на мобильных устройствах */
+        .mb-6.flex.flex-row {
+            display: flex;
+            align-items: center;
+        }
+        
+        /* Обеспечиваем правильное соотношение между полем поиска и кнопкой фильтра */
+        .w-full.sm\:w-auto.flex-grow {
+            max-width: calc(100% - 60px);
         }
     }
 </style>
