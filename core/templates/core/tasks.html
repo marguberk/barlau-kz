@@ -125,7 +125,7 @@
                         <div class="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center mr-2">
                             <i class="fas fa-clipboard-list text-gray-600 text-xs"></i>
                         </div>
-                        <h3 class="text-gray-700 font-medium">To do</h3>
+                        <h3 class="text-gray-700 font-medium">Новые</h3>
                         <span class="ml-2 bg-gray-200 text-gray-700 text-xs font-medium px-2 py-0.5 rounded-full" id="todo-count">0</span>
                         <button class="ml-auto text-gray-400 hover:text-gray-600">
                             <i class="fas fa-plus"></i>
@@ -134,27 +134,7 @@
                             <i class="fas fa-ellipsis-h"></i>
                         </button>
                     </div>
-                    <div id="todo-tasks" class="space-y-3 overflow-y-auto max-h-[calc(100vh-240px)]">
-                        <!-- Задачи будут загружены через JavaScript -->
-                    </div>
-                </div>
-
-                <!-- Колонка Approved -->
-                <div class="kanban-column w-80 flex-shrink-0">
-                    <div class="flex items-center mb-3">
-                        <div class="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center mr-2">
-                            <i class="fas fa-check text-blue-600 text-xs"></i>
-                        </div>
-                        <h3 class="text-gray-700 font-medium">Approved</h3>
-                        <span class="ml-2 bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded-full" id="approved-count">0</span>
-                        <button class="ml-auto text-gray-400 hover:text-gray-600">
-                            <i class="fas fa-plus"></i>
-                        </button>
-                        <button class="ml-2 text-gray-400 hover:text-gray-600">
-                            <i class="fas fa-ellipsis-h"></i>
-                        </button>
-                    </div>
-                    <div id="approved-tasks" class="space-y-3 overflow-y-auto max-h-[calc(100vh-240px)]">
+                    <div id="todo-tasks" class="space-y-3 overflow-y-auto max-h-[calc(100vh-240px)] kanban-container" data-status="NEW">
                         <!-- Задачи будут загружены через JavaScript -->
                     </div>
                 </div>
@@ -165,7 +145,7 @@
                         <div class="w-6 h-6 rounded-full bg-orange-100 flex items-center justify-center mr-2">
                             <i class="fas fa-spinner text-orange-600 text-xs"></i>
                         </div>
-                        <h3 class="text-gray-700 font-medium">In Progress</h3>
+                        <h3 class="text-gray-700 font-medium">В работе</h3>
                         <span class="ml-2 bg-orange-100 text-orange-800 text-xs font-medium px-2 py-0.5 rounded-full" id="inprogress-count">0</span>
                         <button class="ml-auto text-gray-400 hover:text-gray-600">
                             <i class="fas fa-plus"></i>
@@ -174,7 +154,7 @@
                             <i class="fas fa-ellipsis-h"></i>
                         </button>
                     </div>
-                    <div id="inprogress-tasks" class="space-y-3 overflow-y-auto max-h-[calc(100vh-240px)]">
+                    <div id="inprogress-tasks" class="space-y-3 overflow-y-auto max-h-[calc(100vh-240px)] kanban-container" data-status="IN_PROGRESS">
                         <!-- Задачи будут загружены через JavaScript -->
                     </div>
                 </div>
@@ -185,7 +165,7 @@
                         <div class="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center mr-2">
                             <i class="fas fa-check-double text-green-600 text-xs"></i>
                         </div>
-                        <h3 class="text-gray-700 font-medium">Done</h3>
+                        <h3 class="text-gray-700 font-medium">Завершенные</h3>
                         <span class="ml-2 bg-green-100 text-green-800 text-xs font-medium px-2 py-0.5 rounded-full" id="done-count">0</span>
                         <button class="ml-auto text-gray-400 hover:text-gray-600">
                             <i class="fas fa-plus"></i>
@@ -194,7 +174,7 @@
                             <i class="fas fa-ellipsis-h"></i>
                         </button>
                     </div>
-                    <div id="done-tasks" class="space-y-3 overflow-y-auto max-h-[calc(100vh-240px)]">
+                    <div id="done-tasks" class="space-y-3 overflow-y-auto max-h-[calc(100vh-240px)] kanban-container" data-status="COMPLETED">
                         <!-- Задачи будут загружены через JavaScript -->
                     </div>
                 </div>
@@ -310,6 +290,7 @@
         border: 1px solid #e5e7eb;
         padding: 1rem;
         transition: all 0.2s ease;
+        cursor: move; /* Указатель при перетаскивании */
     }
     
     .task-card:hover {
@@ -336,6 +317,28 @@
     .tag-leadership {
         background-color: #f3e8ff;
         color: #a855f7;
+    }
+
+    /* Скрытие скроллбара при сохранении функциональности */
+    .kanban-container {
+        scrollbar-width: none; /* Firefox */
+        -ms-overflow-style: none; /* IE и Edge */
+    }
+    
+    .kanban-container::-webkit-scrollbar {
+        display: none; /* Chrome, Safari и Opera */
+    }
+    
+    /* Стили для перетаскиваемых элементов */
+    .task-card.dragging {
+        opacity: 0.5;
+        transform: scale(0.98);
+    }
+    
+    /* Стили для контейнера при перетаскивании */
+    .kanban-container.drag-over {
+        background-color: rgba(59, 130, 246, 0.05);
+        border-radius: 0.5rem;
     }
 
     @media (max-width: 1100px) {
@@ -417,7 +420,6 @@
     let allTasks = [];
     const searchInput = document.getElementById('searchInput');
     const todoTasksContainer = document.getElementById('todo-tasks');
-    const approvedTasksContainer = document.getElementById('approved-tasks');
     const inprogressTasksContainer = document.getElementById('inprogress-tasks');
     const doneTasksContainer = document.getElementById('done-tasks');
     const loadingIndicator = document.getElementById('loadingIndicator');
@@ -432,7 +434,7 @@
         
         try {
             console.log('Загрузка задач...');
-            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || document.querySelector('[name=csrftoken]')?.value;
             const response = await fetch('/api/v1/tasks/?token=' + new Date().getTime(), {
                 headers: {
                     'X-CSRFToken': csrfToken || ''
@@ -459,6 +461,8 @@
             } else {
                 displayTasks(allTasks);
                 updateCounts(allTasks);
+                // Инициализация drag-and-drop после загрузки задач
+                initDragAndDrop();
             }
         } catch (error) {
             console.error('Ошибка при загрузке данных:', error);
@@ -479,7 +483,6 @@
         
         // Очищаем все контейнеры
         todoTasksContainer.innerHTML = '';
-        approvedTasksContainer.innerHTML = '';
         inprogressTasksContainer.innerHTML = '';
         doneTasksContainer.innerHTML = '';
         
@@ -491,8 +494,8 @@
                 case 'NEW':
                     todoTasksContainer.appendChild(taskCard);
                     break;
-                case 'APPROVED':
-                    approvedTasksContainer.appendChild(taskCard);
+                case 'APPROVED': // Перемещаем задачи с APPROVED в NEW для простоты
+                    todoTasksContainer.appendChild(taskCard);
                     break;
                 case 'IN_PROGRESS':
                     inprogressTasksContainer.appendChild(taskCard);
@@ -511,6 +514,8 @@
         const div = document.createElement('div');
         div.className = 'task-card';
         div.dataset.taskId = task.id;
+        div.dataset.status = task.status;
+        div.draggable = true; // Делаем элемент перетаскиваемым
         
         // Определяем классы для приоритета
         let priorityClass = '';
@@ -535,20 +540,19 @@
             `${task.assigned_user_details.first_name} ${task.assigned_user_details.last_name}` : 
             'Не назначен';
         
-        // Генерируем тегов (маркетинг, внутренний, внешний и т.д.)
-        // В реальном приложении эти данные должны приходить с бэкенда
+        // Генерируем тегов
         const tagsHtml = `
             <div class="flex flex-wrap gap-1 mt-2">
-                <span class="tag-marketing text-xs px-2 py-0.5 rounded-full">Marketing</span>
-                <span class="tag-internal text-xs px-2 py-0.5 rounded-full">Internal</span>
+                <span class="tag-marketing text-xs px-2 py-0.5 rounded-full">Маркетинг</span>
+                <span class="tag-internal text-xs px-2 py-0.5 rounded-full">Внутренний</span>
             </div>`;
         
         // Аватары участников
         const avatarsHtml = `
             <div class="flex -space-x-1 mt-3">
-                <div class="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-xs text-blue-600 font-medium border border-white">A</div>
-                <div class="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center text-xs text-green-600 font-medium border border-white">B</div>
-                <div class="w-6 h-6 rounded-full bg-yellow-100 flex items-center justify-center text-xs text-yellow-600 font-medium border border-white">C</div>
+                <div class="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-xs text-blue-600 font-medium border border-white">А</div>
+                <div class="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center text-xs text-green-600 font-medium border border-white">Б</div>
+                <div class="w-6 h-6 rounded-full bg-yellow-100 flex items-center justify-center text-xs text-yellow-600 font-medium border border-white">В</div>
             </div>`;
         
         // Количество комментариев и вложений
@@ -575,24 +579,142 @@
             ${metaHtml}
         `;
         
-        // Добавляем обработчик клика для открытия детальной информации
-        div.addEventListener('click', function() {
-            // Здесь можно добавить переход на страницу задачи или показ модального окна
-            console.log('Открываем задачу:', task.id);
+        return div;
+    }
+    
+    // Инициализация drag-and-drop функциональности
+    function initDragAndDrop() {
+        const taskCards = document.querySelectorAll('.task-card');
+        const containers = document.querySelectorAll('.kanban-container');
+        
+        // Добавляем обработчики для каждой карточки
+        taskCards.forEach(card => {
+            card.addEventListener('dragstart', dragStart);
+            card.addEventListener('dragend', dragEnd);
+            
+            // Предотвращаем открытие задачи при начале перетаскивания
+            card.addEventListener('mousedown', function(e) {
+                if (e.target.closest('.task-card')) {
+                    card.draggable = true;
+                }
+            });
+            
+            // Восстанавливаем клик для открытия после перетаскивания
+            card.addEventListener('click', function(e) {
+                if (!card.classList.contains('dragging')) {
+                    console.log('Открываем задачу:', card.dataset.taskId);
+                    // Здесь можно добавить переход на страницу задачи или показ модального окна
+                }
+            });
         });
         
-        return div;
+        // Добавляем обработчики для каждого контейнера
+        containers.forEach(container => {
+            container.addEventListener('dragover', dragOver);
+            container.addEventListener('dragenter', dragEnter);
+            container.addEventListener('dragleave', dragLeave);
+            container.addEventListener('drop', drop);
+        });
+    }
+    
+    // Функции для обработки событий drag-and-drop
+    function dragStart(e) {
+        this.classList.add('dragging');
+        e.dataTransfer.setData('text/plain', this.dataset.taskId);
+        e.dataTransfer.effectAllowed = 'move';
+    }
+    
+    function dragEnd() {
+        this.classList.remove('dragging');
+    }
+    
+    function dragOver(e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+    }
+    
+    function dragEnter(e) {
+        e.preventDefault();
+        this.classList.add('drag-over');
+    }
+    
+    function dragLeave() {
+        this.classList.remove('drag-over');
+    }
+    
+    function drop(e) {
+        e.preventDefault();
+        this.classList.remove('drag-over');
+        
+        const id = e.dataTransfer.getData('text/plain');
+        const draggable = document.querySelector(`.task-card[data-task-id="${id}"]`);
+        const newStatus = this.dataset.status;
+        const oldStatus = draggable.dataset.status;
+        
+        if (oldStatus !== newStatus) {
+            // Обновляем статус в UI
+            draggable.dataset.status = newStatus;
+            this.appendChild(draggable);
+            
+            // Обновляем счетчики
+            updateCountsAfterDrop();
+            
+            // Здесь должен быть запрос к API для обновления статуса задачи
+            updateTaskStatus(id, newStatus);
+        }
+    }
+    
+    // Обновление статуса задачи на сервере
+    async function updateTaskStatus(taskId, newStatus) {
+        try {
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || document.querySelector('[name=csrftoken]')?.value;
+            
+            console.log(`Обновление статуса задачи ${taskId} на ${newStatus}`);
+            
+            const response = await fetch(`/api/v1/tasks/${taskId}/`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken || ''
+                },
+                body: JSON.stringify({ status: newStatus })
+            });
+            
+            if (!response.ok) {
+                throw new Error(`Ошибка HTTP: ${response.status}`);
+            }
+            
+            console.log(`Статус задачи ${taskId} успешно обновлен на ${newStatus}`);
+            
+            // Обновляем задачу в массиве allTasks
+            const taskIndex = allTasks.findIndex(t => t.id == taskId);
+            if (taskIndex !== -1) {
+                allTasks[taskIndex].status = newStatus;
+            }
+        } catch (error) {
+            console.error('Ошибка при обновлении статуса задачи:', error);
+            // Здесь можно добавить уведомление для пользователя об ошибке
+        }
+    }
+    
+    // Обновление счетчиков после перетаскивания
+    function updateCountsAfterDrop() {
+        const todoCount = document.querySelectorAll('#todo-tasks .task-card').length;
+        const inprogressCount = document.querySelectorAll('#inprogress-tasks .task-card').length;
+        const doneCount = document.querySelectorAll('#done-tasks .task-card').length;
+        
+        document.getElementById('todo-count').textContent = todoCount;
+        document.getElementById('inprogress-count').textContent = inprogressCount;
+        document.getElementById('done-count').textContent = doneCount;
     }
     
     // Обновление счетчиков в колонках
     function updateCounts(tasks) {
-        const todoCount = tasks.filter(t => t.status === 'NEW').length;
-        const approvedCount = tasks.filter(t => t.status === 'APPROVED').length;
+        const todoCount = tasks.filter(t => t.status === 'NEW' || t.status === 'APPROVED').length;
         const inprogressCount = tasks.filter(t => t.status === 'IN_PROGRESS').length;
         const doneCount = tasks.filter(t => t.status === 'COMPLETED').length;
         
         document.getElementById('todo-count').textContent = todoCount;
-        document.getElementById('approved-count').textContent = approvedCount;
         document.getElementById('inprogress-count').textContent = inprogressCount;
         document.getElementById('done-count').textContent = doneCount;
     }
