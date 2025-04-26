@@ -197,3 +197,56 @@ COMPANY_WORKING_HOURS = 'Пн-Пт: 9:00 - 18:00'
 LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/accounts/login/'
+
+# PythonAnywhere настройки
+# Постоянно расскомментируйте эти строки при развертывании на PythonAnywhere
+# Или создайте отдельный файл pythonanywhere_settings.py и импортируйте его
+
+'''
+DEBUG = False
+ALLOWED_HOSTS = ['yourusername.pythonanywhere.com']
+
+# Настройки базы данных для MySQL на PythonAnywhere
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'yourusername$barlau',
+        'USER': 'yourusername',
+        'PASSWORD': 'your-database-password',
+        'HOST': 'yourusername.mysql.pythonanywhere-services.com',
+        'PORT': '',
+    }
+}
+
+# Настройки для обслуживания медиа-файлов на PythonAnywhere
+MEDIA_URL = '/media/'
+MEDIA_ROOT = '/home/yourusername/barlau-kz/media'
+'''
+
+# PWA Настройки
+PWA_APP_NAME = 'BARLAU.KZ'
+PWA_APP_DESCRIPTION = 'Система управления логистикой и сотрудниками'
+PWA_APP_THEME_COLOR = '#2563EB'
+PWA_APP_BACKGROUND_COLOR = '#ffffff'
+PWA_APP_DISPLAY = 'standalone'
+PWA_APP_SCOPE = '/'
+PWA_APP_START_URL = '/'
+PWA_APP_STATUS_BAR_COLOR = 'black-translucent'
+PWA_APP_ICONS = [
+    {
+        'src': '/static/core/img/icons/icon-192x192.png',
+        'sizes': '192x192',
+        'type': 'image/png',
+    },
+    {
+        'src': '/static/core/img/icons/icon-512x512.png',
+        'sizes': '512x512',
+        'type': 'image/png',
+    }
+]
+PWA_APP_SPLASH_SCREEN = [
+    {
+        'src': '/static/core/img/icons/icon-512x512.png',
+        'media': '(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2)',
+    }
+]

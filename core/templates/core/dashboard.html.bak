@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barlau.kz - Система управления логистической компанией</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{% static 'core/css/dashboard.css' %}">
+    <link rel="stylesheet" href="{% static 'core/css/custom-tablet.css' %}">
+    <style>
+        body {
+            font-family: 'Inter Tight', sans-serif;
+        }
+        
+        /* Глобальный сброс цвета всех ссылок и посещенных ссылок на странице */
+        a, a:visited, a:link, a:hover, a:active, 
+        a *, a:visited *, a:link *, a:hover *, a:active * {
+            color: inherit !important;
+            fill: inherit !important;
+            stroke: inherit !important;
+            text-decoration: none !important;
+        }
+        
+        .item-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .item-row .label {
+            font-weight: 500;
+            color: #6b7280;
+        }
+        .item-row .value {
+            font-weight: 600;
+            color: #111827;
+        }
+        
+        /* Выравнивание высоты блоков финансов и задач в ПК-версии */
+        .finance-tasks {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem !important; /* Равный отступ как сверху, так и снизу */
+        }
+        
+        .finance-tasks > div {
+            display: flex;
+            flex-direction: column;
+            min-height: 400px !important; /* Фиксированная минимальная высота */
+            height: 400px !important; /* Фиксированная высота */
+        }
+        
+        /* Уменьшение вертикального отступа между рядами */
+        .stats-cards + .w-full.px-8.pt-8 {
+            padding-top: 1rem !important;
+        }
+        
+        /* Уменьшение отступа после блоков финансов и задач */
+        .finance-tasks + .w-full.px-8.pt-8.pb-8 {
+            padding-top: 1rem !important; /* Такой же отступ как сверху */
+            margin-top: 0 !important; /* Убираем возможный верхний отступ */
+        }
+        
+        /* Пульсирующий маркер на карте */
+        .map-marker-pulse {
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.2);
+                opacity: 0.8;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        
+        /* Обновленные стили для боковых иконок меню */
+        .sidebar-menu a {
+            color: #6B7280 !important; /* Серый цвет для неактивных пунктов */
+        }
+        
+        .sidebar-menu a.bg-gray-50 {
+            color: #2563EB !important; /* Синий цвет для активного пункта */
+        }
+        
+        .sidebar-menu a img.desktop-icon {
+            filter: brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(142deg) brightness(96%) contrast(91%); /* Серый фильтр для неактивных иконок */
+        }
+        
+        .sidebar-menu a.bg-gray-50 img.desktop-icon {
+            filter: brightness(0) saturate(100%) invert(32%) sepia(96%) saturate(7461%) hue-rotate(220deg) brightness(97%) contrast(98%); /* Синий фильтр для активной иконки */
+        }
+        
+        /* Общие стили для фиксации цветов иконок в меню */
+        a, a:visited, a:link, a:hover, a:active, 
+        a *, a:visited *, a:link *, a:hover *, a:active * {
+            text-decoration: none !important;
+        }
+
+        @media (max-width: 1100px) {
+            /* Убираем меню для планшетной и мобильной версий */
+            .sidebar {
+                display: none;
+            }
+            
+            .main-content {
+                margin-left: 0;
+                padding-bottom: 20px;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="w-full flex">
+        <!-- Боковая панель -->
+        <div class="w-64 h-screen bg-white border-r border-zinc-200 flex flex-col justify-start items-start fixed left-0 bottom-0 sidebar">
+            <div class="self-stretch px-5 py-6 relative flex flex-col justify-start items-start gap-2 sidebar-logo">
+                <div class="py-1 inline-flex justify-start items-center gap-2">
+                    <img src="{% static 'core/img/logo.png' %}" alt="Barlau Logo" class="w-10 h-6">
+                    <div class="text-center justify-start text-black text-2xl font-semibold leading-normal">Barlau.kz</div>
+                </div>
+                <div class="w-56 h-0 left-[20px] top-[81px] absolute outline outline-1 outline-offset-[-0.50px] outline-zinc-200"></div>
+            </div>
+            <div class="self-stretch flex-1 px-4 pt-2 pb-4 flex flex-col justify-start items-center gap-4 sidebar-menu">
+                <div class="self-stretch flex flex-col justify-start items-start gap-1">
+                    <div class="self-stretch flex flex-col justify-start items-start">
+                        <a href="{% url 'core:home' %}" class="self-stretch px-3 py-3.5 bg-gray-50 rounded-lg inline-flex justify-start items-center gap-2 relative">
+                            <div class="w-1 h-6 left-0 top-[calc(50%-12px)] absolute bg-blue-600 rounded-tr-lg rounded-br-lg"></div>
+                            <div class="w-5 h-5 relative overflow-hidden">
+                                <img src="{% static 'core/img/home.svg' %}" alt="Home" class="w-4 h-4 desktop-icon">
+                                <img src="{% static 'core/img/mobile/home.svg' %}" alt="Home" class="mobile-icon hidden">
+                            </div>
+                            <div class="flex-1 justify-start text-blue-600 text-base font-medium leading-normal tracking-tight">Главная</div>
+                        </a>
+                        <a href="{% url 'core:tasks' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex justify-start items-center gap-2">
+                            <div class="w-5 h-5 relative overflow-hidden">
+                                <img src="{% static 'core/img/check-square.svg' %}" alt="Tasks" class="w-4 h-4 desktop-icon">
+                                <img src="{% static 'core/img/mobile/check-square.svg' %}" alt="Tasks" class="mobile-icon hidden">
+                            </div>
+                            <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Задачи</div>
+                        </a>
+                        <a href="{% url 'core:map' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex justify-start items-center gap-2">
+                            <div class="w-5 h-5 relative overflow-hidden">
+                                <img src="{% static 'core/img/location.svg' %}?v={% now 'U' %}" alt="Map" class="w-4 h-4 desktop-icon" onerror="this.onerror=null; this.src='/static/core/img/location.svg'">
+                                <img src="{% static 'core/img/mobile/location.svg' %}" alt="Map" class="mobile-icon hidden">
+                            </div>
+                            <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Карта</div>
+                        </a>
+                        <a href="{% url 'core:vehicles' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex justify-start items-center gap-2">
+                            <div class="w-5 h-5 relative overflow-hidden">
+                                <img src="{% static 'core/img/truck.svg' %}" alt="Vehicles" class="w-4 h-4 desktop-icon">
+                                <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Vehicles" class="mobile-icon hidden">
+                            </div>
+                            <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Грузовики</div>
+                        </a>
+                        <a href="{% url 'core:employees' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex justify-start items-center gap-2">
+                            <div class="w-5 h-5 relative overflow-hidden">
+                                <img src="{% static 'core/img/employee.svg' %}" alt="Employees" class="w-4 h-4 desktop-icon">
+                                <img src="{% static 'core/img/mobile/employee.svg' %}" alt="Employees" class="mobile-icon hidden">
+                            </div>
+                            <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Сотрудники</div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Основной контент -->
+        <div class="ml-64 flex-1 min-h-screen bg-gray-50 relative main-content">
+            <!-- Верхняя панель -->
+            <div class="w-full h-20 px-8 py-5 bg-white flex justify-between items-center">
+                <div class="justify-start text-zinc-950 text-2xl font-semibold leading-loose">Главная</div>
+                <div class="flex justify-start items-center gap-3">
+                    <div class="flex justify-start items-start gap-2">
+                        <a href="{% url 'core:notifications' %}" class="w-10 h-10 px-3 py-2 bg-white rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex justify-center items-center gap-1.5">
+                            <img src="{% static 'core/img/bell.svg' %}" alt="Notifications" class="w-5 h-5">
+                        </a>
+                    </div>
+                    <div class="flex justify-start items-center gap-1.5">
+                        {% if request.user.is_authenticated %}
+                            {% if request.user.photo %}
+                                <img class="w-8 h-8 rounded-full object-cover" src="{{ request.user.photo.url }}" />
+                            {% else %}
+                                <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                                    </svg>
+                                </div>
+                            {% endif %}
+                        {% else %}
+                            <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Карточки статистики -->
+            <div class="w-full px-8 pt-8 flex justify-start items-start gap-4 stats-cards">
+                <div class="flex-1 px-5 py-6 bg-white rounded-2xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex flex-col justify-start items-start gap-4 overflow-hidden">
+                    <div class="self-stretch flex flex-col justify-start items-start gap-2">
+                        <div class="self-stretch inline-flex justify-between items-center">
+                            <div class="justify-start text-zinc-950 text-4xl font-semibold leading-10">{{ tasks_count|default:"0" }}</div>
+                            <div class="w-10 h-10 p-2 bg-blue-600 rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.10)] flex justify-center items-center gap-2 overflow-hidden" style="background: linear-gradient(135deg, #4287f5 0%, #2869db 100%);">
+                                <img src="{% static 'core/img/check-square.svg' %}" alt="Tasks" class="w-5 h-5 invert" style="filter: brightness(0) invert(1);">
+                            </div>
+                        </div>
+                        <div class="self-stretch justify-start text-gray-500 text-base font-normal leading-normal">Задач на сегодня</div>
+                    </div>
+                </div>
+                <div class="flex-1 px-5 py-6 bg-white rounded-2xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex flex-col justify-start items-start gap-4 overflow-hidden">
+                    <div class="self-stretch flex flex-col justify-start items-start gap-2">
+                        <div class="self-stretch inline-flex justify-between items-center">
+                            <div class="justify-start text-zinc-950 text-4xl font-semibold leading-10">{{ vehicles_count|default:"0" }}</div>
+                            <div class="w-10 h-10 p-2 bg-blue-600 rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.10)] flex justify-center items-center gap-2 overflow-hidden" style="background: linear-gradient(135deg, #4287f5 0%, #2869db 100%);">
+                                <img src="{% static 'core/img/truck.svg' %}" alt="Vehicles" class="w-5 h-5 invert" style="filter: brightness(0) invert(1);">
+                            </div>
+                        </div>
+                        <div class="self-stretch justify-start text-gray-500 text-base font-normal leading-normal">Машин в пути</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Финансы и задачи -->
+            <div class="w-full px-8 pt-8 flex justify-start items-start gap-4 finance-tasks">
+                <!-- Финансовая отчетность -->
+                <div class="w-2/3 bg-white rounded-2xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex flex-col justify-start items-start overflow-hidden">
+                    <div class="self-stretch px-5 py-4 border-b border-zinc-200 flex justify-between items-center">
+                        <div class="flex justify-start items-center gap-2">
+                            <img src="{% static 'core/img/finance.svg' %}" alt="Finance" class="w-6 h-6">
+                            <div class="justify-start text-black text-xl font-medium leading-loose tracking-tight">Финансовая отчетность</div>
+                        </div>
+                        <div class="flex justify-start items-center gap-2">
+                            <a href="{% url 'core:finance' %}" class="w-8 h-8 p-2 bg-white rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex justify-center items-center gap-2">
+                                <img src="{% static 'core/img/refresh-12.svg' %}" alt="Refresh" class="w-4 h-4">
+                            </a>
+                        </div>
+                    </div>
+                    {% if request.user.is_authenticated %}
+                    <div class="self-stretch p-5 flex justify-start items-baseline gap-2">
+                        <div class="justify-start text-zinc-950 text-2xl font-semibold leading-loose">$23,569.00</div>
+                        <div class="flex-1 flex justify-start items-center gap-1.5">
+                            <div class="flex justify-start items-center gap-0.5">
+                                <svg class="w-3.5 h-3.5" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M7 3L10 7H4L7 3Z" fill="#34D399" />
+                                </svg>
+                                <div class="justify-start text-emerald-400 text-sm font-semibold leading-tight tracking-tight">10,5%</div>
+                            </div>
+                            <div class="text-right justify-start text-gray-500 text-sm font-normal leading-tight tracking-tight">в сравнении с прошлым месяцем</div>
+                        </div>
+                        <div class="flex justify-start items-baseline gap-3">
+                            <div class="flex justify-end items-center gap-1.5">
+                                <div class="w-2 h-2 bg-blue-600 rounded-sm"></div>
+                                <div class="text-right justify-start text-gray-500 text-sm font-normal leading-tight tracking-tight">Этот месяц</div>
+                            </div>
+                            <div class="flex justify-end items-center gap-1.5">
+                                <div class="w-2 h-2 bg-sky-400 rounded-sm"></div>
+                                <div class="text-right justify-start text-gray-500 text-sm font-normal leading-tight tracking-tight">Прошлый месяц</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="self-stretch p-5 h-48 flex items-end justify-center">
+                        <!-- График финансов -->
+                        <div class="w-full h-full bg-gray-50 rounded">
+                            <div class="w-full h-full flex flex-col">
+                                <!-- Линии сетки -->
+                                <div class="flex-1 border-b border-gray-200 relative">
+                                    <div class="absolute left-0 right-0 bottom-1/4 border-b border-gray-200"></div>
+                                    <div class="absolute left-0 right-0 bottom-1/2 border-b border-gray-200"></div>
+                                    <div class="absolute left-0 right-0 bottom-3/4 border-b border-gray-200"></div>
+                                    
+                                    <!-- Новый усовершенствованный график -->
+                                    <div class="absolute left-0 right-0 bottom-0 h-full">
+                                        <svg viewBox="0 0 100 40" preserveAspectRatio="none" class="h-full w-full">
+                                            <!-- Градиенты для заливок -->
+                                            <defs>
+                                                <linearGradient id="blueGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                                    <stop offset="0%" stop-color="rgba(37, 99, 235, 0.15)"></stop>
+                                                    <stop offset="100%" stop-color="rgba(37, 99, 235, 0.01)"></stop>
+                                                </linearGradient>
+                                                <linearGradient id="blueLine" x1="0%" y1="0%" x2="100%" y2="0%">
+                                                    <stop offset="0%" stop-color="#2563eb"></stop>
+                                                    <stop offset="100%" stop-color="#3b82f6"></stop>
+                                                </linearGradient>
+                                                <linearGradient id="lightBlueLine" x1="0%" y1="0%" x2="100%" y2="0%">
+                                                    <stop offset="0%" stop-color="#93c5fd"></stop>
+                                                    <stop offset="100%" stop-color="#38bdf8"></stop>
+                                                </linearGradient>
+                                            </defs>
+                                            
+                                            <!-- Вертикальные направляющие -->
+                                            <line x1="0" y1="0" x2="0" y2="40" stroke="#f3f4f6" stroke-width="0.5"></line>
+                                            <line x1="20" y1="0" x2="20" y2="40" stroke="#f3f4f6" stroke-width="0.5"></line>
+                                            <line x1="40" y1="0" x2="40" y2="40" stroke="#f3f4f6" stroke-width="0.5"></line>
+                                            <line x1="60" y1="0" x2="60" y2="40" stroke="#f3f4f6" stroke-width="0.5"></line>
+                                            <line x1="80" y1="0" x2="80" y2="40" stroke="#f3f4f6" stroke-width="0.5"></line>
+                                            <line x1="100" y1="0" x2="100" y2="40" stroke="#f3f4f6" stroke-width="0.5"></line>
+                                            
+                                            <!-- Заливка под линией текущего месяца -->
+                                            <path d="M0,35 C10,32 20,28 30,25 C40,22 50,30 60,28 C70,26 80,15 90,10 L100,5 L100,40 L0,40 Z" fill="url(#blueGradient)" class="graph-line"/>
+                                            
+                                            <!-- Линия прошлого месяца (пунктирная) -->
+                                            <path d="M0,30 C10,32 20,33 30,30 C40,27 50,24 60,25 C70,26 80,24 90,22 L100,20" stroke="url(#lightBlueLine)" stroke-width="2" stroke-dasharray="2 2" fill="none" class="graph-line graph-line-delayed"/>
+                                            
+                                            <!-- Линия текущего месяца -->
+                                            <path d="M0,35 C10,32 20,28 30,25 C40,22 50,30 60,28 C70,26 80,15 90,10 L100,5" stroke="url(#blueLine)" stroke-width="2.5" fill="none" class="graph-line"/>
+                                            
+                                            <!-- Точки данных на текущей линии -->
+                                            <circle cx="0" cy="35" r="2.5" fill="#2563eb" stroke="white" stroke-width="1" class="graph-line"/>
+                                            <circle cx="20" cy="28" r="2.5" fill="#2563eb" stroke="white" stroke-width="1" class="graph-line"/>
+                                            <circle cx="40" cy="22" r="2.5" fill="#2563eb" stroke="white" stroke-width="1" class="graph-line"/>
+                                            <circle cx="60" cy="28" r="2.5" fill="#2563eb" stroke="white" stroke-width="1" class="graph-line"/>
+                                            <circle cx="80" cy="15" r="2.5" fill="#2563eb" stroke="white" stroke-width="1" class="graph-line"/>
+                                            <circle cx="100" cy="5" r="2.5" fill="#2563eb" stroke="white" stroke-width="1" class="graph-line"/>
+                                            
+                                            <!-- Скрытые точки данных на линии прошлого месяца (можно показать при наведении) -->
+                                            <circle cx="0" cy="30" r="0" fill="#38bdf8" class="graph-line-delayed hover-visible"/>
+                                            <circle cx="30" cy="30" r="0" fill="#38bdf8" class="graph-line-delayed hover-visible"/>
+                                            <circle cx="60" cy="25" r="0" fill="#38bdf8" class="graph-line-delayed hover-visible"/>
+                                            <circle cx="100" cy="20" r="0" fill="#38bdf8" class="graph-line-delayed hover-visible"/>
+                                            
+                                            <!-- Метки временной шкалы -->
+                                            <line x1="0" y1="40" x2="0" y2="38" stroke="#d1d5db" stroke-width="0.5"></line>
+                                            <line x1="20" y1="40" x2="20" y2="38" stroke="#d1d5db" stroke-width="0.5"></line>
+                                            <line x1="40" y1="40" x2="40" y2="38" stroke="#d1d5db" stroke-width="0.5"></line>
+                                            <line x1="60" y1="40" x2="60" y2="38" stroke="#d1d5db" stroke-width="0.5"></line>
+                                            <line x1="80" y1="40" x2="80" y2="38" stroke="#d1d5db" stroke-width="0.5"></line>
+                                            <line x1="100" y1="40" x2="100" y2="38" stroke="#d1d5db" stroke-width="0.5"></line>
+                                        </svg>
+                                    </div>
+                                </div>
+                                
+                                <!-- Шкала времени -->
+                                <div class="h-6 flex justify-between px-4 text-xs text-gray-500">
+                                    <span>1 апр</span>
+                                    <span>8 апр</span>
+                                    <span>15 апр</span>
+                                    <span>22 апр</span>
+                                    <span>29 апр</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="self-stretch p-5 h-64 flex items-center justify-center">
+                        <p class="text-gray-500 text-center">Войдите, чтобы увидеть финансовую информацию</p>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Задачи -->
+                <div class="w-1/3 bg-white rounded-2xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex flex-col justify-start items-start overflow-hidden">
+                    <div class="self-stretch px-5 py-6 border-b border-zinc-200 flex justify-between items-center">
+                        <div class="flex justify-start items-center gap-2">
+                            <img src="{% static 'core/img/check-square.svg' %}" alt="Tasks" class="w-6 h-6 svg-icon-green">
+                            <div class="justify-start text-black text-xl font-medium leading-loose tracking-tight">Задачи</div>
+                        </div>
+                        <a href="{% url 'core:task-add' %}" class="w-8 h-8 p-2 bg-white rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex justify-center items-center gap-2">
+                            <img src="{% static 'core/img/plus.svg' %}" alt="Add Task" class="w-4 h-4">
+                        </a>
+                    </div>
+                    <div class="self-stretch px-5 py-4 flex flex-col justify-start items-start gap-3">
+                        {% if request.user.is_authenticated %}
+                            {% if recent_tasks %}
+                                {% for task in recent_tasks|slice:":3" %}
+                                    <div class="self-stretch p-3.5 bg-white rounded-xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex justify-start items-start gap-3 overflow-hidden task-item">
+                                        <div class="pt-1 flex justify-center items-center gap-2">
+                                            <div class="w-4 h-4 relative task-checkbox-container">
+                                                {% if task.status == 'COMPLETED' %}
+                                                    <button onclick="toggleTaskStatus({{ task.id }}, 'NEW')" class="cursor-pointer">
+                                                        <div class="w-4 h-4 rounded-full bg-blue-600 flex justify-center items-center">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-white" viewBox="0 0 20 20" fill="currentColor">
+                                                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                                            </svg>
+                                                        </div>
+                                                    </button>
+                                                {% else %}
+                                                    <button onclick="toggleTaskStatus({{ task.id }}, 'COMPLETED')" class="cursor-pointer">
+                                                        <img src="{% static 'core/img/check-circle.svg' %}" alt="Not completed" class="w-4 h-4">
+                                                    </button>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        <div class="flex-1 flex flex-col justify-start items-start gap-2.5">
+                                            <div class="self-stretch flex flex-col justify-start items-start gap-0.5">
+                                                <div class="self-stretch justify-start text-zinc-950 text-sm font-medium leading-tight tracking-tight{% if task.status == 'COMPLETED' %} line-through text-slate-500{% endif %}">{{ task.title }}</div>
+                                                <div class="self-stretch justify-start text-gray-500 text-sm font-normal leading-tight tracking-tight{% if task.status == 'COMPLETED' %} text-slate-500{% endif %}">{{ task.description|truncatechars:60 }}</div>
+                                            </div>
+                                            <div class="self-stretch flex justify-between items-center">
+                                                <div class="self-stretch flex justify-start items-center gap-1.5">
+                                                    <img src="{% static 'core/img/clock.svg' %}" alt="Date" class="w-4 h-4">
+                                                    <div class="justify-start text-gray-500 text-sm font-normal leading-tight tracking-tight{% if task.status == 'COMPLETED' %} text-slate-500{% endif %}">
+                                                        {% if task.due_date %}
+                                                            {{ task.due_date|date:"d M Y" }}
+                                                        {% else %}
+                                                            Без срока
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                                <div class="flex justify-start items-center gap-1">
+                                                    {% if task.priority == 'HIGH' %}
+                                                        <div class="px-1.5 py-px bg-red-50 rounded flex justify-center items-center gap-1">
+                                                            <div class="text-right justify-center text-red-600 text-xs font-medium leading-none tracking-tight">Срочно</div>
+                                                        </div>
+                                                    {% elif task.priority == 'MEDIUM' %}
+                                                        <div class="px-1.5 py-px bg-orange-50 rounded flex justify-center items-center gap-1">
+                                                            <div class="text-right justify-center text-orange-500 text-xs font-medium leading-none tracking-tight">Средний</div>
+                                                        </div>
+                                                    {% else %}
+                                                        <div class="px-1.5 py-px bg-indigo-50 rounded flex justify-center items-center gap-1">
+                                                            <div class="text-right justify-center text-blue-600 text-xs font-medium leading-none tracking-tight">Обычный</div>
+                                                        </div>
+                                                    {% endif %}
+                                                    {% if task.assigned_to %}
+                                                        <div class="px-1.5 py-px bg-sky-50 rounded flex justify-center items-center gap-1">
+                                                            <div class="text-right justify-center text-sky-400 text-xs font-medium leading-none tracking-tight">{{ task.assigned_to.get_short_name }}</div>
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="self-stretch p-4 text-center text-gray-500">
+                                    Нет активных задач
+                                </div>
+                            {% endif %}
+                        {% else %}
+                            <div class="self-stretch p-4 text-center text-gray-500">
+                                Войдите, чтобы увидеть задачи
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Активные поездки -->
+            <div class="w-full px-8 pt-8 pb-8">
+                <div class="w-full h-96 bg-white rounded-2xl outline outline-1 outline-offset-[-1px] outline-zinc-200 overflow-hidden relative">
+                    <div class="px-5 py-4 flex justify-between items-center">
+                        <div class="flex justify-start items-center gap-2">
+                            <img src="{% static 'core/img/flash.svg' %}" alt="Active trips" class="w-6 h-6">
+                            <div class="justify-start text-black text-xl font-medium leading-loose tracking-tight">Активные поездки</div>
+                        </div>
+                        <div class="justify-start text-black text-xl font-medium leading-loose tracking-tight">На карте</div>
+                    </div>
+                    
+                    {% if request.user.is_authenticated %}
+                    <div class="flex trucks-map">
+                        <!-- Список машин -->
+                        <div class="w-1/2 px-5 py-4 flex flex-col gap-4 h-80 overflow-y-auto trucks-container">
+                            <!-- Первая машина - активная -->
+                            <div class="w-full h-28 bg-white rounded-lg shadow-[0px_0px_5px_0px_rgba(38,123,217,0.37)] border border-blue-600 p-4 relative truck-card active" data-truck="474-atl-01">
+                                <div class="opacity-40 justify-start text-black text-xs font-normal uppercase">VOLVO FH 460</div>
+                                <div class="justify-start text-black text-3xl font-medium uppercase mt-1">474 ATL 01</div>
+                                <div class="justify-start text-black text-xs font-normal mt-2">Хоргос – Астана</div>
+                                <img src="{% static 'core/img/VOLVO FH 460.png' %}?v={% now 'U' %}" alt="Volvo Truck" class="absolute right-2 top-1/2 w-44 h-28 object-contain opacity-90 transform -translate-y-1/2">
+                            </div>
+                            
+                            <!-- Вторая машина -->
+                            <div class="w-full h-28 bg-white rounded-lg shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] border border-zinc-200 p-4 relative truck-card" data-truck="355-atl-01">
+                                <div class="opacity-40 justify-start text-black text-xs font-normal uppercase">VOLVO FH 460</div>
+                                <div class="justify-start text-black text-3xl font-medium uppercase mt-1">355 ATL 01</div>
+                                <div class="justify-start text-black text-xs font-normal mt-2">Алматы – Хоргос</div>
+                                <img src="{% static 'core/img/VOLVO FH 460.png' %}?v={% now 'U' %}" alt="Volvo Truck" class="absolute right-2 top-1/2 w-44 h-28 object-contain opacity-40 transform -translate-y-1/2">
+                            </div>
+                            
+                            <!-- Третья машина -->
+                            <div class="w-full h-28 bg-white rounded-lg shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] border border-zinc-200 p-4 relative truck-card" data-truck="533-atl-01">
+                                <div class="opacity-40 justify-start text-black text-xs font-normal uppercase">VOLVO FH 460</div>
+                                <div class="justify-start text-black text-3xl font-medium uppercase mt-1">533 ATL 01</div>
+                                <div class="justify-start text-black text-xs font-normal mt-2">Хоргос – Костанай</div>
+                                <img src="{% static 'core/img/VOLVO FH 460.png' %}?v={% now 'U' %}" alt="Volvo Truck" class="absolute right-2 top-1/2 w-44 h-28 object-contain opacity-40 transform -translate-y-1/2">
+                            </div>
+                            
+                            <!-- Дополнительные машины для примера скроллинга -->
+                            <div class="w-full h-28 bg-white rounded-lg shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] border border-zinc-200 p-4 relative truck-card" data-truck="621-atl-01">
+                                <div class="opacity-40 justify-start text-black text-xs font-normal uppercase">VOLVO FH 460</div>
+                                <div class="justify-start text-black text-3xl font-medium uppercase mt-1">621 ATL 01</div>
+                                <div class="justify-start text-black text-xs font-normal mt-2">Алматы – Нур-Султан</div>
+                                <img src="{% static 'core/img/VOLVO FH 460.png' %}?v={% now 'U' %}" alt="Volvo Truck" class="absolute right-2 top-1/2 w-44 h-28 object-contain opacity-40 transform -translate-y-1/2">
+                            </div>
+                            
+                            <div class="w-full h-28 bg-white rounded-lg shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] border border-zinc-200 p-4 relative truck-card" data-truck="788-atl-01">
+                                <div class="opacity-40 justify-start text-black text-xs font-normal uppercase">VOLVO FH 460</div>
+                                <div class="justify-start text-black text-3xl font-medium uppercase mt-1">788 ATL 01</div>
+                                <div class="justify-start text-black text-xs font-normal mt-2">Актау – Шымкент</div>
+                                <img src="{% static 'core/img/VOLVO FH 460.png' %}?v={% now 'U' %}" alt="Volvo Truck" class="absolute right-2 top-1/2 w-44 h-28 object-contain opacity-40 transform -translate-y-1/2">
+                            </div>
+                        </div>
+                        
+                        <!-- Карта и детали -->
+                        <div class="w-1/2 px-5 py-4 flex flex-col">
+                            <!-- Карта -->
+                            <div class="w-full h-52 bg-gray-100 rounded-lg mb-4 relative overflow-hidden">
+                                <div class="absolute inset-0 bg-gray-100">
+                                    <!-- Упрощенная карта с маршрутом -->
+                                    <div class="w-full h-full">
+                                        <!-- Линия маршрута -->
+                                        <svg viewBox="0 0 400 200" class="w-full h-full" id="map-474-atl-01">
+                                            <!-- Фон карты - упрощенный -->
+                                            <rect x="0" y="0" width="400" height="200" fill="#EBF3FA" />
+                                            
+                                            <!-- Дорога - линия маршрута -->
+                                            <path d="M50,150 C100,130 150,100 200,90 C250,80 300,130 350,110" stroke="#2679DB" stroke-width="3" fill="none" class="graph-line" />
+                                            
+                                            <!-- Начальная точка - Хоргос -->
+                                            <circle cx="50" cy="150" r="6" fill="#34D399" />
+                                            <text x="50" y="170" font-size="10" text-anchor="middle" fill="#4B5563">Хоргос</text>
+                                            
+                                            <!-- Конечная точка - Астана -->
+                                            <circle cx="350" cy="110" r="6" fill="#F87171" />
+                                            <text x="350" y="130" font-size="10" text-anchor="middle" fill="#4B5563">Астана</text>
+                                            
+                                            <!-- Текущее положение -->
+                                            <circle cx="200" cy="90" r="8" fill="#2679DB" stroke="white" stroke-width="2" class="map-marker map-marker-pulse" />
+                                        </svg>
+                                        
+                                        <!-- Альтернативные маршруты для других грузовиков (скрыты по умолчанию) -->
+                                        <svg viewBox="0 0 400 200" class="w-full h-full hidden" id="map-355-atl-01">
+                                            <rect x="0" y="0" width="400" height="200" fill="#EBF3FA" />
+                                            <path d="M350,150 C300,140 250,130 200,125 C150,120 100,130 50,120" stroke="#2679DB" stroke-width="3" fill="none" class="graph-line" />
+                                            <circle cx="350" cy="150" r="6" fill="#34D399" />
+                                            <text x="350" y="170" font-size="10" text-anchor="middle" fill="#4B5563">Алматы</text>
+                                            <circle cx="50" cy="120" r="6" fill="#F87171" />
+                                            <text x="50" y="140" font-size="10" text-anchor="middle" fill="#4B5563">Хоргос</text>
+                                            <circle cx="180" cy="124" r="8" fill="#2679DB" stroke="white" stroke-width="2" class="map-marker map-marker-pulse" />
+                                        </svg>
+                                        
+                                        <svg viewBox="0 0 400 200" class="w-full h-full hidden" id="map-533-atl-01">
+                                            <rect x="0" y="0" width="400" height="200" fill="#EBF3FA" />
+                                            <path d="M50,150 C100,100 150,70 200,60 C250,50 300,30 350,50" stroke="#2679DB" stroke-width="3" fill="none" class="graph-line" />
+                                            <circle cx="50" cy="150" r="6" fill="#34D399" />
+                                            <text x="50" y="170" font-size="10" text-anchor="middle" fill="#4B5563">Хоргос</text>
+                                            <circle cx="350" cy="50" r="6" fill="#F87171" />
+                                            <text x="350" y="70" font-size="10" text-anchor="middle" fill="#4B5563">Костанай</text>
+                                            <circle cx="120" cy="105" r="8" fill="#2679DB" stroke="white" stroke-width="2" class="map-marker map-marker-pulse" />
+                                        </svg>
+                                        
+                                        <svg viewBox="0 0 400 200" class="w-full h-full hidden" id="map-621-atl-01">
+                                            <rect x="0" y="0" width="400" height="200" fill="#EBF3FA" />
+                                            <path d="M50,100 C100,90 150,70 200,80 C250,90 300,100 350,80" stroke="#2679DB" stroke-width="3" fill="none" class="graph-line" />
+                                            <circle cx="50" cy="100" r="6" fill="#34D399" />
+                                            <text x="50" y="120" font-size="10" text-anchor="middle" fill="#4B5563">Алматы</text>
+                                            <circle cx="350" cy="80" r="6" fill="#F87171" />
+                                            <text x="350" y="100" font-size="10" text-anchor="middle" fill="#4B5563">Нур-Султан</text>
+                                            <circle cx="250" cy="85" r="8" fill="#2679DB" stroke="white" stroke-width="2" class="map-marker map-marker-pulse" />
+                                        </svg>
+                                        
+                                        <svg viewBox="0 0 400 200" class="w-full h-full hidden" id="map-788-atl-01">
+                                            <rect x="0" y="0" width="400" height="200" fill="#EBF3FA" />
+                                            <path d="M50,50 C100,80 150,100 200,110 C250,120 300,130 350,120" stroke="#2679DB" stroke-width="3" fill="none" class="graph-line" />
+                                            <circle cx="50" cy="50" r="6" fill="#34D399" />
+                                            <text x="50" y="70" font-size="10" text-anchor="middle" fill="#4B5563">Актау</text>
+                                            <circle cx="350" cy="120" r="6" fill="#F87171" />
+                                            <text x="350" y="140" font-size="10" text-anchor="middle" fill="#4B5563">Шымкент</text>
+                                            <circle cx="150" cy="90" r="8" fill="#2679DB" stroke="white" stroke-width="2" class="map-marker map-marker-pulse" />
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div class="absolute bottom-2 right-2">
+                                    <div class="bg-white rounded-full w-8 h-8 shadow flex items-center justify-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-5 h-5 text-gray-600">
+                                            <path d="M15 15l6 6m-6-6v4.8m0-4.8h4.8M9 19.8V15m0 0H4.2M4.2 15l6 6M9 4.2V9m0 0h4.8M9 9L3 3m12 0l6 6m-6-6v4.8m0-4.8h4.8" />
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Детали поездки -->
+                            <div class="flex justify-between items-start truck-details" id="details-474-atl-01">
+                                <div class="flex flex-col">
+                                    <div class="opacity-50 justify-start text-black text-xs font-normal">Вес груза</div>
+                                    <div class="justify-start text-black text-xl font-medium mt-1">103кг</div>
+                                </div>
+                                <div class="w-px h-11 bg-zinc-300"></div>
+                                <div class="flex flex-col">
+                                    <div class="opacity-50 justify-start text-black text-xs font-normal">Осталось</div>
+                                    <div class="justify-start text-black text-xl font-medium mt-1">2948км</div>
+                                </div>
+                                <div class="w-px h-11 bg-zinc-300"></div>
+                                <div class="flex flex-col">
+                                    <div class="opacity-50 justify-start text-black text-xs font-normal">Дата прибытия</div>
+                                    <div class="justify-start text-black text-xl font-medium mt-1">10 апреля</div>
+                                </div>
+                                <div class="w-px h-11 bg-zinc-300"></div>
+                                <div class="flex flex-col">
+                                    <div class="opacity-50 justify-start text-black text-xs font-normal">Прибыль</div>
+                                    <div class="justify-start text-black text-xl font-medium mt-1">$990</div>
+                                </div>
+                            </div>
+                            
+                            <!-- Альтернативные детали для других грузовиков (скрыты по умолчанию) -->
+                            <div class="flex justify-between items-start truck-details hidden" id="details-355-atl-01">
+                                <div class="flex flex-col">
+                                    <div class="opacity-50 justify-start text-black text-xs font-normal">Вес груза</div>
+                                    <div class="justify-start text-black text-xl font-medium mt-1">87кг</div>
+                                </div>
+                                <div class="w-px h-11 bg-zinc-300"></div>
+                                <div class="flex flex-col">
+                                    <div class="opacity-50 justify-start text-black text-xs font-normal">Осталось</div>
+                                    <div class="justify-start text-black text-xl font-medium mt-1">1850км</div>
+                                </div>
+                                <div class="w-px h-11 bg-zinc-300"></div>
+                                <div class="flex flex-col">
+                                    <div class="opacity-50 justify-start text-black text-xs font-normal">Дата прибытия</div>
+                                    <div class="justify-start text-black text-xl font-medium mt-1">8 апреля</div>
+                                </div>
+                                <div class="w-px h-11 bg-zinc-300"></div>
+                                <div class="flex flex-col">
+                                    <div class="opacity-50 justify-start text-black text-xs font-normal">Прибыль</div>
+                                    <div class="justify-start text-black text-xl font-medium mt-1">$650</div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex justify-between items-start truck-details hidden" id="details-533-atl-01">
+                                <div class="flex flex-col">
+                                    <div class="opacity-50 justify-start text-black text-xs font-normal">Вес груза</div>
+                                    <div class="justify-start text-black text-xl font-medium mt-1">125кг</div>
+                                </div>
+                                <div class="w-px h-11 bg-zinc-300"></div>
+                                <div class="flex flex-col">
+                                    <div class="opacity-50 justify-start text-black text-xs font-normal">Осталось</div>
+                                    <div class="justify-start text-black text-xl font-medium mt-1">3450км</div>
+                                </div>
+                                <div class="w-px h-11 bg-zinc-300"></div>
+                                <div class="flex flex-col">
+                                    <div class="opacity-50 justify-start text-black text-xs font-normal">Дата прибытия</div>
+                                    <div class="justify-start text-black text-xl font-medium mt-1">12 апреля</div>
+                                </div>
+                                <div class="w-px h-11 bg-zinc-300"></div>
+                                <div class="flex flex-col">
+                                    <div class="opacity-50 justify-start text-black text-xs font-normal">Прибыль</div>
+                                    <div class="justify-start text-black text-xl font-medium mt-1">$1250</div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex justify-between items-start truck-details hidden" id="details-621-atl-01">
+                                <div class="flex flex-col">
+                                    <div class="opacity-50 justify-start text-black text-xs font-normal">Вес груза</div>
+                                    <div class="justify-start text-black text-xl font-medium mt-1">95кг</div>
+                                </div>
+                                <div class="w-px h-11 bg-zinc-300"></div>
+                                <div class="flex flex-col">
+                                    <div class="opacity-50 justify-start text-black text-xs font-normal">Осталось</div>
+                                    <div class="justify-start text-black text-xl font-medium mt-1">1250км</div>
+                                </div>
+                                <div class="w-px h-11 bg-zinc-300"></div>
+                                <div class="flex flex-col">
+                                    <div class="opacity-50 justify-start text-black text-xs font-normal">Дата прибытия</div>
+                                    <div class="justify-start text-black text-xl font-medium mt-1">5 апреля</div>
+                                </div>
+                                <div class="w-px h-11 bg-zinc-300"></div>
+                                <div class="flex flex-col">
+                                    <div class="opacity-50 justify-start text-black text-xs font-normal">Прибыль</div>
+                                    <div class="justify-start text-black text-xl font-medium mt-1">$750</div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex justify-between items-start truck-details hidden" id="details-788-atl-01">
+                                <div class="flex flex-col">
+                                    <div class="opacity-50 justify-start text-black text-xs font-normal">Вес груза</div>
+                                    <div class="justify-start text-black text-xl font-medium mt-1">142кг</div>
+                                </div>
+                                <div class="w-px h-11 bg-zinc-300"></div>
+                                <div class="flex flex-col">
+                                    <div class="opacity-50 justify-start text-black text-xs font-normal">Осталось</div>
+                                    <div class="justify-start text-black text-xl font-medium mt-1">2150км</div>
+                                </div>
+                                <div class="w-px h-11 bg-zinc-300"></div>
+                                <div class="flex flex-col">
+                                    <div class="opacity-50 justify-start text-black text-xs font-normal">Дата прибытия</div>
+                                    <div class="justify-start text-black text-xl font-medium mt-1">9 апреля</div>
+                                </div>
+                                <div class="w-px h-11 bg-zinc-300"></div>
+                                <div class="flex flex-col">
+                                    <div class="opacity-50 justify-start text-black text-xs font-normal">Прибыль</div>
+                                    <div class="justify-start text-black text-xl font-medium mt-1">$1100</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="h-80 flex items-center justify-center">
+                        <p class="text-gray-500 text-center">Войдите, чтобы увидеть активные поездки</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Удалено нижнее мобильное меню -->
+
+</body>
+<script>
+    // Инициализация при загрузке страницы
+    document.addEventListener('DOMContentLoaded', function() {
+        // Запускаем функцию исправления ссылок немедленно и с интервалом
+        fixAllLinks();
+        const fixInterval = setInterval(fixAllLinks, 300);
+        
+        // После 5 секунд останавливаем интервал
+        setTimeout(() => clearInterval(fixInterval), 5000);
+        
+        // Показываем первый грузовик по умолчанию
+        selectTruck('474-atl-01');
+        
+        // Выравниваем высоту карточек
+        equalizeCardHeights();
+        
+        // Принудительно корректируем цвета иконок, чтобы избежать фиолетового цвета
+        fixIconColors();
+        
+        // Обработка клика по карточкам грузовиков
+        document.querySelectorAll('.truck-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const truckId = this.dataset.truck;
+                selectTruck(truckId);
+                
+                // Для планшетов прокручиваем к карте после выбора
+                if (window.innerWidth <= 1100) {
+                    const mapElement = document.querySelector('.trucks-map > div:last-child');
+                    if (mapElement) {
+                        mapElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                }
+            });
+        });
+        
+        // Через небольшую задержку выравниваем высоту блоков
+        setTimeout(() => {
+            equalizeFinanceTasksHeight();
+            equalizeCardHeights();
+        }, 300);
+        
+        // Обработка изменения размера окна с защитой от частых вызовов
+        let resizeTimeout;
+        window.addEventListener('resize', function() {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(function() {
+                equalizeCardHeights();
+            }, 250);
+        });
+    });
+    
+    // Функция для выравнивания высоты карточек в ПК-версии
+    function equalizeCardHeights() {
+        // Выравниваем высоту блоков финансов и задач в ПК-версии
+        if (window.innerWidth > 1100) {
+            const financeBlock = document.querySelector('.finance-tasks > div:first-child');
+            const tasksBlock = document.querySelector('.finance-tasks > div:last-child');
+            
+            if (financeBlock && tasksBlock) {
+                // Сбрасываем высоту для правильного измерения
+                financeBlock.style.height = 'auto';
+                tasksBlock.style.height = 'auto';
+                
+                // Небольшая задержка для корректного рендеринга
+                setTimeout(() => {
+                    const financeHeight = financeBlock.offsetHeight;
+                    const tasksHeight = tasksBlock.offsetHeight;
+                    const maxHeight = Math.max(financeHeight, tasksHeight);
+                    
+                    financeBlock.style.height = `${maxHeight}px`;
+                    tasksBlock.style.height = `${maxHeight}px`;
+                }, 50);
+            }
+        }
+    }
+    
+    // Функция для выбора грузовика и отображения его маршрута
+    function selectTruck(truckId) {
+        // Скрываем все карты
+        document.querySelectorAll('[id^="map-"]').forEach(map => {
+            map.classList.add('hidden');
+        });
+        
+        // Показываем выбранную карту
+        const selectedMap = document.getElementById(`map-${truckId}`);
+        if (selectedMap) {
+            selectedMap.classList.remove('hidden');
+        }
+        
+        // Скрываем все детали
+        document.querySelectorAll('.truck-details').forEach(details => {
+            details.classList.add('hidden');
+        });
+        
+        // Показываем детали выбранного грузовика
+        const selectedDetails = document.getElementById(`details-${truckId}`);
+        if (selectedDetails) {
+            selectedDetails.classList.remove('hidden');
+        }
+        
+        // Сбрасываем стили для всех карточек
+        document.querySelectorAll('.truck-card').forEach(card => {
+            card.classList.remove('active');
+        });
+        
+        // Выделяем выбранную карточку
+        const selectedCard = document.querySelector(`.truck-card[data-truck="${truckId}"]`);
+        if (selectedCard) {
+            selectedCard.classList.add('active');
+            
+            // На планшетах обновляем стиль изображения активной карточки
+            if (window.innerWidth <= 1100) {
+                document.querySelectorAll('.truck-card img').forEach(img => {
+                    img.style.opacity = '0.4';
+                });
+                
+                const selectedImg = selectedCard.querySelector('img');
+                if (selectedImg) {
+                    selectedImg.style.opacity = '0.9';
+                }
+            }
+        }
+    }
+    
+    // Функция для изменения статуса задачи
+    function toggleTaskStatus(taskId, newStatus) {
+        // Получаем CSRF токен из cookie
+        const csrftoken = getCookie('csrftoken');
+        
+        // Показываем индикатор загрузки или блокируем кнопку
+        const container = document.querySelector(`.task-checkbox-container button[onclick*="${taskId}"]`).parentNode;
+        const originalContent = container.innerHTML;
+        container.innerHTML = '<div class="w-4 h-4 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin"></div>';
+        
+        fetch(`/api/v1/tasks/${taskId}/change_status/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken
+            },
+            body: JSON.stringify({ status: newStatus })
+        })
+        .then(response => {
+            if (!response.ok) {
+                let errorMsg = 'Не удалось обновить статус задачи';
+                
+                // Особая обработка ошибки 403 Forbidden
+                if (response.status === 403) {
+                    errorMsg = 'У вас нет прав для изменения этой задачи';
+                }
+                
+                throw new Error(errorMsg);
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Обновляем UI после успешного обновления
+            const taskItem = container.closest('.task-item');
+            const titleEl = taskItem.querySelector('div.text-zinc-950');
+            const descEl = taskItem.querySelector('div.text-gray-500');
+            const dateEl = taskItem.querySelector('div.justify-start.text-gray-500');
+            
+            if (newStatus === 'COMPLETED') {
+                // Меняем на выполненную
+                container.innerHTML = `<button onclick="toggleTaskStatus(${taskId}, 'NEW')" class="cursor-pointer">
+                    <div class="w-4 h-4 rounded-full bg-blue-600 flex justify-center items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-white" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                </button>`;
+                titleEl.classList.add('line-through', 'text-slate-500');
+                descEl.classList.add('text-slate-500');
+                dateEl.classList.add('text-slate-500');
+            } else {
+                // Меняем на новую
+                container.innerHTML = `<button onclick="toggleTaskStatus(${taskId}, 'COMPLETED')" class="cursor-pointer">
+                    <img src="{% static 'core/img/check-circle.svg' %}" alt="Not completed" class="w-4 h-4">
+                </button>`;
+                titleEl.classList.remove('line-through', 'text-slate-500');
+                descEl.classList.remove('text-slate-500');
+                dateEl.classList.remove('text-slate-500');
+            }
+        })
+        .catch(error => {
+            // Возвращаем оригинальное состояние в случае ошибки
+            container.innerHTML = originalContent;
+            
+            console.error('Ошибка при обновлении задачи:', error);
+            
+            // Показываем пользовательское сообщение об ошибке
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+            modal.innerHTML = `
+                <div class="bg-white rounded-lg p-6 max-w-md mx-auto">
+                    <h3 class="text-lg font-medium mb-2">Подтвердите действие на ${window.location.hostname}</h3>
+                    <p class="text-gray-700 mb-6">${error.message}. Пожалуйста, попробуйте еще раз.</p>
+                    <div class="flex justify-end">
+                        <button class="px-4 py-2 bg-teal-700 text-white rounded-lg" onclick="this.closest('.fixed').remove()">ОК</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        });
+    }
+    
+    // Функция для получения CSRF токена из cookie
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    
+    // Функция для выравнивания высоты блоков финансов и задач в планшетной версии
+    function equalizeFinanceTasksHeight() {
+        const financeBlock = document.querySelector('.finance-tasks > div:first-child');
+        const tasksBlock = document.querySelector('.finance-tasks > div:last-child');
+        
+        if (financeBlock && tasksBlock) {
+            // Устанавливаем фиксированную высоту для обоих блоков
+            const fixedHeight = 400; // Абсолютно одинаковая высота для обоих блоков
+            
+            financeBlock.style.height = `${fixedHeight}px`;
+            tasksBlock.style.height = `${fixedHeight}px`;
+            
+            // Обеспечиваем прокрутку внутреннего содержимого
+            const financeContent = financeBlock.querySelector('.self-stretch.p-5.h-48');
+            const tasksContent = tasksBlock.querySelector('.self-stretch.px-5.py-4');
+            
+            if (financeContent) {
+                financeContent.style.height = 'auto';
+                financeContent.style.maxHeight = `${fixedHeight - 100}px`; // Вычитаем высоту заголовка
+                financeContent.style.overflowY = 'auto';
+            }
+            
+            if (tasksContent) {
+                tasksContent.style.flex = '1';
+                tasksContent.style.maxHeight = `${fixedHeight - 60}px`; // Вычитаем высоту заголовка
+                tasksContent.style.overflowY = 'auto';
+            }
+            
+            // Уменьшаем отступ после блоков
+            const financeTasksContainer = financeBlock.parentElement;
+            if (financeTasksContainer) {
+                financeTasksContainer.style.marginBottom = '1rem';
+            }
+            
+            // Уменьшаем вертикальный отступ между рядами
+            const activeTripsContainer = document.querySelector('.w-full.px-8.pt-8.pb-8');
+            if (activeTripsContainer) {
+                activeTripsContainer.style.paddingTop = '1rem';
+            }
+        }
+    }
+    
+    // Функция для фиксации цветов иконок в боковом/нижнем меню
+    function fixIconColors() {
+        // Исправляем SVG в сайдбаре (если он виден)
+        document.querySelectorAll('.sidebar-menu a').forEach(link => {
+            // Исправляем цвета для десктопных иконок
+            if (link.classList.contains('bg-gray-50')) {
+                // Активная ссылка - синий цвет
+                const desktopIcon = link.querySelector('.desktop-icon');
+                if (desktopIcon) {
+                    desktopIcon.style.filter = 'brightness(0) saturate(100%) invert(32%) sepia(96%) saturate(7461%) hue-rotate(220deg) brightness(97%) contrast(98%)';
+                }
+                
+                // Исправляем мобильные иконки
+                const mobileIcon = link.querySelector('.mobile-icon');
+                if (mobileIcon) {
+                    mobileIcon.style.filter = 'brightness(0) saturate(100%) invert(32%) sepia(96%) saturate(7461%) hue-rotate(220deg) brightness(97%) contrast(98%)';
+                }
+            }
+        });
+    }
+    
+    // Функция для исправления всех ссылок в меню
+    function fixAllLinks() {
+        // Устанавливаем серый цвет для всех неактивных иконок
+        document.querySelectorAll('.sidebar-menu a:not(.bg-gray-50)').forEach(link => {
+            // Исправляем цвет текста
+            link.style.color = '#6B7280';
+            
+            // Находим текстовый элемент и устанавливаем ему цвет
+            const textEl = link.querySelector('.flex-1');
+            if (textEl) {
+                textEl.style.color = '#6B7280';
+            }
+            
+            // Исправляем все пути SVG
+            const svgPaths = link.querySelectorAll('svg path, svg line, svg rect, svg circle');
+            svgPaths.forEach(path => {
+                path.setAttribute('stroke', '#6B7280');
+                path.setAttribute('fill', 'none');
+                path.style.stroke = '#6B7280';
+                path.style.fill = 'none';
+            });
+            
+            // Устанавливаем серый фильтр для иконок
+            const desktopIcon = link.querySelector('.desktop-icon');
+            if (desktopIcon) {
+                desktopIcon.style.filter = 'brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(142deg) brightness(96%) contrast(91%)';
+            }
+            
+            // Исправляем мобильные иконки
+            const mobileIcon = link.querySelector('.mobile-icon');
+            if (mobileIcon) {
+                mobileIcon.style.filter = 'brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(142deg) brightness(96%) contrast(91%)';
+            }
+        });
+        
+        // Устанавливаем синий цвет для активных элементов
+        document.querySelectorAll('.sidebar-menu a.bg-gray-50').forEach(link => {
+            // Исправляем цвет текста
+            link.style.color = '#2563EB';
+            
+            // Находим текстовый элемент и устанавливаем ему цвет
+            const textEl = link.querySelector('.flex-1');
+            if (textEl) {
+                textEl.style.color = '#2563EB';
+            }
+            
+            // Исправляем все пути SVG
+            const svgPaths = link.querySelectorAll('svg path, svg line, svg rect, svg circle');
+            svgPaths.forEach(path => {
+                path.setAttribute('stroke', '#2563EB');
+                path.setAttribute('fill', 'none');
+                path.style.stroke = '#2563EB';
+                path.style.fill = 'none';
+            });
+            
+            // Устанавливаем синий фильтр для иконок
+            const desktopIcon = link.querySelector('.desktop-icon');
+            if (desktopIcon) {
+                desktopIcon.style.filter = 'brightness(0) saturate(100%) invert(32%) sepia(96%) saturate(7461%) hue-rotate(220deg) brightness(97%) contrast(98%)';
+            }
+            
+            // Исправляем мобильные иконки
+            const mobileIcon = link.querySelector('.mobile-icon');
+            if (mobileIcon) {
+                mobileIcon.style.filter = 'brightness(0) saturate(100%) invert(32%) sepia(96%) saturate(7461%) hue-rotate(220deg) brightness(97%) contrast(98%)';
+            }
+        });
+        
+        // Исправляем цвета в мобильном меню (если оно есть)
+        document.querySelectorAll('nav.fixed.bottom-0 a').forEach(link => {
+            if (link.classList.contains('text-blue-600')) {
+                // Для активного пункта - синий фильтр
+                const icon = link.querySelector('.icon-container img');
+                if (icon) {
+                    icon.style.filter = 'brightness(0) saturate(100%) invert(32%) sepia(96%) saturate(7461%) hue-rotate(220deg) brightness(97%) contrast(98%)';
+                }
+            } else {
+                // Для неактивных пунктов - серый фильтр
+                const icon = link.querySelector('.icon-container img');
+                if (icon) {
+                    icon.style.filter = 'brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(142deg) brightness(96%) contrast(91%)';
+                }
+            }
+        });
+    }
+
+    function adjustLayoutForTablet() {
+        if (window.innerWidth <= 1100) {
+            // Добавляем класс для планшетного режима
+            document.body.classList.add('tablet-mode');
+            
+            // Скрываем десктопные иконки и показываем мобильные
+            document.querySelectorAll('.sidebar-menu a').forEach(function(item) {
+                const desktopIcon = item.querySelector('.desktop-icon');
+                const mobileIcon = item.querySelector('.mobile-icon');
+                
+                if (desktopIcon) desktopIcon.style.display = 'none';
+                if (mobileIcon) mobileIcon.style.display = 'block';
+                
+                // Устанавливаем правильные фильтры для иконок
+                if (item.classList.contains('bg-gray-50')) {
+                    // Активный элемент - синий
+                    if (mobileIcon) { 
+                        mobileIcon.style.filter = 'brightness(0) saturate(100%) invert(32%) sepia(96%) saturate(7461%) hue-rotate(220deg) brightness(97%) contrast(98%)';
+                    }
+                } else {
+                    // Неактивный элемент - серый
+                    if (mobileIcon) { 
+                        mobileIcon.style.filter = 'brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(142deg) brightness(96%) contrast(91%)';
+                    }
+                }
+            });
+            
+            // Адаптируем основной контент
+            const mainContent = document.querySelector('.main-content');
+            if (mainContent) {
+                mainContent.style.marginLeft = '0';
+                mainContent.style.paddingBottom = '20px';
+            }
+        } else {
+            resetLayoutToDesktop();
+        }
+    }
+    
+    function resetLayoutToDesktop() {
+        // Удаляем класс режима планшета
+        document.body.classList.remove('tablet-mode');
+        
+        // Возвращаем десктопные иконки и скрываем мобильные
+        document.querySelectorAll('.sidebar-menu a').forEach(function(item) {
+            const desktopIcon = item.querySelector('.desktop-icon');
+            const mobileIcon = item.querySelector('.mobile-icon');
+            
+            if (desktopIcon) { desktopIcon.style.display = 'block'; }
+            if (mobileIcon) { mobileIcon.style.display = 'none'; }
+            
+            // Восстанавливаем правильные фильтры для иконок
+            if (item.classList.contains('bg-gray-50')) {
+                // Активный элемент - синий
+                if (desktopIcon) { 
+                    desktopIcon.style.filter = 'brightness(0) saturate(100%) invert(32%) sepia(96%) saturate(7461%) hue-rotate(220deg) brightness(97%) contrast(98%)';
+                }
+            } else {
+                // Неактивный элемент - серый
+                if (desktopIcon) { 
+                    desktopIcon.style.filter = 'brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(142deg) brightness(96%) contrast(91%)';
+                }
+            }
+        });
+        
+        // Восстанавливаем основной контент
+        const mainContent = document.querySelector('.main-content');
+        if (mainContent) {
+            mainContent.style.marginLeft = '16rem'; // 64 * 0.25 = 16rem (в tailwind)
+            mainContent.style.paddingBottom = '0';
+        }
+    }
+    
+    // Проверка ширины экрана при загрузке страницы
+    window.addEventListener('load', function() {
+        if (window.innerWidth <= 1100) {
+            adjustLayoutForTablet();
+        } else {
+            resetLayoutToDesktop();
+        }
+    });
+    
+    // Вызываем проверку при изменении размера окна
+    window.addEventListener('resize', function() {
+        if (window.innerWidth <= 1100) {
+            adjustLayoutForTablet();
+        } else {
+            resetLayoutToDesktop();
+        }
+    });
+</script>
+</html>

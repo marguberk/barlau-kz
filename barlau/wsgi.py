@@ -11,6 +11,9 @@ import os
 
 from django.core.wsgi import get_wsgi_application
 
+# Для PythonAnywhere раскомментируйте следующую строку и измените путь
+# os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'barlau.pythonanywhere_settings')
+
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'barlau.settings')
 
 application = get_wsgi_application()

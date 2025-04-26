@@ -1,0 +1,673 @@
+{% extends "core/base.html" %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+<style>
+    /* Дополнительные стили для страницы сотрудников */
+    .rounded-lg {
+        border-radius: 0.5rem;
+    }
+    
+    .shadow-sm {
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    }
+    
+    .hover\:bg-blue-700:hover {
+        background-color: #1d4ed8;
+    }
+    
+    .bg-blue-600 {
+        background-color: #2563eb;
+    }
+    
+    .focus\:ring-blue-500:focus {
+        --tw-ring-color: rgba(59, 130, 246, 0.5);
+        --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+        --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(3px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+        box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+{% csrf_token %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-6xl mx-auto">
+        <!-- Заголовок и кнопки -->
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold text-gray-800">Сотрудники</h1>
+            <div class="flex items-center space-x-4">
+                <!-- Массовые действия -->
+                <div id="bulkActions" class="hidden">
+                    <button id="activateSelectedBtn" class="inline-flex items-center justify-center rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-green-700 mr-2">
+                        <i class="fas fa-check mr-2"></i>Активировать выбранных
+                    </button>
+                    <button id="deactivateSelectedBtn" class="inline-flex items-center justify-center rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700">
+                        <i class="fas fa-times mr-2"></i>Деактивировать выбранных
+                    </button>
+                </div>
+                {% if user.role == 'DIRECTOR' or user.role == 'SUPERADMIN' or user.is_superuser %}
+                <button id="addEmployeeBtn" class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700">
+                    <i class="fas fa-plus mr-2"></i>Добавить сотрудника
+                </button>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Фильтры и сортировка -->
+        <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- Поиск -->
+                <div class="space-y-2">
+                    <label class="text-sm font-medium text-gray-700">Поиск</label>
+                    <div class="relative">
+                        <input type="text" id="searchInput" placeholder="Поиск по имени, email..." 
+                               class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-blue-500">
+                        <i class="fas fa-search absolute right-3 top-3 text-gray-400"></i>
+                    </div>
+                </div>
+                <!-- Фильтр по роли -->
+                <div class="space-y-2">
+                    <label class="text-sm font-medium text-gray-700">Роль</label>
+                    <select id="roleFilter" class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-blue-500">
+                        <option value="">Все роли</option>
+                        <option value="DIRECTOR">Директор</option>
+                        <option value="ACCOUNTANT">Бухгалтер</option>
+                        <option value="DRIVER">Водитель</option>
+                        <option value="SUPPLIER">Снабженец</option>
+                        <option value="TECH">Техотдел</option>
+                    </select>
+                </div>
+                <!-- Фильтр по архиву -->
+                <div class="space-y-2">
+                    <label class="text-sm font-medium text-gray-700">Статус архива</label>
+                    <select id="archivedFilter" class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-blue-500">
+                        <option value="false">Активные сотрудники</option>
+                        <option value="true">Архивные сотрудники</option>
+                        <option value="">Все сотрудники</option>
+                    </select>
+                </div>
+                <!-- Сортировка -->
+                <div class="space-y-2">
+                    <label class="text-sm font-medium text-gray-700">Сортировка</label>
+                    <select id="sortFilter" class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-blue-500">
+                        <option value="-date_joined">Сначала новые</option>
+                        <option value="date_joined">Сначала старые</option>
+                        <option value="first_name">По имени (А-Я)</option>
+                        <option value="-first_name">По имени (Я-А)</option>
+                        <option value="role">По роли (А-Я)</option>
+                        <option value="-role">По роли (Я-А)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Список сотрудников -->
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+            <!-- Индикатор загрузки -->
+            <div id="loadingIndicator" class="hidden p-8 text-center">
+                <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                <p class="mt-2 text-gray-600">Загрузка сотрудников...</p>
+            </div>
+            
+            <!-- Пустое состояние -->
+            <div id="emptyState" class="hidden p-8 text-center">
+                <div class="text-gray-500">
+                    <i class="fas fa-users text-4xl mb-2"></i>
+                    <p>Сотрудники не найдены</p>
+                </div>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="w-12 px-6 py-3">
+                                <input type="checkbox" id="selectAll" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Сотрудник
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Контакты
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Роль
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Статус
+                            </th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Действия
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="employeesList" class="bg-white divide-y divide-gray-200">
+                        <!-- Сюда будут добавляться сотрудники через JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно добавления/редактирования сотрудника -->
+<div id="employeeModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 overflow-y-auto">
+    <div class="relative min-h-screen flex items-center justify-center p-4">
+        <div class="w-full max-w-md bg-white rounded-xl shadow-lg">
+            <div class="sticky top-0 flex justify-between items-center p-4 border-b bg-white rounded-t-xl z-10">
+                <h3 id="modalTitle" class="text-lg font-semibold">Добавить сотрудника</h3>
+                <button class="closeModal text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="max-h-[calc(100vh-8rem)] overflow-y-auto">
+                <form id="employeeForm" class="p-4 space-y-4">
+                    <input type="hidden" name="id" id="employeeId">
+                    
+                    <!-- Фото -->
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Фото</label>
+                        <div class="flex items-center space-x-4">
+                            <div id="photoPreview" class="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center">
+                                <i class="fas fa-user text-gray-400 text-2xl"></i>
+                            </div>
+                            <div class="flex-1">
+                                <input type="file" 
+                                       name="photo" 
+                                       id="photoInput"
+                                       accept="image/*"
+                                       class="hidden"
+                                       onchange="previewPhoto(this)">
+                                <button type="button" 
+                                        onclick="document.getElementById('photoInput').click()"
+                                        class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                    <i class="fas fa-camera mr-2"></i>
+                                    Загрузить фото
+                                </button>
+                                <button type="button" 
+                                        onclick="removePhoto()"
+                                        id="removePhotoBtn"
+                                        class="ml-2 inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-red-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                                        style="display: none;">
+                                    <i class="fas fa-trash-alt mr-2"></i>
+                                    Удалить
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Имя</label>
+                            <input type="text" name="first_name" required
+                                   class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Фамилия</label>
+                            <input type="text" name="last_name" required
+                                   class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                        <input type="email" name="email" required
+                               class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Телефон</label>
+                        <input type="tel" name="phone" required
+                               class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Роль</label>
+                        <select name="role" required
+                                class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="DRIVER">Водитель</option>
+                            <option value="ACCOUNTANT">Бухгалтер</option>
+                            <option value="SUPPLIER">Снабженец</option>
+                            <option value="TECH">Техотдел</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Должность</label>
+                        <input type="text" name="position"
+                               class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Логин</label>
+                        <input type="text" name="username" required
+                               class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Пароль</label>
+                        <input type="password" name="password" required
+                               class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Подтверждение пароля</label>
+                        <input type="password" name="password2" required
+                               class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700">
+                        Сохранить
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Получаем CSRF токен
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    
+    // Получаем ссылки на DOM элементы
+    const employeesList = document.getElementById('employeesList');
+    const loadingIndicator = document.getElementById('loadingIndicator');
+    const emptyState = document.getElementById('emptyState');
+    
+    // Функция для загрузки сотрудников
+    async function loadEmployees() {
+        try {
+            console.log('Начало загрузки сотрудников...');
+            // Показываем индикатор загрузки
+            loadingIndicator.style.display = 'block';
+            employeesList.style.display = 'none';
+            emptyState.style.display = 'none';
+
+            // Получаем значения фильтров
+            const searchQuery = document.getElementById('searchInput').value;
+            const roleFilter = document.getElementById('roleFilter').value;
+            const archivedFilter = document.getElementById('archivedFilter').value;
+            const sortFilter = document.getElementById('sortFilter').value;
+
+            console.log('Параметры фильтрации:', { 
+                search: searchQuery, 
+                role: roleFilter, 
+                is_archived: archivedFilter, 
+                ordering: sortFilter 
+            });
+
+            // Формируем параметры запроса
+            let params = new URLSearchParams();
+            if (searchQuery) params.append('search', searchQuery);
+            if (roleFilter) params.append('role', roleFilter);
+            if (archivedFilter !== '') params.append('is_archived', archivedFilter);
+            if (sortFilter) params.append('ordering', sortFilter);
+
+            console.log('URL для запроса:', `/api/users/?${params}`);
+
+            // Делаем запрос к API
+            const response = await fetch(`/api/users/?${params}`, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
+                credentials: 'same-origin'
+            });
+
+            console.log('Статус ответа:', response.status, response.statusText);
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}, statusText: ${response.statusText}`);
+            }
+
+            // Получаем данные
+            const data = await response.json();
+            console.log('Полученные данные:', data);
+
+            // Обрабатываем данные
+            const employees = data.results || data;
+            console.log('Количество сотрудников:', employees ? employees.length : 0);
+            
+            if (employees && employees.length > 0) {
+                // Очищаем список
+                employeesList.innerHTML = '';
+                
+                // Добавляем сотрудников
+                employees.forEach(employee => {
+                    console.log('Обработка сотрудника:', employee);
+                    const row = createEmployeeRow(employee);
+                    employeesList.appendChild(row);
+                });
+                
+                // Показываем таблицу
+                employeesList.style.display = 'table-row-group';
+                emptyState.style.display = 'none';
+            } else {
+                console.log('Сотрудники не найдены');
+                // Показываем пустое состояние
+                employeesList.style.display = 'none';
+                emptyState.style.display = 'block';
+            }
+        } catch (error) {
+            console.error('Ошибка загрузки сотрудников:', error);
+            alert('Произошла ошибка при загрузке сотрудников: ' + error.message);
+            employeesList.style.display = 'none';
+            emptyState.style.display = 'block';
+        } finally {
+            // Скрываем индикатор загрузки
+            loadingIndicator.style.display = 'none';
+            console.log('Загрузка сотрудников завершена');
+        }
+    }
+
+    // Функция для создания строки таблицы
+    function createEmployeeRow(employee) {
+        console.log('Создание строки для сотрудника:', employee);
+        
+        // Проверка наличия полей, которые могут отсутствовать
+        const isActive = employee.hasOwnProperty('is_active') ? employee.is_active : true;
+        const isArchived = employee.hasOwnProperty('is_archived') ? employee.is_archived : false;
+        
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td class="px-6 py-4">
+                <input type="checkbox" class="employee-checkbox rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                       data-id="${employee.id}">
+            </td>
+            <td class="px-6 py-4">
+                <a href="/employees/${employee.id}/" class="group">
+                    <div class="flex items-center">
+                        <div class="h-10 w-10 flex-shrink-0">
+                            ${employee.photo ? 
+                                `<img class="h-10 w-10 rounded-full object-cover" src="${employee.photo}" alt="">` :
+                                `<div class="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
+                                    <i class="fas fa-user text-gray-400"></i>
+                                 </div>`
+                            }
+                        </div>
+                        <div class="ml-4">
+                            <div class="font-medium text-gray-900 group-hover:text-blue-600">${employee.first_name || ''} ${employee.last_name || ''}</div>
+                            <div class="text-sm text-gray-500">${employee.position || 'Не указана должность'}</div>
+                        </div>
+                    </div>
+                </a>
+            </td>
+            <td class="px-6 py-4">
+                <div class="text-sm text-gray-900">${employee.email || 'Нет email'}</div>
+                <div class="text-sm text-gray-500">${employee.phone || 'Нет телефона'}</div>
+            </td>
+            <td class="px-6 py-4">
+                <span class="inline-flex rounded-full px-2 text-xs font-semibold leading-5 ${getRoleBadgeClass(employee.role)}">
+                    ${getRoleDisplay(employee.role)}
+                </span>
+            </td>
+            <td class="px-6 py-4">
+                <span class="inline-flex rounded-full px-2 text-xs font-semibold leading-5 
+                    ${isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+                    ${isActive ? 'Активен' : 'Неактивен'}
+                </span>
+                ${isArchived ? 
+                    `<span class="ml-2 inline-flex rounded-full px-2 text-xs font-semibold leading-5 bg-gray-100 text-gray-800">
+                        В архиве
+                    </span>` : ''}
+            </td>
+            <td class="px-6 py-4 text-right text-sm font-medium">
+                <a href="/employees/${employee.id}/" class="text-blue-600 hover:text-blue-900 mr-3" title="Просмотреть">
+                    <i class="fas fa-eye"></i>
+                </a>
+                <button onclick="editEmployee(${employee.id})" class="text-blue-600 hover:text-blue-900 mr-3" title="Редактировать">
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button onclick="toggleEmployeeStatus(${employee.id}, ${isActive})" 
+                    class="text-${isActive ? 'red' : 'green'}-600 hover:text-${isActive ? 'red' : 'green'}-900 mr-3"
+                    title="${isActive ? 'Деактивировать' : 'Активировать'}">
+                    <i class="fas fa-${isActive ? 'times' : 'check'}"></i>
+                </button>
+                <button onclick="toggleArchiveStatus(${employee.id}, ${isArchived})" 
+                    class="text-${isArchived ? 'blue' : 'gray'}-600 hover:text-${isArchived ? 'blue' : 'gray'}-900"
+                    title="${isArchived ? 'Вернуть из архива' : 'Архивировать'}">
+                    <i class="fas fa-${isArchived ? 'box-open' : 'archive'}"></i>
+                </button>
+            </td>
+        `;
+        return tr;
+    }
+
+    // Функции для работы с ролями
+    function getRoleBadgeClass(role) {
+        const classes = {
+            'DIRECTOR': 'bg-purple-100 text-purple-800',
+            'ACCOUNTANT': 'bg-green-100 text-green-800',
+            'DRIVER': 'bg-blue-100 text-blue-800',
+            'SUPPLIER': 'bg-yellow-100 text-yellow-800',
+            'TECH': 'bg-gray-100 text-gray-800',
+            'SUPERADMIN': 'bg-red-100 text-red-800'
+        };
+        return classes[role] || 'bg-gray-100 text-gray-800';
+    }
+
+    function getRoleDisplay(role) {
+        const roles = {
+            'DIRECTOR': 'Директор',
+            'ACCOUNTANT': 'Бухгалтер',
+            'DRIVER': 'Водитель',
+            'SUPPLIER': 'Снабженец',
+            'TECH': 'Техотдел',
+            'SUPERADMIN': 'Суперадмин'
+        };
+        return roles[role] || role;
+    }
+
+    // Функция для архивирования/разархивирования сотрудника
+    async function toggleArchiveStatus(employeeId, isArchived) {
+        console.log('Изменение статуса архива для сотрудника:', employeeId, 'текущий статус:', isArchived);
+        try {
+            const response = await fetch(`/api/users/${employeeId}/archive/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
+                body: JSON.stringify({ is_archived: !isArchived }),
+                credentials: 'same-origin'
+            });
+
+            console.log('Статус ответа при изменении архива:', response.status, response.statusText);
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Текст ошибки:', errorText);
+                throw new Error(`HTTP error! status: ${response.status}, statusText: ${response.statusText}, error: ${errorText}`);
+            }
+
+            // Перезагружаем список сотрудников
+            await loadEmployees();
+        } catch (error) {
+            console.error('Ошибка при изменении статуса архива:', error);
+            alert('Произошла ошибка при изменении статуса архива сотрудника: ' + error.message);
+        }
+    }
+
+    // Функция для активации/деактивации сотрудника
+    async function toggleEmployeeStatus(employeeId, isActive) {
+        try {
+            const response = await fetch(`/api/users/${employeeId}/activate/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
+                body: JSON.stringify({ is_active: !isActive }),
+                credentials: 'same-origin'
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            // Перезагружаем список сотрудников
+            loadEmployees();
+        } catch (error) {
+            console.error('Error toggling employee status:', error);
+            alert('Произошла ошибка при изменении статуса сотрудника');
+        }
+    }
+
+    // Функция для редактирования сотрудника
+    async function editEmployee(employeeId) {
+        try {
+            // Показываем индикатор загрузки
+            document.getElementById('modalTitle').textContent = 'Редактирование сотрудника';
+            
+            // Получаем данные сотрудника
+            const response = await fetch(`/api/users/${employeeId}/`, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
+                credentials: 'same-origin'
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const employee = await response.json();
+            
+            // Заполняем форму данными
+            const form = document.getElementById('employeeForm');
+            form.reset();
+            
+            document.getElementById('employeeId').value = employee.id;
+            form.elements['first_name'].value = employee.first_name || '';
+            form.elements['last_name'].value = employee.last_name || '';
+            form.elements['email'].value = employee.email || '';
+            form.elements['phone'].value = employee.phone || '';
+            form.elements['role'].value = employee.role || 'DRIVER';
+            form.elements['position'].value = employee.position || '';
+            form.elements['username'].value = employee.username || '';
+            
+            // Очищаем поля пароля
+            form.elements['password'].value = '';
+            form.elements['password2'].value = '';
+            
+            // Обновляем превью фото
+            const photoPreview = document.getElementById('photoPreview');
+            if (employee.photo) {
+                photoPreview.innerHTML = `<img src="${employee.photo}" class="w-20 h-20 rounded-full object-cover">`;
+                document.getElementById('removePhotoBtn').style.display = 'inline-flex';
+            } else {
+                photoPreview.innerHTML = `<i class="fas fa-user text-gray-400 text-2xl"></i>`;
+                document.getElementById('removePhotoBtn').style.display = 'none';
+            }
+            
+            // Показываем модальное окно
+            document.getElementById('employeeModal').classList.remove('hidden');
+        } catch (error) {
+            console.error('Error loading employee:', error);
+            alert('Произошла ошибка при загрузке данных сотрудника');
+        }
+    }
+
+    // Добавляем обработчики событий для фильтров
+    document.getElementById('searchInput').addEventListener('input', debounce(loadEmployees, 500));
+    document.getElementById('roleFilter').addEventListener('change', loadEmployees);
+    document.getElementById('archivedFilter').addEventListener('change', loadEmployees);
+    document.getElementById('sortFilter').addEventListener('change', loadEmployees);
+
+    // Функция debounce для предотвращения слишком частых запросов при вводе в поле поиска
+    function debounce(func, wait) {
+        let timeout;
+        return function() {
+            const context = this, args = arguments;
+            clearTimeout(timeout);
+            timeout = setTimeout(() => {
+                func.apply(context, args);
+            }, wait);
+        };
+    }
+
+    // Загружаем сотрудников при загрузке страницы
+    document.addEventListener('DOMContentLoaded', loadEmployees);
+
+    // Обработчик для кнопки "Добавить сотрудника"
+    document.getElementById('addEmployeeBtn').addEventListener('click', function() {
+        // Сбрасываем форму
+        document.getElementById('employeeForm').reset();
+        // Очищаем id сотрудника
+        document.getElementById('employeeId').value = '';
+        // Меняем заголовок модального окна
+        document.getElementById('modalTitle').textContent = 'Добавить сотрудника';
+        // Очищаем превью фото
+        document.getElementById('photoPreview').innerHTML = '<i class="fas fa-user text-gray-400 text-2xl"></i>';
+        document.getElementById('removePhotoBtn').style.display = 'none';
+        // Показываем модальное окно
+        document.getElementById('employeeModal').classList.remove('hidden');
+    });
+
+    // Добавляем обработчики для закрытия модального окна
+    document.querySelectorAll('.closeModal').forEach(button => {
+        button.addEventListener('click', function() {
+            document.getElementById('employeeModal').classList.add('hidden');
+        });
+    });
+
+    // Обработчик отправки формы сотрудника
+    document.getElementById('employeeForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        try {
+            const formData = new FormData(this);
+            const employeeId = document.getElementById('employeeId').value;
+            
+            // URL и метод зависят от того, редактируем мы или создаем
+            const url = employeeId ? `/api/users/${employeeId}/` : '/api/users/';
+            const method = employeeId ? 'PATCH' : 'POST';
+            
+            // Отправляем запрос
+            const response = await fetch(url, {
+                method: method,
+                headers: {
+                    'X-CSRFToken': csrfToken
+                },
+                body: formData,
+                credentials: 'same-origin'
+            });
+            
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(JSON.stringify(errorData));
+            }
+            
+            // Закрываем модальное окно
+            document.getElementById('employeeModal').classList.add('hidden');
+            
+            // Перезагружаем список сотрудников
+            loadEmployees();
+            
+        } catch (error) {
+            console.error('Error saving employee:', error);
+            alert('Произошла ошибка при сохранении сотрудника: ' + error.message);
+        }
+    });
+
+    // Функция для превью фото
+    window.previewPhoto = function(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('photoPreview').innerHTML = 
+                    `<img src="${e.target.result}" class="w-20 h-20 rounded-full object-cover">`;
+                document.getElementById('removePhotoBtn').style.display = 'inline-flex';
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    };
+    
+    // Функция для удаления фото
+    window.removePhoto = function() {
+        document.getElementById('photoInput').value = '';
+        document.getElementById('photoPreview').innerHTML = 
+            '<i class="fas fa-user text-gray-400 text-2xl"></i>';
+        document.getElementById('removePhotoBtn').style.display = 'none';
+    };
+</script>
+{% endblock %} 
