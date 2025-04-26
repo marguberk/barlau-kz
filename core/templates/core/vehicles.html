@@ -1,129 +1,201 @@
 {% extends "core/base.html" %}
+{% load static %}
 
 {% block title %}Транспорт | BARLAU.KZ{% endblock %}
 
 {% block content %}
-<div class="container mx-auto px-4 py-6">
-    <div class="max-w-6xl mx-auto">
-        <!-- CSRF Token -->
-        <div style="display: none">{% csrf_token %}</div>
-        <!-- Заголовок и кнопка добавления -->
-        <div class="flex justify-between items-center mb-6">
-            <div>
-                <h1 class="text-2xl font-bold text-gray-800">Транспорт</h1>
-                <p class="text-gray-600 mt-1">Управление транспортными средствами</p>
+<div class="w-full flex">
+    <!-- Боковая панель -->
+    <div class="w-64 h-screen bg-white border-r border-zinc-200 flex flex-col justify-start items-start fixed left-0 bottom-0 sidebar">
+        <div class="self-stretch px-5 py-6 relative flex flex-col justify-start items-start gap-2 sidebar-logo">
+            <div class="py-1 inline-flex justify-start items-center gap-2">
+                <img src="{% static 'core/img/logo.png' %}" alt="Barlau Logo" class="w-10 h-6">
+                <div class="text-center justify-start text-black text-2xl font-semibold leading-normal">Barlau.kz</div>
             </div>
-            {% if user.role == 'DIRECTOR' or user.role == 'SUPERADMIN' or user.is_superuser %}
-            <a href="{% url 'core:vehicle-add' %}" id="addVehicleBtn" 
-                    class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200">
-                <i class="fas fa-plus mr-2"></i>Добавить транспорт
-            </a>
-            {% endif %}
+        </div>
+        <div class="self-stretch flex-1 px-4 pt-2 pb-4 flex flex-col justify-start items-center gap-4 sidebar-menu">
+            <div class="self-stretch flex flex-col justify-start items-start gap-1">
+                <div class="self-stretch flex flex-col justify-start items-start">
+                    <a href="{% url 'core:home' %}" class="self-stretch px-3 py-3.5 relative bg-white rounded-lg inline-flex justify-start items-center gap-2">
+                        <div class="w-5 h-5 relative overflow-hidden">
+                            <img src="{% static 'core/img/home.svg' %}" alt="Home" class="w-4 h-4 desktop-icon">
+                            <img src="{% static 'core/img/mobile/home.svg' %}" alt="Home" class="mobile-icon hidden">
+                        </div>
+                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Главная</div>
+                    </a>
+                    <a href="{% url 'core:tasks' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex justify-start items-center gap-2">
+                        <div class="w-5 h-5 relative overflow-hidden">
+                            <img src="{% static 'core/img/check-square.svg' %}" alt="Tasks" class="w-4 h-4 desktop-icon">
+                            <img src="{% static 'core/img/mobile/check-square.svg' %}" alt="Tasks" class="mobile-icon hidden">
+                        </div>
+                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Задачи</div>
+                    </a>
+                    <a href="{% url 'core:map' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex justify-start items-center gap-2">
+                        <div class="w-5 h-5 relative overflow-hidden">
+                            <img src="{% static 'core/img/location.svg' %}?v={% now 'U' %}" alt="Map" class="w-4 h-4 desktop-icon" onerror="this.onerror=null; this.src='/static/core/img/location.svg'">
+                            <img src="{% static 'core/img/mobile/location.svg' %}" alt="Map" class="mobile-icon hidden">
+                        </div>
+                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Карта</div>
+                    </a>
+                    <a href="{% url 'core:vehicles' %}" class="self-stretch px-3 py-3.5 bg-gray-50 rounded-lg inline-flex justify-start items-center gap-2 relative">
+                        <div class="w-1 h-6 left-0 top-[calc(50%-12px)] absolute bg-blue-600 rounded-tr-lg rounded-br-lg"></div>
+                        <div class="w-5 h-5 relative overflow-hidden">
+                            <img src="{% static 'core/img/truck.svg' %}" alt="Vehicles" class="w-4 h-4 desktop-icon">
+                            <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Vehicles" class="mobile-icon hidden">
+                        </div>
+                        <div class="flex-1 justify-start text-blue-600 text-base font-medium leading-normal tracking-tight">Грузовики</div>
+                    </a>
+                    <a href="{% url 'core:employees' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex justify-start items-center gap-2">
+                        <div class="w-5 h-5 relative overflow-hidden">
+                            <img src="{% static 'core/img/employee.svg' %}" alt="Employees" class="w-4 h-4 desktop-icon">
+                            <img src="{% static 'core/img/mobile/employee.svg' %}" alt="Employees" class="mobile-icon hidden">
+                        </div>
+                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Сотрудники</div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Основной контент -->
+    <div class="ml-64 flex-1 min-h-screen bg-gray-50 relative main-content">
+        <!-- Верхняя панель -->
+        <div class="w-full h-20 px-8 py-5 bg-white flex justify-between items-center">
+            <div class="justify-start text-zinc-950 text-2xl font-semibold leading-loose">Транспорт</div>
+            <div class="flex justify-start items-center gap-3">
+                <div class="flex justify-start items-start gap-2">
+                    <a href="{% url 'core:notifications' %}" class="w-10 h-10 px-3 py-2 bg-white rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex justify-center items-center gap-1.5">
+                        <img src="{% static 'core/img/bell.svg' %}" alt="Notifications" class="w-5 h-5">
+                    </a>
+                </div>
+                <div class="flex justify-start items-center gap-1.5">
+                    {% if request.user.is_authenticated %}
+                        {% if request.user.photo %}
+                            <img class="w-8 h-8 rounded-full object-cover" src="{{ request.user.photo.url }}" />
+                        {% else %}
+                            <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Панель поиска и фильтров -->
+        <div class="w-full px-8 pt-8">
+            <div class="mb-6 flex flex-col sm:flex-row justify-start gap-2">
+                <div class="flex-grow relative">
+                    <div class="flex h-10 w-full rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] border border-zinc-200 bg-white">
+                        <div class="flex items-center pl-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            </svg>
+                        </div>
+                        <input type="text" id="searchInput" placeholder="Поиск по номеру, марке или модели" class="px-2 py-2 w-full focus:outline-none text-gray-700 rounded-lg" />
+                    </div>
+                </div>
+                <div class="flex gap-2">
+                    <div class="relative">
+                        <select id="brandFilter" class="h-10 px-3 pr-8 rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] border border-zinc-200 bg-white focus:outline-none text-gray-700 appearance-none">
+                            <option value="">Все марки</option>
+                        </select>
+                        <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500">
+                                <path d="m6 9 6 6 6-6"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="relative">
+                        <select id="yearFilter" class="h-10 px-3 pr-8 rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] border border-zinc-200 bg-white focus:outline-none text-gray-700 appearance-none">
+                            <option value="">Все года</option>
+                        </select>
+                        <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500">
+                                <path d="m6 9 6 6 6-6"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="relative">
+                        <select id="statusFilter" class="h-10 px-3 pr-8 rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] border border-zinc-200 bg-white focus:outline-none text-gray-700 appearance-none">
+                            <option value="">Все</option>
+                            <option value="with_driver">С водителем</option>
+                            <option value="without_driver">Без водителя</option>
+                        </select>
+                        <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500">
+                                <path d="m6 9 6 6 6-6"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Статистика -->
-        <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-6">
-            <div class="bg-white rounded-xl shadow-sm p-4 hover:shadow-md transition-shadow duration-200">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm font-medium text-gray-600">Всего транспорта</p>
-                        <h3 class="text-2xl font-bold text-gray-800" id="totalVehicles">0</h3>
-                    </div>
-                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                        <i class="fas fa-truck text-blue-600 text-xl"></i>
-                    </div>
-                </div>
-            </div>
-            <div class="bg-white rounded-xl shadow-sm p-4 hover:shadow-md transition-shadow duration-200">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm font-medium text-gray-600">С водителем</p>
-                        <h3 class="text-2xl font-bold text-gray-800" id="activeVehicles">0</h3>
-                    </div>
-                    <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                        <i class="fas fa-user-check text-green-600 text-xl"></i>
+        <div class="w-full px-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                <div class="bg-white rounded-xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] border border-zinc-200 p-4 hover:shadow-md transition-shadow duration-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">Всего транспорта</p>
+                            <h3 class="text-2xl font-bold text-gray-800" id="totalVehicles">0</h3>
+                        </div>
+                        <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-truck text-blue-600 text-xl"></i>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="bg-white rounded-xl shadow-sm p-4 hover:shadow-md transition-shadow duration-200">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm font-medium text-gray-600">Без водителя</p>
-                        <h3 class="text-2xl font-bold text-gray-800" id="unassignedVehicles">0</h3>
-                    </div>
-                    <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
-                        <i class="fas fa-user-alt-slash text-yellow-600 text-xl"></i>
-                    </div>
-                </div>
-            </div>
-            <div class="bg-white rounded-xl shadow-sm p-4 hover:shadow-md transition-shadow duration-200">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm font-medium text-gray-600">Расходы за месяц</p>
-                        <h3 class="text-2xl font-bold text-gray-800" id="monthlyExpenses">0 ₸</h3>
-                    </div>
-                    <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
-                        <i class="fas fa-money-bill text-red-600 text-xl"></i>
+                <div class="bg-white rounded-xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] border border-zinc-200 p-4 hover:shadow-md transition-shadow duration-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">С водителем</p>
+                            <h3 class="text-2xl font-bold text-gray-800" id="activeVehicles">0</h3>
+                        </div>
+                        <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-user-check text-green-600 text-xl"></i>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <!-- Фильтры -->
-        <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <!-- Поиск -->
-                <div class="space-y-2">
-                    <label class="text-sm font-medium text-gray-700 flex items-center">
-                        <i class="fas fa-search text-gray-400 mr-2"></i>Поиск
-                    </label>
-                    <div class="relative">
-                        <input type="text" id="searchInput" 
-                               class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm placeholder:text-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
-                               placeholder="Номер, марка или модель...">
+                <div class="bg-white rounded-xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] border border-zinc-200 p-4 hover:shadow-md transition-shadow duration-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">Без водителя</p>
+                            <h3 class="text-2xl font-bold text-gray-800" id="unassignedVehicles">0</h3>
+                        </div>
+                        <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-user-alt-slash text-yellow-600 text-xl"></i>
+                        </div>
                     </div>
                 </div>
-
-                <!-- Марка -->
-                <div class="space-y-2">
-                    <label class="text-sm font-medium text-gray-700 flex items-center">
-                        <i class="fas fa-car text-gray-400 mr-2"></i>Марка
-                    </label>
-                    <select id="brandFilter" 
-                            class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500">
-                        <option value="">Все марки</option>
-                    </select>
-                </div>
-
-                <!-- Год выпуска -->
-                <div class="space-y-2">
-                    <label class="text-sm font-medium text-gray-700 flex items-center">
-                        <i class="fas fa-calendar-alt text-gray-400 mr-2"></i>Год выпуска
-                    </label>
-                    <select id="yearFilter"
-                            class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500">
-                        <option value="">Все года</option>
-                    </select>
-                </div>
-
-                <!-- Статус -->
-                <div class="space-y-2">
-                    <label class="text-sm font-medium text-gray-700 flex items-center">
-                        <i class="fas fa-user text-gray-400 mr-2"></i>Статус
-                    </label>
-                    <select id="statusFilter"
-                            class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500">
-                        <option value="">Все</option>
-                        <option value="with_driver">С водителем</option>
-                        <option value="without_driver">Без водителя</option>
-                    </select>
+                <div class="bg-white rounded-xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] border border-zinc-200 p-4 hover:shadow-md transition-shadow duration-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">Расходы за месяц</p>
+                            <h3 class="text-2xl font-bold text-gray-800" id="monthlyExpenses">0 ₸</h3>
+                        </div>
+                        <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-money-bill text-red-600 text-xl"></i>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- Список транспорта -->
-        <div id="vehiclesList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 hidden">
-            <!-- Транспорт будет добавлен через JavaScript -->
+        <div id="vehiclesList" class="w-full px-8 pb-8 hidden">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <!-- Транспорт будет добавлен через JavaScript -->
+            </div>
         </div>
 
         <!-- Загрузка -->
@@ -133,8 +205,8 @@
         </div>
 
         <!-- Нет транспорта -->
-        <div id="emptyState" class="hidden">
-            <div class="text-center py-12 bg-white rounded-xl shadow-sm">
+        <div id="emptyState" class="hidden px-8">
+            <div class="text-center py-12 bg-white rounded-xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] border border-zinc-200">
                 <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     <i class="fas fa-truck text-gray-400 text-2xl"></i>
                 </div>
@@ -150,8 +222,8 @@
         </div>
 
         <!-- Ошибка -->
-        <div id="errorState" class="hidden">
-            <div class="text-center py-12 bg-white rounded-xl shadow-sm">
+        <div id="errorState" class="hidden px-8">
+            <div class="text-center py-12 bg-white rounded-xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] border border-zinc-200">
                 <div class="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     <i class="fas fa-exclamation-triangle text-red-500 text-2xl"></i>
                 </div>
@@ -165,6 +237,115 @@
         </div>
     </div>
 </div>
+
+<!-- Нижнее мобильное меню - показываем только на мобильных устройствах -->
+<nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 hidden max-lg:block">
+    <div class="flex justify-around items-center px-4 py-2">
+        <a href="{% url 'core:home' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600 relative">
+            <div class="icon-container relative w-8 h-8 flex items-center justify-center">
+                <img src="{% static 'core/img/mobile/home.svg' %}" alt="Home" class="w-6 h-6">
+            </div>
+            <span class="text-xs text-[10px] mt-1">Главная</span>
+        </a>
+        <a href="{% url 'core:tasks' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600 relative">
+            <div class="icon-container relative w-8 h-8 flex items-center justify-center">
+                <img src="{% static 'core/img/mobile/check-square.svg' %}" alt="Tasks" class="w-6 h-6">
+            </div>
+            <span class="text-xs text-[10px] mt-1">Задачи</span>
+        </a>
+        <a href="{% url 'core:map' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600 relative">
+            <div class="icon-container relative w-8 h-8 flex items-center justify-center">
+                <img src="{% static 'core/img/mobile/location.svg' %}" alt="Map" class="w-6 h-6">
+            </div>
+            <span class="text-xs text-[10px] mt-1">Карта</span>
+        </a>
+        <a href="{% url 'core:vehicles' %}" class="flex flex-col items-center text-blue-600 relative">
+            <div class="icon-container relative w-8 h-8 flex items-center justify-center">
+                <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Vehicles" class="w-6 h-6">
+            </div>
+            <span class="text-xs text-[10px] mt-1">Грузовики</span>
+            <div class="absolute -bottom-2 left-0 right-0 h-0.5 bg-blue-600 rounded-full"></div>
+        </a>
+        <a href="{% url 'core:employees' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600 relative">
+            <div class="icon-container relative w-8 h-8 flex items-center justify-center">
+                <img src="{% static 'core/img/mobile/employee.svg' %}" alt="Employees" class="w-6 h-6">
+            </div>
+            <span class="text-xs text-[10px] mt-1">Сотрудники</span>
+        </a>
+    </div>
+</nav>
+
+<style>
+    /* Обновленные стили для боковых иконок меню */
+    .sidebar-menu a {
+        color: #6B7280 !important; /* Серый цвет для неактивных пунктов */
+    }
+    
+    .sidebar-menu a.bg-gray-50 {
+        color: #2563EB !important; /* Синий цвет для активного пункта */
+    }
+    
+    .sidebar-menu a img.desktop-icon {
+        filter: brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(142deg) brightness(96%) contrast(91%); /* Серый фильтр для неактивных иконок */
+    }
+    
+    .sidebar-menu a.bg-gray-50 img.desktop-icon {
+        filter: brightness(0) saturate(100%) invert(32%) sepia(96%) saturate(7461%) hue-rotate(220deg) brightness(97%) contrast(98%); /* Синий фильтр для активной иконки */
+    }
+    
+    /* Общие стили для фиксации цветов иконок в меню */
+    a, a:visited, a:link, a:hover, a:active, 
+    a *, a:visited *, a:link *, a:hover *, a:active * {
+        text-decoration: none !important;
+    }
+
+    @media (max-width: 1100px) {
+        /* Убираем меню для планшетной и мобильной версий */
+        .sidebar {
+            display: none;
+        }
+        
+        .main-content {
+            margin-left: 0;
+        }
+        
+        /* Устанавливаем размер и фильтр для мобильных иконок */
+        .icon-container img {
+            width: 24px;
+            height: 24px;
+        }
+        
+        /* Серый фильтр для неактивных иконок */
+        nav.fixed.bottom-0 a.text-gray-600 .icon-container img {
+            filter: brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(142deg) brightness(96%) contrast(91%);
+        }
+        
+        /* Синий фильтр для активной иконки */
+        nav.fixed.bottom-0 a.text-blue-600 .icon-container img {
+            filter: brightness(0) saturate(100%) invert(32%) sepia(96%) saturate(7461%) hue-rotate(220deg) brightness(97%) contrast(98%);
+        }
+        
+        /* Отступ снизу для контента на устройствах до 1100px */
+        .main-content {
+            padding-bottom: 70px;
+        }
+    }
+    
+    /* Скрываем нижнее меню на этой странице для ПК версии */
+    body > nav.fixed.bottom-0 {
+        display: none !important;
+    }
+    
+    /* Скрываем верхнюю панель и корректируем отступы */
+    body > header.fixed.top-0 {
+        display: none !important;
+    }
+    
+    /* Убираем отступ от верхней панели */
+    main.mt-16 {
+        margin-top: 0 !important;
+    }
+</style>
 {% endblock %}
 
 {% block extra_js %}
@@ -235,65 +416,89 @@
         hideEmpty();
         
         vehiclesList.classList.remove('hidden');
-        vehiclesList.innerHTML = vehicles.map(vehicle => {
+        const vehiclesContainer = vehiclesList.querySelector('.grid');
+        vehiclesContainer.innerHTML = vehicles.map(vehicle => {
             const hasDriver = !!vehicle.driver_details;
             
             return `
-                <div class="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-200">
-                    <div class="p-6">
-                        <div class="flex justify-between items-start">
-                            <div class="flex-1">
-                                <h3 class="text-lg font-semibold text-gray-800 mb-2">${vehicle.brand} ${vehicle.model}</h3>
-                                <p class="text-gray-500 text-sm mb-3">Гос. номер: <span class="text-gray-800 font-medium">${vehicle.number}</span></p>
-                                <p class="text-gray-500 text-sm">Год выпуска: <span class="text-gray-800 font-medium">${vehicle.year}</span></p>
-                                
-                                <div class="flex gap-2 mt-4">
-                                    ${hasDriver ? `
-                                        <span class="bg-green-100 text-green-800 text-xs px-2.5 py-1 rounded-full flex items-center">
-                                            <i class="fas fa-user-check mr-1"></i>С водителем
-                                        </span>
-                                    ` : `
-                                        <span class="bg-yellow-100 text-yellow-800 text-xs px-2.5 py-1 rounded-full flex items-center">
-                                            <i class="fas fa-user-alt-slash mr-1"></i>Без водителя
-                                        </span>
-                                    `}
-                                </div>
+                <div class="bg-white rounded-xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] border border-zinc-200 overflow-hidden flex flex-col h-full">
+                    <div class="px-4 py-3 border-b border-zinc-200 flex justify-between items-start">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-blue-100 overflow-hidden flex items-center justify-center">
+                                <i class="fas fa-truck text-blue-600"></i>
                             </div>
+                            <div class="font-semibold text-zinc-950">${vehicle.brand} ${vehicle.model}</div>
                         </div>
-                        
-                        <div class="border-t border-gray-100 mt-4 pt-4">
-                            <div class="flex items-center mb-2">
-                                <i class="fas fa-user text-gray-400 mr-2"></i>
-                                <span class="text-sm text-gray-700">
-                                    ${hasDriver ? `${vehicle.driver_details.first_name} ${vehicle.driver_details.last_name}` : 'Водитель не назначен'}
-                                </span>
-                            </div>
-                            ${hasDriver ? `
-                                <div class="flex items-center text-sm">
-                                    <i class="fas fa-phone text-gray-400 mr-2"></i>
-                                    <span class="text-gray-700">
-                                        ${vehicle.driver_details.phone || 'Телефон не указан'}
-                                    </span>
-                                </div>
-                            ` : ''}
+                    </div>
+                    <div class="px-4 py-3 space-y-3 flex-grow">
+                        <div class="flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500">
+                                <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+                                <path d="M2 8h20"></path>
+                            </svg>
+                            <span class="text-gray-700 text-sm font-medium">${vehicle.number}</span>
                         </div>
-                        
-                        <div class="mt-4 flex justify-end space-x-2">
-                            {% if user.role == 'DIRECTOR' or user.role == 'SUPERADMIN' or user.is_superuser %}
-                            <a href="/vehicles/${vehicle.id}/edit/" class="text-blue-600 hover:text-blue-800 text-sm flex items-center">
-                                <i class="fas fa-edit mr-1"></i> Редактировать
+                        <div class="flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                <line x1="16" y1="2" x2="16" y2="6"></line>
+                                <line x1="8" y1="2" x2="8" y2="6"></line>
+                                <line x1="3" y1="10" x2="21" y2="10"></line>
+                            </svg>
+                            <span class="text-gray-700 text-sm font-medium">${vehicle.year} год выпуска</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500">
+                                <path d="M20 7h-3a2 2 0 0 1-2-2V2"></path>
+                                <path d="M16 2H8a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path>
+                            </svg>
+                            <span class="px-2 py-0.5 
+                                ${hasDriver ? 'bg-green-50 text-green-600' : 'bg-yellow-100 text-amber-600'} 
+                                rounded text-sm font-medium">
+                                ${hasDriver ? 'С водителем' : 'Без водителя'}
+                            </span>
+                        </div>
+                        ${hasDriver ? `
+                        <div class="flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                            <span class="text-gray-700 text-sm font-medium">${vehicle.driver_details.first_name} ${vehicle.driver_details.last_name}</span>
+                        </div>
+                        ${vehicle.driver_details.phone ? `
+                        <div class="flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500">
+                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                            </svg>
+                            <span class="text-gray-500 text-sm font-medium">${vehicle.driver_details.phone}</span>
+                        </div>
+                        ` : ''}
+                        ` : ''}
+                    </div>
+                    <div class="px-4 py-3 border-t border-zinc-200 mt-auto">
+                        {% if user.role == 'DIRECTOR' or user.role == 'SUPERADMIN' or user.is_superuser %}
+                        <div class="flex space-x-2">
+                            <a href="/vehicles/${vehicle.id}/edit/" class="flex-1 h-10 px-3 py-2 bg-white rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] border border-zinc-200 flex justify-center items-center gap-1.5 text-sm font-semibold">
+                                <span>Редактировать</span>
                             </a>
-                            
                             ${hasDriver ? `
-                                <form action="/vehicles/${vehicle.id}/archive/" method="post" class="inline">
-                                    {% csrf_token %}
-                                    <button type="submit" class="text-red-600 hover:text-red-800 text-sm ml-3 flex items-center" onclick="return confirm('Вы уверены, что хотите освободить транспорт?')">
-                                        <i class="fas fa-user-slash mr-1"></i> Освободить
-                                    </button>
-                                </form>
+                            <form action="/vehicles/${vehicle.id}/archive/" method="post" class="flex-1">
+                                {% csrf_token %}
+                                <button type="submit" onclick="return confirm('Вы уверены, что хотите освободить транспорт?')" class="w-full h-10 px-3 py-2 bg-white rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] border border-zinc-200 flex justify-center items-center gap-1.5 text-sm font-semibold text-red-600">
+                                    <span>Освободить</span>
+                                </button>
+                            </form>
                             ` : ''}
-                            {% endif %}
                         </div>
+                        {% else %}
+                        <a href="/vehicles/${vehicle.id}/" class="w-full h-10 px-3 py-2 bg-white rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] border border-zinc-200 flex justify-center items-center gap-1.5 text-sm font-semibold">
+                            <span>Детали</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="m9 18 6-6-6-6"></path>
+                            </svg>
+                        </a>
+                        {% endif %}
                     </div>
                 </div>
             `;
@@ -425,8 +630,8 @@
         updateStats(filteredData);
     }
     
-    // Инициализация
-    document.addEventListener('DOMContentLoaded', () => {
+    // Инициализация при загрузке страницы
+    document.addEventListener('DOMContentLoaded', function() {
         // Загрузка данных
         loadVehicles();
         
@@ -436,6 +641,35 @@
         yearFilter.addEventListener('change', applyFilters);
         statusFilter.addEventListener('change', applyFilters);
         retryButton.addEventListener('click', loadVehicles);
+        
+        // Обработка изменения размера окна
+        window.addEventListener('resize', function() {
+            if (window.innerWidth <= 1100) {
+                document.querySelector('.main-content').style.marginLeft = '0';
+                document.querySelector('.sidebar').style.display = 'none';
+                const mobileNav = document.querySelector('nav.fixed.bottom-0');
+                if (mobileNav) {
+                    mobileNav.style.display = 'block';
+                }
+            } else {
+                document.querySelector('.main-content').style.marginLeft = '16rem';
+                document.querySelector('.sidebar').style.display = 'flex';
+                const mobileNav = document.querySelector('nav.fixed.bottom-0');
+                if (mobileNav) {
+                    mobileNav.style.display = 'none';
+                }
+            }
+        });
+        
+        // Инициализация для текущего размера окна
+        if (window.innerWidth <= 1100) {
+            document.querySelector('.main-content').style.marginLeft = '0';
+            document.querySelector('.sidebar').style.display = 'none';
+            const mobileNav = document.querySelector('nav.fixed.bottom-0');
+            if (mobileNav) {
+                mobileNav.style.display = 'block';
+            }
+        }
     });
 </script>
 {% endblock %} 
