@@ -1,7 +1,7 @@
 {% extends "core/base.html" %}
 {% load static %}
 
-{% block title %}Карта транспорта{% endblock %}
+{% block title %}Карта транспорта - BARLAU.KZ{% endblock %}
 
 {% block extra_head %}
 <!-- Подключаем Leaflet CSS и JS -->
@@ -22,7 +22,8 @@
         background: white;
         padding: 15px;
         border-radius: 8px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        box-shadow: 0 2px 4px -1px rgba(13,13,18,0.06);
+        border: 1px solid #e5e7eb;
         margin-bottom: 15px;
     }
     
@@ -38,7 +39,7 @@
     }
     
     .refresh-button {
-        background-color: #4a8eff;
+        background-color: #2563EB;
         color: white;
         border: none;
         padding: 8px 15px;
@@ -51,7 +52,7 @@
     }
     
     .refresh-button:hover {
-        background-color: #3a7bed;
+        background-color: #1D4ED8;
     }
     
     .vehicle-marker {
@@ -71,22 +72,22 @@
     .user-location-marker {
         width: 16px;
         height: 16px;
-        background-color: #4a8eff;
+        background-color: #2563EB;
         border-radius: 50%;
         border: 2px solid white;
-        box-shadow: 0 0 0 rgba(74, 142, 255, 0.4);
+        box-shadow: 0 0 0 rgba(37, 99, 235, 0.4);
         animation: pulse 2s infinite;
     }
     
     @keyframes pulse {
         0% {
-            box-shadow: 0 0 0 0 rgba(74, 142, 255, 0.4);
+            box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.4);
         }
         70% {
-            box-shadow: 0 0 0 10px rgba(74, 142, 255, 0);
+            box-shadow: 0 0 0 10px rgba(37, 99, 235, 0);
         }
         100% {
-            box-shadow: 0 0 0 0 rgba(74, 142, 255, 0);
+            box-shadow: 0 0 0 0 rgba(37, 99, 235, 0);
         }
     }
     
@@ -99,48 +100,280 @@
 {% endblock %}
 
 {% block content %}
-<div class="container mx-auto px-4 py-4">
-    <h2 class="text-2xl font-bold mb-4">Карта транспортных средств</h2>
-    
-    <div class="filter-panel">
-        <div class="filter-header">
-            <h4 class="font-semibold">Фильтры транспорта</h4>
-            <button id="refreshButton" class="refresh-button">
-                <i class="fas fa-sync-alt"></i> Обновить
-            </button>
-        </div>
-        <div class="filter-body">
-            <div class="mb-2">
-                <label class="inline-flex items-center">
-                    <input type="checkbox" class="form-checkbox" id="filterAll" checked>
-                    <span class="ml-2">Все типы</span>
-                </label>
-            </div>
-            <div class="mb-2">
-                <label class="inline-flex items-center">
-                    <input type="checkbox" class="form-checkbox vehicle-type" id="filterCar" data-type="car" checked>
-                    <span class="ml-2">Легковые</span>
-                </label>
-            </div>
-            <div class="mb-2">
-                <label class="inline-flex items-center">
-                    <input type="checkbox" class="form-checkbox vehicle-type" id="filterTruck" data-type="truck" checked>
-                    <span class="ml-2">Грузовые</span>
-                </label>
-            </div>
-            <div class="mb-2">
-                <label class="inline-flex items-center">
-                    <input type="checkbox" class="form-checkbox vehicle-type" id="filterSpecial" data-type="special" checked>
-                    <span class="ml-2">Спецтехника</span>
-                </label>
+<div class="w-full flex">
+    <!-- Боковая панель -->
+    <div class="w-64 h-screen bg-white border-r border-zinc-200 flex flex-col justify-start items-start fixed left-0 bottom-0 sidebar">
+        <div class="self-stretch px-5 py-6 relative flex flex-col justify-start items-start gap-2 sidebar-logo">
+            <div class="py-1 inline-flex justify-start items-center gap-2">
+                <img src="{% static 'core/img/logo.png' %}" alt="Barlau Logo" class="w-10 h-6">
+                <div class="text-center justify-start text-black text-2xl font-semibold leading-normal">Barlau.kz</div>
             </div>
         </div>
-        <div class="update-info" id="lastUpdate">Последнее обновление: </div>
+        <div class="self-stretch flex-1 px-4 pt-2 pb-4 flex flex-col justify-start items-center gap-4 sidebar-menu">
+            <div class="self-stretch flex flex-col justify-start items-start gap-1">
+                <div class="self-stretch flex flex-col justify-start items-start">
+                    <a href="{% url 'core:home' %}" class="self-stretch px-3 py-3.5 relative bg-white rounded-lg inline-flex justify-start items-center gap-2">
+                        <div class="w-5 h-5 relative overflow-hidden">
+                            <img src="{% static 'core/img/home.svg' %}" alt="Home" class="w-4 h-4 desktop-icon">
+                            <img src="{% static 'core/img/mobile/home.svg' %}" alt="Home" class="mobile-icon hidden">
+                        </div>
+                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Главная</div>
+                    </a>
+                    <a href="{% url 'core:tasks' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex justify-start items-center gap-2">
+                        <div class="w-5 h-5 relative overflow-hidden">
+                            <img src="{% static 'core/img/check-square.svg' %}" alt="Tasks" class="w-4 h-4 desktop-icon">
+                            <img src="{% static 'core/img/mobile/check-square.svg' %}" alt="Tasks" class="mobile-icon hidden">
+                        </div>
+                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Задачи</div>
+                    </a>
+                    <a href="{% url 'core:map' %}" class="self-stretch px-3 py-3.5 bg-gray-50 rounded-lg inline-flex justify-start items-center gap-2 relative">
+                        <div class="w-1 h-6 left-0 top-[calc(50%-12px)] absolute bg-blue-600 rounded-tr-lg rounded-br-lg"></div>
+                        <div class="w-5 h-5 relative overflow-hidden">
+                            <img src="{% static 'core/img/location.svg' %}?v={% now 'U' %}" alt="Map" class="w-4 h-4 desktop-icon" onerror="this.onerror=null; this.src='/static/core/img/location.svg'">
+                            <img src="{% static 'core/img/mobile/location.svg' %}" alt="Map" class="mobile-icon hidden">
+                        </div>
+                        <div class="flex-1 justify-start text-blue-600 text-base font-medium leading-normal tracking-tight">Карта</div>
+                    </a>
+                    <a href="{% url 'core:vehicles' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex justify-start items-center gap-2">
+                        <div class="w-5 h-5 relative overflow-hidden">
+                            <img src="{% static 'core/img/truck.svg' %}" alt="Vehicles" class="w-4 h-4 desktop-icon">
+                            <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Vehicles" class="mobile-icon hidden">
+                        </div>
+                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Грузовики</div>
+                    </a>
+                    <a href="{% url 'core:employees' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex justify-start items-center gap-2">
+                        <div class="w-5 h-5 relative overflow-hidden">
+                            <img src="{% static 'core/img/employee.svg' %}" alt="Employees" class="w-4 h-4 desktop-icon">
+                            <img src="{% static 'core/img/mobile/employee.svg' %}" alt="Employees" class="mobile-icon hidden">
+                        </div>
+                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Сотрудники</div>
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
-    
-    <!-- Контейнер карты с явными размерами -->
-    <div id="mapContainer" style="width: 100%; height: 500px; position: relative;"></div>
+
+    <!-- Основной контент -->
+    <div class="ml-64 flex-1 min-h-screen bg-gray-50 relative main-content">
+        <!-- Верхняя панель -->
+        <div class="w-full h-20 px-8 py-5 bg-white flex justify-between items-center">
+            <div class="justify-start text-zinc-950 text-2xl font-semibold leading-loose">Карта</div>
+            <div class="flex justify-start items-center gap-3">
+                <div class="flex justify-start items-start gap-2">
+                    <a href="{% url 'core:notifications' %}" class="w-10 h-10 px-3 py-2 bg-white rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex justify-center items-center gap-1.5">
+                        <img src="{% static 'core/img/bell.svg' %}" alt="Notifications" class="w-5 h-5">
+                    </a>
+                </div>
+                <div class="flex justify-start items-center gap-1.5">
+                    {% if request.user.is_authenticated %}
+                        {% if request.user.photo %}
+                            <img class="w-8 h-8 rounded-full object-cover" src="{{ request.user.photo.url }}" />
+                        {% else %}
+                            <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Содержимое страницы карты -->
+        <div class="w-full px-8 py-6">
+            <div class="filter-panel">
+                <div class="filter-header">
+                    <h4 class="font-semibold">Фильтры транспорта</h4>
+                    <button id="refreshButton" class="refresh-button">
+                        <i class="fas fa-sync-alt"></i> Обновить
+                    </button>
+                </div>
+                <div class="filter-body">
+                    <div class="mb-2">
+                        <label class="inline-flex items-center">
+                            <input type="checkbox" class="form-checkbox" id="filterAll" checked>
+                            <span class="ml-2">Все типы</span>
+                        </label>
+                    </div>
+                    <div class="mb-2">
+                        <label class="inline-flex items-center">
+                            <input type="checkbox" class="form-checkbox vehicle-type" id="filterCar" data-type="car" checked>
+                            <span class="ml-2">Легковые</span>
+                        </label>
+                    </div>
+                    <div class="mb-2">
+                        <label class="inline-flex items-center">
+                            <input type="checkbox" class="form-checkbox vehicle-type" id="filterTruck" data-type="truck" checked>
+                            <span class="ml-2">Грузовые</span>
+                        </label>
+                    </div>
+                    <div class="mb-2">
+                        <label class="inline-flex items-center">
+                            <input type="checkbox" class="form-checkbox vehicle-type" id="filterSpecial" data-type="special" checked>
+                            <span class="ml-2">Спецтехника</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="update-info" id="lastUpdate">Последнее обновление: </div>
+            </div>
+            
+            <!-- Контейнер карты с явными размерами -->
+            <div id="mapContainer" style="width: 100%; height: 600px; position: relative; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px -1px rgba(13,13,18,0.06); border: 1px solid #e5e7eb;"></div>
+        </div>
+    </div>
 </div>
+
+<!-- Нижнее мобильное меню - показываем только на мобильных устройствах -->
+<nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 hidden max-lg:block">
+    <div class="flex justify-around items-center px-4 py-2">
+        <a href="{% url 'core:home' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600 relative">
+            <div class="icon-container relative w-8 h-8 flex items-center justify-center">
+                <img src="{% static 'core/img/mobile/home.svg' %}" alt="Home" class="w-6 h-6">
+            </div>
+            <span class="text-xs text-[10px] mt-1">Главная</span>
+        </a>
+        <a href="{% url 'core:tasks' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600 relative">
+            <div class="icon-container relative w-8 h-8 flex items-center justify-center">
+                <img src="{% static 'core/img/mobile/check-square.svg' %}" alt="Tasks" class="w-6 h-6">
+            </div>
+            <span class="text-xs text-[10px] mt-1">Задачи</span>
+        </a>
+        <a href="{% url 'core:map' %}" class="flex flex-col items-center text-blue-600 relative">
+            <div class="icon-container relative w-8 h-8 flex items-center justify-center">
+                <img src="{% static 'core/img/mobile/location.svg' %}" alt="Map" class="w-6 h-6">
+            </div>
+            <span class="text-xs text-[10px] mt-1">Карта</span>
+            <div class="absolute -bottom-2 left-0 right-0 h-0.5 bg-blue-600 rounded-full"></div>
+        </a>
+        <a href="{% url 'core:vehicles' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600 relative">
+            <div class="icon-container relative w-8 h-8 flex items-center justify-center">
+                <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Vehicles" class="w-6 h-6">
+            </div>
+            <span class="text-xs text-[10px] mt-1">Грузовики</span>
+        </a>
+        <a href="{% url 'core:employees' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600 relative">
+            <div class="icon-container relative w-8 h-8 flex items-center justify-center">
+                <img src="{% static 'core/img/mobile/employee.svg' %}" alt="Employees" class="w-6 h-6">
+            </div>
+            <span class="text-xs text-[10px] mt-1">Сотрудники</span>
+        </a>
+    </div>
+</nav>
+
+<style>
+    /* Обновленные стили для боковых иконок меню */
+    .sidebar-menu a {
+        color: #6B7280 !important; /* Серый цвет для неактивных пунктов */
+    }
+    
+    .sidebar-menu a.bg-gray-50 {
+        color: #2563EB !important; /* Синий цвет для активного пункта */
+    }
+    
+    .sidebar-menu a img.desktop-icon {
+        filter: brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(142deg) brightness(96%) contrast(91%); /* Серый фильтр для неактивных иконок */
+    }
+    
+    .sidebar-menu a.bg-gray-50 img.desktop-icon {
+        filter: brightness(0) saturate(100%) invert(32%) sepia(96%) saturate(7461%) hue-rotate(220deg) brightness(97%) contrast(98%); /* Синий фильтр для активной иконки */
+    }
+    
+    /* Общие стили для фиксации цветов иконок в меню */
+    a, a:visited, a:link, a:hover, a:active, 
+    a *, a:visited *, a:link *, a:hover *, a:active * {
+        text-decoration: none !important;
+    }
+
+    @media (max-width: 1100px) {
+        /* Убираем меню для планшетной и мобильной версий */
+        .sidebar {
+            display: none !important;
+        }
+        
+        .main-content {
+            margin-left: 0 !important;
+            width: 100% !important;
+            padding-bottom: 70px !important;
+        }
+        
+        /* Верхняя панель на всю ширину */
+        .main-content > div:first-child {
+            width: 100% !important;
+        }
+        
+        /* Устанавливаем размер и фильтр для мобильных иконок */
+        .icon-container img {
+            width: 24px !important;
+            height: 24px !important;
+        }
+        
+        /* Серый фильтр для неактивных иконок */
+        nav.fixed.bottom-0 a.text-gray-600 .icon-container img {
+            filter: brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(142deg) brightness(96%) contrast(91%) !important;
+        }
+        
+        /* Синий фильтр для активной иконки */
+        nav.fixed.bottom-0 a.text-blue-600 .icon-container img {
+            filter: brightness(0) saturate(100%) invert(32%) sepia(96%) saturate(7461%) hue-rotate(220deg) brightness(97%) contrast(98%) !important;
+        }
+        
+        /* Подстраиваем карту под мобильные устройства */
+        #mapContainer {
+            height: 450px !important;
+        }
+    }
+    
+    /* Дополнительные коррекции для мобильных устройств */
+    @media (max-width: 640px) {
+        .main-content {
+            padding-left: 16px !important;
+            padding-right: 16px !important;
+        }
+        
+        .w-full.px-8 {
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+        }
+        
+        /* Уменьшаем отступы для экономии места */
+        .px-8 {
+            padding-left: 16px !important;
+            padding-right: 16px !important;
+        }
+        
+        /* Адаптируем размер заголовков */
+        .text-2xl {
+            font-size: 1.25rem !important;
+        }
+        
+        /* Подстраиваем карту под мобильные устройства */
+        #mapContainer {
+            height: 350px !important;
+        }
+    }
+    
+    /* Скрываем нижнее меню на этой странице для ПК версии */
+    body > nav.fixed.bottom-0 {
+        display: none !important;
+    }
+    
+    /* Скрываем верхнюю панель и корректируем отступы */
+    body > header.fixed.top-0 {
+        display: none !important;
+    }
+    
+    /* Убираем отступ от верхней панели */
+    main.mt-16 {
+        margin-top: 0 !important;
+    }
+</style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -388,6 +621,89 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Обновляем время последнего обновления
     updateLastUpdateTime();
+    
+    // Функция для адаптации под планшеты и мобильную версию
+    function adjustLayoutForTablet() {
+        // Для планшетной и мобильной версии
+        if (window.innerWidth <= 1100) {
+            // Убираем боковую панель и настраиваем основной контент
+            document.querySelector('.main-content').style.marginLeft = '0';
+            document.querySelector('.sidebar').style.display = 'none';
+            
+            // Показываем нижнее мобильное меню
+            const mobileNav = document.querySelector('nav.fixed.bottom-0');
+            if (mobileNav) {
+                mobileNav.style.display = 'block';
+            }
+        } else {
+            resetLayoutToDesktop();
+        }
+        
+        // Исправляем отображение карты после изменения размеров
+        if (map) {
+            map.invalidateSize();
+        }
+    }
+    
+    // Функция для возврата к десктопному режиму
+    function resetLayoutToDesktop() {
+        document.querySelector('.main-content').style.marginLeft = '16rem';
+        document.querySelector('.sidebar').style.display = 'flex';
+        
+        // Скрываем мобильное меню
+        const mobileNav = document.querySelector('nav.fixed.bottom-0');
+        if (mobileNav) {
+            mobileNav.style.display = 'none';
+        }
+        
+        // Исправляем отображение карты после изменения размеров
+        if (map) {
+            map.invalidateSize();
+        }
+    }
+    
+    // Функция коррекции всех ссылок на странице
+    function fixAllLinks() {
+        const allLinks = document.querySelectorAll('a');
+        allLinks.forEach(link => {
+            // Исправление ссылок с неверным форматированием
+            if (link.href.includes('undefined') || link.href.includes('[object')) {
+                // Пытаемся исправить ссылку на основе текста
+                const linkText = link.textContent.trim().toLowerCase();
+                
+                if (linkText.includes('главная') || linkText.includes('dashboard')) {
+                    link.href = '/';
+                } else if (linkText.includes('задачи') || linkText.includes('tasks')) {
+                    link.href = '/tasks/';
+                } else if (linkText.includes('карта') || linkText.includes('map')) {
+                    link.href = '/map/';
+                } else if (linkText.includes('грузовики') || linkText.includes('vehicles')) {
+                    link.href = '/vehicles/';
+                } else if (linkText.includes('сотрудники') || linkText.includes('employees')) {
+                    link.href = '/employees/';
+                }
+            }
+        });
+    }
+    
+    // Обработка изменения размера окна с защитой от частых вызовов
+    let resizeTimeout;
+    window.addEventListener('resize', function() {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(function() {
+            adjustLayoutForTablet();
+        }, 250);
+    });
+    
+    // Адаптируем под планшеты и мобильные устройства
+    adjustLayoutForTablet();
+    
+    // Запускаем функцию исправления ссылок немедленно и с интервалом
+    fixAllLinks();
+    const fixInterval = setInterval(fixAllLinks, 300);
+    
+    // После 5 секунд останавливаем интервал
+    setTimeout(() => clearInterval(fixInterval), 5000);
     
     // Исправляем отображение карты, если есть проблемы с контейнером
     setTimeout(function() {
