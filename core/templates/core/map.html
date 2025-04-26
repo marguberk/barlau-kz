@@ -14,11 +14,11 @@
     #mapContainer {
         width: 100%;
         height: calc(100vh - 200px);
-        min-height: 400px;
+        min-height: 500px;
         z-index: 1;
     }
     
-    .filter-panel {
+    .info-panel {
         background: white;
         padding: 15px;
         border-radius: 8px;
@@ -27,15 +27,34 @@
         margin-bottom: 15px;
     }
     
-    .filter-header {
+    .info-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 10px;
+        margin-bottom: 12px;
     }
     
-    .filter-body {
-        margin-bottom: 10px;
+    .vehicle-counter {
+        display: flex;
+        justify-content: flex-start;
+        gap: 16px;
+    }
+    
+    .counter-item {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .counter-value {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #1E3A8A;
+    }
+    
+    .counter-label {
+        font-size: 0.875rem;
+        color: #4B5563;
     }
     
     .refresh-button {
@@ -43,12 +62,13 @@
         color: white;
         border: none;
         padding: 8px 15px;
-        border-radius: 4px;
+        border-radius: 6px;
         cursor: pointer;
         font-weight: 500;
         display: flex;
         align-items: center;
         gap: 5px;
+        transition: background-color 0.2s;
     }
     
     .refresh-button:hover {
@@ -68,33 +88,51 @@
         font-size: 18px;
     }
     
-    /* Пульсирующая анимация для маркера пользователя */
-    .user-location-marker {
-        width: 16px;
-        height: 16px;
-        background-color: #2563EB;
-        border-radius: 50%;
-        border: 2px solid white;
-        box-shadow: 0 0 0 rgba(37, 99, 235, 0.4);
+    /* Пульсирующая анимация для активного маркера */
+    .active-marker {
         animation: pulse 2s infinite;
     }
     
     @keyframes pulse {
         0% {
-            box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.4);
+            transform: scale(1);
+            opacity: 1;
         }
-        70% {
-            box-shadow: 0 0 0 10px rgba(37, 99, 235, 0);
+        50% {
+            transform: scale(1.1);
+            opacity: 0.9;
         }
         100% {
-            box-shadow: 0 0 0 0 rgba(37, 99, 235, 0);
+            transform: scale(1);
+            opacity: 1;
         }
+    }
+    
+    .legend {
+        margin-top: 15px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+    
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.875rem;
+        color: #4B5563;
+    }
+    
+    .legend-color {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
     }
     
     .update-info {
         font-size: 0.8rem;
-        color: #666;
-        margin-top: 5px;
+        color: #6B7280;
+        margin-top: 8px;
     }
 </style>
 {% endblock %}
@@ -188,37 +226,38 @@
 
         <!-- Содержимое страницы карты -->
         <div class="w-full px-8 py-6">
-            <div class="filter-panel">
-                <div class="filter-header">
-                    <h4 class="font-semibold">Фильтры транспорта</h4>
+            <div class="info-panel">
+                <div class="info-header">
+                    <div class="vehicle-counter">
+                        <div class="counter-item">
+                            <span class="counter-value" id="totalVehicles">0</span>
+                            <span class="counter-label">Всего</span>
+                        </div>
+                        <div class="counter-item">
+                            <span class="counter-value" id="activeVehicles">0</span>
+                            <span class="counter-label">В движении</span>
+                        </div>
+                        <div class="counter-item">
+                            <span class="counter-value" id="stoppedVehicles">0</span>
+                            <span class="counter-label">На стоянке</span>
+                        </div>
+                    </div>
                     <button id="refreshButton" class="refresh-button">
                         <i class="fas fa-sync-alt"></i> Обновить
                     </button>
                 </div>
-                <div class="filter-body">
-                    <div class="mb-2">
-                        <label class="inline-flex items-center">
-                            <input type="checkbox" class="form-checkbox" id="filterAll" checked>
-                            <span class="ml-2">Все типы</span>
-                        </label>
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #2563EB;"></div>
+                        <span>В движении</span>
                     </div>
-                    <div class="mb-2">
-                        <label class="inline-flex items-center">
-                            <input type="checkbox" class="form-checkbox vehicle-type" id="filterCar" data-type="car" checked>
-                            <span class="ml-2">Легковые</span>
-                        </label>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #6B7280;"></div>
+                        <span>На стоянке</span>
                     </div>
-                    <div class="mb-2">
-                        <label class="inline-flex items-center">
-                            <input type="checkbox" class="form-checkbox vehicle-type" id="filterTruck" data-type="truck" checked>
-                            <span class="ml-2">Грузовые</span>
-                        </label>
-                    </div>
-                    <div class="mb-2">
-                        <label class="inline-flex items-center">
-                            <input type="checkbox" class="form-checkbox vehicle-type" id="filterSpecial" data-type="special" checked>
-                            <span class="ml-2">Спецтехника</span>
-                        </label>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #EF4444;"></div>
+                        <span>Простой > 1 часа</span>
                     </div>
                 </div>
                 <div class="update-info" id="lastUpdate">Последнее обновление: </div>
@@ -328,6 +367,29 @@
         #mapContainer {
             height: 450px !important;
         }
+        
+        /* Адаптируем счетчики для мобильных */
+        .vehicle-counter {
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .counter-item {
+            flex-direction: row;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .counter-value {
+            font-size: 1.25rem;
+        }
+        
+        /* Адаптируем легенду для мобильных */
+        .legend {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+        }
     }
     
     /* Дополнительные коррекции для мобильных устройств */
@@ -356,6 +418,17 @@
         /* Подстраиваем карту под мобильные устройства */
         #mapContainer {
             height: 350px !important;
+        }
+        
+        /* Подстраиваем заголовок информационной панели */
+        .info-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        
+        .refresh-button {
+            align-self: flex-start;
         }
     }
     
@@ -387,96 +460,68 @@ document.addEventListener('DOMContentLoaded', function() {
     
     console.log('Создание карты Leaflet');
     
-    // Добавляем слой OpenStreetMap
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    // Добавляем стилизованный слой карты CartoDB Positron (светлый, серый стиль)
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, &copy; <a href="https://carto.com/attributions">CARTO</a>',
+        subdomains: 'abcd',
         maxZoom: 19
     }).addTo(map);
     
-    console.log('Карта создана, загружаем местоположение пользователя');
+    console.log('Карта создана, загружаем данные о транспорте');
     
     // Переменные для хранения маркеров
-    var userMarker;
     var vehicleMarkers = {};
     
-    // Фильтры транспорта
-    var filters = {
-        car: true,
-        truck: true,
-        special: true
-    };
-    
-    // Демо-данные для транспортных средств
+    // Демо-данные для транспортных средств (только грузовики)
     var demoVehicles = [
         {
             id: 1, 
-            number: "KZ 123 ABC", 
-            type: "car", 
-            status: "active",
-            driver: {
-                fullname: "Иванов Иван",
-                current_latitude: 43.238949,
-                current_longitude: 76.889709
-            }
-        },
-        {
-            id: 2, 
             number: "KZ 456 DEF", 
-            type: "truck", 
+            brand: "VOLVO FH",
+            model: "460",
             status: "active",
+            lastUpdate: new Date().getTime() - 5 * 60 * 1000, // 5 минут назад
+            speed: 67,
             driver: {
                 fullname: "Петров Петр",
+                phone: "+7 (701) 234-5678",
                 current_latitude: 43.252863,
                 current_longitude: 76.945870
             }
         },
         {
-            id: 3, 
+            id: 2, 
             number: "KZ 789 GHI", 
-            type: "special", 
+            brand: "Mercedes-Benz",
+            model: "Actros",
             status: "inactive",
+            lastUpdate: new Date().getTime() - 35 * 60 * 1000, // 35 минут назад
+            speed: 0,
             driver: {
                 fullname: "Сидоров Сидор",
+                phone: "+7 (702) 345-6789",
                 current_latitude: 43.225211,
                 current_longitude: 76.862957
+            }
+        },
+        {
+            id: 3, 
+            number: "KZ 123 JKL", 
+            brand: "Scania",
+            model: "R500",
+            status: "inactive",
+            lastUpdate: new Date().getTime() - 75 * 60 * 1000, // 1 час 15 минут назад
+            speed: 0,
+            driver: {
+                fullname: "Иванов Иван",
+                phone: "+7 (705) 987-6543",
+                current_latitude: 43.238949,
+                current_longitude: 76.889709
             }
         }
     ];
     
-    // Пытаемся получить местоположение пользователя
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-            // Успех
-            function(position) {
-                console.log('Получены координаты пользователя:', position.coords.latitude, position.coords.longitude);
-                var userLatLng = [position.coords.latitude, position.coords.longitude];
-                
-                // Создаем маркер пользователя
-                var userIcon = L.divIcon({
-                    className: 'user-location-marker',
-                    iconSize: [16, 16],
-                    iconAnchor: [8, 8]
-                });
-                
-                userMarker = L.marker(userLatLng, {icon: userIcon}).addTo(map);
-                userMarker.bindPopup('Ваше местоположение').openPopup();
-                
-                // Центрируем карту на пользователе
-                map.setView(userLatLng, 13);
-            },
-            // Ошибка
-            function(error) {
-                console.log('Ошибка получения местоположения:', error);
-                // Используем данные по умолчанию
-                loadVehicles();
-            }
-        );
-    } else {
-        console.log('Геолокация не поддерживается');
-        loadVehicles();
-    }
-    
-    // В любом случае загружаем транспортные средства
+    // Загружаем транспортные средства
     loadVehicles();
     
     // Функция загрузки транспортных средств
@@ -489,6 +534,9 @@ document.addEventListener('DOMContentLoaded', function() {
         // Используем демо-данные
         displayVehicles(demoVehicles);
         
+        // Обновляем счетчики
+        updateCounters(demoVehicles);
+        
         // Обновляем время последнего обновления
         updateLastUpdateTime();
     }
@@ -498,49 +546,56 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Отображаем транспортные средства:', vehicles);
         
         vehicles.forEach(function(vehicle) {
-            // Проверяем фильтры
-            if (!filters[vehicle.type]) {
-                return;
-            }
-            
             var latlng = [
                 vehicle.driver.current_latitude,
                 vehicle.driver.current_longitude
             ];
             
-            // Определяем иконку по типу
-            var iconClass;
-            switch(vehicle.type) {
-                case 'truck':
-                    iconClass = 'fa-truck';
-                    break;
-                case 'special':
-                    iconClass = 'fa-truck-monster';
-                    break;
-                default:
-                    iconClass = 'fa-car';
+            // Определяем цвет в зависимости от статуса и времени простоя
+            var iconColor;
+            var isActive = vehicle.status === 'active' && vehicle.speed > 0;
+            var isLongStopped = vehicle.lastUpdate && (new Date().getTime() - vehicle.lastUpdate > 60 * 60 * 1000); // Больше часа простоя
+            
+            if (isActive) {
+                iconColor = '#2563EB'; // Синий - активен в движении
+            } else if (isLongStopped) {
+                iconColor = '#EF4444'; // Красный - долгий простой
+            } else {
+                iconColor = '#6B7280'; // Серый - на стоянке
             }
             
-            // Цвет в зависимости от статуса
-            var color = vehicle.status === 'active' ? '#28a745' : '#dc3545';
-            
-            // Создаем маркер
+            // Создаем маркер с соответствующим стилем
             var vehicleIcon = L.divIcon({
-                className: 'vehicle-marker',
-                html: '<i class="fas ' + iconClass + '" style="color: ' + color + '"></i>',
+                className: isActive ? 'vehicle-marker active-marker' : 'vehicle-marker',
+                html: '<i class="fas fa-truck" style="color: ' + iconColor + '"></i>',
                 iconSize: [30, 30],
                 iconAnchor: [15, 15]
             });
             
             var marker = L.marker(latlng, {icon: vehicleIcon}).addTo(map);
             
-            // Добавляем всплывающее окно
+            // Форматируем время последнего обновления
+            var lastUpdateText = '';
+            if (vehicle.lastUpdate) {
+                var timeDiff = Math.floor((new Date().getTime() - vehicle.lastUpdate) / (60 * 1000)); // в минутах
+                if (timeDiff < 60) {
+                    lastUpdateText = timeDiff + ' мин. назад';
+                } else {
+                    var hours = Math.floor(timeDiff / 60);
+                    var mins = timeDiff % 60;
+                    lastUpdateText = hours + ' ч. ' + (mins > 0 ? mins + ' мин.' : '') + ' назад';
+                }
+            }
+            
+            // Добавляем всплывающее окно с подробной информацией
             marker.bindPopup(
-                '<div>' +
-                '<h3 style="font-weight: bold; margin-bottom: 5px;">' + vehicle.number + '</h3>' +
-                '<p><strong>Водитель:</strong> ' + vehicle.driver.fullname + '</p>' +
-                '<p><strong>Тип:</strong> ' + getVehicleTypeName(vehicle.type) + '</p>' +
-                '<p><strong>Статус:</strong> ' + (vehicle.status === 'active' ? 'Активен' : 'Неактивен') + '</p>' +
+                '<div class="p-2">' +
+                '<h3 class="text-lg font-semibold mb-2">' + vehicle.brand + ' ' + vehicle.model + '</h3>' +
+                '<p class="text-sm mb-1"><strong>Гос. номер:</strong> ' + vehicle.number + '</p>' +
+                '<p class="text-sm mb-1"><strong>Водитель:</strong> ' + vehicle.driver.fullname + '</p>' +
+                '<p class="text-sm mb-1"><strong>Телефон:</strong> ' + vehicle.driver.phone + '</p>' +
+                '<p class="text-sm mb-1"><strong>Скорость:</strong> ' + vehicle.speed + ' км/ч</p>' +
+                '<p class="text-sm"><strong>Последнее обновление:</strong> ' + lastUpdateText + '</p>' +
                 '</div>'
             );
             
@@ -557,49 +612,15 @@ document.addEventListener('DOMContentLoaded', function() {
         vehicleMarkers = {};
     }
     
-    // Обработчики событий
-    document.getElementById('refreshButton').addEventListener('click', function() {
-        loadVehicles();
-    });
-    
-    // Фильтр "Все типы"
-    document.getElementById('filterAll').addEventListener('change', function() {
-        if (this.checked) {
-            // Выбираем все
-            document.querySelectorAll('.vehicle-type').forEach(function(checkbox) {
-                checkbox.checked = true;
-                filters[checkbox.dataset.type] = true;
-            });
-        }
-        applyFilters();
-    });
-    
-    // Фильтры по типам
-    document.querySelectorAll('.vehicle-type').forEach(function(checkbox) {
-        checkbox.addEventListener('change', function() {
-            filters[this.dataset.type] = this.checked;
-            
-            // Если снят хоть один чекбокс, снимаем "Все типы"
-            if (!this.checked) {
-                document.getElementById('filterAll').checked = false;
-            }
-            
-            // Если выбраны все, выбираем "Все типы"
-            var allChecked = Array.from(document.querySelectorAll('.vehicle-type'))
-                .every(function(cb) { return cb.checked; });
-            
-            if (allChecked) {
-                document.getElementById('filterAll').checked = true;
-            }
-            
-            applyFilters();
-        });
-    });
-    
-    // Функция применения фильтров
-    function applyFilters() {
-        clearVehicleMarkers();
-        displayVehicles(demoVehicles);
+    // Обновление счетчиков транспорта
+    function updateCounters(vehicles) {
+        var total = vehicles.length;
+        var active = vehicles.filter(v => v.status === 'active' && v.speed > 0).length;
+        var stopped = total - active;
+        
+        document.getElementById('totalVehicles').textContent = total;
+        document.getElementById('activeVehicles').textContent = active;
+        document.getElementById('stoppedVehicles').textContent = stopped;
     }
     
     // Обновление времени последнего обновления
@@ -609,18 +630,10 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('lastUpdate').textContent = 'Последнее обновление: ' + timeString;
     }
     
-    // Получение названия типа транспорта
-    function getVehicleTypeName(type) {
-        switch(type) {
-            case 'car': return 'Легковой';
-            case 'truck': return 'Грузовой';
-            case 'special': return 'Спецтехника';
-            default: return 'Неизвестно';
-        }
-    }
-    
-    // Обновляем время последнего обновления
-    updateLastUpdateTime();
+    // Обработчик нажатия на кнопку обновления
+    document.getElementById('refreshButton').addEventListener('click', function() {
+        loadVehicles();
+    });
     
     // Функция для адаптации под планшеты и мобильную версию
     function adjustLayoutForTablet() {
@@ -705,10 +718,14 @@ document.addEventListener('DOMContentLoaded', function() {
     // После 5 секунд останавливаем интервал
     setTimeout(() => clearInterval(fixInterval), 5000);
     
+    // Запускаем автоматическое обновление каждые 5 минут
+    setInterval(loadVehicles, 5 * 60 * 1000);
+    
     // Исправляем отображение карты, если есть проблемы с контейнером
     setTimeout(function() {
         map.invalidateSize();
     }, 100);
 });
 </script>
+{% endblock %} 
 {% endblock %} 
