@@ -63,6 +63,15 @@
         <div class="w-full h-20 px-8 py-5 bg-white flex justify-between items-center">
             <div class="justify-start text-zinc-950 text-2xl font-semibold leading-loose">Транспорт</div>
             <div class="flex justify-start items-center gap-3">
+                {% if user.role == 'DIRECTOR' or user.role == 'SUPERADMIN' or user.is_superuser %}
+                <a href="{% url 'core:vehicle-add' %}" id="addVehicleBtn" class="px-4 py-2 bg-blue-600 text-white rounded-lg shadow-sm hover:bg-blue-700 transition-colors flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    <span class="text-sm font-medium">Добавить</span>
+                </a>
+                {% endif %}
                 <div class="flex justify-start items-start gap-2">
                     <a href="{% url 'core:notifications' %}" class="w-10 h-10 px-3 py-2 bg-white rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex justify-center items-center gap-1.5">
                         <img src="{% static 'core/img/bell.svg' %}" alt="Notifications" class="w-5 h-5">
@@ -92,7 +101,7 @@
 
         <!-- Панель поиска и фильтров -->
         <div class="w-full px-8 pt-8">
-            <div class="mb-6 flex flex-col sm:flex-row justify-start gap-2">
+            <div class="mb-6 flex flex-col sm:flex-row justify-between gap-2">
                 <div class="flex-grow relative">
                     <div class="flex h-10 w-full rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] border border-zinc-200 bg-white">
                         <div class="flex items-center pl-3">
@@ -104,27 +113,7 @@
                         <input type="text" id="searchInput" placeholder="Поиск по номеру, марке или модели" class="px-2 py-2 w-full focus:outline-none text-gray-700 rounded-lg" />
                     </div>
                 </div>
-                <div class="flex gap-2">
-                    <div class="relative">
-                        <select id="brandFilter" class="h-10 px-3 pr-8 rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] border border-zinc-200 bg-white focus:outline-none text-gray-700 appearance-none">
-                            <option value="">Все марки</option>
-                        </select>
-                        <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500">
-                                <path d="m6 9 6 6 6-6"></path>
-                            </svg>
-                        </div>
-                    </div>
-                    <div class="relative">
-                        <select id="yearFilter" class="h-10 px-3 pr-8 rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] border border-zinc-200 bg-white focus:outline-none text-gray-700 appearance-none">
-                            <option value="">Все года</option>
-                        </select>
-                        <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500">
-                                <path d="m6 9 6 6 6-6"></path>
-                            </svg>
-                        </div>
-                    </div>
+                <div class="flex flex-wrap gap-2">
                     <div class="relative">
                         <select id="statusFilter" class="h-10 px-3 pr-8 rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] border border-zinc-200 bg-white focus:outline-none text-gray-700 appearance-none">
                             <option value="">Все</option>
@@ -353,8 +342,6 @@
     // Глобальные переменные
     let allVehicles = [];
     const searchInput = document.getElementById('searchInput');
-    const brandFilter = document.getElementById('brandFilter');
-    const yearFilter = document.getElementById('yearFilter');
     const statusFilter = document.getElementById('statusFilter');
     const vehiclesList = document.getElementById('vehiclesList');
     const loadingIndicator = document.getElementById('loadingIndicator');
@@ -396,7 +383,6 @@
             } else {
                 displayVehicles(allVehicles);
                 updateStats(allVehicles);
-                populateFilters(allVehicles);
             }
         } catch (error) {
             console.error('Ошибка при загрузке данных:', error);
@@ -479,11 +465,11 @@
                     <div class="px-4 py-3 border-t border-zinc-200 mt-auto">
                         {% if user.role == 'DIRECTOR' or user.role == 'SUPERADMIN' or user.is_superuser %}
                         <div class="flex space-x-2">
-                            <a href="/vehicles/${vehicle.id}/edit/" class="flex-1 h-10 px-3 py-2 bg-white rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] border border-zinc-200 flex justify-center items-center gap-1.5 text-sm font-semibold">
+                            <a href="{% url 'core:vehicle-edit' 0 %}".replace('0', vehicle.id) class="flex-1 h-10 px-3 py-2 bg-white rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] border border-zinc-200 flex justify-center items-center gap-1.5 text-sm font-semibold">
                                 <span>Редактировать</span>
                             </a>
                             ${hasDriver ? `
-                            <form action="/vehicles/${vehicle.id}/archive/" method="post" class="flex-1">
+                            <form action="{% url 'core:vehicle-release' 0 %}".replace('0', vehicle.id) method="post" class="flex-1">
                                 {% csrf_token %}
                                 <button type="submit" onclick="return confirm('Вы уверены, что хотите освободить транспорт?')" class="w-full h-10 px-3 py-2 bg-white rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] border border-zinc-200 flex justify-center items-center gap-1.5 text-sm font-semibold text-red-600">
                                     <span>Освободить</span>
@@ -492,7 +478,7 @@
                             ` : ''}
                         </div>
                         {% else %}
-                        <a href="/vehicles/${vehicle.id}/" class="w-full h-10 px-3 py-2 bg-white rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] border border-zinc-200 flex justify-center items-center gap-1.5 text-sm font-semibold">
+                        <a href="{% url 'core:vehicle-detail' 0 %}".replace('0', vehicle.id) class="w-full h-10 px-3 py-2 bg-white rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] border border-zinc-200 flex justify-center items-center gap-1.5 text-sm font-semibold">
                             <span>Детали</span>
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="m9 18 6-6-6-6"></path>
@@ -536,30 +522,6 @@
             });
     }
     
-    // Заполнение фильтров уникальными значениями из полученных данных
-    function populateFilters(vehicles) {
-        const brands = [...new Set(vehicles.map(v => v.brand).filter(Boolean))].sort();
-        const years = [...new Set(vehicles.map(v => v.year).filter(Boolean))].sort((a, b) => b - a);
-        
-        // Очистка и заполнение списка марок
-        brandFilter.innerHTML = '<option value="">Все марки</option>';
-        brands.forEach(brand => {
-            const option = document.createElement('option');
-            option.value = brand;
-            option.textContent = brand;
-            brandFilter.appendChild(option);
-        });
-        
-        // Очистка и заполнение списка годов
-        yearFilter.innerHTML = '<option value="">Все года</option>';
-        years.forEach(year => {
-            const option = document.createElement('option');
-            option.value = year;
-            option.textContent = year;
-            yearFilter.appendChild(option);
-        });
-    }
-    
     // Вспомогательные функции для отображения UI
     function showLoading() {
         loadingIndicator.classList.remove('hidden');
@@ -598,8 +560,6 @@
     // Применение фильтров
     function applyFilters() {
         const search = searchInput.value.toLowerCase();
-        const brand = brandFilter.value;
-        const year = yearFilter.value ? parseInt(yearFilter.value) : null;
         const status = statusFilter.value;
         
         let filteredData = [...allVehicles];
@@ -610,14 +570,6 @@
                        (v.brand && v.brand.toLowerCase().includes(search)) || 
                        (v.model && v.model.toLowerCase().includes(search));
             });
-        }
-        
-        if (brand) {
-            filteredData = filteredData.filter(v => v.brand === brand);
-        }
-        
-        if (year) {
-            filteredData = filteredData.filter(v => v.year === year);
         }
         
         if (status === 'with_driver') {
@@ -637,8 +589,6 @@
         
         // Обработчики событий
         searchInput.addEventListener('input', applyFilters);
-        brandFilter.addEventListener('change', applyFilters);
-        yearFilter.addEventListener('change', applyFilters);
         statusFilter.addEventListener('change', applyFilters);
         retryButton.addEventListener('click', loadVehicles);
         
