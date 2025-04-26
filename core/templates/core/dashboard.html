@@ -1042,7 +1042,7 @@
                 <div class="justify-start text-zinc-950 text-2xl font-semibold leading-loose">Дашборд</div>
                 <div class="flex justify-start items-center gap-3">
                     <div class="flex justify-start items-start gap-2">
-                        <a href="{% url 'core:notifications' %}" class="w-10 h-10 px-3 py-2 bg-white rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] flex justify-center items-center gap-1.5">
+                        <a href="{% url 'core:notifications' %}" class="w-10 h-10 px-3 py-2 bg-white rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex justify-center items-center gap-1.5">
                             <img src="{% static 'core/img/bell.svg' %}" alt="Notifications" class="w-5 h-5">
                         </a>
                     </div>
@@ -1070,7 +1070,7 @@
 
             <!-- Карточки статистики -->
             <div class="w-full px-8 pt-8 flex justify-start items-start gap-4 stats-cards">
-                <div class="flex-1 px-5 py-6 bg-white rounded-2xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] border border-zinc-200 flex flex-col justify-start items-start gap-4 overflow-hidden">
+                <div class="flex-1 px-5 py-6 bg-white rounded-2xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex flex-col justify-start items-start gap-4 overflow-hidden">
                     <div class="self-stretch flex flex-col justify-start items-start gap-2">
                         <div class="self-stretch inline-flex justify-between items-center">
                             <div class="justify-start text-zinc-950 text-4xl font-semibold leading-10">{{ tasks_count|default:"0" }}</div>
@@ -1081,7 +1081,7 @@
                         <div class="self-stretch justify-start text-gray-500 text-base font-normal leading-normal">Задач на сегодня</div>
                     </div>
                 </div>
-                <div class="flex-1 px-5 py-6 bg-white rounded-2xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] border border-zinc-200 flex flex-col justify-start items-start gap-4 overflow-hidden">
+                <div class="flex-1 px-5 py-6 bg-white rounded-2xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex flex-col justify-start items-start gap-4 overflow-hidden">
                     <div class="self-stretch flex flex-col justify-start items-start gap-2">
                         <div class="self-stretch inline-flex justify-between items-center">
                             <div class="justify-start text-zinc-950 text-4xl font-semibold leading-10">{{ vehicles_count|default:"0" }}</div>
@@ -1097,14 +1097,14 @@
             <!-- Финансы и задачи -->
             <div class="w-full px-8 pt-8 flex justify-start items-start gap-4 finance-tasks">
                 <!-- Финансовая отчетность -->
-                <div class="w-2/3 bg-white rounded-2xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] border border-zinc-200 flex flex-col justify-start items-start overflow-hidden">
+                <div class="w-2/3 bg-white rounded-2xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex flex-col justify-start items-start overflow-hidden">
                     <div class="self-stretch px-5 py-4 border-b border-zinc-200 flex justify-between items-center">
                         <div class="flex justify-start items-center gap-2">
                             <img src="{% static 'core/img/finance.svg' %}" alt="Finance" class="w-6 h-6">
                             <div class="justify-start text-black text-xl font-medium leading-loose tracking-tight">Финансовая отчетность</div>
                         </div>
                         <div class="flex justify-start items-center gap-2">
-                            <a href="{% url 'core:finance' %}" class="w-8 h-8 p-2 bg-white rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] border border-zinc-200 flex justify-center items-center gap-2">
+                            <a href="{% url 'core:finance' %}" class="w-8 h-8 p-2 bg-white rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex justify-center items-center gap-2">
                                 <img src="{% static 'core/img/refresh-12.svg' %}" alt="Refresh" class="w-4 h-4">
                             </a>
                         </div>
@@ -1222,13 +1222,13 @@
                 </div>
 
                 <!-- Задачи -->
-                <div class="w-1/3 bg-white rounded-2xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] border border-zinc-200 flex flex-col justify-start items-start overflow-hidden">
+                <div class="w-1/3 bg-white rounded-2xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex flex-col justify-start items-start overflow-hidden">
                     <div class="self-stretch px-5 py-6 border-b border-zinc-200 flex justify-between items-center">
                         <div class="flex justify-start items-center gap-2">
                             <img src="{% static 'core/img/check-square.svg' %}" alt="Tasks" class="w-6 h-6 svg-icon-green">
                             <div class="justify-start text-black text-xl font-medium leading-loose tracking-tight">Задачи</div>
                         </div>
-                        <a href="{% url 'core:task-add' %}" class="w-8 h-8 p-2 bg-white rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] border border-zinc-200 flex justify-center items-center gap-2">
+                        <a href="{% url 'core:task-add' %}" class="w-8 h-8 p-2 bg-white rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex justify-center items-center gap-2">
                             <img src="{% static 'core/img/plus.svg' %}" alt="Add Task" class="w-4 h-4">
                         </a>
                     </div>
@@ -1236,7 +1236,7 @@
                         {% if request.user.is_authenticated %}
                             {% if recent_tasks %}
                                 {% for task in recent_tasks|slice:":3" %}
-                                    <div class="self-stretch p-3.5 bg-white rounded-xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] border border-zinc-200 flex justify-start items-start gap-3 overflow-hidden task-item">
+                                    <div class="self-stretch p-3.5 bg-white rounded-xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex justify-start items-start gap-3 overflow-hidden task-item">
                                         <div class="pt-1 flex justify-center items-center gap-2">
                                             <div class="w-4 h-4 relative task-checkbox-container">
                                                 {% if task.status == 'COMPLETED' %}
@@ -1310,7 +1310,7 @@
 
             <!-- Активные поездки -->
             <div class="w-full px-8 pt-8 pb-8">
-                <div class="w-full h-96 bg-white rounded-2xl border border-zinc-200 overflow-hidden relative">
+                <div class="w-full h-96 bg-white rounded-2xl outline outline-1 outline-offset-[-1px] outline-zinc-200 overflow-hidden relative">
                     <div class="px-5 py-4 flex justify-between items-center">
                         <div class="flex justify-start items-center gap-2">
                             <img src="{% static 'core/img/flash.svg' %}" alt="Active trips" class="w-6 h-6">
@@ -1653,5 +1653,9 @@
         margin-top: 0 !important;
     }
 </style>
+</body>
 </html> 
 
+</style>
+</body>
+</html>
