@@ -1,136 +1,354 @@
 {% extends "core/base.html" %}
 {% load static %}
 
+{% block title %}{{ form_title|default:"Новая задача" }} | BARLAU.KZ{% endblock %}
+
 {% block content %}
-<div class="container mx-auto px-4 py-8">
-    <div class="max-w-2xl mx-auto">
-        <!-- Заголовок -->
-        <div class="mb-6">
-            <h1 class="text-2xl font-bold text-gray-800">{{ form_title|default:"Новая задача" }}</h1>
-            <p class="text-gray-600 mt-1">Заполните форму для создания новой задачи</p>
+<div class="w-full flex">
+    <!-- Боковая панель -->
+    <div class="w-64 h-screen bg-white border-r border-zinc-200 flex flex-col justify-start items-start fixed left-0 bottom-0 sidebar">
+        <div class="self-stretch px-5 py-6 relative flex flex-col justify-start items-start gap-2 sidebar-logo">
+            <div class="py-1 inline-flex justify-start items-center gap-2">
+                <img src="{% static 'core/img/logo.png' %}" alt="Barlau Logo" class="w-10 h-6">
+                <div class="text-center justify-start text-black text-2xl font-semibold leading-normal">Barlau.kz</div>
+            </div>
         </div>
-        
-        <!-- Форма задачи -->
-        <div class="bg-white rounded-lg shadow-sm p-6">
-            <form id="taskForm" method="post" class="space-y-4">
-                {% csrf_token %}
-                
-                {% if task %}
-                <input type="hidden" name="task_id" value="{{ task.id }}">
-                {% endif %}
-                
-                <div>
-                    <label for="title" class="block text-sm font-medium text-gray-700 mb-1">Название <span class="text-red-500">*</span></label>
-                    <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <i class="fas fa-tasks text-gray-400"></i>
+        <div class="self-stretch flex-1 px-4 pt-2 pb-4 flex flex-col justify-start items-center gap-4 sidebar-menu">
+            <div class="self-stretch flex flex-col justify-start items-start gap-1">
+                <div class="self-stretch flex flex-col justify-start items-start">
+                    <a href="{% url 'core:home' %}" class="self-stretch px-3 py-3.5 relative bg-white rounded-lg inline-flex justify-start items-center gap-2">
+                        <div class="w-5 h-5 relative overflow-hidden">
+                            <img src="{% static 'core/img/home.svg' %}" alt="Home" class="w-4 h-4 desktop-icon">
+                            <img src="{% static 'core/img/mobile/home.svg' %}" alt="Home" class="mobile-icon hidden">
                         </div>
-                        <input type="text" name="title" id="title" value="{{ task.title|default_if_none:'' }}" required
-                               class="w-full pl-10 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                    </div>
-                </div>
-                
-                <div>
-                    <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Описание <span class="text-red-500">*</span></label>
-                    <textarea name="description" id="description" rows="4"
-                              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">{{ task.description|default_if_none:'' }}</textarea>
-                </div>
-                
-                <div>
-                    <label for="priority" class="block text-sm font-medium text-gray-700 mb-1">Приоритет <span class="text-red-500">*</span></label>
-                    <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <i class="fas fa-flag text-gray-400"></i>
-                        </div>
-                        <select name="priority" id="priority" required
-                                class="w-full pl-10 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                            <option value="LOW" {% if task.priority == 'LOW' %}selected{% endif %}>Низкий</option>
-                            <option value="MEDIUM" {% if not task or task.priority == 'MEDIUM' %}selected{% endif %}>Средний</option>
-                            <option value="HIGH" {% if task.priority == 'HIGH' %}selected{% endif %}>Высокий</option>
-                        </select>
-                    </div>
-                </div>
-                
-                <div>
-                    <label for="due_date" class="block text-sm font-medium text-gray-700 mb-1">Срок выполнения <span class="text-red-500">*</span></label>
-                    <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <i class="fas fa-calendar-alt text-gray-400"></i>
-                        </div>
-                        <input type="datetime-local" name="due_date" id="due_date" 
-                               value="{% if task.due_date %}{{ task.due_date|date:'Y-m-d\TH:i' }}{% endif %}" required
-                               class="w-full pl-10 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                    </div>
-                </div>
-                
-                <div>
-                    <label for="assigned_to" class="block text-sm font-medium text-gray-700 mb-1">Исполнитель <span class="text-red-500">*</span></label>
-                    <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <i class="fas fa-user text-gray-400"></i>
-                        </div>
-                        <select name="assigned_to" id="assigned_to" required
-                                class="w-full pl-10 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                            <option value="">Выберите исполнителя</option>
-                            {% for employee in employees %}
-                            <option value="{{ employee.id }}" {% if task.assigned_to_id == employee.id %}selected{% endif %}>
-                                {{ employee.get_full_name }}
-                            </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                </div>
-                
-                <div>
-                    <label for="vehicle" class="block text-sm font-medium text-gray-700 mb-1">Транспорт</label>
-                    <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <i class="fas fa-truck text-gray-400"></i>
-                        </div>
-                        <select name="vehicle" id="vehicle"
-                                class="w-full pl-10 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                            <option value="">Выберите транспорт</option>
-                            {% for vehicle in vehicles %}
-                            <option value="{{ vehicle.id }}" {% if task.vehicle_id == vehicle.id %}selected{% endif %}>
-                                {{ vehicle.number }} ({{ vehicle.brand }} {{ vehicle.model }})
-                            </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                </div>
-                
-                {% if task %}
-                <div class="pt-2">
-                    <label for="status" class="block text-sm font-medium text-gray-700">Статус</label>
-                    <div class="px-3 py-2 bg-gray-100 rounded-md">
-                        <span class="px-2 py-1 text-xs rounded-full 
-                            {% if task.status == 'NEW' %}bg-blue-100 text-blue-800
-                            {% elif task.status == 'IN_PROGRESS' %}bg-yellow-100 text-yellow-800
-                            {% elif task.status == 'COMPLETED' %}bg-green-100 text-green-800
-                            {% elif task.status == 'CANCELLED' %}bg-gray-100 text-gray-800
-                            {% endif %}">
-                            {{ task.get_status_display }}
-                        </span>
-                        <span class="text-sm text-gray-500 ml-2">Статус можно изменить на странице задач</span>
-                    </div>
-                </div>
-                {% endif %}
-                
-                <div class="pt-4 flex justify-end space-x-3">
-                    <a href="{% url 'core:tasks' %}" class="inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                        Отмена
+                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Главная</div>
                     </a>
-                    <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                        Сохранить
-                    </button>
+                    <a href="{% url 'core:tasks' %}" class="self-stretch px-3 py-3.5 bg-gray-50 rounded-lg inline-flex justify-start items-center gap-2 relative">
+                        <div class="w-1 h-6 left-0 top-[calc(50%-12px)] absolute bg-blue-600 rounded-tr-lg rounded-br-lg"></div>
+                        <div class="w-5 h-5 relative overflow-hidden">
+                            <img src="{% static 'core/img/check-square.svg' %}" alt="Tasks" class="w-4 h-4 desktop-icon">
+                            <img src="{% static 'core/img/mobile/check-square.svg' %}" alt="Tasks" class="mobile-icon hidden">
+                        </div>
+                        <div class="flex-1 justify-start text-blue-600 text-base font-medium leading-normal tracking-tight">Задачи</div>
+                    </a>
+                    <a href="{% url 'core:map' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex justify-start items-center gap-2">
+                        <div class="w-5 h-5 relative overflow-hidden">
+                            <img src="{% static 'core/img/location.svg' %}?v={% now 'U' %}" alt="Map" class="w-4 h-4 desktop-icon" onerror="this.onerror=null; this.src='/static/core/img/location.svg'">
+                            <img src="{% static 'core/img/mobile/location.svg' %}" alt="Map" class="mobile-icon hidden">
+                        </div>
+                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Карта</div>
+                    </a>
+                    <a href="{% url 'core:vehicles' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex justify-start items-center gap-2">
+                        <div class="w-5 h-5 relative overflow-hidden">
+                            <img src="{% static 'core/img/truck.svg' %}" alt="Vehicles" class="w-4 h-4 desktop-icon">
+                            <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Vehicles" class="mobile-icon hidden">
+                        </div>
+                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Грузовики</div>
+                    </a>
+                    <a href="{% url 'core:employees' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex justify-start items-center gap-2">
+                        <div class="w-5 h-5 relative overflow-hidden">
+                            <img src="{% static 'core/img/employee.svg' %}" alt="Employees" class="w-4 h-4 desktop-icon">
+                            <img src="{% static 'core/img/mobile/employee.svg' %}" alt="Employees" class="mobile-icon hidden">
+                        </div>
+                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Сотрудники</div>
+                    </a>
                 </div>
-            </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Основной контент -->
+    <div class="ml-64 flex-1 min-h-screen bg-gray-50 relative main-content">
+        <!-- Верхняя панель -->
+        <div class="w-full h-20 px-8 py-5 bg-white flex justify-between items-center">
+            <div class="justify-start text-zinc-950 text-2xl font-semibold leading-loose">{{ form_title|default:"Новая задача" }}</div>
+            <div class="flex justify-start items-center gap-3">
+                <div class="flex justify-start items-start gap-2">
+                    <a href="{% url 'core:notifications' %}" class="w-10 h-10 px-3 py-2 bg-white rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex justify-center items-center gap-1.5">
+                        <img src="{% static 'core/img/bell.svg' %}" alt="Notifications" class="w-5 h-5">
+                    </a>
+                </div>
+                <div class="flex justify-start items-center gap-1.5">
+                    {% if request.user.is_authenticated %}
+                        {% if request.user.photo %}
+                            <img class="w-8 h-8 rounded-full object-cover" src="{{ request.user.photo.url }}" />
+                        {% else %}
+                            <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Форма задачи -->
+        <div class="w-full px-8 py-8">
+            <div class="max-w-2xl mx-auto">
+                <div class="bg-white rounded-lg shadow-sm p-6">
+                    <form id="taskForm" method="post" class="space-y-4">
+                        {% csrf_token %}
+                        
+                        {% if task %}
+                        <input type="hidden" name="task_id" value="{{ task.id }}">
+                        {% endif %}
+                        
+                        <div>
+                            <label for="title" class="block text-sm font-medium text-gray-700 mb-1">Название <span class="text-red-500">*</span></label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fas fa-tasks text-gray-400"></i>
+                                </div>
+                                <input type="text" name="title" id="title" value="{{ task.title|default_if_none:'' }}" required
+                                       class="w-full pl-10 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Описание <span class="text-red-500">*</span></label>
+                            <textarea name="description" id="description" rows="4"
+                                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">{{ task.description|default_if_none:'' }}</textarea>
+                        </div>
+                        
+                        <div>
+                            <label for="priority" class="block text-sm font-medium text-gray-700 mb-1">Приоритет <span class="text-red-500">*</span></label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fas fa-flag text-gray-400"></i>
+                                </div>
+                                <select name="priority" id="priority" required
+                                        class="w-full pl-10 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="LOW" {% if task.priority == 'LOW' %}selected{% endif %}>Низкий</option>
+                                    <option value="MEDIUM" {% if not task or task.priority == 'MEDIUM' %}selected{% endif %}>Средний</option>
+                                    <option value="HIGH" {% if task.priority == 'HIGH' %}selected{% endif %}>Высокий</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label for="due_date" class="block text-sm font-medium text-gray-700 mb-1">Срок выполнения <span class="text-red-500">*</span></label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fas fa-calendar-alt text-gray-400"></i>
+                                </div>
+                                <input type="datetime-local" name="due_date" id="due_date" 
+                                       value="{% if task.due_date %}{{ task.due_date|date:'Y-m-d\TH:i' }}{% endif %}" required
+                                       class="w-full pl-10 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label for="assigned_to" class="block text-sm font-medium text-gray-700 mb-1">Исполнитель <span class="text-red-500">*</span></label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fas fa-user text-gray-400"></i>
+                                </div>
+                                <select name="assigned_to" id="assigned_to" required
+                                        class="w-full pl-10 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="">Выберите исполнителя</option>
+                                    {% for employee in employees %}
+                                    <option value="{{ employee.id }}" {% if task.assigned_to_id == employee.id %}selected{% endif %}>
+                                        {{ employee.get_full_name }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label for="vehicle" class="block text-sm font-medium text-gray-700 mb-1">Транспорт</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fas fa-truck text-gray-400"></i>
+                                </div>
+                                <select name="vehicle" id="vehicle"
+                                        class="w-full pl-10 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="">Выберите транспорт</option>
+                                    {% for vehicle in vehicles %}
+                                    <option value="{{ vehicle.id }}" {% if task.vehicle_id == vehicle.id %}selected{% endif %}>
+                                        {{ vehicle.number }} ({{ vehicle.brand }} {{ vehicle.model }})
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        
+                        {% if task %}
+                        <div class="pt-2">
+                            <label for="status" class="block text-sm font-medium text-gray-700">Статус</label>
+                            <div class="px-3 py-2 bg-gray-100 rounded-md">
+                                <span class="px-2 py-1 text-xs rounded-full 
+                                    {% if task.status == 'NEW' %}bg-blue-100 text-blue-800
+                                    {% elif task.status == 'IN_PROGRESS' %}bg-yellow-100 text-yellow-800
+                                    {% elif task.status == 'COMPLETED' %}bg-green-100 text-green-800
+                                    {% elif task.status == 'CANCELLED' %}bg-gray-100 text-gray-800
+                                    {% endif %}">
+                                    {{ task.get_status_display }}
+                                </span>
+                                <span class="text-sm text-gray-500 ml-2">Статус можно изменить на странице задач</span>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="pt-4 flex justify-end space-x-3">
+                            <a href="{% url 'core:tasks' %}" class="inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                Отмена
+                            </a>
+                            <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                Сохранить
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 </div>
-{% endblock %}
 
-{% block scripts %}
+<!-- Нижнее мобильное меню - показываем только на мобильных устройствах -->
+<nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 hidden max-lg:block">
+    <div class="flex justify-around items-center px-4 py-2">
+        <a href="{% url 'core:home' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600 relative">
+            <div class="icon-container relative w-8 h-8 flex items-center justify-center">
+                <img src="{% static 'core/img/mobile/home.svg' %}" alt="Home" class="w-6 h-6">
+            </div>
+            <span class="text-xs text-[10px] mt-1">Главная</span>
+        </a>
+        <a href="{% url 'core:tasks' %}" class="flex flex-col items-center text-blue-600 relative">
+            <div class="icon-container relative w-8 h-8 flex items-center justify-center">
+                <img src="{% static 'core/img/mobile/check-square.svg' %}" alt="Tasks" class="w-6 h-6">
+            </div>
+            <span class="text-xs text-[10px] mt-1">Задачи</span>
+            <div class="absolute -bottom-2 left-0 right-0 h-0.5 bg-blue-600 rounded-full"></div>
+        </a>
+        <a href="{% url 'core:map' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600 relative">
+            <div class="icon-container relative w-8 h-8 flex items-center justify-center">
+                <img src="{% static 'core/img/mobile/location.svg' %}" alt="Map" class="w-6 h-6">
+            </div>
+            <span class="text-xs text-[10px] mt-1">Карта</span>
+        </a>
+        <a href="{% url 'core:vehicles' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600 relative">
+            <div class="icon-container relative w-8 h-8 flex items-center justify-center">
+                <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Vehicles" class="w-6 h-6">
+            </div>
+            <span class="text-xs text-[10px] mt-1">Грузовики</span>
+        </a>
+        <a href="{% url 'core:employees' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600 relative">
+            <div class="icon-container relative w-8 h-8 flex items-center justify-center">
+                <img src="{% static 'core/img/mobile/employee.svg' %}" alt="Employees" class="w-6 h-6">
+            </div>
+            <span class="text-xs text-[10px] mt-1">Сотрудники</span>
+        </a>
+    </div>
+</nav>
+
+<style>
+    /* Обновленные стили для боковых иконок меню */
+    .sidebar-menu a {
+        color: #6B7280 !important; /* Серый цвет для неактивных пунктов */
+    }
+    
+    .sidebar-menu a.bg-gray-50 {
+        color: #2563EB !important; /* Синий цвет для активного пункта */
+    }
+    
+    .sidebar-menu a img.desktop-icon {
+        filter: brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(142deg) brightness(96%) contrast(91%); /* Серый фильтр для неактивных иконок */
+    }
+    
+    .sidebar-menu a.bg-gray-50 img.desktop-icon {
+        filter: brightness(0) saturate(100%) invert(32%) sepia(96%) saturate(7461%) hue-rotate(220deg) brightness(97%) contrast(98%); /* Синий фильтр для активной иконки */
+    }
+    
+    /* Общие стили для фиксации цветов иконок в меню */
+    a, a:visited, a:link, a:hover, a:active, 
+    a *, a:visited *, a:link *, a:hover *, a:active * {
+        text-decoration: none !important;
+    }
+
+    @media (max-width: 1100px) {
+        /* Убираем меню для планшетной и мобильной версий */
+        .sidebar {
+            display: none !important;
+        }
+        
+        .main-content {
+            margin-left: 0 !important;
+            width: 100% !important;
+            padding-bottom: 70px !important;
+        }
+        
+        /* Верхняя панель на всю ширину */
+        .main-content > div:first-child {
+            width: 100% !important;
+        }
+        
+        /* Устанавливаем размер и фильтр для мобильных иконок */
+        .icon-container img {
+            width: 24px !important;
+            height: 24px !important;
+        }
+        
+        /* Серый фильтр для неактивных иконок */
+        nav.fixed.bottom-0 a.text-gray-600 .icon-container img {
+            filter: brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(142deg) brightness(96%) contrast(91%) !important;
+        }
+        
+        /* Синий фильтр для активной иконки */
+        nav.fixed.bottom-0 a.text-blue-600 .icon-container img {
+            filter: brightness(0) saturate(100%) invert(32%) sepia(96%) saturate(7461%) hue-rotate(220deg) brightness(97%) contrast(98%) !important;
+        }
+    }
+    
+    /* Дополнительные коррекции для мобильных устройств */
+    @media (max-width: 640px) {
+        .main-content {
+            padding-left: 16px !important;
+            padding-right: 16px !important;
+        }
+        
+        .w-full.px-8 {
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+        }
+        
+        /* Уменьшаем отступы для экономии места */
+        .px-8 {
+            padding-left: 16px !important;
+            padding-right: 16px !important;
+        }
+        
+        /* Адаптируем размер заголовков */
+        .text-2xl {
+            font-size: 1.25rem !important;
+        }
+    }
+    
+    /* Скрываем нижнее меню на этой странице для ПК версии */
+    body > nav.fixed.bottom-0 {
+        display: none !important;
+    }
+    
+    /* Скрываем верхнюю панель и корректируем отступы */
+    body > header.fixed.top-0 {
+        display: none !important;
+    }
+    
+    /* Убираем отступ от верхней панели */
+    main.mt-16 {
+        margin-top: 0 !important;
+    }
+</style>
+
+{% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Устанавливаем текущую дату и время + 24 часа по умолчанию для срока выполнения, если это новая задача
@@ -141,6 +359,49 @@ document.addEventListener('DOMContentLoaded', function() {
         const formattedDate = now.toISOString().slice(0, 16); // Формат: YYYY-MM-DDTHH:MM
         dueDateInput.value = formattedDate;
     }
+    
+    // Функция для адаптации под планшеты и мобильную версию
+    function adjustLayoutForTablet() {
+        // Для планшетной и мобильной версии
+        if (window.innerWidth <= 1100) {
+            // Убираем боковую панель и настраиваем основной контент
+            document.querySelector('.main-content').style.marginLeft = '0';
+            document.querySelector('.sidebar').style.display = 'none';
+            
+            // Показываем нижнее мобильное меню
+            const mobileNav = document.querySelector('nav.fixed.bottom-0');
+            if (mobileNav) {
+                mobileNav.style.display = 'block';
+            }
+        } else {
+            resetLayoutToDesktop();
+        }
+    }
+    
+    // Функция для возврата к десктопному режиму
+    function resetLayoutToDesktop() {
+        document.querySelector('.main-content').style.marginLeft = '16rem';
+        document.querySelector('.sidebar').style.display = 'flex';
+        
+        // Скрываем мобильное меню
+        const mobileNav = document.querySelector('nav.fixed.bottom-0');
+        if (mobileNav) {
+            mobileNav.style.display = 'none';
+        }
+    }
+    
+    // Обработка изменения размера окна с защитой от частых вызовов
+    let resizeTimeout;
+    window.addEventListener('resize', function() {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(function() {
+            adjustLayoutForTablet();
+        }, 250);
+    });
+    
+    // Адаптируем под планшеты и мобильные устройства
+    adjustLayoutForTablet();
 });
 </script>
+{% endblock %}
 {% endblock %} 
