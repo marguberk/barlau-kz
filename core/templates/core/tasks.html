@@ -303,43 +303,50 @@
     /* Добавляем цветные индикаторы для карточек по статусам */
     .task-card[data-status="NEW"], 
     .task-card[data-status="APPROVED"] {
-        border-top: 3px solid #3b82f6; /* Синий для To do */
-        background: linear-gradient(to bottom, rgba(59, 130, 246, 0.05), white 15%);
+        border-top: 3px solid #4f46e5; /* Синий для To do */
+        background: linear-gradient(to bottom, rgba(79, 70, 229, 0.08), rgba(243, 244, 246, 0.7) 15%);
+        box-shadow: 0 2px 5px rgba(79, 70, 229, 0.1);
     }
     
     .task-card[data-status="IN_PROGRESS"] {
         border-top: 3px solid #f59e0b; /* Оранжевый для In Progress */
-        background: linear-gradient(to bottom, rgba(245, 158, 11, 0.05), white 15%);
+        background: linear-gradient(to bottom, rgba(245, 158, 11, 0.08), rgba(243, 244, 246, 0.7) 15%);
+        box-shadow: 0 2px 5px rgba(245, 158, 11, 0.1);
     }
     
     .task-card[data-status="COMPLETED"] {
-        border-top: 3px solid #10b981; /* Зеленый для Done */
-        background: linear-gradient(to bottom, rgba(16, 185, 129, 0.05), white 15%);
+        border-top: 3px solid #059669; /* Зеленый для Done */
+        background: linear-gradient(to bottom, rgba(5, 150, 105, 0.08), rgba(243, 244, 246, 0.7) 15%);
+        box-shadow: 0 2px 5px rgba(5, 150, 105, 0.1);
     }
     
     /* Стили для различных тегов */
     .tag-marketing {
-        background-color: #4f46e5;
+        background-color: #6366f1;
         color: white;
         font-weight: 500;
+        box-shadow: 0 1px 2px rgba(99, 102, 241, 0.3);
     }
     
     .tag-internal {
         background-color: #0ea5e9;
         color: white;
         font-weight: 500;
+        box-shadow: 0 1px 2px rgba(14, 165, 233, 0.3);
     }
     
     .tag-external {
-        background-color: #ef4444;
+        background-color: #f43f5e;
         color: white;
         font-weight: 500;
+        box-shadow: 0 1px 2px rgba(244, 63, 94, 0.3);
     }
     
     .tag-leadership {
         background-color: #a855f7;
         color: white;
         font-weight: 500;
+        box-shadow: 0 1px 2px rgba(168, 85, 247, 0.3);
     }
 
     /* Скрытие скроллбара при сохранении функциональности */
