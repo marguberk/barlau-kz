@@ -119,16 +119,7 @@
                                 {% if employee.photo %}
                                     <img src="{{ employee.photo.url }}" alt="{{ employee.get_full_name }}" class="w-full h-full object-cover">
                                 {% else %}
-                                    {% comment %} Используем случайный аватар из доступных {% endcomment %}
-                                    {% with forloop.counter|divisibleby:3 as remainder %}
-                                        {% if remainder == 0 %}
-                                            <img src="{% static 'core/img/avatars/avatar1.jpg' %}" alt="{{ employee.get_full_name }}" class="w-full h-full object-cover">
-                                        {% elif remainder == 1 %}
-                                            <img src="{% static 'core/img/avatars/avatar2.jpg' %}" alt="{{ employee.get_full_name }}" class="w-full h-full object-cover">
-                                        {% else %}
-                                            <img src="{% static 'core/img/avatars/avatar3.jpg' %}" alt="{{ employee.get_full_name }}" class="w-full h-full object-cover">
-                                        {% endif %}
-                                    {% endwith %}
+                                    <img src="{% static 'core/img/avatars/placeholder-ava.png' %}" alt="{{ employee.get_full_name }}" class="w-full h-full object-cover">
                                 {% endif %}
                             </div>
                             <div class="font-semibold text-zinc-950">{{ employee.get_full_name }}</div>
