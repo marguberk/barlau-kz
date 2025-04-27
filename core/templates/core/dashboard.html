@@ -155,8 +155,8 @@
                         </div>
                     </div>
                 </div>
+                <!-- Новая версия графика финансов -->
                 <div class="self-stretch p-5 h-48 flex items-end justify-center">
-                    <!-- График финансов -->
                     <div class="w-full h-full bg-gray-50 rounded">
                         <div class="w-full h-full flex flex-col">
                             <!-- Линии сетки -->
@@ -165,25 +165,9 @@
                                 <div class="absolute left-0 right-0 bottom-1/2 border-b border-gray-200"></div>
                                 <div class="absolute left-0 right-0 bottom-3/4 border-b border-gray-200"></div>
                                 
-                                <!-- Новый усовершенствованный график -->
+                                <!-- Статичный график без анимации -->
                                 <div class="absolute left-0 right-0 bottom-0 h-full">
                                     <svg viewBox="0 0 100 40" preserveAspectRatio="none" class="h-full w-full">
-                                        <!-- Градиенты для заливок -->
-                                        <defs>
-                                            <linearGradient id="blueGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                                                <stop offset="0%" stop-color="rgba(37, 99, 235, 0.15)"></stop>
-                                                <stop offset="100%" stop-color="rgba(37, 99, 235, 0.01)"></stop>
-                                            </linearGradient>
-                                            <linearGradient id="blueLine" x1="0%" y1="0%" x2="100%" y2="0%">
-                                                <stop offset="0%" stop-color="#2563eb"></stop>
-                                                <stop offset="100%" stop-color="#3b82f6"></stop>
-                                            </linearGradient>
-                                            <linearGradient id="lightBlueLine" x1="0%" y1="0%" x2="100%" y2="0%">
-                                                <stop offset="0%" stop-color="#93c5fd"></stop>
-                                                <stop offset="100%" stop-color="#38bdf8"></stop>
-                                            </linearGradient>
-                                        </defs>
-                                        
                                         <!-- Вертикальные направляющие -->
                                         <line x1="0" y1="0" x2="0" y2="40" stroke="#f3f4f6" stroke-width="0.5"></line>
                                         <line x1="20" y1="0" x2="20" y2="40" stroke="#f3f4f6" stroke-width="0.5"></line>
@@ -193,27 +177,21 @@
                                         <line x1="100" y1="0" x2="100" y2="40" stroke="#f3f4f6" stroke-width="0.5"></line>
                                         
                                         <!-- Заливка под линией текущего месяца -->
-                                        <path d="M0,35 C10,32 20,28 30,25 C40,22 50,30 60,28 C70,26 80,15 90,10 L100,5 L100,40 L0,40 Z" fill="url(#blueGradient)" class="graph-line"/>
+                                        <path d="M0,35 C10,32 20,28 30,25 C40,22 50,30 60,28 C70,26 80,15 90,10 L100,5 L100,40 L0,40 Z" fill="rgba(37, 99, 235, 0.1)"></path>
                                         
                                         <!-- Линия прошлого месяца (пунктирная) -->
-                                        <path d="M0,30 C10,32 20,33 30,30 C40,27 50,24 60,25 C70,26 80,24 90,22 L100,20" stroke="url(#lightBlueLine)" stroke-width="2" stroke-dasharray="2 2" fill="none" class="graph-line graph-line-delayed"/>
+                                        <path d="M0,30 C10,32 20,33 30,30 C40,27 50,24 60,25 C70,26 80,24 90,22 L100,20" stroke="#38bdf8" stroke-width="2" stroke-dasharray="2 2" fill="none"></path>
                                         
                                         <!-- Линия текущего месяца -->
-                                        <path d="M0,35 C10,32 20,28 30,25 C40,22 50,30 60,28 C70,26 80,15 90,10 L100,5" stroke="url(#blueLine)" stroke-width="2.5" fill="none" class="graph-line"/>
+                                        <path d="M0,35 C10,32 20,28 30,25 C40,22 50,30 60,28 C70,26 80,15 90,10 L100,5" stroke="#2563eb" stroke-width="2.5" fill="none"></path>
                                         
                                         <!-- Точки данных на текущей линии -->
-                                        <circle cx="0" cy="35" r="2.5" fill="#2563eb" stroke="white" stroke-width="1" class="graph-line"/>
-                                        <circle cx="20" cy="28" r="2.5" fill="#2563eb" stroke="white" stroke-width="1" class="graph-line"/>
-                                        <circle cx="40" cy="22" r="2.5" fill="#2563eb" stroke="white" stroke-width="1" class="graph-line"/>
-                                        <circle cx="60" cy="28" r="2.5" fill="#2563eb" stroke="white" stroke-width="1" class="graph-line"/>
-                                        <circle cx="80" cy="15" r="2.5" fill="#2563eb" stroke="white" stroke-width="1" class="graph-line"/>
-                                        <circle cx="100" cy="5" r="2.5" fill="#2563eb" stroke="white" stroke-width="1" class="graph-line"/>
-                                        
-                                        <!-- Скрытые точки данных на линии прошлого месяца (можно показать при наведении) -->
-                                        <circle cx="0" cy="30" r="0" fill="#38bdf8" class="graph-line-delayed hover-visible"/>
-                                        <circle cx="30" cy="30" r="0" fill="#38bdf8" class="graph-line-delayed hover-visible"/>
-                                        <circle cx="60" cy="25" r="0" fill="#38bdf8" class="graph-line-delayed hover-visible"/>
-                                        <circle cx="100" cy="20" r="0" fill="#38bdf8" class="graph-line-delayed hover-visible"/>
+                                        <circle cx="0" cy="35" r="2.5" fill="#2563eb" stroke="white" stroke-width="1" class="finance-data-point" data-value="$19,250" data-date="1 апр" data-change="+2.3%"></circle>
+                                        <circle cx="20" cy="28" r="2.5" fill="#2563eb" stroke="white" stroke-width="1" class="finance-data-point" data-value="$20,800" data-date="8 апр" data-change="+8.1%"></circle>
+                                        <circle cx="40" cy="22" r="2.5" fill="#2563eb" stroke="white" stroke-width="1" class="finance-data-point" data-value="$21,950" data-date="15 апр" data-change="+5.5%"></circle>
+                                        <circle cx="60" cy="28" r="2.5" fill="#2563eb" stroke="white" stroke-width="1" class="finance-data-point" data-value="$20,700" data-date="22 апр" data-change="-5.7%"></circle>
+                                        <circle cx="80" cy="15" r="2.5" fill="#2563eb" stroke="white" stroke-width="1" class="finance-data-point" data-value="$22,800" data-date="29 апр" data-change="+10.1%"></circle>
+                                        <circle cx="100" cy="5" r="2.5" fill="#2563eb" stroke="white" stroke-width="1" class="finance-data-point" data-value="$23,569" data-date="30 апр" data-change="+3.4%"></circle>
                                         
                                         <!-- Метки временной шкалы -->
                                         <line x1="0" y1="40" x2="0" y2="38" stroke="#d1d5db" stroke-width="0.5"></line>
