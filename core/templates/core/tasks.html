@@ -285,102 +285,79 @@
     /* Стили для карточек задач */
     .task-card {
         background-color: white;
-        border-radius: 0.75rem;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-        border: 1px solid #f3f4f6;
+        border-radius: 0.5rem;
+        box-shadow: 0 1px 2px rgba(13, 13, 18, 0.06);
+        border: 1px solid #e5e7eb;
         padding: 1rem;
         transition: all 0.2s ease;
-        cursor: pointer;
+        cursor: move; /* Указатель при перетаскивании */
         position: relative;
         overflow: hidden;
     }
     
     .task-card:hover {
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px 8px -1px rgba(13, 13, 18, 0.12);
         transform: translateY(-2px);
-        border-color: #e5e7eb;
     }
     
-    /* Стили для индикатора приоритета (левая граница) */
-    .task-card[data-priority="HIGH"]::before {
-        content: "";
-        position: absolute;
-        left: 0;
-        top: 0;
-        bottom: 0;
-        width: 4px;
-        background-color: #EF4444;
+    /* Добавляем цветные индикаторы для карточек по статусам */
+    .task-card[data-status="NEW"], 
+    .task-card[data-status="APPROVED"] {
+        border-top: 3px solid #3b82f6; /* Синий для To do */
+        background: linear-gradient(to bottom, rgba(59, 130, 246, 0.05), white 15%);
     }
     
-    .task-card[data-priority="MEDIUM"]::before {
-        content: "";
-        position: absolute;
-        left: 0;
-        top: 0;
-        bottom: 0;
-        width: 4px;
-        background-color: #F59E0B;
+    .task-card[data-status="IN_PROGRESS"] {
+        border-top: 3px solid #f59e0b; /* Оранжевый для In Progress */
+        background: linear-gradient(to bottom, rgba(245, 158, 11, 0.05), white 15%);
     }
     
-    .task-card[data-priority="LOW"]::before {
-        content: "";
-        position: absolute;
-        left: 0;
-        top: 0;
-        bottom: 0;
-        width: 4px;
-        background-color: #3B82F6;
+    .task-card[data-status="COMPLETED"] {
+        border-top: 3px solid #10b981; /* Зеленый для Done */
+        background: linear-gradient(to bottom, rgba(16, 185, 129, 0.05), white 15%);
     }
     
     /* Стили для различных тегов */
     .tag-marketing {
-        background-color: #EEF2FF;
-        color: #6366F1;
+        background-color: #4f46e5;
+        color: white;
         font-weight: 500;
-        border: 1px solid #E0E7FF;
     }
     
     .tag-internal {
-        background-color: #DBEAFE;
-        color: #3B82F6;
+        background-color: #0ea5e9;
+        color: white;
         font-weight: 500;
-        border: 1px solid #BFDBFE;
     }
     
     .tag-external {
-        background-color: #FEE2E2;
-        color: #EF4444;
+        background-color: #ef4444;
+        color: white;
         font-weight: 500;
-        border: 1px solid #FECACA;
     }
     
     .tag-leadership {
-        background-color: #F3E8FF;
-        color: #A855F7;
+        background-color: #a855f7;
+        color: white;
         font-weight: 500;
-        border: 1px solid #E9D5FF;
     }
 
-    /* Стили для канбан колонок */
-    .kanban-column {
-        background-color: #F9FAFB;
-        border-radius: 0.75rem;
-        padding: 1rem;
-    }
-
+    /* Скрытие скроллбара при сохранении функциональности */
     .kanban-container {
-        background-color: #F9FAFB;
-        border-radius: 0.5rem;
-        padding: 0.5rem;
+        scrollbar-width: none; /* Firefox */
+        -ms-overflow-style: none; /* IE и Edge */
     }
-
+    
+    .kanban-container::-webkit-scrollbar {
+        display: none; /* Chrome, Safari и Opera */
+    }
+    
     /* Стили для перетаскиваемых элементов */
     .task-card.dragging {
         opacity: 0.5;
         transform: scale(0.98);
-        background-color: #F9FAFB;
     }
-
+    
     /* Стили для контейнера при перетаскивании */
     .kanban-container.drag-over {
         background-color: rgba(59, 130, 246, 0.05);
@@ -561,75 +538,52 @@
         div.className = 'task-card';
         div.dataset.taskId = task.id;
         div.dataset.status = task.status;
-        div.dataset.priority = task.priority; // Добавляем атрибут для приоритета
         div.draggable = true; // Делаем элемент перетаскиваемым
         
         // Определяем классы для приоритета
         let priorityClass = '';
-        let priorityDot = '';
-        
         switch(task.priority) {
             case 'HIGH':
-                priorityClass = 'bg-red-100 text-red-800 border border-red-200';
-                priorityDot = '<span class="inline-block w-2 h-2 bg-red-500 rounded-full mr-1"></span>';
+                priorityClass = 'bg-red-100 text-red-800';
                 break;
             case 'MEDIUM':
-                priorityClass = 'bg-yellow-100 text-yellow-800 border border-yellow-200';
-                priorityDot = '<span class="inline-block w-2 h-2 bg-yellow-500 rounded-full mr-1"></span>';
+                priorityClass = 'bg-yellow-100 text-yellow-800';
                 break;
             case 'LOW':
-                priorityClass = 'bg-blue-100 text-blue-800 border border-blue-200';
-                priorityDot = '<span class="inline-block w-2 h-2 bg-blue-500 rounded-full mr-1"></span>';
+                priorityClass = 'bg-gray-100 text-gray-800';
                 break;
         }
         
         // Форматируем дату
-        const dueDate = task.due_date ? new Date(task.due_date) : null;
-        const formattedDate = dueDate ? dueDate.toLocaleDateString('ru-RU') : 'Без срока';
+        const dueDate = new Date(task.due_date);
+        const formattedDate = dueDate.toLocaleDateString('ru-RU');
         
         // Проверяем есть ли информация об исполнителе
         const assignedTo = task.assigned_user_details ? 
             `${task.assigned_user_details.first_name} ${task.assigned_user_details.last_name}` : 
             'Не назначен';
         
-        // Генерируем теги
-        let tagsHtml = '';
-        const taskTags = ['Marketing', 'Internal'];
-        
-        if (taskTags && taskTags.length > 0) {
-            tagsHtml = `<div class="flex flex-wrap gap-1 mt-2">`;
-            
-            if (taskTags.includes('Marketing')) {
-                tagsHtml += `<span class="tag-marketing text-xs px-2 py-0.5 rounded-full flex items-center"><i class="fas fa-bullhorn text-xs mr-1"></i>Маркетинг</span>`;
-            }
-            
-            if (taskTags.includes('Internal')) {
-                tagsHtml += `<span class="tag-internal text-xs px-2 py-0.5 rounded-full flex items-center"><i class="fas fa-building text-xs mr-1"></i>Внутренний</span>`;
-            }
-            
-            tagsHtml += `</div>`;
-        }
+        // Генерируем тегов
+        const tagsHtml = `
+            <div class="flex flex-wrap gap-1 mt-2">
+                <span class="tag-marketing text-xs px-2 py-0.5 rounded-full">Маркетинг</span>
+                <span class="tag-internal text-xs px-2 py-0.5 rounded-full">Внутренний</span>
+            </div>`;
         
         // Аватары участников
         const avatarsHtml = `
-            <div class="flex -space-x-2 mt-3">
-                <div class="w-6 h-6 rounded-full bg-indigo-100 flex items-center justify-center text-xs text-indigo-600 font-medium border border-white shadow-sm">А</div>
-                <div class="w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center text-xs text-emerald-600 font-medium border border-white shadow-sm">Б</div>
-                <div class="w-6 h-6 rounded-full bg-amber-100 flex items-center justify-center text-xs text-amber-600 font-medium border border-white shadow-sm">В</div>
+            <div class="flex -space-x-1 mt-3">
+                <div class="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-xs text-blue-600 font-medium border border-white">А</div>
+                <div class="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center text-xs text-green-600 font-medium border border-white">Б</div>
+                <div class="w-6 h-6 rounded-full bg-yellow-100 flex items-center justify-center text-xs text-yellow-600 font-medium border border-white">В</div>
             </div>`;
         
-        // Мета информация (комментарии, дата)
+        // Количество комментариев и вложений
         const metaHtml = `
             <div class="flex items-center mt-3 justify-between text-gray-500 text-xs">
-                <div class="flex items-center space-x-2">
-                    <div class="flex items-center">
-                        <i class="far fa-copy mr-1"></i>
-                        <span>1</span>
-                    </div>
-                    <div class="flex items-center">
-                        <i class="far fa-comment mr-1"></i>
-                        <span>15</span>
-                    </div>
+                <div class="flex items-center">
+                    <i class="far fa-comment mr-1"></i>
+                    <span>15</span>
                 </div>
                 <div class="flex items-center">
                     <i class="far fa-calendar mr-1"></i>
@@ -640,9 +594,9 @@
         div.innerHTML = `
             <div class="flex justify-between items-start mb-2">
                 <h3 class="font-medium text-gray-800">${task.title}</h3>
-                <span class="${priorityClass} text-xs px-2 py-0.5 rounded-full flex items-center">${priorityDot}${getPriorityText(task.priority)}</span>
+                <span class="${priorityClass} text-xs px-2 py-0.5 rounded-full">${getPriorityText(task.priority)}</span>
             </div>
-            <p class="text-gray-600 text-sm mb-2 line-clamp-2">${task.description || 'Нет описания'}</p>
+            <p class="text-gray-600 text-sm mb-2">${task.description || 'Нет описания'}</p>
             ${tagsHtml}
             ${avatarsHtml}
             ${metaHtml}
