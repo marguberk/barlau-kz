@@ -121,70 +121,206 @@
         <div class="w-full px-8 pt-8 flex justify-start items-start gap-4 finance-tasks">
             <!-- Финансовая отчетность -->
             <div class="w-2/3 bg-white rounded-2xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex flex-col justify-start items-start overflow-hidden">
-                <div class="w-full px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-                    <h2 class="text-[#333333] font-semibold text-lg">Финансовая отчетность</h2>
-                    <button class="text-gray-500 hover:text-gray-700">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" />
-                        </svg>
-                    </button>
+                <div class="flex justify-between items-center w-full px-8 pt-5">
+                    <h2 class="text-[18px] font-medium text-zinc-900">Финансовая отчетность</h2>
+                    <div class="flex gap-4 items-center">
+                        <button class="inline-flex items-center justify-center rounded-[6px] outline-offset-2 transition-all focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 text-[14px] font-semibold h-9 px-3 border border-slate-300 hover:bg-zinc-50 text-zinc-800">
+                            <span>Месяц</span>
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"
+                                class="ml-1.5">
+                                <path
+                                    d="M5.83301 8.33333L9.99967 12.5L14.1663 8.33333"
+                                    stroke="#52525B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </button>
+                        <button class="inline-flex items-center justify-center rounded-[6px] outline-offset-2 transition-all focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 text-[14px] font-semibold h-9 px-3 border border-slate-300 hover:bg-zinc-50 text-zinc-800">
+                            <span>2023</span>
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"
+                                class="ml-1.5">
+                                <path
+                                    d="M5.83301 8.33333L9.99967 12.5L14.1663 8.33333"
+                                    stroke="#52525B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </button>
+                    </div>
                 </div>
-
-                <div class="w-full py-3 px-6 pb-5">
-                    <div class="flex justify-between items-center mb-4">
-                        <div>
-                            <div class="text-sm text-gray-500">Общий доход</div>
-                            <div class="text-xl font-semibold">₸ 14,094,000</div>
+                <div class="flex justify-between items-start w-full px-8 pt-6">
+                    <div class="flex flex-col gap-4">
+                        <div class="flex items-center gap-2">
+                            <span class="inline-block w-[10px] h-[10px] rounded-full bg-[#3B82F6]"></span>
+                            <span class="text-[14px] text-zinc-800">Текущий месяц</span>
                         </div>
-                        <div>
-                            <select class="text-sm border border-gray-300 rounded-md px-2 py-1">
-                                <option>Последний месяц</option>
-                                <option>Последняя неделя</option>
-                                <option>Текущий год</option>
-                            </select>
+                        <div class="flex items-center gap-2">
+                            <span class="inline-block w-[10px] h-[10px] rounded-full bg-[#9CA3AF]"></span>
+                            <span class="text-[14px] text-zinc-800">Прошлый месяц</span>
                         </div>
                     </div>
-
-                    <!-- График финансовой отчетности -->
-                    <div class="w-full h-[200px] relative">
-                        <svg width="100%" height="100%" viewBox="0 0 720 200">
+                    <div class="flex gap-10">
+                        <div class="flex flex-col">
+                            <span class="text-[14px] text-zinc-500">Доход</span>
+                            <span class="text-[24px] font-medium text-emerald-500">152.250</span>
+                            <span class="text-[14px] text-emerald-500">+12.05%</span>
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="text-[14px] text-zinc-500">Расход</span>
+                            <span class="text-[24px] font-medium text-rose-500">86.520</span>
+                            <span class="text-[14px] text-rose-500">+12.05%</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-2 w-full px-6 py-2 h-[250px] finance-chart-container relative">
+                    <!-- Финансовый график -->
+                    <svg id="financial-chart" width="100%" height="100%" viewBox="0 0 688 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Горизонтальные линии сетки -->
+                        <line x1="0" y1="0" x2="688" y2="0" stroke="#E5E7EB" stroke-dasharray="4 4" />
+                        <line x1="0" y1="40" x2="688" y2="40" stroke="#E5E7EB" stroke-dasharray="4 4" />
+                        <line x1="0" y1="80" x2="688" y2="80" stroke="#E5E7EB" stroke-dasharray="4 4" />
+                        <line x1="0" y1="120" x2="688" y2="120" stroke="#E5E7EB" stroke-dasharray="4 4" />
+                        <line x1="0" y1="160" x2="688" y2="160" stroke="#E5E7EB" stroke-dasharray="4 4" />
+                        <line x1="0" y1="200" x2="688" y2="200" stroke="#E5E7EB" stroke-dasharray="4 4" />
+                        <line x1="0" y1="240" x2="688" y2="240" stroke="#E5E7EB" stroke-dasharray="4 4" />
+                        
+                        <!-- Подписи по оси X (даты) -->
+                        <text x="0" y="260" font-size="12" fill="#6B7280">1.06</text>
+                        <text x="115" y="260" font-size="12" fill="#6B7280">5.06</text>
+                        <text x="229" y="260" font-size="12" fill="#6B7280">10.06</text>
+                        <text x="344" y="260" font-size="12" fill="#6B7280">15.06</text>
+                        <text x="459" y="260" font-size="12" fill="#6B7280">20.06</text>
+                        <text x="573" y="260" font-size="12" fill="#6B7280">25.06</text>
+                        <text x="688" y="260" font-size="12" fill="#6B7280">30.06</text>
+                        
+                        <!-- График прошлого месяца -->
+                        <path d="M0,140 C40,100 80,180 115,170 C150,160 200,130 229,120 C260,110 300,140 344,90 C380,50 420,70 459,80 C500,90 540,60 573,40 C610,20 650,30 688,10" stroke="#9CA3AF" stroke-width="2" fill="none" />
+                        
+                        <!-- График текущего месяца -->
+                        <path d="M0,160 C40,140 80,150 115,120 C150,90 200,110 229,80 C260,50 300,60 344,40 C380,30 420,50 459,70 C500,85 540,60 573,50 C610,40 650,30 688,20" stroke="#3B82F6" stroke-width="2" fill="none" />
+                        
+                        <!-- Интерактивные точки на линии текущего месяца -->
+                        <circle cx="0" cy="160" r="3" class="graph-point" fill="#3B82F6" data-date="1 июня" data-value="120 000" />
+                        <circle cx="115" cy="120" r="3" class="graph-point" fill="#3B82F6" data-date="5 июня" data-value="135 000" />
+                        <circle cx="229" cy="80" r="3" class="graph-point" fill="#3B82F6" data-date="10 июня" data-value="148 000" />
+                        <circle cx="344" cy="40" r="3" class="graph-point" fill="#3B82F6" data-date="15 июня" data-value="162 000" />
+                        <circle cx="459" cy="70" r="3" class="graph-point" fill="#3B82F6" data-date="20 июня" data-value="156 000" />
+                        <circle cx="573" cy="50" r="3" class="graph-point" fill="#3B82F6" data-date="25 июня" data-value="160 000" />
+                        <circle cx="688" cy="20" r="3" class="graph-point" fill="#3B82F6" data-date="30 июня" data-value="170 000" />
+                        
+                        <!-- Всплывающая подсказка для точек графика -->
+                        <div id="chart-tooltip" class="absolute hidden bg-white shadow-lg rounded-lg p-2 border border-gray-200 z-10 pointer-events-none transform -translate-x-1/2 -translate-y-full">
+                            <div class="text-sm font-medium text-gray-900" id="tooltip-date">Дата</div>
+                            <div class="text-sm text-gray-600" id="tooltip-value">Значение</div>
+                        </div>
+                    </svg>
+                </div>
+                {% if request.user.is_authenticated %}
+                <div class="self-stretch p-5 flex justify-start items-baseline gap-2">
+                    <div class="justify-start text-zinc-950 text-2xl font-semibold leading-loose">$23,569.00</div>
+                    <div class="flex-1 flex justify-start items-center gap-1.5">
+                        <div class="flex justify-start items-center gap-0.5">
+                            <svg class="w-3.5 h-3.5" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M7 3L10 7H4L7 3Z" fill="#34D399" />
+                            </svg>
+                            <div class="justify-start text-emerald-400 text-sm font-semibold leading-tight tracking-tight">10,5%</div>
+                        </div>
+                        <div class="text-right justify-start text-gray-500 text-sm font-normal leading-tight tracking-tight">в сравнении с прошлым месяцем</div>
+                    </div>
+                    <div class="flex justify-start items-baseline gap-3">
+                        <div class="flex justify-end items-center gap-1.5">
+                            <div class="w-2 h-2 bg-blue-600 rounded-sm"></div>
+                            <div class="text-right justify-start text-gray-500 text-sm font-normal leading-tight tracking-tight">Этот месяц</div>
+                        </div>
+                        <div class="flex justify-end items-center gap-1.5">
+                            <div class="w-2 h-2 bg-sky-400 rounded-sm"></div>
+                            <div class="text-right justify-start text-gray-500 text-sm font-normal leading-tight tracking-tight">Прошлый месяц</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="self-stretch p-5 h-48 flex items-end justify-center finance-chart-container">
+                    <!-- График финансов -->
+                    <div class="w-full h-full bg-gray-50 rounded">
+                        <div class="w-full h-full flex flex-col">
                             <!-- Линии сетки -->
-                            <line x1="40" y1="20" x2="40" y2="150" stroke="#E5E7EB" stroke-width="1" />
-                            <line x1="40" y1="150" x2="680" y2="150" stroke="#E5E7EB" stroke-width="1" />
-                            <line x1="40" y1="85" x2="680" y2="85" stroke="#E5E7EB" stroke-width="1" stroke-dasharray="5,5" />
-                            <line x1="40" y1="20" x2="680" y2="20" stroke="#E5E7EB" stroke-width="1" stroke-dasharray="5,5" />
-
-                            <!-- График -->
-                            <path d="M40,110 C100,100 130,80 190,70 C250,60 310,110 370,90 C430,70 490,50 550,65 C610,80 670,40 680,30" 
-                                  fill="none" stroke="#10B981" stroke-width="2.5" />
-
-                            <!-- Точки графика с данными -->
-                            <circle cx="40" cy="110" r="5" fill="#10B981" data-value="₸ 1,200,000" data-date="Янв" />
-                            <circle cx="130" cy="90" r="5" fill="#10B981" data-value="₸ 1,500,000" data-date="Фев" />
-                            <circle cx="220" cy="70" r="5" fill="#10B981" data-value="₸ 1,800,000" data-date="Мар" />
-                            <circle cx="310" cy="110" r="5" fill="#10B981" data-value="₸ 1,100,000" data-date="Апр" />
-                            <circle cx="400" cy="80" r="5" fill="#10B981" data-value="₸ 1,650,000" data-date="Май" />
-                            <circle cx="490" cy="50" r="5" fill="#10B981" data-value="₸ 2,100,000" data-date="Июн" />
-                            <circle cx="580" cy="65" r="5" fill="#10B981" data-value="₸ 1,900,000" data-date="Июл" />
-                            <circle cx="670" cy="35" r="5" fill="#10B981" data-value="₸ 2,250,000" data-date="Авг" />
-
-                            <!-- Метки оси X -->
-                            <text x="40" y="170" fill="#6B7280" font-size="12" text-anchor="middle">Янв</text>
-                            <text x="130" y="170" fill="#6B7280" font-size="12" text-anchor="middle">Фев</text>
-                            <text x="220" y="170" fill="#6B7280" font-size="12" text-anchor="middle">Мар</text>
-                            <text x="310" y="170" fill="#6B7280" font-size="12" text-anchor="middle">Апр</text>
-                            <text x="400" y="170" fill="#6B7280" font-size="12" text-anchor="middle">Май</text>
-                            <text x="490" y="170" fill="#6B7280" font-size="12" text-anchor="middle">Июн</text>
-                            <text x="580" y="170" fill="#6B7280" font-size="12" text-anchor="middle">Июл</text>
-                            <text x="670" y="170" fill="#6B7280" font-size="12" text-anchor="middle">Авг</text>
-
-                            <!-- Метки оси Y -->
-                            <text x="30" y="150" fill="#6B7280" font-size="12" text-anchor="end">0</text>
-                            <text x="30" y="85" fill="#6B7280" font-size="12" text-anchor="end">1.5M</text>
-                            <text x="30" y="20" fill="#6B7280" font-size="12" text-anchor="end">3M</text>
-                        </svg>
+                            <div class="flex-1 border-b border-gray-200 relative">
+                                <div class="absolute left-0 right-0 bottom-1/4 border-b border-gray-200"></div>
+                                <div class="absolute left-0 right-0 bottom-1/2 border-b border-gray-200"></div>
+                                <div class="absolute left-0 right-0 bottom-3/4 border-b border-gray-200"></div>
+                                
+                                <!-- График с интерактивными точками -->
+                                <div class="absolute left-0 right-0 bottom-0 h-full">
+                                    <svg viewBox="0 0 100 40" preserveAspectRatio="none" class="h-full w-full" id="financial-chart">
+                                        <!-- Градиенты для заливок -->
+                                        <defs>
+                                            <linearGradient id="blueGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                                <stop offset="0%" stop-color="rgba(37, 99, 235, 0.15)"></stop>
+                                                <stop offset="100%" stop-color="rgba(37, 99, 235, 0.01)"></stop>
+                                            </linearGradient>
+                                            <linearGradient id="blueLine" x1="0%" y1="0%" x2="100%" y2="0%">
+                                                <stop offset="0%" stop-color="#2563eb"></stop>
+                                                <stop offset="100%" stop-color="#3b82f6"></stop>
+                                            </linearGradient>
+                                            <linearGradient id="lightBlueLine" x1="0%" y1="0%" x2="100%" y2="0%">
+                                                <stop offset="0%" stop-color="#93c5fd"></stop>
+                                                <stop offset="100%" stop-color="#38bdf8"></stop>
+                                            </linearGradient>
+                                        </defs>
+                                        
+                                        <!-- Вертикальные направляющие -->
+                                        <line x1="0" y1="0" x2="0" y2="40" stroke="#f3f4f6" stroke-width="0.5"></line>
+                                        <line x1="20" y1="0" x2="20" y2="40" stroke="#f3f4f6" stroke-width="0.5"></line>
+                                        <line x1="40" y1="0" x2="40" y2="40" stroke="#f3f4f6" stroke-width="0.5"></line>
+                                        <line x1="60" y1="0" x2="60" y2="40" stroke="#f3f4f6" stroke-width="0.5"></line>
+                                        <line x1="80" y1="0" x2="80" y2="40" stroke="#f3f4f6" stroke-width="0.5"></line>
+                                        <line x1="100" y1="0" x2="100" y2="40" stroke="#f3f4f6" stroke-width="0.5"></line>
+                                        
+                                        <!-- Заливка под линией текущего месяца -->
+                                        <path d="M0,35 C10,32 20,28 30,25 C40,22 50,30 60,28 C70,26 80,15 90,10 L100,5 L100,40 L0,40 Z" fill="url(#blueGradient)" class="graph-line"/>
+                                        
+                                        <!-- Линия прошлого месяца (пунктирная) -->
+                                        <path d="M0,30 C10,32 20,33 30,30 C40,27 50,24 60,25 C70,26 80,24 90,22 L100,20" stroke="url(#lightBlueLine)" stroke-width="2" stroke-dasharray="2 2" fill="none" class="graph-line"/>
+                                        
+                                        <!-- Линия текущего месяца -->
+                                        <path d="M0,35 C10,32 20,28 30,25 C40,22 50,30 60,28 C70,26 80,15 90,10 L100,5" stroke="url(#blueLine)" stroke-width="2.5" fill="none" class="graph-line"/>
+                                        
+                                        <!-- Точки данных на текущей линии с атрибутами для подсказок -->
+                                        <circle cx="0" cy="35" r="3" fill="#2563eb" stroke="white" stroke-width="1" class="graph-point" data-date="1 июня" data-value="$18,200"></circle>
+                                        <circle cx="20" cy="28" r="3" fill="#2563eb" stroke="white" stroke-width="1" class="graph-point" data-date="8 июня" data-value="$19,800"></circle>
+                                        <circle cx="40" cy="22" r="3" fill="#2563eb" stroke="white" stroke-width="1" class="graph-point" data-date="15 июня" data-value="$21,300"></circle>
+                                        <circle cx="60" cy="28" r="3" fill="#2563eb" stroke="white" stroke-width="1" class="graph-point" data-date="22 июня" data-value="$20,100"></circle>
+                                        <circle cx="80" cy="15" r="3" fill="#2563eb" stroke="white" stroke-width="1" class="graph-point" data-date="26 июня" data-value="$22,800"></circle>
+                                        <circle cx="100" cy="5" r="3" fill="#2563eb" stroke="white" stroke-width="1" class="graph-point" data-date="30 июня" data-value="$23,569"></circle>
+                                        
+                                        <!-- Метки временной шкалы -->
+                                        <line x1="0" y1="40" x2="0" y2="38" stroke="#d1d5db" stroke-width="0.5"></line>
+                                        <line x1="20" y1="40" x2="20" y2="38" stroke="#d1d5db" stroke-width="0.5"></line>
+                                        <line x1="40" y1="40" x2="40" y2="38" stroke="#d1d5db" stroke-width="0.5"></line>
+                                        <line x1="60" y1="40" x2="60" y2="38" stroke="#d1d5db" stroke-width="0.5"></line>
+                                        <line x1="80" y1="40" x2="80" y2="38" stroke="#d1d5db" stroke-width="0.5"></line>
+                                        <line x1="100" y1="40" x2="100" y2="38" stroke="#d1d5db" stroke-width="0.5"></line>
+                                    </svg>
+                                    
+                                    <!-- Контейнер для всплывающей подсказки -->
+                                    <div id="chart-tooltip" class="hidden absolute bg-white p-2 rounded shadow-lg text-xs z-10 pointer-events-none border border-gray-200">
+                                        <div id="tooltip-date" class="font-medium"></div>
+                                        <div id="tooltip-value" class="text-blue-600 font-semibold"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Шкала времени -->
+                            <div class="h-6 flex justify-between px-4 text-xs text-gray-500">
+                                <span>1 июня</span>
+                                <span>8 июня</span>
+                                <span>15 июня</span>
+                                <span>22 июня</span>
+                                <span>29 июня</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
+                {% else %}
+                <div class="self-stretch p-5 h-64 flex items-center justify-center">
+                    <p class="text-gray-500 text-center">Войдите, чтобы увидеть финансовую информацию</p>
+                </div>
+                {% endif %}
             </div>
 
             <!-- Задачи -->
@@ -611,80 +747,6 @@
         }
     }
     
-    /* Анимация для финансового графика */
-    .graph-line {
-        animation: fadeInLine 1.2s ease-out forwards;
-        opacity: 0;
-        stroke-dasharray: 100;
-        stroke-dashoffset: 100;
-    }
-    
-    .graph-line-delayed {
-        animation: fadeInLine 1.2s ease-out 0.3s forwards;
-        opacity: 0;
-    }
-    
-    @keyframes fadeInLine {
-        0% {
-            opacity: 0;
-            stroke-dashoffset: 100;
-        }
-        60% {
-            opacity: 0.7;
-        }
-        100% {
-            opacity: 1;
-            stroke-dashoffset: 0;
-        }
-    }
-    
-    /* Анимация для точек данных на графике */
-    circle.graph-line {
-        animation: fadeInPoint 0.8s ease-out forwards;
-        animation-delay: calc(var(--i, 0) * 0.1s + 0.8s);
-        opacity: 0;
-        transform-origin: center;
-        transform: scale(0);
-    }
-    
-    circle.graph-line:nth-child(9) { --i: 1; }
-    circle.graph-line:nth-child(10) { --i: 2; }
-    circle.graph-line:nth-child(11) { --i: 3; }
-    circle.graph-line:nth-child(12) { --i: 4; }
-    circle.graph-line:nth-child(13) { --i: 5; }
-    circle.graph-line:nth-child(14) { --i: 6; }
-    
-    @keyframes fadeInPoint {
-        0% {
-            opacity: 0;
-            transform: scale(0);
-        }
-        70% {
-            opacity: 1;
-            transform: scale(1.3);
-        }
-        100% {
-            opacity: 1;
-            transform: scale(1);
-        }
-    }
-    
-    /* Эффект наведения для точек на графике */
-    .graph-line circle:hover {
-        r: 4;
-        cursor: pointer;
-        transition: r 0.2s ease;
-    }
-    
-    /* Показать точки на пунктирной линии при наведении */
-    .hover-visible {
-        transition: r 0.3s ease-out;
-    }
-    
-    .graph-line-delayed:hover ~ .hover-visible {
-        r: 2;
-    }
-    
     /* Адаптивная настройка для планшетов и мобильных */
     @media (max-width: 1100px) {
         /* Убираем меню для планшетной и мобильной версий */
@@ -872,6 +934,9 @@
         
         // Скрываем/показываем мобильное меню при прокрутке
         adjustLayoutForTablet();
+        
+        // Вызываем функцию инициализации графика с небольшой задержкой
+        setTimeout(initFinancialChart, 500);
     });
     
     // Функция для адаптации под планшеты и мобильную версию
@@ -1173,94 +1238,60 @@
             }
         });
     }
-    
-    // Инициализация интерактивности для финансового графика
+
     function initFinancialChart() {
-        // Добавляем тултипы при наведении на точки графика
-        const dataPoints = document.querySelectorAll('.graph-line circle');
+        // Получаем все точки графика
+        const points = document.querySelectorAll('.graph-point');
+        const tooltip = document.getElementById('chart-tooltip');
         
-        if (!dataPoints.length) return; // Если точек нет, выходим
+        // Если нет точек или подсказки, завершаем выполнение
+        if (!points.length || !tooltip) return;
         
-        // Месячные значения для демонстрации при наведении
-        const monthlyValues = [
-            { date: '1 апр', value: '$19,250', change: '+2.3%' },
-            { date: '8 апр', value: '$20,800', change: '+8.1%' },
-            { date: '15 апр', value: '$21,950', change: '+5.5%' },
-            { date: '22 апр', value: '$20,700', change: '-5.7%' },
-            { date: '29 апр', value: '$22,800', change: '+10.1%' },
-            { date: '30 апр', value: '$23,569', change: '+3.4%' }
-        ];
-        
-        // Создаем тултип, если его еще нет
-        let tooltip = document.getElementById('finance-tooltip');
-        if (!tooltip) {
-            tooltip = document.createElement('div');
-            tooltip.id = 'finance-tooltip';
-            tooltip.className = 'absolute hidden bg-white p-2 rounded-md shadow-lg text-sm z-50';
-            tooltip.innerHTML = '<div class="font-semibold value"></div><div class="text-xs text-gray-500 date"></div><div class="text-xs change"></div>';
-            document.body.appendChild(tooltip);
-            
-            // Стили для тултипа
-            const style = document.createElement('style');
-            style.textContent = `
-                #finance-tooltip {
-                    pointer-events: none;
-                    transform: translate(-50%, -100%);
-                    margin-top: -10px;
-                    border: 1px solid #e5e7eb;
-                    min-width: 80px;
-                }
-                #finance-tooltip .change.positive {
-                    color: #34D399;
-                }
-                #finance-tooltip .change.negative {
-                    color: #EF4444;
-                }
-            `;
-            document.head.appendChild(style);
-        }
-        
-        // Добавляем обработчики событий для всех точек
-        dataPoints.forEach((point, index) => {
-            if (index < monthlyValues.length) {
-                point.addEventListener('mouseenter', function(e) {
-                    const data = monthlyValues[index];
-                    const rect = this.getBoundingClientRect();
-                    
-                    // Обновляем содержимое тултипа
-                    tooltip.querySelector('.value').textContent = data.value;
-                    tooltip.querySelector('.date').textContent = data.date;
-                    
-                    const changeEl = tooltip.querySelector('.change');
-                    changeEl.textContent = data.change;
-                    
-                    // Добавляем цвет в зависимости от знака изменения
-                    if (data.change.startsWith('+')) {
-                        changeEl.className = 'text-xs change positive';
-                    } else {
-                        changeEl.className = 'text-xs change negative';
-                    }
-                    
-                    // Позиционируем тултип относительно точки
-                    tooltip.style.left = (rect.left + rect.width/2) + 'px';
-                    tooltip.style.top = (rect.top) + 'px';
-                    tooltip.classList.remove('hidden');
-                });
+        // Добавляем обработчики для каждой точки
+        points.forEach(point => {
+            point.addEventListener('mouseenter', function(e) {
+                // Получаем данные из атрибутов
+                const date = this.getAttribute('data-date');
+                const value = this.getAttribute('data-value');
                 
-                point.addEventListener('mouseleave', function() {
-                    tooltip.classList.add('hidden');
-                });
-            }
+                // Заполняем подсказку
+                document.getElementById('tooltip-date').textContent = date;
+                document.getElementById('tooltip-value').textContent = value;
+                
+                // Позиционируем подсказку
+                const rect = this.getBoundingClientRect();
+                const chartRect = document.getElementById('financial-chart').getBoundingClientRect();
+                
+                tooltip.style.left = `${rect.left - tooltip.offsetWidth / 2}px`;
+                tooltip.style.top = `${rect.top - tooltip.offsetHeight - 10}px`;
+                
+                // Показываем подсказку
+                tooltip.classList.remove('hidden');
+                
+                // Увеличиваем размер точки
+                this.setAttribute('r', '4');
+            });
+            
+            point.addEventListener('mouseleave', function() {
+                // Скрываем подсказку
+                tooltip.classList.add('hidden');
+                
+                // Возвращаем исходный размер точки
+                this.setAttribute('r', '3');
+            });
         });
     }
-    
-    // Вызываем функцию инициализации графика после загрузки страницы
+
+    // Вызываем функцию после загрузки страницы
     document.addEventListener('DOMContentLoaded', function() {
+        // Запускаем инициализацию графика с небольшой задержкой
         setTimeout(initFinancialChart, 500);
     });
-    
-    // Явный вызов функции для инициализации графика
-    initFinancialChart();
+</script>{% endblock %}
+
+</script></html> 
+
+</script>
 </script>{% endblock %}
 
 </script></html> 
