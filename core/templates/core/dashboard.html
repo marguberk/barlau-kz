@@ -121,105 +121,70 @@
         <div class="w-full px-8 pt-8 flex justify-start items-start gap-4 finance-tasks">
             <!-- Финансовая отчетность -->
             <div class="w-2/3 bg-white rounded-2xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex flex-col justify-start items-start overflow-hidden">
-                <div class="self-stretch px-5 py-4 border-b border-zinc-200 flex justify-between items-center">
-                    <div class="flex justify-start items-center gap-2">
-                        <img src="{% static 'core/img/finance.svg' %}" alt="Finance" class="w-6 h-6">
-                        <div class="justify-start text-black text-xl font-medium leading-loose tracking-tight">Финансовая отчетность</div>
-                    </div>
-                    <div class="flex justify-start items-center gap-2">
-                        <a href="{% url 'core:finance' %}" class="w-8 h-8 p-2 bg-white rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex justify-center items-center gap-2">
-                            <img src="{% static 'core/img/refresh-12.svg' %}" alt="Refresh" class="w-4 h-4">
-                        </a>
-                    </div>
+                <div class="w-full px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+                    <h2 class="text-[#333333] font-semibold text-lg">Финансовая отчетность</h2>
+                    <button class="text-gray-500 hover:text-gray-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
                 </div>
-                {% if request.user.is_authenticated %}
-                <div class="self-stretch p-5 flex justify-start items-baseline gap-2">
-                    <div class="justify-start text-zinc-950 text-2xl font-semibold leading-loose">$23,569.00</div>
-                    <div class="flex-1 flex justify-start items-center gap-1.5">
-                        <div class="flex justify-start items-center gap-0.5">
-                            <svg class="w-3.5 h-3.5" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M7 3L10 7H4L7 3Z" fill="#34D399" />
-                            </svg>
-                            <div class="justify-start text-emerald-400 text-sm font-semibold leading-tight tracking-tight">10,5%</div>
+
+                <div class="w-full py-3 px-6 pb-5">
+                    <div class="flex justify-between items-center mb-4">
+                        <div>
+                            <div class="text-sm text-gray-500">Общий доход</div>
+                            <div class="text-xl font-semibold">₸ 14,094,000</div>
                         </div>
-                        <div class="text-right justify-start text-gray-500 text-sm font-normal leading-tight tracking-tight">в сравнении с прошлым месяцем</div>
-                    </div>
-                    <div class="flex justify-start items-baseline gap-3">
-                        <div class="flex justify-end items-center gap-1.5">
-                            <div class="w-2 h-2 bg-blue-600 rounded-sm"></div>
-                            <div class="text-right justify-start text-gray-500 text-sm font-normal leading-tight tracking-tight">Этот месяц</div>
-                        </div>
-                        <div class="flex justify-end items-center gap-1.5">
-                            <div class="w-2 h-2 bg-sky-400 rounded-sm"></div>
-                            <div class="text-right justify-start text-gray-500 text-sm font-normal leading-tight tracking-tight">Прошлый месяц</div>
+                        <div>
+                            <select class="text-sm border border-gray-300 rounded-md px-2 py-1">
+                                <option>Последний месяц</option>
+                                <option>Последняя неделя</option>
+                                <option>Текущий год</option>
+                            </select>
                         </div>
                     </div>
-                </div>
-                <!-- Новая версия графика финансов -->
-                <div class="self-stretch p-5 h-48 flex items-end justify-center">
-                    <div class="w-full h-full bg-gray-50 rounded">
-                        <div class="w-full h-full flex flex-col">
+
+                    <!-- График финансовой отчетности -->
+                    <div class="w-full h-[200px] relative">
+                        <svg width="100%" height="100%" viewBox="0 0 720 200">
                             <!-- Линии сетки -->
-                            <div class="flex-1 border-b border-gray-200 relative">
-                                <div class="absolute left-0 right-0 bottom-1/4 border-b border-gray-200"></div>
-                                <div class="absolute left-0 right-0 bottom-1/2 border-b border-gray-200"></div>
-                                <div class="absolute left-0 right-0 bottom-3/4 border-b border-gray-200"></div>
-                                
-                                <!-- Статичный график без анимации -->
-                                <div class="absolute left-0 right-0 bottom-0 h-full">
-                                    <svg viewBox="0 0 100 40" preserveAspectRatio="none" class="h-full w-full">
-                                        <!-- Вертикальные направляющие -->
-                                        <line x1="0" y1="0" x2="0" y2="40" stroke="#f3f4f6" stroke-width="0.5"></line>
-                                        <line x1="20" y1="0" x2="20" y2="40" stroke="#f3f4f6" stroke-width="0.5"></line>
-                                        <line x1="40" y1="0" x2="40" y2="40" stroke="#f3f4f6" stroke-width="0.5"></line>
-                                        <line x1="60" y1="0" x2="60" y2="40" stroke="#f3f4f6" stroke-width="0.5"></line>
-                                        <line x1="80" y1="0" x2="80" y2="40" stroke="#f3f4f6" stroke-width="0.5"></line>
-                                        <line x1="100" y1="0" x2="100" y2="40" stroke="#f3f4f6" stroke-width="0.5"></line>
-                                        
-                                        <!-- Заливка под линией текущего месяца -->
-                                        <path d="M0,35 C10,32 20,28 30,25 C40,22 50,30 60,28 C70,26 80,15 90,10 L100,5 L100,40 L0,40 Z" fill="rgba(37, 99, 235, 0.1)"></path>
-                                        
-                                        <!-- Линия прошлого месяца (пунктирная) -->
-                                        <path d="M0,30 C10,32 20,33 30,30 C40,27 50,24 60,25 C70,26 80,24 90,22 L100,20" stroke="#38bdf8" stroke-width="2" stroke-dasharray="2 2" fill="none"></path>
-                                        
-                                        <!-- Линия текущего месяца -->
-                                        <path d="M0,35 C10,32 20,28 30,25 C40,22 50,30 60,28 C70,26 80,15 90,10 L100,5" stroke="#2563eb" stroke-width="2.5" fill="none"></path>
-                                        
-                                        <!-- Точки данных на текущей линии -->
-                                        <circle cx="0" cy="35" r="2.5" fill="#2563eb" stroke="white" stroke-width="1" class="finance-data-point" data-value="$19,250" data-date="1 апр" data-change="+2.3%"></circle>
-                                        <circle cx="20" cy="28" r="2.5" fill="#2563eb" stroke="white" stroke-width="1" class="finance-data-point" data-value="$20,800" data-date="8 апр" data-change="+8.1%"></circle>
-                                        <circle cx="40" cy="22" r="2.5" fill="#2563eb" stroke="white" stroke-width="1" class="finance-data-point" data-value="$21,950" data-date="15 апр" data-change="+5.5%"></circle>
-                                        <circle cx="60" cy="28" r="2.5" fill="#2563eb" stroke="white" stroke-width="1" class="finance-data-point" data-value="$20,700" data-date="22 апр" data-change="-5.7%"></circle>
-                                        <circle cx="80" cy="15" r="2.5" fill="#2563eb" stroke="white" stroke-width="1" class="finance-data-point" data-value="$22,800" data-date="29 апр" data-change="+10.1%"></circle>
-                                        <circle cx="100" cy="5" r="2.5" fill="#2563eb" stroke="white" stroke-width="1" class="finance-data-point" data-value="$23,569" data-date="30 апр" data-change="+3.4%"></circle>
-                                        
-                                        <!-- Метки временной шкалы -->
-                                        <line x1="0" y1="40" x2="0" y2="38" stroke="#d1d5db" stroke-width="0.5"></line>
-                                        <line x1="20" y1="40" x2="20" y2="38" stroke="#d1d5db" stroke-width="0.5"></line>
-                                        <line x1="40" y1="40" x2="40" y2="38" stroke="#d1d5db" stroke-width="0.5"></line>
-                                        <line x1="60" y1="40" x2="60" y2="38" stroke="#d1d5db" stroke-width="0.5"></line>
-                                        <line x1="80" y1="40" x2="80" y2="38" stroke="#d1d5db" stroke-width="0.5"></line>
-                                        <line x1="100" y1="40" x2="100" y2="38" stroke="#d1d5db" stroke-width="0.5"></line>
-                                    </svg>
-                                </div>
-                            </div>
-                            
-                            <!-- Шкала времени -->
-                            <div class="h-6 flex justify-between px-4 text-xs text-gray-500">
-                                <span>1 апр</span>
-                                <span>8 апр</span>
-                                <span>15 апр</span>
-                                <span>22 апр</span>
-                                <span>29 апр</span>
-                            </div>
-                        </div>
+                            <line x1="40" y1="20" x2="40" y2="150" stroke="#E5E7EB" stroke-width="1" />
+                            <line x1="40" y1="150" x2="680" y2="150" stroke="#E5E7EB" stroke-width="1" />
+                            <line x1="40" y1="85" x2="680" y2="85" stroke="#E5E7EB" stroke-width="1" stroke-dasharray="5,5" />
+                            <line x1="40" y1="20" x2="680" y2="20" stroke="#E5E7EB" stroke-width="1" stroke-dasharray="5,5" />
+
+                            <!-- График -->
+                            <path d="M40,110 C100,100 130,80 190,70 C250,60 310,110 370,90 C430,70 490,50 550,65 C610,80 670,40 680,30" 
+                                  fill="none" stroke="#10B981" stroke-width="2.5" />
+
+                            <!-- Точки графика с данными -->
+                            <circle cx="40" cy="110" r="5" fill="#10B981" data-value="₸ 1,200,000" data-date="Янв" />
+                            <circle cx="130" cy="90" r="5" fill="#10B981" data-value="₸ 1,500,000" data-date="Фев" />
+                            <circle cx="220" cy="70" r="5" fill="#10B981" data-value="₸ 1,800,000" data-date="Мар" />
+                            <circle cx="310" cy="110" r="5" fill="#10B981" data-value="₸ 1,100,000" data-date="Апр" />
+                            <circle cx="400" cy="80" r="5" fill="#10B981" data-value="₸ 1,650,000" data-date="Май" />
+                            <circle cx="490" cy="50" r="5" fill="#10B981" data-value="₸ 2,100,000" data-date="Июн" />
+                            <circle cx="580" cy="65" r="5" fill="#10B981" data-value="₸ 1,900,000" data-date="Июл" />
+                            <circle cx="670" cy="35" r="5" fill="#10B981" data-value="₸ 2,250,000" data-date="Авг" />
+
+                            <!-- Метки оси X -->
+                            <text x="40" y="170" fill="#6B7280" font-size="12" text-anchor="middle">Янв</text>
+                            <text x="130" y="170" fill="#6B7280" font-size="12" text-anchor="middle">Фев</text>
+                            <text x="220" y="170" fill="#6B7280" font-size="12" text-anchor="middle">Мар</text>
+                            <text x="310" y="170" fill="#6B7280" font-size="12" text-anchor="middle">Апр</text>
+                            <text x="400" y="170" fill="#6B7280" font-size="12" text-anchor="middle">Май</text>
+                            <text x="490" y="170" fill="#6B7280" font-size="12" text-anchor="middle">Июн</text>
+                            <text x="580" y="170" fill="#6B7280" font-size="12" text-anchor="middle">Июл</text>
+                            <text x="670" y="170" fill="#6B7280" font-size="12" text-anchor="middle">Авг</text>
+
+                            <!-- Метки оси Y -->
+                            <text x="30" y="150" fill="#6B7280" font-size="12" text-anchor="end">0</text>
+                            <text x="30" y="85" fill="#6B7280" font-size="12" text-anchor="end">1.5M</text>
+                            <text x="30" y="20" fill="#6B7280" font-size="12" text-anchor="end">3M</text>
+                        </svg>
                     </div>
                 </div>
-                {% else %}
-                <div class="self-stretch p-5 h-64 flex items-center justify-center">
-                    <p class="text-gray-500 text-center">Войдите, чтобы увидеть финансовую информацию</p>
-                </div>
-                {% endif %}
             </div>
 
             <!-- Задачи -->
