@@ -668,6 +668,80 @@
         }
     }
     
+    /* Анимация для финансового графика */
+    .graph-line {
+        animation: fadeInLine 1.2s ease-out forwards;
+        opacity: 0;
+        stroke-dasharray: 100;
+        stroke-dashoffset: 100;
+    }
+    
+    .graph-line-delayed {
+        animation: fadeInLine 1.2s ease-out 0.3s forwards;
+        opacity: 0;
+    }
+    
+    @keyframes fadeInLine {
+        0% {
+            opacity: 0;
+            stroke-dashoffset: 100;
+        }
+        60% {
+            opacity: 0.7;
+        }
+        100% {
+            opacity: 1;
+            stroke-dashoffset: 0;
+        }
+    }
+    
+    /* Анимация для точек данных на графике */
+    circle.graph-line {
+        animation: fadeInPoint 0.8s ease-out forwards;
+        animation-delay: calc(var(--i, 0) * 0.1s + 0.8s);
+        opacity: 0;
+        transform-origin: center;
+        transform: scale(0);
+    }
+    
+    circle.graph-line:nth-child(9) { --i: 1; }
+    circle.graph-line:nth-child(10) { --i: 2; }
+    circle.graph-line:nth-child(11) { --i: 3; }
+    circle.graph-line:nth-child(12) { --i: 4; }
+    circle.graph-line:nth-child(13) { --i: 5; }
+    circle.graph-line:nth-child(14) { --i: 6; }
+    
+    @keyframes fadeInPoint {
+        0% {
+            opacity: 0;
+            transform: scale(0);
+        }
+        70% {
+            opacity: 1;
+            transform: scale(1.3);
+        }
+        100% {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+    
+    /* Эффект наведения для точек на графике */
+    .graph-line circle:hover {
+        r: 4;
+        cursor: pointer;
+        transition: r 0.2s ease;
+    }
+    
+    /* Показать точки на пунктирной линии при наведении */
+    .hover-visible {
+        transition: r 0.3s ease-out;
+    }
+    
+    .graph-line-delayed:hover ~ .hover-visible {
+        r: 2;
+    }
+    
     /* Адаптивная настройка для планшетов и мобильных */
     @media (max-width: 1100px) {
         /* Убираем меню для планшетной и мобильной версий */
@@ -1156,4 +1230,93 @@
             }
         });
     }
+    
+    // Инициализация интерактивности для финансового графика
+    function initFinancialChart() {
+        // Добавляем тултипы при наведении на точки графика
+        const dataPoints = document.querySelectorAll('.graph-line circle');
+        
+        if (!dataPoints.length) return; // Если точек нет, выходим
+        
+        // Месячные значения для демонстрации при наведении
+        const monthlyValues = [
+            { date: '1 апр', value: '$19,250', change: '+2.3%' },
+            { date: '8 апр', value: '$20,800', change: '+8.1%' },
+            { date: '15 апр', value: '$21,950', change: '+5.5%' },
+            { date: '22 апр', value: '$20,700', change: '-5.7%' },
+            { date: '29 апр', value: '$22,800', change: '+10.1%' },
+            { date: '30 апр', value: '$23,569', change: '+3.4%' }
+        ];
+        
+        // Создаем тултип, если его еще нет
+        let tooltip = document.getElementById('finance-tooltip');
+        if (!tooltip) {
+            tooltip = document.createElement('div');
+            tooltip.id = 'finance-tooltip';
+            tooltip.className = 'absolute hidden bg-white p-2 rounded-md shadow-lg text-sm z-50';
+            tooltip.innerHTML = '<div class="font-semibold value"></div><div class="text-xs text-gray-500 date"></div><div class="text-xs change"></div>';
+            document.body.appendChild(tooltip);
+            
+            // Стили для тултипа
+            const style = document.createElement('style');
+            style.textContent = `
+                #finance-tooltip {
+                    pointer-events: none;
+                    transform: translate(-50%, -100%);
+                    margin-top: -10px;
+                    border: 1px solid #e5e7eb;
+                    min-width: 80px;
+                }
+                #finance-tooltip .change.positive {
+                    color: #34D399;
+                }
+                #finance-tooltip .change.negative {
+                    color: #EF4444;
+                }
+            `;
+            document.head.appendChild(style);
+        }
+        
+        // Добавляем обработчики событий для всех точек
+        dataPoints.forEach((point, index) => {
+            if (index < monthlyValues.length) {
+                point.addEventListener('mouseenter', function(e) {
+                    const data = monthlyValues[index];
+                    const rect = this.getBoundingClientRect();
+                    
+                    // Обновляем содержимое тултипа
+                    tooltip.querySelector('.value').textContent = data.value;
+                    tooltip.querySelector('.date').textContent = data.date;
+                    
+                    const changeEl = tooltip.querySelector('.change');
+                    changeEl.textContent = data.change;
+                    
+                    // Добавляем цвет в зависимости от знака изменения
+                    if (data.change.startsWith('+')) {
+                        changeEl.className = 'text-xs change positive';
+                    } else {
+                        changeEl.className = 'text-xs change negative';
+                    }
+                    
+                    // Позиционируем тултип относительно точки
+                    tooltip.style.left = (rect.left + rect.width/2) + 'px';
+                    tooltip.style.top = (rect.top) + 'px';
+                    tooltip.classList.remove('hidden');
+                });
+                
+                point.addEventListener('mouseleave', function() {
+                    tooltip.classList.add('hidden');
+                });
+            }
+        });
+    }
+    
+    // Вызываем функцию инициализации графика после загрузки страницы
+    document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(initFinancialChart, 500);
+    });
 </script>{% endblock %}
+
+</script></html> 
+
+</script>
