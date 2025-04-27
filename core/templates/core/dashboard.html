@@ -197,11 +197,11 @@
                         
                         <!-- Интерактивные точки на линии текущего месяца -->
                         <circle cx="0" cy="160" r="3" class="graph-point" fill="#3B82F6" data-date="1 июня" data-value="120 000" />
-                        <circle cx="115" cy="120" r="3" class="graph-point" fill="#3B82F6" data-date="1 июня" data-value="135 000" />
-                        <circle cx="229" cy="80" r="3" class="graph-point" fill="#3B82F6" data-date="8 июня" data-value="148 000" />
+                        <circle cx="115" cy="120" r="3" class="graph-point" fill="#3B82F6" data-date="5 июня" data-value="135 000" />
+                        <circle cx="229" cy="80" r="3" class="graph-point" fill="#3B82F6" data-date="10 июня" data-value="148 000" />
                         <circle cx="344" cy="40" r="3" class="graph-point" fill="#3B82F6" data-date="15 июня" data-value="162 000" />
-                        <circle cx="459" cy="70" r="3" class="graph-point" fill="#3B82F6" data-date="22 июня" data-value="156 000" />
-                        <circle cx="573" cy="50" r="3" class="graph-point" fill="#3B82F6" data-date="26 июня" data-value="160 000" />
+                        <circle cx="459" cy="70" r="3" class="graph-point" fill="#3B82F6" data-date="20 июня" data-value="156 000" />
+                        <circle cx="573" cy="50" r="3" class="graph-point" fill="#3B82F6" data-date="25 июня" data-value="160 000" />
                         <circle cx="688" cy="20" r="3" class="graph-point" fill="#3B82F6" data-date="30 июня" data-value="170 000" />
                         
                         <!-- Всплывающая подсказка для точек графика -->
@@ -209,19 +209,6 @@
                             <div class="text-sm font-medium text-gray-900" id="tooltip-date">Дата</div>
                             <div class="text-sm text-gray-600" id="tooltip-value">Значение</div>
                         </div>
-                        
-                        <!-- Шкала времени -->
-                        <g class="chart-axis-x" transform="translate(0, 190)">
-                          <line x1="0" y1="0" x2="688" y2="0" stroke="#E5E7EB" stroke-width="1"></line>
-                          <g class="chart-labels-x">
-                            <text x="0" y="20" text-anchor="middle" class="chart-label">1 июня</text>
-                            <text x="115" y="20" text-anchor="middle" class="chart-label">8 июня</text>
-                            <text x="229" y="20" text-anchor="middle" class="chart-label">15 июня</text>
-                            <text x="344" y="20" text-anchor="middle" class="chart-label">22 июня</text>
-                            <text x="459" y="20" text-anchor="middle" class="chart-label">26 июня</text>
-                            <text x="573" y="20" text-anchor="middle" class="chart-label">30 июня</text>
-                          </g>
-                        </g>
                     </svg>
                 </div>
                 {% if request.user.is_authenticated %}

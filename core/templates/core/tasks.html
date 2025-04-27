@@ -285,56 +285,65 @@
     /* Стили для карточек задач */
     .task-card {
         background-color: white;
-        border-radius: 0.5rem;
-        box-shadow: 0 1px 2px rgba(13, 13, 18, 0.06);
-        border: 1px solid #e5e7eb;
+        border-radius: 0.75rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        border: 1px solid #f3f4f6;
         padding: 1rem;
         transition: all 0.2s ease;
-        cursor: move; /* Указатель при перетаскивании */
+        cursor: pointer;
     }
     
     .task-card:hover {
-        box-shadow: 0 4px 6px -1px rgba(13, 13, 18, 0.1);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         transform: translateY(-2px);
+        border-color: #e5e7eb;
     }
     
     /* Стили для различных тегов */
     .tag-marketing {
-        background-color: #eff6ff;
-        color: #3b82f6;
+        background-color: #EEF2FF;
+        color: #6366F1;
+        font-weight: 500;
     }
     
     .tag-internal {
-        background-color: #e0f2fe;
-        color: #0ea5e9;
+        background-color: #DBEAFE;
+        color: #3B82F6;
+        font-weight: 500;
     }
     
     .tag-external {
-        background-color: #fee2e2;
-        color: #ef4444;
+        background-color: #FEE2E2;
+        color: #EF4444;
+        font-weight: 500;
     }
     
     .tag-leadership {
-        background-color: #f3e8ff;
-        color: #a855f7;
+        background-color: #F3E8FF;
+        color: #A855F7;
+        font-weight: 500;
     }
 
-    /* Скрытие скроллбара при сохранении функциональности */
+    /* Стили для канбан колонок */
+    .kanban-column {
+        background-color: #F9FAFB;
+        border-radius: 0.75rem;
+        padding: 1rem;
+    }
+
     .kanban-container {
-        scrollbar-width: none; /* Firefox */
-        -ms-overflow-style: none; /* IE и Edge */
+        background-color: #F9FAFB;
+        border-radius: 0.5rem;
+        padding: 0.5rem;
     }
-    
-    .kanban-container::-webkit-scrollbar {
-        display: none; /* Chrome, Safari и Opera */
-    }
-    
+
     /* Стили для перетаскиваемых элементов */
     .task-card.dragging {
         opacity: 0.5;
         transform: scale(0.98);
+        background-color: #F9FAFB;
     }
-    
+
     /* Стили для контейнера при перетаскивании */
     .kanban-container.drag-over {
         background-color: rgba(59, 130, 246, 0.05);
@@ -519,48 +528,70 @@
         
         // Определяем классы для приоритета
         let priorityClass = '';
+        let priorityDot = '';
+        
         switch(task.priority) {
             case 'HIGH':
                 priorityClass = 'bg-red-100 text-red-800';
+                priorityDot = '<span class="inline-block w-2 h-2 bg-red-500 rounded-full mr-1"></span>';
                 break;
             case 'MEDIUM':
                 priorityClass = 'bg-yellow-100 text-yellow-800';
+                priorityDot = '<span class="inline-block w-2 h-2 bg-yellow-500 rounded-full mr-1"></span>';
                 break;
             case 'LOW':
-                priorityClass = 'bg-gray-100 text-gray-800';
+                priorityClass = 'bg-blue-100 text-blue-800';
+                priorityDot = '<span class="inline-block w-2 h-2 bg-blue-500 rounded-full mr-1"></span>';
                 break;
         }
         
         // Форматируем дату
-        const dueDate = new Date(task.due_date);
-        const formattedDate = dueDate.toLocaleDateString('ru-RU');
+        const dueDate = task.due_date ? new Date(task.due_date) : null;
+        const formattedDate = dueDate ? dueDate.toLocaleDateString('ru-RU') : 'Без срока';
         
         // Проверяем есть ли информация об исполнителе
         const assignedTo = task.assigned_user_details ? 
             `${task.assigned_user_details.first_name} ${task.assigned_user_details.last_name}` : 
             'Не назначен';
         
-        // Генерируем тегов
-        const tagsHtml = `
-            <div class="flex flex-wrap gap-1 mt-2">
-                <span class="tag-marketing text-xs px-2 py-0.5 rounded-full">Маркетинг</span>
-                <span class="tag-internal text-xs px-2 py-0.5 rounded-full">Внутренний</span>
-            </div>`;
+        // Генерируем теги
+        let tagsHtml = '';
+        const taskTags = ['Marketing', 'Internal'];
+        
+        if (taskTags && taskTags.length > 0) {
+            tagsHtml = `<div class="flex flex-wrap gap-1 mt-2">`;
+            
+            if (taskTags.includes('Marketing')) {
+                tagsHtml += `<span class="tag-marketing text-xs px-2 py-0.5 rounded-full">Маркетинг</span>`;
+            }
+            
+            if (taskTags.includes('Internal')) {
+                tagsHtml += `<span class="tag-internal text-xs px-2 py-0.5 rounded-full">Внутренний</span>`;
+            }
+            
+            tagsHtml += `</div>`;
+        }
         
         // Аватары участников
         const avatarsHtml = `
-            <div class="flex -space-x-1 mt-3">
-                <div class="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-xs text-blue-600 font-medium border border-white">А</div>
-                <div class="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center text-xs text-green-600 font-medium border border-white">Б</div>
-                <div class="w-6 h-6 rounded-full bg-yellow-100 flex items-center justify-center text-xs text-yellow-600 font-medium border border-white">В</div>
+            <div class="flex -space-x-2 mt-3">
+                <div class="w-6 h-6 rounded-full bg-indigo-100 flex items-center justify-center text-xs text-indigo-600 font-medium border border-white shadow-sm">А</div>
+                <div class="w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center text-xs text-emerald-600 font-medium border border-white shadow-sm">Б</div>
+                <div class="w-6 h-6 rounded-full bg-amber-100 flex items-center justify-center text-xs text-amber-600 font-medium border border-white shadow-sm">В</div>
             </div>`;
         
-        // Количество комментариев и вложений
+        // Мета информация (комментарии, дата)
         const metaHtml = `
             <div class="flex items-center mt-3 justify-between text-gray-500 text-xs">
-                <div class="flex items-center">
-                    <i class="far fa-comment mr-1"></i>
-                    <span>15</span>
+                <div class="flex items-center space-x-2">
+                    <div class="flex items-center">
+                        <i class="far fa-copy mr-1"></i>
+                        <span>1</span>
+                    </div>
+                    <div class="flex items-center">
+                        <i class="far fa-comment mr-1"></i>
+                        <span>15</span>
+                    </div>
                 </div>
                 <div class="flex items-center">
                     <i class="far fa-calendar mr-1"></i>
@@ -571,9 +602,9 @@
         div.innerHTML = `
             <div class="flex justify-between items-start mb-2">
                 <h3 class="font-medium text-gray-800">${task.title}</h3>
-                <span class="${priorityClass} text-xs px-2 py-0.5 rounded-full">${getPriorityText(task.priority)}</span>
+                <span class="${priorityClass} text-xs px-2 py-0.5 rounded-full flex items-center">${priorityDot}${getPriorityText(task.priority)}</span>
             </div>
-            <p class="text-gray-600 text-sm mb-2">${task.description || 'Нет описания'}</p>
+            <p class="text-gray-600 text-sm mb-2 line-clamp-2">${task.description || 'Нет описания'}</p>
             ${tagsHtml}
             ${avatarsHtml}
             ${metaHtml}
