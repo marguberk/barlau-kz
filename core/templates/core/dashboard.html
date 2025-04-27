@@ -666,43 +666,6 @@
     </div>
 </div>
 
-<!-- Нижнее мобильное меню - показываем только на мобильных устройствах -->
-<nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 hidden max-lg:block">
-    <div class="flex justify-around items-center px-4 py-2">
-        <a href="{% url 'core:home' %}" class="flex flex-col items-center text-blue-600 relative">
-            <div class="icon-container relative w-8 h-8 flex items-center justify-center">
-                <img src="{% static 'core/img/mobile/home.svg' %}" alt="Home" class="w-6 h-6">
-            </div>
-            <span class="text-xs text-[10px] mt-1">Главная</span>
-            <div class="absolute -bottom-2 left-0 right-0 h-0.5 bg-blue-600 rounded-full"></div>
-        </a>
-        <a href="{% url 'core:tasks' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600 relative">
-            <div class="icon-container relative w-8 h-8 flex items-center justify-center">
-                <img src="{% static 'core/img/mobile/check-square.svg' %}" alt="Tasks" class="w-6 h-6">
-            </div>
-            <span class="text-xs text-[10px] mt-1">Задачи</span>
-        </a>
-        <a href="{% url 'core:map' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600 relative">
-            <div class="icon-container relative w-8 h-8 flex items-center justify-center">
-                <img src="{% static 'core/img/mobile/location.svg' %}" alt="Map" class="w-6 h-6">
-            </div>
-            <span class="text-xs text-[10px] mt-1">Карта</span>
-        </a>
-        <a href="{% url 'core:vehicles' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600 relative">
-            <div class="icon-container relative w-8 h-8 flex items-center justify-center">
-                <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Vehicles" class="w-6 h-6">
-            </div>
-            <span class="text-xs text-[10px] mt-1">Грузовики</span>
-        </a>
-        <a href="{% url 'core:employees' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600 relative">
-            <div class="icon-container relative w-8 h-8 flex items-center justify-center">
-                <img src="{% static 'core/img/mobile/employee.svg' %}" alt="Employees" class="w-6 h-6">
-            </div>
-            <span class="text-xs text-[10px] mt-1">Сотрудники</span>
-        </a>
-    </div>
-</nav>
-
 <style>
     /* Обновленные стили для боковых иконок меню */
     .sidebar-menu a {
@@ -757,7 +720,7 @@
         .main-content {
             margin-left: 0 !important;
             width: 100% !important;
-            padding-bottom: 70px !important;
+            padding-bottom: 20px !important;
         }
         
         /* Верхняя панель на всю ширину */
@@ -966,12 +929,6 @@
                 col.style.width = '100%';
             });
             document.querySelector('.trucks-map').style.flexDirection = 'column';
-            
-            // Показываем нижнее мобильное меню
-            const mobileNav = document.querySelector('nav.fixed.bottom-0');
-            if (mobileNav) {
-                mobileNav.style.display = 'block';
-            }
         } else {
             resetLayoutToDesktop();
         }
@@ -999,12 +956,6 @@
         document.querySelectorAll('.trucks-map > div').forEach(col => {
             col.style.width = '50%';
         });
-        
-        // Скрываем мобильное меню
-        const mobileNav = document.querySelector('nav.fixed.bottom-0');
-        if (mobileNav) {
-            mobileNav.style.display = 'none';
-        }
     }
     
     // Функция для выравнивания высоты карточек в ПК-версии
@@ -1178,14 +1129,14 @@
         return cookieValue;
     }
     
-    // Функция для выравнивания высоты блоков финансов и задач в планшетной версии
+    // Функция для выравнивания высоты финансового блока и задач
     function equalizeFinanceTasksHeight() {
-        const financeBlock = document.querySelector('.finance-tasks > div:first-child');
-        const tasksBlock = document.querySelector('.finance-tasks > div:last-child');
+        const financeBlock = document.querySelector('.finance-block');
+        const tasksBlock = document.querySelector('.tasks-block');
         
         if (financeBlock && tasksBlock && window.innerWidth > 1100) {
             // Устанавливаем фиксированную высоту для обоих блоков
-            const fixedHeight = 400; // Абсолютно одинаковая высота для обоих блоков
+            const fixedHeight = 500; // Увеличенная высота для обоих блоков
             
             financeBlock.style.height = `${fixedHeight}px`;
             tasksBlock.style.height = `${fixedHeight}px`;
@@ -1195,12 +1146,13 @@
             const tasksContent = tasksBlock.querySelector('.self-stretch.px-5.py-4');
             
             if (financeContent) {
-                financeContent.style.height = 'auto';
+                financeContent.style.overflowY = 'auto';
+                financeContent.style.maxHeight = '400px'; // Учитываем отступы и заголовок
             }
             
             if (tasksContent) {
-                tasksContent.style.overflow = 'auto';
-                tasksContent.style.maxHeight = '320px';
+                tasksContent.style.overflowY = 'auto';
+                tasksContent.style.maxHeight = '400px'; // Учитываем отступы и заголовок
             }
         }
     }
