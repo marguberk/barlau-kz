@@ -589,13 +589,24 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Добавляем всплывающее окно с подробной информацией
             marker.bindPopup(
-                '<div class="p-2">' +
-                '<h3 class="text-lg font-semibold mb-2">' + vehicle.brand + ' ' + vehicle.model + '</h3>' +
-                '<p class="text-sm mb-1"><strong>Гос. номер:</strong> ' + vehicle.number + '</p>' +
-                '<p class="text-sm mb-1"><strong>Водитель:</strong> ' + vehicle.driver.fullname + '</p>' +
-                '<p class="text-sm mb-1"><strong>Телефон:</strong> ' + vehicle.driver.phone + '</p>' +
-                '<p class="text-sm mb-1"><strong>Скорость:</strong> ' + vehicle.speed + ' км/ч</p>' +
-                '<p class="text-sm"><strong>Последнее обновление:</strong> ' + lastUpdateText + '</p>' +
+                '<div class="vehicle-popup p-3 w-64">' +
+                '<h3 class="text-lg font-semibold mb-2 border-b pb-2">' + vehicle.brand + ' ' + vehicle.model + '</h3>' +
+                '<div class="mb-3">' +
+                    '<p class="text-sm mb-1 flex justify-between"><span class="font-medium">Гос. номер:</span> <span class="bg-gray-100 rounded px-2 py-0.5">' + vehicle.number + '</span></p>' +
+                    '<p class="text-sm mb-1 flex justify-between"><span class="font-medium">Водитель:</span> <span>' + vehicle.driver.fullname + '</span></p>' +
+                    '<p class="text-sm mb-1 flex justify-between"><span class="font-medium">Телефон:</span> <span>' + vehicle.driver.phone + '</span></p>' +
+                    '<p class="text-sm mb-1 flex justify-between"><span class="font-medium">Скорость:</span> <span class="' + (vehicle.speed > 0 ? 'text-green-600' : 'text-red-600') + '">' + vehicle.speed + ' км/ч</span></p>' +
+                    '<p class="text-sm mb-1 flex justify-between"><span class="font-medium">Статус:</span> <span class="' + 
+                        (vehicle.status === 'active' ? 'text-green-600' : 'text-red-600') + '">' + 
+                        (vehicle.status === 'active' ? 'Активен' : 'Остановлен') + '</span></p>' +
+                '</div>' +
+                '<div class="text-xs bg-gray-50 p-2 rounded-md">' +
+                    '<p class="text-sm font-medium mb-1">Последнее обновление:</p>' +
+                    '<p class="text-sm">' + lastUpdateText + '</p>' +
+                '</div>' +
+                '<div class="mt-3 flex justify-end">' +
+                    '<a href="/vehicles/' + vehicle.id + '/" class="text-xs bg-blue-500 hover:bg-blue-600 text-white py-1 px-3 rounded transition duration-200">Подробнее</a>' +
+                '</div>' +
                 '</div>'
             );
             
