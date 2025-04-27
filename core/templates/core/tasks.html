@@ -291,6 +291,8 @@
         padding: 1rem;
         transition: all 0.2s ease;
         cursor: pointer;
+        position: relative;
+        overflow: hidden;
     }
     
     .task-card:hover {
@@ -299,29 +301,64 @@
         border-color: #e5e7eb;
     }
     
+    /* Стили для индикатора приоритета (левая граница) */
+    .task-card[data-priority="HIGH"]::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        background-color: #EF4444;
+    }
+    
+    .task-card[data-priority="MEDIUM"]::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        background-color: #F59E0B;
+    }
+    
+    .task-card[data-priority="LOW"]::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        background-color: #3B82F6;
+    }
+    
     /* Стили для различных тегов */
     .tag-marketing {
         background-color: #EEF2FF;
         color: #6366F1;
         font-weight: 500;
+        border: 1px solid #E0E7FF;
     }
     
     .tag-internal {
         background-color: #DBEAFE;
         color: #3B82F6;
         font-weight: 500;
+        border: 1px solid #BFDBFE;
     }
     
     .tag-external {
         background-color: #FEE2E2;
         color: #EF4444;
         font-weight: 500;
+        border: 1px solid #FECACA;
     }
     
     .tag-leadership {
         background-color: #F3E8FF;
         color: #A855F7;
         font-weight: 500;
+        border: 1px solid #E9D5FF;
     }
 
     /* Стили для канбан колонок */
@@ -524,6 +561,7 @@
         div.className = 'task-card';
         div.dataset.taskId = task.id;
         div.dataset.status = task.status;
+        div.dataset.priority = task.priority; // Добавляем атрибут для приоритета
         div.draggable = true; // Делаем элемент перетаскиваемым
         
         // Определяем классы для приоритета
@@ -532,15 +570,15 @@
         
         switch(task.priority) {
             case 'HIGH':
-                priorityClass = 'bg-red-100 text-red-800';
+                priorityClass = 'bg-red-100 text-red-800 border border-red-200';
                 priorityDot = '<span class="inline-block w-2 h-2 bg-red-500 rounded-full mr-1"></span>';
                 break;
             case 'MEDIUM':
-                priorityClass = 'bg-yellow-100 text-yellow-800';
+                priorityClass = 'bg-yellow-100 text-yellow-800 border border-yellow-200';
                 priorityDot = '<span class="inline-block w-2 h-2 bg-yellow-500 rounded-full mr-1"></span>';
                 break;
             case 'LOW':
-                priorityClass = 'bg-blue-100 text-blue-800';
+                priorityClass = 'bg-blue-100 text-blue-800 border border-blue-200';
                 priorityDot = '<span class="inline-block w-2 h-2 bg-blue-500 rounded-full mr-1"></span>';
                 break;
         }
@@ -562,11 +600,11 @@
             tagsHtml = `<div class="flex flex-wrap gap-1 mt-2">`;
             
             if (taskTags.includes('Marketing')) {
-                tagsHtml += `<span class="tag-marketing text-xs px-2 py-0.5 rounded-full">Маркетинг</span>`;
+                tagsHtml += `<span class="tag-marketing text-xs px-2 py-0.5 rounded-full flex items-center"><i class="fas fa-bullhorn text-xs mr-1"></i>Маркетинг</span>`;
             }
             
             if (taskTags.includes('Internal')) {
-                tagsHtml += `<span class="tag-internal text-xs px-2 py-0.5 rounded-full">Внутренний</span>`;
+                tagsHtml += `<span class="tag-internal text-xs px-2 py-0.5 rounded-full flex items-center"><i class="fas fa-building text-xs mr-1"></i>Внутренний</span>`;
             }
             
             tagsHtml += `</div>`;
