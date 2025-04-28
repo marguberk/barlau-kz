@@ -10,15 +10,19 @@ https://docs.djangoproject.com/en/5.1/howto/deployment/wsgi/
 import os
 import sys
 
+# Добавляем путь к проекту в sys.path
+path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if path not in sys.path:
+    sys.path.append(path)
+
 from django.core.wsgi import get_wsgi_application
 
-# Проверяем наличие файла с настройками для PythonAnywhere
-try:
-    from barlau import pythonanywhere_settings
+# Для локальной разработки используйте barlau.settings
+# Для PythonAnywhere используйте barlau.pythonanywhere_settings
+# Проверяем, работаем ли на PythonAnywhere
+if 'PYTHONANYWHERE_DOMAIN' in os.environ:
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'barlau.pythonanywhere_settings')
-    print("Используются настройки PythonAnywhere")
-except ImportError:
+else:
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'barlau.settings')
-    print("Используются стандартные настройки")
 
 application = get_wsgi_application()
