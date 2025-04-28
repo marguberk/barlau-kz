@@ -8,11 +8,14 @@ https://docs.djangoproject.com/en/5.1/howto/deployment/wsgi/
 """
 
 import os
+import sys
 
 from django.core.wsgi import get_wsgi_application
 
-# Для PythonAnywhere раскомментируйте следующую строку и измените путь
-# os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'barlau.pythonanywhere_settings')
+# Добавьте путь к вашему проекту (раскомментируйте и замените на ваш путь на PythonAnywhere)
+# path = '/home/yourusername/barlau-kz'
+# if path not in sys.path:
+#     sys.path.insert(0, path)
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'barlau.settings')
 
