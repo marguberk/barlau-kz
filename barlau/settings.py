@@ -199,11 +199,10 @@ LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/accounts/login/'
 
 # PythonAnywhere настройки
-# Создайте файл pythonanywhere_settings.py рядом с settings.py и добавьте следующие настройки
+# Постоянно расскомментируйте эти строки при развертывании на PythonAnywhere
+# Или создайте отдельный файл pythonanywhere_settings.py и импортируйте его
 
-# Пример файла pythonanywhere_settings.py:
-"""
-PYTHONANYWHERE = True
+'''
 DEBUG = False
 ALLOWED_HOSTS = ['yourusername.pythonanywhere.com']
 
@@ -222,26 +221,7 @@ DATABASES = {
 # Настройки для обслуживания медиа-файлов на PythonAnywhere
 MEDIA_URL = '/media/'
 MEDIA_ROOT = '/home/yourusername/barlau-kz/media'
-STATIC_URL = '/static/'
-STATIC_ROOT = '/home/yourusername/barlau-kz/static'
-
-# Дополнительные настройки безопасности
-CSRF_COOKIE_SECURE = True
-SESSION_COOKIE_SECURE = True
-SECURE_SSL_REDIRECT = True
-SECURE_HSTS_SECONDS = 31536000  # 1 год
-SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-SECURE_HSTS_PRELOAD = True
-SECURE_CONTENT_TYPE_NOSNIFF = True
-SECURE_BROWSER_XSS_FILTER = True
-X_FRAME_OPTIONS = 'DENY'
-"""
-
-# Импорт настроек PythonAnywhere, если файл существует
-try:
-    from .pythonanywhere_settings import *
-except ImportError:
-    pass
+'''
 
 # PWA Настройки
 PWA_APP_NAME = 'BARLAU.KZ'

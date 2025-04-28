@@ -12,11 +12,13 @@ import sys
 
 from django.core.wsgi import get_wsgi_application
 
-# Добавьте путь к вашему проекту (раскомментируйте и замените на ваш путь на PythonAnywhere)
-# path = '/home/yourusername/barlau-kz'
-# if path not in sys.path:
-#     sys.path.insert(0, path)
-
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'barlau.settings')
+# Проверяем наличие файла с настройками для PythonAnywhere
+try:
+    from barlau import pythonanywhere_settings
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'barlau.pythonanywhere_settings')
+    print("Используются настройки PythonAnywhere")
+except ImportError:
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'barlau.settings')
+    print("Используются стандартные настройки")
 
 application = get_wsgi_application()
