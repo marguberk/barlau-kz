@@ -70,7 +70,7 @@ python manage.py runserver
 
 2. Открыть Bash консоль и клонировать репозиторий:
 ```
-git clone https://github.com/your-username/barlau-kz.git
+git clone https://github.com/marguberk/barlau-kz.git
 ```
 
 3. Создать виртуальное окружение и установить зависимости:
