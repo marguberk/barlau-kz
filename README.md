@@ -55,71 +55,54 @@ python manage.py runserver
 - Работать в оффлайн-режиме
 - Получать push-уведомления
 
-## Деплой на PythonAnywhere
+## Установка на PythonAnywhere
 
-### Шаг 1: Создание аккаунта и настройка окружения
+1. Клонировать репозиторий:
+```bash
+git clone https://github.com/marguberk/barlau-kz.git
+cd barlau-kz
+```
 
-1. Зарегистрируйтесь на [PythonAnywhere](https://www.pythonanywhere.com)
-2. Создайте новое веб-приложение:
-   - Выберите Django
-   - Выберите Python 3.9 или выше
-   - Укажите домен: yourusername.pythonanywhere.com
+2. Создать виртуальное окружение Python 3.10:
+```bash
+mkvirtualenv --python=python3.10 barlau
+```
 
-### Шаг 2: Загрузка кода
+3. Установить зависимости:
+```bash
+pip install -r requirements.txt
+```
 
-1. Откройте bash консоль на PythonAnywhere
-2. Клонируйте репозиторий:
-   ```bash
-   git clone https://github.com/marguberk/barlau-kz.git
-   ```
-3. Создайте и активируйте виртуальное окружение:
-   ```bash
-   cd barlau-kz
-   python -m venv venv
-   source venv/bin/activate
-   pip install -r requirements.txt
-   ```
+4. Настроить базу данных:
+```bash
+python manage.py migrate
+```
 
-### Шаг 3: Настройка MySQL
+5. Создать суперпользователя:
+```bash
+python manage.py createsuperuser
+```
 
-1. Создайте базу данных MySQL через панель управления PythonAnywhere
-2. Отредактируйте файл `barlau/pythonanywhere_settings.py`:
-   - Укажите ваши учетные данные MySQL
-   - Замените `yourusername` на ваше имя пользователя PythonAnywhere
+6. Собрать статические файлы:
+```bash
+python manage.py collectstatic --noinput
+```
 
-### Шаг 4: Настройка WSGI
+7. Настроить WSGI файл в панели PythonAnywhere, указав путь к файлу wsgi.py
 
-1. В файле `/var/www/yourusername_pythonanywhere_com_wsgi.py`:
-   ```python
-   import os
-   import sys
+## Основные компоненты системы
 
-   path = '/home/yourusername/barlau-kz'
-   if path not in sys.path:
-       sys.path.append(path)
+- Система учета транспорта и мониторинга
+- Управление сотрудниками и задачами
+- Путевые листы и документооборот
+- Финансовый учет и отчетность
 
-   os.environ['DJANGO_SETTINGS_MODULE'] = 'barlau.pythonanywhere_settings'
+## Технологии
 
-   from django.core.wsgi import get_wsgi_application
-   application = get_wsgi_application()
-   ```
-
-### Шаг 5: Настройка статических файлов
-
-1. В панели управления PythonAnywhere укажите пути:
-   - URL: `/static/`
-   - Directory: `/home/yourusername/barlau-kz/staticfiles`
-   - URL: `/media/`
-   - Directory: `/home/yourusername/barlau-kz/media`
-
-### Шаг 6: Финальная настройка
-
-1. Выполните сбор статических файлов и миграции:
-   ```bash
-   python manage.py collectstatic
-   python manage.py migrate
-   ```
-2. Перезагрузите приложение через панель управления
+- Backend: Django 4.2 с Django REST Framework
+- Frontend: TailwindCSS с использованием компонентов ShadcnUI
+- База данных: MySQL
+- Деплой: PythonAnywhere
 
 ## Лицензия
 
