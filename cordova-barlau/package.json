@@ -1,0 +1,50 @@
+{
+  "name": "barlau-mobile",
+  "displayName": "BARLAU.KZ",
+  "version": "1.0.0",
+  "description": "Мобильное приложение для системы управления логистикой и сотрудниками BARLAU.KZ",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepare-ios": "cordova platform add ios",
+    "build-ios": "cordova build ios",
+    "emulate-ios": "cordova emulate ios",
+    "run-ios": "cordova run ios",
+    "prepare-resources": "cordova-res ios --skip-config --copy"
+  },
+  "keywords": [
+    "ecosystem:cordova",
+    "barlau",
+    "logistics",
+    "management"
+  ],
+  "author": "BARLAU Team",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "cordova-ios": "^6.2.0",
+    "cordova-plugin-device": "^2.1.0",
+    "cordova-plugin-geolocation": "^4.1.0",
+    "cordova-plugin-inappbrowser": "^5.0.0",
+    "cordova-plugin-network-information": "^3.0.0",
+    "cordova-plugin-splashscreen": "^6.0.0",
+    "cordova-plugin-statusbar": "^2.4.3",
+    "cordova-plugin-wkwebview-engine": "^1.2.2"
+  },
+  "cordova": {
+    "plugins": {
+      "cordova-plugin-statusbar": {},
+      "cordova-plugin-splashscreen": {},
+      "cordova-plugin-wkwebview-engine": {},
+      "cordova-plugin-inappbrowser": {},
+      "cordova-plugin-network-information": {},
+      "cordova-plugin-geolocation": {},
+      "cordova-plugin-device": {}
+    },
+    "platforms": [
+      "ios"
+    ]
+  },
+  "devDependencies": {
+    "cordova-res": "^0.15.4"
+  }
+} 

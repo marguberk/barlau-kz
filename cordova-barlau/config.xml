@@ -1,0 +1,79 @@
+<?xml version='1.0' encoding='utf-8'?>
+<widget id="kz.barlau.app" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+    <name>BARLAU.KZ</name>
+    <description>Система управления логистикой и сотрудниками</description>
+    <author email="info@barlau.kz" href="https://barlau.kz">BARLAU Team</author>
+    <content src="index.html" />
+    
+    <preference name="DisallowOverscroll" value="true" />
+    <preference name="BackupWebStorage" value="local" />
+    <preference name="StatusBarOverlaysWebView" value="false" />
+    <preference name="StatusBarBackgroundColor" value="#2563EB" />
+    <preference name="StatusBarStyle" value="lightcontent" />
+    <preference name="Orientation" value="portrait" />
+    <preference name="target-device" value="universal" />
+    <preference name="deployment-target" value="12.0" />
+    <preference name="EnableViewportScale" value="true" />
+    <preference name="MediaTypesRequiringUserActionForPlayback" value="none" />
+    <preference name="AllowInlineMediaPlayback" value="true" />
+    
+    <access origin="*" />
+    <allow-intent href="http://*/*" />
+    <allow-intent href="https://*/*" />
+    <allow-intent href="tel:*" />
+    <allow-intent href="sms:*" />
+    <allow-intent href="mailto:*" />
+    <allow-intent href="geo:*" />
+    
+    <platform name="ios">
+        <allow-intent href="itms:*" />
+        <allow-intent href="itms-apps:*" />
+        <preference name="WKWebViewOnly" value="true" />
+        <feature name="CDVWKWebViewEngine">
+            <param name="ios-package" value="CDVWKWebViewEngine" />
+        </feature>
+        <preference name="CordovaWebViewEngine" value="CDVWKWebViewEngine" />
+    </platform>
+    
+    <!-- Настройки иконок для iOS -->
+    <platform name="ios">
+        <icon src="res/ios/icon-20.png" width="20" height="20" />
+        <icon src="res/ios/icon-20@2x.png" width="40" height="40" />
+        <icon src="res/ios/icon-20@3x.png" width="60" height="60" />
+        <icon src="res/ios/icon-29.png" width="29" height="29" />
+        <icon src="res/ios/icon-29@2x.png" width="58" height="58" />
+        <icon src="res/ios/icon-29@3x.png" width="87" height="87" />
+        <icon src="res/ios/icon-40.png" width="40" height="40" />
+        <icon src="res/ios/icon-40@2x.png" width="80" height="80" />
+        <icon src="res/ios/icon-40@3x.png" width="120" height="120" />
+        <icon src="res/ios/icon-60@2x.png" width="120" height="120" />
+        <icon src="res/ios/icon-60@3x.png" width="180" height="180" />
+        <icon src="res/ios/icon-76.png" width="76" height="76" />
+        <icon src="res/ios/icon-76@2x.png" width="152" height="152" />
+        <icon src="res/ios/icon-83.5@2x.png" width="167" height="167" />
+        <icon src="res/ios/icon-1024.png" width="1024" height="1024" />
+    </platform>
+    
+    <!-- Настройки сплэш-экрана для iOS -->
+    <platform name="ios">
+        <splash src="res/ios/splash-Default@2x~iphone.png" width="640" height="960" />
+        <splash src="res/ios/splash-Default-568h@2x~iphone.png" width="640" height="1136" />
+        <splash src="res/ios/splash-Default-667h.png" width="750" height="1334" />
+        <splash src="res/ios/splash-Default-736h.png" width="1242" height="2208" />
+        <splash src="res/ios/splash-Default-Landscape-736h.png" width="2208" height="1242" />
+        <splash src="res/ios/splash-Default-Portrait~ipad.png" width="768" height="1024" />
+        <splash src="res/ios/splash-Default-Landscape~ipad.png" width="1024" height="768" />
+        <splash src="res/ios/splash-Default-Portrait@2x~ipad.png" width="1536" height="2048" />
+        <splash src="res/ios/splash-Default-Landscape@2x~ipad.png" width="2048" height="1536" />
+        <splash src="res/ios/splash-1125x2436.png" width="1125" height="2436" />
+        <splash src="res/ios/splash-2436x1125.png" width="2436" height="1125" />
+    </platform>
+    
+    <plugin name="cordova-plugin-statusbar" spec="^2.4.3" />
+    <plugin name="cordova-plugin-splashscreen" spec="^6.0.0" />
+    <plugin name="cordova-plugin-wkwebview-engine" spec="^1.2.2" />
+    <plugin name="cordova-plugin-inappbrowser" spec="^5.0.0" />
+    <plugin name="cordova-plugin-network-information" spec="^3.0.0" />
+    <plugin name="cordova-plugin-geolocation" spec="^4.1.0" />
+    <plugin name="cordova-plugin-device" spec="^2.1.0" />
+</widget> 

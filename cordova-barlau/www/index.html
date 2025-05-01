@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, width=device-width, viewport-fit=cover, user-scalable=no">
+    <meta http-equiv="Content-Security-Policy" content="default-src * data: gap: https://ssl.gstatic.com 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; media-src *; connect-src *">
+    <title>BARLAU.KZ</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+        }
+        #appFrame {
+            border: none;
+            height: 100%;
+            width: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+        .app-loading {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        .app-loading img {
+            width: 120px;
+            height: 120px;
+        }
+        .app-loading h1 {
+            margin-top: 20px;
+            font-family: Arial, sans-serif;
+            color: #2563EB;
+        }
+        .spinner {
+            width: 40px;
+            height: 40px;
+            margin: 20px auto;
+            background-color: #2563EB;
+            border-radius: 100%;  
+            -webkit-animation: sk-scaleout 1.0s infinite ease-in-out;
+            animation: sk-scaleout 1.0s infinite ease-in-out;
+        }
+        @-webkit-keyframes sk-scaleout {
+            0% { -webkit-transform: scale(0) }
+            100% { -webkit-transform: scale(1.0); opacity: 0; }
+        }
+        @keyframes sk-scaleout {
+            0% { transform: scale(0); -webkit-transform: scale(0); }
+            100% { transform: scale(1.0); -webkit-transform: scale(1.0); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-loading" id="loading">
+        <img src="img/logo.png" alt="BARLAU.KZ">
+        <h1>BARLAU.KZ</h1>
+        <div class="spinner"></div>
+    </div>
+    <iframe id="appFrame" style="display:none;"></iframe>
+    
+    <script type="text/javascript" src="cordova.js"></script>
+    <script type="text/javascript" src="js/app.js"></script>
+    <script>
+        document.addEventListener('deviceready', onDeviceReady, false);
+        
+        function onDeviceReady() {
+            // Обработка события возврата кнопкой "назад" на Android
+            document.addEventListener("backbutton", onBackKeyDown, false);
+            
+            const frame = document.getElementById('appFrame');
+            const loadingEl = document.getElementById('loading');
+            
+            // Загрузка веб-приложения
+            frame.src = 'https://barlau.kz';
+            
+            // События iframe
+            frame.onload = function() {
+                // Скрываем загрузку, показываем iframe
+                loadingEl.style.display = 'none';
+                frame.style.display = 'block';
+                
+                // Попытка автоматического входа, если сохранены учетные данные
+                tryAutoLogin();
+            };
+            
+            // Проверка на наличие сети
+            document.addEventListener("offline", onOffline, false);
+            document.addEventListener("online", onOnline, false);
+            
+            // Настройка статус-бара
+            if (window.StatusBar) {
+                StatusBar.backgroundColorByHexString("#2563EB");
+                StatusBar.styleLightContent();
+            }
+        }
+        
+        function onBackKeyDown() {
+            const frame = document.getElementById('appFrame');
+            // Отправляем событие нажатия кнопки "назад" в веб-приложение
+            frame.contentWindow.postMessage('backbutton', '*');
+        }
+        
+        function onOffline() {
+            // Показать сообщение об отсутствии соединения
+            alert("Отсутствует подключение к интернету. Некоторые функции могут быть недоступны.");
+        }
+        
+        function onOnline() {
+            // Восстановление соединения
+            const frame = document.getElementById('appFrame');
+            frame.contentWindow.location.reload();
+        }
+        
+        function tryAutoLogin() {
+            // Здесь можно добавить код для автоматического входа
+            // например, используя сохраненные в localStorage учетные данные
+        }
+    </script>
+</body>
+</html> 
