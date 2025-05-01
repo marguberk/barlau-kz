@@ -1,0 +1,10 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "kz.barlau.app",
+    "sha256_cert_fingerprints": [
+      "ТУТ_НУЖНО_УКАЗАТЬ_SHA256_ОТПЕЧАТОК_СЕРТИФИКАТА"
+    ]
+  }
+}] 
