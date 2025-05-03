@@ -531,14 +531,56 @@ document.addEventListener('DOMContentLoaded', function() {
         // Очищаем существующие маркеры
         clearVehicleMarkers();
         
-        // Используем демо-данные
-        displayVehicles(demoVehicles);
-        
-        // Обновляем счетчики
-        updateCounters(demoVehicles);
-        
-        // Обновляем время последнего обновления
-        updateLastUpdateTime();
+        // Запрос к API для получения данных о транспортных средствах
+        fetch('/api/v1/map/')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Ошибка при загрузке данных о транспортных средствах');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Данные с API:', data);
+                if (data && data.vehicles && data.vehicles.vehicles) {
+                    // Преобразуем формат данных от API к формату, используемому в функции отображения
+                    const apiVehicles = data.vehicles.vehicles.map(vehicle => {
+                        return {
+                            id: vehicle.id,
+                            number: vehicle.number,
+                            brand: vehicle.type === 'truck' ? 'Грузовик' : (vehicle.type === 'special' ? 'Спецтехника' : 'Автомобиль'),
+                            model: '',
+                            status: vehicle.status,
+                            lastUpdate: new Date().getTime() - 5 * 60 * 1000, // Примерно 5 минут назад
+                            speed: vehicle.status === 'active' ? 65 : 0,
+                            driver: {
+                                fullname: vehicle.driver.fullname,
+                                phone: "+7 (701) xxx-xxxx", // Телефон не приходит с API, используем заглушку
+                                current_latitude: vehicle.driver.current_latitude,
+                                current_longitude: vehicle.driver.current_longitude
+                            }
+                        };
+                    });
+                    
+                    // Отображаем транспортные средства и обновляем счетчики
+                    displayVehicles(apiVehicles);
+                    updateCounters(apiVehicles);
+                } else {
+                    console.error('Некорректный формат данных API');
+                    // В случае ошибки используем демо-данные
+                    displayVehicles(demoVehicles);
+                    updateCounters(demoVehicles);
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка при загрузке данных:', error);
+                // В случае ошибки используем демо-данные
+                displayVehicles(demoVehicles);
+                updateCounters(demoVehicles);
+            })
+            .finally(() => {
+                // Обновляем время последнего обновления
+                updateLastUpdateTime();
+            });
     }
     
     // Отображение транспортных средств на карте
