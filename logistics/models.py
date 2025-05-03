@@ -46,6 +46,15 @@ class Vehicle(models.Model):
         ('MAINTENANCE', 'На обслуживании'),
     ]
     
+    FUEL_TYPE_CHOICES = [
+        ('DIESEL', 'Дизель'),
+        ('PETROL', 'Бензин'),
+        ('GAS', 'Газ'),
+        ('HYBRID', 'Гибрид'),
+        ('ELECTRIC', 'Электро'),
+    ]
+    
+    # Основная информация
     number = models.CharField(max_length=20, unique=True, verbose_name='Номер')
     brand = models.CharField(max_length=50, verbose_name='Марка')
     model = models.CharField(max_length=50, verbose_name='Модель')
@@ -62,6 +71,22 @@ class Vehicle(models.Model):
         default='ACTIVE',
         verbose_name='Статус'
     )
+    
+    # Технические характеристики
+    vin_number = models.CharField(max_length=20, null=True, blank=True, verbose_name='VIN номер')
+    chassis_number = models.CharField(max_length=30, null=True, blank=True, verbose_name='Номер шасси')
+    engine_number = models.CharField(max_length=30, null=True, blank=True, verbose_name='Номер двигателя')
+    engine_capacity = models.DecimalField(max_digits=4, decimal_places=1, null=True, blank=True, verbose_name='Объем двигателя (л)')
+    fuel_type = models.CharField(max_length=20, choices=FUEL_TYPE_CHOICES, null=True, blank=True, verbose_name='Тип топлива')
+    
+    # Габариты и грузоподъемность
+    length = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True, verbose_name='Длина (м)')
+    width = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True, verbose_name='Ширина (м)')
+    height = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True, verbose_name='Высота (м)')
+    cargo_capacity = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True, verbose_name='Грузоподъемность (кг)')
+    max_weight = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True, verbose_name='Максимальная масса (кг)')
+    
+    # Связи
     driver = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
@@ -70,6 +95,8 @@ class Vehicle(models.Model):
         limit_choices_to={'role': 'DRIVER'},
         verbose_name='Водитель'
     )
+    
+    # Метаданные
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='Дата обновления')
     created_by = models.ForeignKey(
@@ -86,6 +113,172 @@ class Vehicle(models.Model):
     class Meta:
         verbose_name = 'Транспортное средство'
         verbose_name_plural = 'Транспортные средства'
+
+class VehicleDocument(models.Model):
+    DOCUMENT_TYPE_CHOICES = [
+        ('REGISTRATION', 'Свидетельство о регистрации'),
+        ('INSURANCE', 'Страховка'),
+        ('TECHNICAL_INSPECTION', 'Техосмотр'),
+        ('SERVICE_BOOK', 'Сервисная книжка'),
+        ('OTHER', 'Прочее'),
+    ]
+    
+    vehicle = models.ForeignKey(
+        Vehicle, 
+        on_delete=models.CASCADE, 
+        related_name='documents', 
+        verbose_name='Транспорт'
+    )
+    document_type = models.CharField(
+        max_length=30, 
+        choices=DOCUMENT_TYPE_CHOICES, 
+        verbose_name='Тип документа'
+    )
+    number = models.CharField(max_length=50, null=True, blank=True, verbose_name='Номер документа')
+    issue_date = models.DateField(verbose_name='Дата выдачи')
+    expiry_date = models.DateField(null=True, blank=True, verbose_name='Дата окончания')
+    issuing_authority = models.CharField(max_length=100, null=True, blank=True, verbose_name='Кем выдан')
+    description = models.TextField(null=True, blank=True, verbose_name='Примечание')
+    file = models.FileField(
+        upload_to=vehicle_document_upload_path, 
+        null=True, 
+        blank=True, 
+        verbose_name='Файл документа'
+    )
+    
+    # Метаданные
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='Дата обновления')
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='created_vehicle_documents',
+        verbose_name='Кем создан'
+    )
+    
+    class Meta:
+        verbose_name = 'Документ транспорта'
+        verbose_name_plural = 'Документы транспорта'
+        ordering = ['-issue_date']
+    
+    def __str__(self):
+        return f"{self.get_document_type_display()} для {self.vehicle}"
+    
+    def is_expired(self):
+        """Проверяет, истек ли срок действия документа"""
+        if self.expiry_date:
+            return self.expiry_date < timezone.now().date()
+        return False
+    
+    def days_until_expiry(self):
+        """Возвращает количество дней до истечения срока действия"""
+        if self.expiry_date:
+            delta = self.expiry_date - timezone.now().date()
+            return delta.days
+        return None
+
+class VehiclePhoto(models.Model):
+    vehicle = models.ForeignKey(
+        Vehicle, 
+        on_delete=models.CASCADE, 
+        related_name='photos', 
+        verbose_name='Транспорт'
+    )
+    photo = models.ImageField(
+        upload_to=vehicle_photo_upload_path, 
+        verbose_name='Фотография'
+    )
+    description = models.CharField(max_length=100, null=True, blank=True, verbose_name='Описание')
+    is_main = models.BooleanField(default=False, verbose_name='Основное фото')
+    uploaded_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата загрузки')
+    uploaded_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        verbose_name='Кем загружено'
+    )
+    
+    class Meta:
+        verbose_name = 'Фотография транспорта'
+        verbose_name_plural = 'Фотографии транспорта'
+        ordering = ['-is_main', '-uploaded_at']
+    
+    def __str__(self):
+        return f"Фото {self.vehicle} ({self.id})"
+    
+    def save(self, *args, **kwargs):
+        """Если фото помечено как основное, снимаем этот флаг с других фото"""
+        if self.is_main:
+            VehiclePhoto.objects.filter(
+                vehicle=self.vehicle, 
+                is_main=True
+            ).exclude(pk=self.pk).update(is_main=False)
+        super().save(*args, **kwargs)
+
+class VehicleMaintenance(models.Model):
+    MAINTENANCE_TYPE_CHOICES = [
+        ('ROUTINE', 'Плановое ТО'),
+        ('REPAIR', 'Ремонт'),
+        ('INSPECTION', 'Осмотр'),
+        ('OTHER', 'Прочее'),
+    ]
+    
+    vehicle = models.ForeignKey(
+        Vehicle, 
+        on_delete=models.CASCADE, 
+        related_name='maintenance_records', 
+        verbose_name='Транспорт'
+    )
+    maintenance_type = models.CharField(
+        max_length=30, 
+        choices=MAINTENANCE_TYPE_CHOICES, 
+        verbose_name='Тип обслуживания'
+    )
+    date = models.DateField(verbose_name='Дата проведения')
+    mileage = models.IntegerField(null=True, blank=True, verbose_name='Пробег (км)')
+    description = models.TextField(verbose_name='Описание работ')
+    cost = models.DecimalField(
+        max_digits=10, 
+        decimal_places=2, 
+        null=True, 
+        blank=True, 
+        verbose_name='Стоимость (тг)'
+    )
+    next_maintenance_date = models.DateField(
+        null=True, 
+        blank=True, 
+        verbose_name='Дата следующего ТО'
+    )
+    next_maintenance_mileage = models.IntegerField(
+        null=True, 
+        blank=True, 
+        verbose_name='Пробег для следующего ТО (км)'
+    )
+    performed_by = models.CharField(
+        max_length=100, 
+        null=True, 
+        blank=True, 
+        verbose_name='Кем проведено'
+    )
+    
+    # Метаданные
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='created_vehicle_maintenance',
+        verbose_name='Кем создано'
+    )
+    
+    class Meta:
+        verbose_name = 'Техническое обслуживание'
+        verbose_name_plural = 'Техническое обслуживание'
+        ordering = ['-date']
+    
+    def __str__(self):
+        return f"{self.get_maintenance_type_display()} {self.vehicle} от {self.date}"
 
 class Task(models.Model):
     PRIORITY_CHOICES = [
