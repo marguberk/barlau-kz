@@ -472,7 +472,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Переменные для хранения маркеров
     var vehicleMarkers = {};
     
-    // Демо-данные для транспортных средств (только грузовики)
+    // Демо-данные для транспортных средств (только для запасного варианта)
     var demoVehicles = [
         {
             id: 1, 
@@ -760,8 +760,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // После 5 секунд останавливаем интервал
     setTimeout(() => clearInterval(fixInterval), 5000);
     
-    // Запускаем автоматическое обновление каждые 5 минут
-    setInterval(loadVehicles, 5 * 60 * 1000);
+    // Запускаем автоматическое обновление каждые 15 секунд
+    setInterval(loadVehicles, 15 * 1000);
     
     // Исправляем отображение карты, если есть проблемы с контейнером
     setTimeout(function() {
