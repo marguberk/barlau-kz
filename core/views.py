@@ -1570,7 +1570,6 @@ class VehicleCreateView(LoginRequiredMixin, View):
             driver = forms.ModelChoiceField(queryset=drivers, required=False)
         
         form = VehicleForm(request.POST)
-        
         if form.is_valid():
             number = form.cleaned_data['number']
             brand = form.cleaned_data['brand']
@@ -1591,11 +1590,15 @@ class VehicleCreateView(LoginRequiredMixin, View):
                 return render(request, self.template_name, context)
             
             # Создаем транспорт
+            from django.utils import timezone
             vehicle = Vehicle(
                 number=number,
                 brand=brand,
                 model=model,
-                year=year
+                year=year,
+                created_at=timezone.now(),
+                updated_at=timezone.now(),
+                created_by=request.user
             )
             
             # Если выбран водитель

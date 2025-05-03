@@ -1,7 +1,37 @@
+import os
 from django.db import models
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from model_utils import FieldTracker
+from django.utils import timezone
+
+def vehicle_document_upload_path(instance, filename):
+    """
+    Функция для определения пути загрузки документов транспортного средства
+    """
+    # Получаем расширение файла
+    ext = filename.split('.')[-1]
+    # Формируем новое имя файла на основе id документа и транспортного средства
+    if hasattr(instance, 'vehicle') and instance.vehicle:
+        vehicle_id = instance.vehicle.id
+    else:
+        vehicle_id = 'unknown'
+    # Путь для сохранения: vehicles/vehicle_id/documents/filename
+    return os.path.join('vehicles', str(vehicle_id), 'documents', f"{instance.id}_{timezone.now().strftime('%Y%m%d%H%M%S')}.{ext}")
+
+def vehicle_photo_upload_path(instance, filename):
+    """
+    Функция для определения пути загрузки фотографий транспортного средства
+    """
+    # Получаем расширение файла
+    ext = filename.split('.')[-1]
+    # Формируем новое имя файла
+    if hasattr(instance, 'id') and instance.id:
+        vehicle_id = instance.id
+    else:
+        vehicle_id = 'new'
+    # Путь для сохранения: vehicles/vehicle_id/photos/filename
+    return os.path.join('vehicles', str(vehicle_id), 'photos', f"photo_{timezone.now().strftime('%Y%m%d%H%M%S')}.{ext}")
 
 class Vehicle(models.Model):
     VEHICLE_TYPE_CHOICES = [
@@ -39,6 +69,15 @@ class Vehicle(models.Model):
         blank=True,
         limit_choices_to={'role': 'DRIVER'},
         verbose_name='Водитель'
+    )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='Дата обновления')
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='created_vehicles',
+        verbose_name='Кем создан'
     )
     
     def __str__(self):

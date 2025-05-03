@@ -581,12 +581,6 @@
             // Убираем боковую панель и настраиваем основной контент
             document.querySelector('.main-content').style.marginLeft = '0';
             document.querySelector('.sidebar').style.display = 'none';
-            
-            // Показываем нижнее мобильное меню
-            const mobileNav = document.querySelector('nav.fixed.bottom-0');
-            if (mobileNav) {
-                mobileNav.style.display = 'block';
-            }
         } else {
             resetLayoutToDesktop();
         }
@@ -596,12 +590,6 @@
     function resetLayoutToDesktop() {
         document.querySelector('.main-content').style.marginLeft = '16rem';
         document.querySelector('.sidebar').style.display = 'flex';
-        
-        // Скрываем мобильное меню
-        const mobileNav = document.querySelector('nav.fixed.bottom-0');
-        if (mobileNav) {
-            mobileNav.style.display = 'none';
-        }
     }
     
     // Функция коррекции всех ссылок на странице

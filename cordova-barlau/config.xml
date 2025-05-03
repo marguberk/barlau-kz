@@ -69,6 +69,23 @@
         <splash src="res/ios/splash-2436x1125.png" width="2436" height="1125" />
     </platform>
     
+    <!-- Настройки для Android -->
+    <platform name="android">
+        <icon src="res/android/ldpi.png" density="ldpi" />
+        <icon src="res/android/mdpi.png" density="mdpi" />
+        <icon src="res/android/hdpi.png" density="hdpi" />
+        <icon src="res/android/xhdpi.png" density="xhdpi" />
+        <icon src="res/android/xxhdpi.png" density="xxhdpi" />
+        <icon src="res/android/xxxhdpi.png" density="xxxhdpi" />
+        
+        <splash src="res/android/splash-ldpi.png" density="ldpi" />
+        <splash src="res/android/splash-mdpi.png" density="mdpi" />
+        <splash src="res/android/splash-hdpi.png" density="hdpi" />
+        <splash src="res/android/splash-xhdpi.png" density="xhdpi" />
+        <splash src="res/android/splash-xxhdpi.png" density="xxhdpi" />
+        <splash src="res/android/splash-xxxhdpi.png" density="xxxhdpi" />
+    </platform>
+    
     <plugin name="cordova-plugin-statusbar" spec="^2.4.3" />
     <plugin name="cordova-plugin-splashscreen" spec="^6.0.0" />
     <plugin name="cordova-plugin-wkwebview-engine" spec="^1.2.2" />

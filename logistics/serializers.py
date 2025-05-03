@@ -14,7 +14,7 @@ class VehicleSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Vehicle
-        fields = '__all__'
+        fields = ['id', 'number', 'brand', 'model', 'year', 'vehicle_type', 'status', 'driver', 'driver_details', 'created_at', 'updated_at', 'created_by']
 
 class VehicleLocationSerializer(serializers.ModelSerializer):
     driver_name = serializers.CharField(source='driver.get_full_name', read_only=True)

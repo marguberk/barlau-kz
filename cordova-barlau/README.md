@@ -1,133 +1,147 @@
-# BARLAU.KZ Mobile App (Cordova)
+# BARLAU.KZ Mobile App
 
-Мобильное приложение для системы управления логистикой и сотрудниками BARLAU.KZ, созданное с использованием Apache Cordova.
+Мобильное приложение для системы управления логистикой и сотрудниками BARLAU.KZ.
 
 ## Описание
 
-Это приложение представляет собой оболочку для веб-сайта BARLAU.KZ, предоставляющую следующие возможности:
+Приложение представляет собой веб-приложение с нативной оболочкой, созданное с использованием Apache Cordova. Приложение предоставляет доступ к основным функциям системы BARLAU.KZ:
 
-- Полноэкранный просмотр веб-приложения без элементов браузера
-- Доступ к нативным функциям устройства через плагины Cordova (геолокация, камера и т.д.)
-- Возможность работы в офлайн-режиме и локальное кэширование
-- Push-уведомления
-- Интеграция с системой авторизации
+- Отслеживание местоположения транспорта
+- Управление задачами и заказами
+- Просмотр статистики и отчетов
+- Управление профилем и настройками
 
-## Предварительные требования
+## Требования для разработки
 
-Для работы с проектом необходимо:
+- Node.js и npm
+- Apache Cordova
+- Android SDK (для сборки Android приложения)
+- Xcode (для сборки iOS приложения)
+- JDK 11+ (для Android)
 
-1. **Node.js и npm** (последние версии)
-2. **Cordova CLI**:
-   ```bash
-   npm install -g cordova
-   ```
-3. **macOS** и **Xcode** (для сборки iOS-приложения)
-4. **Аккаунт Apple Developer** (для публикации в App Store)
+## Установка и настройка
 
-## Установка и запуск
-
-### Клонирование и настройка проекта
+1. Клонируйте репозиторий:
 
 ```bash
-# Клонирование репозитория
-git clone https://github.com/yourusername/barlau-kz.git
-cd barlau-kz/cordova-barlau
+git clone <repository-url>
+cd cordova-barlau
+```
 
-# Установка зависимостей
+2. Установите зависимости:
+
+```bash
 npm install
+```
 
-# Добавление платформы iOS
-npm run prepare-ios
-# или
+3. Добавьте платформы:
+
+```bash
+cordova platform add android
 cordova platform add ios
 ```
 
-### Подготовка ресурсов
+## Генерация ресурсов
+
+Для создания иконок и заставок для приложения используйте следующие скрипты:
+
+1. Сначала установите требуемые зависимости:
 
 ```bash
-# Установка инструмента для генерации иконок и сплэш-экранов
-npm install -g cordova-res
-
-# Генерация ресурсов
-npm run prepare-resources
-# или
-cordova-res ios --skip-config --copy
+npm install canvas sharp
 ```
 
-### Сборка и запуск
+2. Сгенерируйте базовые изображения:
 
 ```bash
-# Сборка для iOS
-npm run build-ios
-# или
-cordova build ios
-
-# Запуск в симуляторе
-npm run emulate-ios
-# или
-cordova emulate ios
-
-# Запуск на подключенном устройстве
-npm run run-ios
-# или
-cordova run ios
+node create-base-images.js
 ```
+
+3. Сгенерируйте иконки и заставки всех размеров:
+
+```bash
+node generate-icons.js
+```
+
+## Сборка приложения
+
+### Android
+
+Для сборки Android приложения запустите скрипт:
+
+```bash
+./build-android.sh
+```
+
+Скрипт создаст отладочную и релизную версии приложения. После успешной сборки вы можете установить отладочную версию на подключенное устройство.
+
+### iOS
+
+Для сборки iOS приложения запустите скрипт:
+
+```bash
+./build-ios.sh
+```
+
+Скрипт скопирует все необходимые ресурсы и соберет проект. После успешной сборки вы можете открыть проект в Xcode для дальнейшей настройки и подписи.
 
 ## Структура проекта
 
-```
-cordova-barlau/
-├── config.xml         # Конфигурация Cordova
-├── package.json       # Зависимости и скрипты npm
-├── www/               # Веб-приложение
-│   ├── index.html     # Основной HTML-файл
-│   ├── css/           # Стили
-│   ├── js/            # JavaScript-файлы
-│   │   └── app.js     # Основная логика приложения
-│   └── img/           # Изображения
-├── res/               # Ресурсы (иконки, сплэш-экраны)
-│   └── ios/           # Ресурсы для iOS
-└── platforms/         # Платформо-специфичный код (добавляется автоматически)
-    └── ios/           # Проект Xcode для iOS
-```
+- `www/` - Основной веб-контент приложения
+- `res/` - Ресурсы приложения (иконки, заставки)
+- `platforms/` - Платформо-зависимый код
+- `plugins/` - Плагины Cordova
+- `config.xml` - Конфигурация Cordova
 
 ## Плагины
 
-В проекте используются следующие плагины Cordova:
+Приложение использует следующие плагины Cordova:
 
-- `cordova-plugin-statusbar`: Управление статус-баром
-- `cordova-plugin-splashscreen`: Управление сплэш-экраном
-- `cordova-plugin-wkwebview-engine`: Использование WKWebView для лучшей производительности
-- `cordova-plugin-inappbrowser`: Открытие ссылок во внешнем браузере
-- `cordova-plugin-network-information`: Проверка состояния сети
-- `cordova-plugin-geolocation`: Доступ к геолокации
-- `cordova-plugin-device`: Информация об устройстве
+- `cordova-plugin-statusbar` - Управление статус-баром
+- `cordova-plugin-splashscreen` - Управление заставкой
+- `cordova-plugin-inappbrowser` - Встроенный браузер
+- `cordova-plugin-network-information` - Информация о сетевом подключении
+- `cordova-plugin-geolocation` - Геолокация
+- `cordova-plugin-device` - Информация об устройстве
 
-## Публикация в App Store
+## Публикация
 
-Для публикации в App Store:
+### Android
 
-1. Создайте релизную сборку:
-   ```bash
-   cordova build ios --release
-   ```
+Для подготовки релизной версии Android приложения:
 
-2. Откройте проект Xcode:
-   ```bash
-   open platforms/ios/BARLAU.xcworkspace
-   ```
+1. Создайте keystore для подписи (если его еще нет):
 
-3. В Xcode настройте подписи, идентификаторы и сертификаты
+```bash
+keytool -genkey -v -keystore barlau-release-key.keystore -alias barlau -keyalg RSA -keysize 2048 -validity 10000
+```
 
-4. Выберите "Product" -> "Archive" для создания архива
+2. Подпишите APK:
 
-5. Следуйте инструкциям Xcode для валидации и загрузки в App Store Connect
+```bash
+jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore barlau-release-key.keystore platforms/android/app/build/outputs/apk/release/app-release-unsigned.apk barlau
+```
 
-6. Заполните информацию в App Store Connect и отправьте на проверку
+3. Оптимизируйте APK:
 
-## Контакты и поддержка
+```bash
+zipalign -v 4 platforms/android/app/build/outputs/apk/release/app-release-unsigned.apk barlau.apk
+```
 
-Для получения поддержки или дополнительной информации:
+### iOS
 
-- Email: info@barlau.kz
-- Веб-сайт: https://barlau.kz 
+Для публикации iOS приложения:
+
+1. Откройте проект в Xcode:
+
+```bash
+open platforms/ios/BARLAU.KZ.xcworkspace
+```
+
+2. Настройте подписывание приложения и App Store Connect
+3. Выполните архивацию проекта в Xcode
+4. Отправьте архив в App Store Connect
+
+## Лицензия
+
+© 2024 BARLAU.KZ. Все права защищены. 

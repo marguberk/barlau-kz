@@ -21,6 +21,7 @@
   "author": "BARLAU Team",
   "license": "Apache-2.0",
   "dependencies": {
+    "canvas": "^3.1.0",
     "cordova-ios": "^6.2.0",
     "cordova-plugin-device": "^2.1.0",
     "cordova-plugin-geolocation": "^4.1.0",
@@ -28,7 +29,8 @@
     "cordova-plugin-network-information": "^3.0.0",
     "cordova-plugin-splashscreen": "^6.0.0",
     "cordova-plugin-statusbar": "^2.4.3",
-    "cordova-plugin-wkwebview-engine": "^1.2.2"
+    "cordova-plugin-wkwebview-engine": "^1.2.2",
+    "sharp": "^0.34.1"
   },
   "cordova": {
     "plugins": {
@@ -37,14 +39,18 @@
       "cordova-plugin-wkwebview-engine": {},
       "cordova-plugin-inappbrowser": {},
       "cordova-plugin-network-information": {},
-      "cordova-plugin-geolocation": {},
+      "cordova-plugin-geolocation": {
+        "GPS_REQUIRED": "true"
+      },
       "cordova-plugin-device": {}
     },
     "platforms": [
-      "ios"
+      "ios",
+      "android"
     ]
   },
   "devDependencies": {
+    "cordova-android": "^14.0.1",
     "cordova-res": "^0.15.4"
   }
-} 
+}

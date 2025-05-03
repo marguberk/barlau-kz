@@ -5,6 +5,13 @@
 
 // Объект для хранения методов приложения
 const App = {
+    // Основные настройки
+    config: {
+        appUrl: 'https://barlau.kz',
+        maxLoadTime: 30000,
+        maxLoadAttempts: 3
+    },
+    
     // Инициализация приложения
     initialize: function() {
         document.addEventListener('deviceready', this.onDeviceReady.bind(this), false);
@@ -12,16 +19,115 @@ const App = {
 
     // Обработчик события готовности устройства
     onDeviceReady: function() {
+        console.log('Устройство готово');
+        
         // Инициализация функциональности приложения
         this.setupStatusBar();
         this.setupGeolocation();
         this.setupNotifications();
         this.setupDeepLinks();
+        this.setupNetworkListeners();
+        
+        // Предзагрузка ресурсов
+        this.preloadResources();
         
         // Подписка на события жизненного цикла приложения
         document.addEventListener("pause", this.onPause.bind(this), false);
         document.addEventListener("resume", this.onResume.bind(this), false);
         document.addEventListener("backbutton", this.onBackButton.bind(this), false);
+        
+        // Проверяем состояние сети после загрузки
+        this.checkNetworkState();
+        
+        // Инициализация модуля грузовиков (если находимся на странице trucks.html)
+        this.initTrucksModule();
+    },
+    
+    // Предзагрузка ресурсов
+    preloadResources: function() {
+        const resources = ['img/logo.png'];
+        resources.forEach(url => {
+            if (url.endsWith('.png') || url.endsWith('.jpg') || url.endsWith('.jpeg') || url.endsWith('.gif')) {
+                const img = new Image();
+                img.src = url;
+            }
+        });
+    },
+    
+    // Проверка состояния сети
+    checkNetworkState: function() {
+        let online = true;
+        let networkType = 'unknown';
+        
+        if (navigator.connection) {
+            networkType = navigator.connection.type;
+            online = (networkType !== Connection.NONE);
+        }
+        
+        console.log('Состояние сети:', online ? 'онлайн' : 'офлайн', 'тип:', networkType);
+        
+        if (!online) {
+            // Отображаем сообщение об отсутствии соединения
+            this.showConnectionError();
+            // Проверяем наличие кэшированного контента
+            this.checkCachedContent();
+            return false;
+        } else {
+            // У нас есть соединение
+            this.hideConnectionError();
+            return true;
+        }
+    },
+    
+    // Проверка наличия кэшированного контента
+    checkCachedContent: function() {
+        if ('caches' in window) {
+            caches.match(this.config.appUrl)
+                .then(response => {
+                    if (response) {
+                        console.log('Найден кэшированный контент');
+                        // Имеется кэшированная версия сайта
+                        const errorContainer = document.getElementById('error-container');
+                        const errorMessage = document.getElementById('error-message');
+                        if (errorContainer && errorMessage) {
+                            errorMessage.innerHTML = "Отсутствует подключение к интернету. Загружена кэшированная версия.<br>Некоторые функции могут быть недоступны.";
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Ошибка при проверке кэша:', error);
+                });
+        }
+    },
+    
+    // Показать ошибку соединения
+    showConnectionError: function() {
+        const errorContainer = document.getElementById('error-container');
+        const errorMessage = document.getElementById('error-message');
+        const loadingSpinner = document.getElementById('loading-spinner');
+        
+        if (errorContainer && errorMessage && loadingSpinner) {
+            errorMessage.textContent = "Отсутствует подключение к интернету. Пожалуйста, проверьте ваше соединение.";
+            errorContainer.style.display = 'block';
+            loadingSpinner.style.display = 'none';
+        }
+    },
+    
+    // Скрыть ошибку соединения
+    hideConnectionError: function() {
+        const errorContainer = document.getElementById('error-container');
+        const loadingSpinner = document.getElementById('loading-spinner');
+        
+        if (errorContainer && loadingSpinner) {
+            errorContainer.style.display = 'none';
+            loadingSpinner.style.display = 'block';
+        }
+    },
+    
+    // Настройка слушателей сетевых событий
+    setupNetworkListeners: function() {
+        document.addEventListener("offline", this.onOffline.bind(this), false);
+        document.addEventListener("online", this.onOnline.bind(this), false);
     },
 
     // Настройка статус-бара
@@ -87,7 +193,9 @@ const App = {
                 if (data.additionalData && data.additionalData.url) {
                     // Например, открыть конкретную страницу
                     const frame = document.getElementById('appFrame');
-                    frame.src = data.additionalData.url;
+                    if (frame) {
+                        frame.src = data.additionalData.url;
+                    }
                 }
             });
 
@@ -97,80 +205,94 @@ const App = {
         }
     },
 
-    // Настройка обработки deeplinks
+    // Настройка обработки deep links
     setupDeepLinks: function() {
-        // Универсальные ссылки для iOS и App Links для Android
+        // Проверка наличия плагина для deep links
         if (window.universalLinks) {
-            universalLinks.subscribe('openURL', function(eventData) {
-                // Обработка deeplink
-                console.log('Получен deeplink: ', eventData.url);
+            // Обработчик для проверки deep link при открытии приложения
+            universalLinks.subscribe(null, function(eventData) {
+                console.log('Deep link получен:', eventData.url);
                 
-                // Загрузка нужного URL
-                const frame = document.getElementById('appFrame');
-                frame.src = eventData.url;
+                // Перенаправляем на соответствующую страницу
+                // Например: если ссылка содержит "trucks", открываем страницу грузовиков
+                if (eventData.url.includes('/trucks/')) {
+                    // Получаем ID грузовика из URL
+                    const truckId = eventData.url.split('/trucks/')[1].split('/')[0];
+                    window.location.href = `trucks.html?id=${truckId}`;
+                }
             });
         }
     },
 
-    // Обработчик события приостановки приложения
+    // Обработчик перехода приложения в фоновый режим
     onPause: function() {
-        // Что делать при переходе приложения в фоновый режим
-        console.log("Приложение перешло в фоновый режим");
+        console.log('Приложение перешло в фоновый режим');
     },
 
-    // Обработчик события возобновления приложения
+    // Обработчик возвращения приложения из фонового режима
     onResume: function() {
-        // Что делать при возвращении приложения из фона
-        console.log("Приложение вернулось из фонового режима");
+        console.log('Приложение возобновлено');
         
-        // Обновление данных при необходимости
-        const frame = document.getElementById('appFrame');
+        // Обновляем состояние сети при возвращении
+        this.checkNetworkState();
+    },
+
+    // Обработчик нажатия кнопки "Назад" на Android
+    onBackButton: function() {
+        // Получаем текущий URL
+        const currentPath = window.location.pathname;
+        const fileName = currentPath.substring(currentPath.lastIndexOf('/') + 1);
         
-        // Проверка соединения перед обновлением
-        if (navigator.connection && navigator.connection.type !== Connection.NONE) {
-            // Можно обновить содержимое
-            frame.contentWindow.postMessage('app_resumed', '*');
+        if (fileName === 'index.html' || fileName === '') {
+            // Если мы на главной странице, подтверждаем выход
+            if (confirm('Вы уверены, что хотите выйти из приложения?')) {
+                navigator.app.exitApp();
+            }
+        } else {
+            // Если мы на другой странице, просто возвращаемся назад
+            window.history.back();
         }
     },
 
-    // Обработчик нажатия кнопки "назад"
-    onBackButton: function() {
-        const frame = document.getElementById('appFrame');
+    // Обработчик события отключения от сети
+    onOffline: function() {
+        console.log('Устройство перешло в автономный режим');
         
-        // Отправка сообщения в iframe
-        frame.contentWindow.postMessage('backbutton', '*');
-        
-        // Также можно добавить навигацию назад в истории iframe
-        // или выход из приложения при нахождении на главной странице
+        // Проверяем состояние
+        this.checkNetworkState();
     },
 
-    // Отправка токена на сервер
-    sendTokenToServer: function(token) {
-        // Получаем информацию об устройстве
-        const deviceInfo = {
-            uuid: device.uuid,
-            platform: device.platform,
-            version: device.version,
-            manufacturer: device.manufacturer,
-            model: device.model,
-            token: token
-        };
+    // Обработчик события подключения к сети
+    onOnline: function() {
+        console.log('Устройство снова в сети');
         
-        // Отправляем на сервер
-        fetch('https://barlau.kz/api/register-device', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(deviceInfo)
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log('Устройство зарегистрировано: ', data);
-        })
-        .catch(error => {
-            console.error('Ошибка регистрации устройства: ', error);
-        });
+        // Проверяем состояние
+        this.checkNetworkState();
+    },
+    
+    // Инициализация модуля грузовиков
+    initTrucksModule: function() {
+        // Проверяем, находимся ли мы на странице trucks.html
+        const currentPath = window.location.pathname;
+        const fileName = currentPath.substring(currentPath.lastIndexOf('/') + 1);
+        
+        if (fileName === 'trucks.html') {
+            // Проверяем, загружен ли скрипт модуля trucks.js
+            if (typeof window.TrucksModule === 'undefined') {
+                console.warn('Модуль TrucksModule не найден');
+                return;
+            }
+            
+            // Инициализируем демо-данные
+            window.TrucksModule.initDemoData();
+            
+            // Настраиваем уведомления для документов
+            setTimeout(function() {
+                window.TrucksModule.setupDocumentNotifications();
+            }, 5000); // Ждем 5 секунд перед установкой уведомлений
+            
+            console.log('Модуль грузовиков инициализирован');
+        }
     }
 };
 
