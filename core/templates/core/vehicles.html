@@ -19,18 +19,21 @@
                     <a href="{% url 'core:home' %}" class="self-stretch px-3 py-3.5 relative bg-white rounded-lg inline-flex justify-start items-center gap-2">
                         <div class="w-5 h-5 relative overflow-hidden">
                             <img src="{% static 'core/img/home.svg' %}" alt="Home" class="w-4 h-4 desktop-icon">
+                            <img src="{% static 'core/img/mobile/home.svg' %}" alt="Home" class="mobile-icon hidden">
                         </div>
                         <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Главная</div>
                     </a>
                     <a href="{% url 'core:tasks' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex justify-start items-center gap-2">
                         <div class="w-5 h-5 relative overflow-hidden">
                             <img src="{% static 'core/img/check-square.svg' %}" alt="Tasks" class="w-4 h-4 desktop-icon">
+                            <img src="{% static 'core/img/mobile/check-square.svg' %}" alt="Tasks" class="mobile-icon hidden">
                         </div>
                         <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Задачи</div>
                     </a>
                     <a href="{% url 'core:map' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex justify-start items-center gap-2">
                         <div class="w-5 h-5 relative overflow-hidden">
                             <img src="{% static 'core/img/location.svg' %}?v={% now 'U' %}" alt="Map" class="w-4 h-4 desktop-icon" onerror="this.onerror=null; this.src='/static/core/img/location.svg'">
+                            <img src="{% static 'core/img/mobile/location.svg' %}" alt="Map" class="mobile-icon hidden">
                         </div>
                         <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Карта</div>
                     </a>
@@ -38,12 +41,14 @@
                         <div class="w-1 h-6 left-0 top-[calc(50%-12px)] absolute bg-blue-600 rounded-tr-lg rounded-br-lg"></div>
                         <div class="w-5 h-5 relative overflow-hidden">
                             <img src="{% static 'core/img/truck.svg' %}" alt="Vehicles" class="w-4 h-4 desktop-icon">
+                            <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Vehicles" class="mobile-icon hidden">
                         </div>
                         <div class="flex-1 justify-start text-blue-600 text-base font-medium leading-normal tracking-tight">Грузовики</div>
                     </a>
                     <a href="{% url 'core:employees' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex justify-start items-center gap-2">
                         <div class="w-5 h-5 relative overflow-hidden">
                             <img src="{% static 'core/img/employee.svg' %}" alt="Employees" class="w-4 h-4 desktop-icon">
+                            <img src="{% static 'core/img/mobile/employee.svg' %}" alt="Employees" class="mobile-icon hidden">
                         </div>
                         <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Сотрудники</div>
                     </a>
@@ -85,10 +90,10 @@
             </div>
         </div>
 
-        <!-- Панель поиска и добавления -->
+        <!-- Панель поиска -->
         <div class="w-full px-8 pt-8">
-            <div class="mb-6 flex flex-col sm:flex-row justify-between gap-4">
-                <div class="flex-grow max-w-md relative">
+            <div class="mb-6 flex flex-col sm:flex-row justify-start gap-2">
+                <div class="flex-grow relative">
                     <div class="flex h-10 w-full rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] border border-zinc-200 bg-white">
                         <div class="flex items-center pl-3">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500">
@@ -96,25 +101,8 @@
                                 <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                             </svg>
                         </div>
-                        <input type="text" id="searchInput" placeholder="Поиск по номеру, марке, модели..." class="px-2 py-2 w-full focus:outline-none text-gray-700 rounded-lg" />
+                        <input type="text" id="searchInput" placeholder="Поиск" class="px-2 py-2 w-full focus:outline-none text-gray-700 rounded-lg" />
                     </div>
-                </div>
-                
-                <!-- Фильтр по статусу -->
-                <div class="flex gap-2">
-                    <select id="statusFilter" class="h-10 px-3 rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] border border-zinc-200 bg-white focus:outline-none text-gray-700">
-                        <option value="">Все статусы</option>
-                        <option value="ACTIVE">Активен</option>
-                        <option value="INACTIVE">Неактивен</option>
-                        <option value="MAINTENANCE">На обслуживании</option>
-                    </select>
-                    
-                    <select id="typeFilter" class="h-10 px-3 rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] border border-zinc-200 bg-white focus:outline-none text-gray-700">
-                        <option value="">Все типы</option>
-                        <option value="CAR">Легковой</option>
-                        <option value="TRUCK">Грузовой</option>
-                        <option value="SPECIAL">Спецтехника</option>
-                    </select>
                 </div>
                 
                 {% if user.role == 'DIRECTOR' or user.role == 'SUPERADMIN' or user.is_superuser %}
@@ -127,7 +115,7 @@
 
         <!-- Статистика -->
         <div class="w-full px-8">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
                 <div class="bg-white rounded-xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] border border-zinc-200 p-4">
                     <div class="flex items-center justify-between">
                         <div>
@@ -164,17 +152,6 @@
                 <div class="bg-white rounded-xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] border border-zinc-200 p-4">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-sm font-medium text-gray-600">На обслуживании</p>
-                            <h3 class="text-2xl font-bold text-gray-800" id="maintenanceVehicles">0</h3>
-                        </div>
-                        <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
-                            <i class="fas fa-tools text-orange-600 text-xl"></i>
-                        </div>
-                    </div>
-                </div>
-                <div class="bg-white rounded-xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] border border-zinc-200 p-4">
-                    <div class="flex items-center justify-between">
-                        <div>
                             <p class="text-sm font-medium text-gray-600">Расходы за месяц</p>
                             <h3 class="text-2xl font-bold text-gray-800" id="monthlyExpenses">0 ₸</h3>
                         </div>
@@ -186,49 +163,13 @@
             </div>
         </div>
 
-        <!-- Список транспортных средств -->
+        <!-- Список грузовиков -->
         <div class="w-full px-8 pb-8">
             <!-- CSRF Token -->
             <div style="display: none">{% csrf_token %}</div>
             
-            <!-- Секция предупреждений -->
-            <div id="alertsSection" class="mb-6">
-                <div id="expiringDocumentsAlert" class="hidden mb-4 rounded-lg p-4 bg-yellow-50 border border-yellow-200">
-                    <div class="flex items-start">
-                        <div class="flex-shrink-0">
-                            <svg class="h-5 w-5 text-yellow-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
-                            </svg>
-                        </div>
-                        <div class="ml-3">
-                            <h3 class="text-sm font-medium text-yellow-800">Внимание: документы с истекающим сроком</h3>
-                            <div class="mt-2 text-sm text-yellow-700">
-                                <ul id="expiringDocumentsText" class="list-disc pl-5 space-y-1"></ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div id="maintenanceDueAlert" class="hidden mb-4 rounded-lg p-4 bg-orange-50 border border-orange-200">
-                    <div class="flex items-start">
-                        <div class="flex-shrink-0">
-                            <svg class="h-5 w-5 text-orange-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
-                            </svg>
-                        </div>
-                        <div class="ml-3">
-                            <h3 class="text-sm font-medium text-orange-800">Необходимо техобслуживание</h3>
-                            <div class="mt-2 text-sm text-orange-700">
-                                <ul id="maintenanceDueText" class="list-disc pl-5 space-y-1"></ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Сетка с грузовиками -->
-            <div id="vehiclesList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 hidden">
-                <!-- Транспортные средства будут добавлены через JavaScript -->
+            <div id="vehiclesList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 hidden">
+                <!-- Грузовики будут добавлены через JavaScript -->
             </div>
 
             <!-- Загрузка -->
@@ -310,7 +251,7 @@
 </nav>
 
 <style>
-    /* Стили для боковых иконок меню */
+    /* Обновленные стили для боковых иконок меню */
     .sidebar-menu a {
         color: #6B7280 !important; /* Серый цвет для неактивных пунктов */
     }
@@ -327,48 +268,12 @@
         filter: brightness(0) saturate(100%) invert(32%) sepia(96%) saturate(7461%) hue-rotate(220deg) brightness(97%) contrast(98%); /* Синий фильтр для активной иконки */
     }
     
-    /* Стили для карточек транспортных средств */
-    .vehicle-card {
-        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-    }
-    
-    .vehicle-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-    }
-    
-    /* Стили для бейджиков статуса */
-    .status-badge {
-        border-radius: 9999px;
-        padding: 0.25rem 0.75rem;
-        font-size: 0.75rem;
-        font-weight: 500;
-        display: inline-flex;
-        align-items: center;
-    }
-    
-    .status-active {
-        background-color: #e6f7ed;
-        color: #16a34a;
-    }
-    
-    .status-inactive {
-        background-color: #f3f4f6;
-        color: #6b7280;
-    }
-    
-    .status-maintenance {
-        background-color: #fff7ed;
-        color: #ea580c;
-    }
-    
     /* Общие стили для фиксации цветов иконок в меню */
     a, a:visited, a:link, a:hover, a:active, 
     a *, a:visited *, a:link *, a:hover *, a:active * {
         text-decoration: none !important;
     }
-    
-    /* Адаптивность */
+
     @media (max-width: 1100px) {
         /* Убираем меню для планшетной и мобильной версий */
         .sidebar {
@@ -378,11 +283,28 @@
         .main-content {
             margin-left: 0 !important;
             width: 100% !important;
+            padding-bottom: 70px !important;
         }
         
         /* Верхняя панель на всю ширину */
         .main-content > div:first-child {
             width: 100% !important;
+        }
+        
+        /* Устанавливаем размер и фильтр для мобильных иконок */
+        .icon-container img {
+            width: 24px !important;
+            height: 24px !important;
+        }
+        
+        /* Серый фильтр для неактивных иконок */
+        nav.fixed.bottom-0 a.text-gray-600 .icon-container img {
+            filter: brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(142deg) brightness(96%) contrast(91%) !important;
+        }
+        
+        /* Синий фильтр для активной иконки */
+        nav.fixed.bottom-0 a.text-blue-600 .icon-container img {
+            filter: brightness(0) saturate(100%) invert(32%) sepia(96%) saturate(7461%) hue-rotate(220deg) brightness(97%) contrast(98%) !important;
         }
     }
     
@@ -409,31 +331,35 @@
             font-size: 1.25rem !important;
         }
     }
+    
+    /* Скрываем нижнее меню на этой странице для ПК версии */
+    body > nav.fixed.bottom-0 {
+        display: none !important;
+    }
+    
+    /* Скрываем верхнюю панель и корректируем отступы */
+    body > header.fixed.top-0 {
+        display: none !important;
+    }
+    
+    /* Убираем отступ от верхней панели */
+    main.mt-16 {
+        margin-top: 0 !important;
+    }
 </style>
-
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    // Глобальные переменные для работы с данными
+    // Глобальные переменные
     let allVehicles = [];
-    let expiringDocuments = [];
-    let maintenanceDueVehicles = [];
-    
-    // DOM-элементы
     const searchInput = document.getElementById('searchInput');
-    const statusFilter = document.getElementById('statusFilter');
-    const typeFilter = document.getElementById('typeFilter');
     const vehiclesList = document.getElementById('vehiclesList');
     const loadingIndicator = document.getElementById('loadingIndicator');
     const emptyState = document.getElementById('emptyState');
     const errorState = document.getElementById('errorState');
     const errorMessage = document.getElementById('errorMessage');
     const retryButton = document.getElementById('retryButton');
-    const expiringDocumentsAlert = document.getElementById('expiringDocumentsAlert');
-    const expiringDocumentsText = document.getElementById('expiringDocumentsText');
-    const maintenanceDueAlert = document.getElementById('maintenanceDueAlert');
-    const maintenanceDueText = document.getElementById('maintenanceDueText');
 
     // Загрузка данных о транспорте с API
     async function loadVehicles() {
@@ -458,23 +384,23 @@
             }
             
             const data = await response.json();
-            console.log('Загружено транспортных средств:', data.results ? data.results.length : 0);
+            console.log('Ответ API:', data);
             
-            // Сохраняем данные для фильтрации
-            allVehicles = data.results || [];
+            // Проверяем структуру данных
+            if (data.results !== undefined) {
+                // Данные в формате { count, next, previous, results: [] }
+                allVehicles = data.results || [];
+            } else {
+                // Данные напрямую в массиве
+                allVehicles = Array.isArray(data) ? data : [];
+            }
             
-            // Загружаем дополнительные данные (документы и ТО)
-            await loadDocuments();
-            await loadMaintenanceRecords();
-            
-            // Проверяем наличие предупреждений
-            checkDocumentExpirations();
-            checkMaintenanceDue();
+            console.log('Загружено транспортных средств:', allVehicles.length);
             
             if (allVehicles.length === 0) {
                 showEmpty();
             } else {
-                applyFilters();
+                displayVehicles(allVehicles);
                 updateStats(allVehicles);
             }
         } catch (error) {
@@ -483,179 +409,7 @@
         }
     }
     
-    // Загрузка документов для транспортных средств
-    async function loadDocuments() {
-        try {
-            const response = await fetch('/api/v1/vehicle_documents/?token=' + new Date().getTime());
-            if (!response.ok) {
-                console.error('Ошибка загрузки документов:', response.status);
-                return;
-            }
-            
-            const data = await response.json();
-            if (data.results) {
-                // Добавляем документы к соответствующим транспортным средствам
-                data.results.forEach(doc => {
-                    const vehicle = allVehicles.find(v => v.id === doc.vehicle);
-                    if (vehicle) {
-                        if (!vehicle.documents) {
-                            vehicle.documents = [];
-                        }
-                        vehicle.documents.push(doc);
-                    }
-                });
-            }
-        } catch (error) {
-            console.error('Ошибка при загрузке документов:', error);
-        }
-    }
-    
-    // Загрузка записей о техобслуживании
-    async function loadMaintenanceRecords() {
-        try {
-            const response = await fetch('/api/v1/vehicle_maintenance/?token=' + new Date().getTime());
-            if (!response.ok) {
-                console.error('Ошибка загрузки данных о ТО:', response.status);
-                return;
-            }
-            
-            const data = await response.json();
-            if (data.results) {
-                // Добавляем записи о ТО к соответствующим транспортным средствам
-                data.results.forEach(record => {
-                    const vehicle = allVehicles.find(v => v.id === record.vehicle);
-                    if (vehicle) {
-                        if (!vehicle.maintenance_records) {
-                            vehicle.maintenance_records = [];
-                        }
-                        vehicle.maintenance_records.push(record);
-                    }
-                });
-            }
-        } catch (error) {
-            console.error('Ошибка при загрузке данных о ТО:', error);
-        }
-    }
-    
-    // Проверка документов с истекающим сроком
-    function checkDocumentExpirations() {
-        const today = new Date();
-        const thirtyDaysLater = new Date();
-        thirtyDaysLater.setDate(today.getDate() + 30);
-        
-        expiringDocuments = [];
-        
-        allVehicles.forEach(vehicle => {
-            if (vehicle.documents) {
-                vehicle.documents.forEach(doc => {
-                    if (doc.expiry_date) {
-                        const expiry = new Date(doc.expiry_date);
-                        if (expiry > today && expiry < thirtyDaysLater) {
-                            expiringDocuments.push({
-                                vehicle: vehicle,
-                                document: doc,
-                                daysLeft: Math.ceil((expiry - today) / (1000 * 60 * 60 * 24))
-                            });
-                        }
-                    }
-                });
-            }
-        });
-        
-        // Показываем предупреждение, если есть истекающие документы
-        if (expiringDocuments.length > 0) {
-            expiringDocumentsText.innerHTML = expiringDocuments.map(item => {
-                const docType = getDocumentTypeName(item.document.document_type);
-                return `<li>${item.vehicle.brand} ${item.vehicle.model} (${item.vehicle.number}) - ${docType}: осталось ${item.daysLeft} дней</li>`;
-            }).join('');
-            expiringDocumentsAlert.classList.remove('hidden');
-        } else {
-            expiringDocumentsAlert.classList.add('hidden');
-        }
-    }
-    
-    // Проверка необходимости технического обслуживания
-    function checkMaintenanceDue() {
-        const today = new Date();
-        maintenanceDueVehicles = [];
-        
-        allVehicles.forEach(vehicle => {
-            if (vehicle.maintenance_records && vehicle.maintenance_records.length > 0) {
-                // Находим последнюю запись ТО
-                const lastMaintenance = vehicle.maintenance_records.sort((a, b) => 
-                    new Date(b.date) - new Date(a.date)
-                )[0];
-                
-                if (lastMaintenance.next_maintenance_date) {
-                    const nextDate = new Date(lastMaintenance.next_maintenance_date);
-                    if (nextDate <= today) {
-                        maintenanceDueVehicles.push({
-                            vehicle: vehicle,
-                            maintenance: lastMaintenance,
-                            daysOverdue: Math.ceil((today - nextDate) / (1000 * 60 * 60 * 24))
-                        });
-                    }
-                }
-            }
-        });
-        
-        // Показываем предупреждение, если есть просроченные ТО
-        if (maintenanceDueVehicles.length > 0) {
-            maintenanceDueText.innerHTML = maintenanceDueVehicles.map(item => {
-                return `<li>${item.vehicle.brand} ${item.vehicle.model} (${item.vehicle.number}) - просрочено ТО на ${item.daysOverdue} дней</li>`;
-            }).join('');
-            maintenanceDueAlert.classList.remove('hidden');
-        } else {
-            maintenanceDueAlert.classList.add('hidden');
-        }
-    }
-    
-    // Получение имени типа документа по коду
-    function getDocumentTypeName(type) {
-        const types = {
-            'REGISTRATION': 'Свидетельство о регистрации',
-            'INSURANCE': 'Страховка',
-            'TECHNICAL_INSPECTION': 'Техосмотр',
-            'SERVICE_BOOK': 'Сервисная книжка',
-            'OTHER': 'Прочее'
-        };
-        return types[type] || type;
-    }
-    
-    // Применение фильтров и поиска
-    function applyFilters() {
-        const search = searchInput.value.toLowerCase().trim();
-        const status = statusFilter.value;
-        const type = typeFilter.value;
-        
-        let filteredData = [...allVehicles];
-        
-        // Фильтр по статусу
-        if (status) {
-            filteredData = filteredData.filter(v => v.status === status);
-        }
-        
-        // Фильтр по типу транспорта
-        if (type) {
-            filteredData = filteredData.filter(v => v.vehicle_type === type);
-        }
-        
-        // Поиск по тексту
-        if (search) {
-            filteredData = filteredData.filter(v => {
-                return (v.number && v.number.toLowerCase().includes(search)) || 
-                       (v.brand && v.brand.toLowerCase().includes(search)) || 
-                       (v.model && v.model.toLowerCase().includes(search)) ||
-                       (v.driver_details && 
-                        ((v.driver_details.first_name && v.driver_details.first_name.toLowerCase().includes(search)) || 
-                         (v.driver_details.last_name && v.driver_details.last_name.toLowerCase().includes(search))));
-            });
-        }
-        
-        displayVehicles(filteredData);
-    }
-    
-    // Отображение транспортных средств
+    // Отображение транспорта
     function displayVehicles(vehicles) {
         if (!vehicles.length) {
             showEmpty();
@@ -669,120 +423,69 @@
         vehiclesList.classList.remove('hidden');
         vehiclesList.innerHTML = vehicles.map(vehicle => {
             const hasDriver = !!vehicle.driver_details;
-            const statusClass = getStatusClass(vehicle.status);
-            const statusText = getStatusText(vehicle.status);
-            const statusIcon = getStatusIcon(vehicle.status);
-            
-            // Проверка на наличие основного фото
-            let vehicleImage = '';
-            if (vehicle.photos && vehicle.photos.length > 0) {
-                const mainPhoto = vehicle.photos.find(p => p.is_main) || vehicle.photos[0];
-                vehicleImage = `<img src="${mainPhoto.photo}" alt="${vehicle.brand} ${vehicle.model}" class="object-cover w-full h-48 rounded-t-xl">`;
-            } else {
-                vehicleImage = `
-                    <div class="w-full h-48 bg-gray-100 flex items-center justify-center rounded-t-xl">
-                        <i class="fas fa-truck text-gray-300 text-5xl"></i>
-                    </div>
-                `;
-            }
-            
-            // Проверка на истекающие документы
-            const hasExpiringDoc = expiringDocuments.some(item => item.vehicle.id === vehicle.id);
-            const warningBadge = hasExpiringDoc ? `
-                <div class="absolute top-2 right-2 bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
-                    <i class="fas fa-exclamation-triangle mr-1"></i>Срок истекает
-                </div>
-            ` : '';
-            
-            // Проверка на необходимость ТО
-            const needsMaintenance = maintenanceDueVehicles.some(item => item.vehicle.id === vehicle.id);
-            const maintenanceBadge = needsMaintenance ? `
-                <div class="absolute top-2 left-2 bg-orange-100 text-orange-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
-                    <i class="fas fa-tools mr-1"></i>Требуется ТО
-                </div>
-            ` : '';
-            
-            // Технические характеристики
-            const specs = [];
-            if (vehicle.fuel_type) specs.push(`Топливо: ${getFuelTypeName(vehicle.fuel_type)}`);
-            if (vehicle.engine_capacity) specs.push(`Двигатель: ${vehicle.engine_capacity} л`);
-            if (vehicle.cargo_capacity) specs.push(`Грузоподъемность: ${vehicle.cargo_capacity} кг`);
-            
-            const specsHtml = specs.length > 0 ? `
-                <div class="border-t border-gray-200 p-3 bg-gray-50 rounded-b-xl">
-                    <p class="text-xs text-gray-500">${specs.join(' • ')}</p>
-                </div>
-            ` : '';
-            
-            // Габариты
-            const dimensions = [];
-            if (vehicle.length) dimensions.push(`Д: ${vehicle.length} м`);
-            if (vehicle.width) dimensions.push(`Ш: ${vehicle.width} м`);
-            if (vehicle.height) dimensions.push(`В: ${vehicle.height} м`);
-            
-            const dimensionsHtml = dimensions.length > 0 ? `
-                <div class="flex items-center gap-2 mt-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500">
-                        <path d="M21 6v16m0 0h-4m4 0l-4-4m-9-4l4-4m-4 4v10m-4-6l4-4m-4 4v10"/>
-                    </svg>
-                    <span class="text-gray-500 text-xs font-medium">${dimensions.join(' × ')}</span>
-                </div>
-            ` : '';
+            const statusClass = hasDriver ? 'bg-green-50 text-green-600' : 'bg-yellow-50 text-yellow-600';
+            const statusText = hasDriver ? 'С водителем' : 'Без водителя';
+            const statusIcon = hasDriver ? 'user-check' : 'user-slash';
             
             return `
-                <div class="vehicle-card bg-white rounded-xl shadow-sm border border-zinc-200 overflow-hidden flex flex-col h-full relative">
-                    ${warningBadge}
-                    ${maintenanceBadge}
-                    ${vehicleImage}
-                    <div class="p-4 flex-grow">
-                        <div class="flex justify-between items-start mb-2">
-                            <h3 class="text-lg font-semibold text-gray-900">${vehicle.brand} ${vehicle.model}</h3>
-                            <span class="status-badge ${statusClass}">${statusText}</span>
-                        </div>
-                        <p class="text-gray-700 text-sm font-medium mb-3">${vehicle.number}</p>
-                        
-                        <div class="space-y-3">
-                            <div class="flex items-center gap-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500">
-                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                                    <line x1="16" y1="2" x2="16" y2="6"></line>
-                                    <line x1="8" y1="2" x2="8" y2="6"></line>
-                                    <line x1="3" y1="10" x2="21" y2="10"></line>
-                                </svg>
-                                <span class="text-gray-500 text-sm font-medium">Год выпуска: ${vehicle.year}</span>
+                <div class="bg-white rounded-xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] border border-zinc-200 overflow-hidden flex flex-col h-full">
+                    <div class="px-4 py-3 border-b border-zinc-200 flex justify-between items-start">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+                                <i class="fas fa-truck text-blue-600"></i>
                             </div>
-                            
-                            <div class="flex items-center gap-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500">
-                                    <path d="M3 7V5a2 2 0 0 1 2-2h2"></path>
-                                    <path d="M17 3h2a2 2 0 0 1 2 2v2"></path>
-                                    <path d="M21 17v2a2 2 0 0 1-2 2h-2"></path>
-                                    <path d="M7 21H5a2 2 0 0 1-2-2v-2"></path>
-                                    <line x1="7" y1="9" x2="17" y2="9"></line>
-                                    <line x1="7" y1="13" x2="7" y2="9"></line>
-                                    <line x1="17" y1="13" x2="17" y2="9"></line>
-                                    <line x1="7" y1="13" x2="17" y2="13"></line>
-                                </svg>
-                                <span class="text-gray-500 text-sm font-medium">${getVehicleTypeName(vehicle.vehicle_type)}</span>
-                            </div>
-                            
-                            ${dimensionsHtml}
-                            
-                            ${hasDriver ? `
-                            <div class="flex items-center gap-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500">
-                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                    <circle cx="12" cy="7" r="4"></circle>
-                                </svg>
-                                <span class="text-gray-500 text-sm font-medium">Водитель: ${vehicle.driver_details.first_name} ${vehicle.driver_details.last_name}</span>
-                            </div>
-                            ` : ''}
+                            <div class="font-semibold text-zinc-950">${vehicle.brand} ${vehicle.model}</div>
                         </div>
                     </div>
-                    ${specsHtml}
+                    <div class="px-4 py-3 space-y-3 flex-grow">
+                        <div class="flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500">
+                                <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+                                <path d="M8 4v16"></path>
+                            </svg>
+                            <span class="text-gray-500 text-sm font-medium">${vehicle.number}</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500">
+                                <path d="M20 7h-3a2 2 0 0 1-2-2V2"></path>
+                                <path d="M16 2H8a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path>
+                            </svg>
+                            <span class="${statusClass} px-2 py-0.5 rounded text-sm font-medium">
+                                ${statusText}
+                            </span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                <line x1="16" y1="2" x2="16" y2="6"></line>
+                                <line x1="8" y1="2" x2="8" y2="6"></line>
+                                <line x1="3" y1="10" x2="21" y2="10"></line>
+                            </svg>
+                            <span class="text-gray-500 text-sm font-medium">Год выпуска: ${vehicle.year}</span>
+                        </div>
+                        ${hasDriver ? `
+                        <div class="flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                            <span class="text-gray-500 text-sm font-medium">
+                                ${vehicle.driver_details.first_name} ${vehicle.driver_details.last_name}
+                            </span>
+                        </div>
+                        ` : ''}
+                        ${hasDriver && vehicle.driver_details.phone ? `
+                        <div class="flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500">
+                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                            </svg>
+                            <span class="text-gray-500 text-sm font-medium">${vehicle.driver_details.phone}</span>
+                        </div>
+                        ` : ''}
+                    </div>
                     <div class="px-4 py-3 border-t border-zinc-200 mt-auto">
-                        <a href="/vehicles/${vehicle.id}/edit/" class="w-full h-10 px-3 py-2 bg-white rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] border border-zinc-200 flex justify-center items-center gap-1.5 text-sm font-semibold hover:bg-gray-50 transition-colors">
-                            <span>Управление</span>
+                        <a href="/vehicles/${vehicle.id}/edit/" class="w-full h-10 px-3 py-2 bg-white rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] border border-zinc-200 flex justify-center items-center gap-1.5 text-sm font-semibold">
+                            <span>Управление ТС</span>
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="m9 18 6-6-6-6"></path>
                             </svg>
@@ -793,65 +496,15 @@
         }).join('');
     }
     
-    // Вспомогательные функции для получения текстов и классов
-    function getStatusClass(status) {
-        switch (status) {
-            case 'ACTIVE': return 'status-active';
-            case 'INACTIVE': return 'status-inactive';
-            case 'MAINTENANCE': return 'status-maintenance';
-            default: return 'status-inactive';
-        }
-    }
-    
-    function getStatusText(status) {
-        switch (status) {
-            case 'ACTIVE': return 'Активен';
-            case 'INACTIVE': return 'Неактивен';
-            case 'MAINTENANCE': return 'На ТО';
-            default: return 'Неизвестно';
-        }
-    }
-    
-    function getStatusIcon(status) {
-        switch (status) {
-            case 'ACTIVE': return 'check-circle';
-            case 'INACTIVE': return 'x-circle';
-            case 'MAINTENANCE': return 'tool';
-            default: return 'help-circle';
-        }
-    }
-    
-    function getVehicleTypeName(type) {
-        switch (type) {
-            case 'CAR': return 'Легковой';
-            case 'TRUCK': return 'Грузовой';
-            case 'SPECIAL': return 'Спецтехника';
-            default: return 'Неизвестно';
-        }
-    }
-    
-    function getFuelTypeName(type) {
-        switch (type) {
-            case 'DIESEL': return 'Дизель';
-            case 'PETROL': return 'Бензин';
-            case 'GAS': return 'Газ';
-            case 'HYBRID': return 'Гибрид';
-            case 'ELECTRIC': return 'Электро';
-            default: return 'Неизвестно';
-        }
-    }
-    
     // Обновление статистики
     function updateStats(vehicles) {
         const totalVehicles = vehicles.length;
-        const activeVehicles = vehicles.filter(v => v.status === 'ACTIVE').length;
-        const unassignedVehicles = vehicles.filter(v => !v.driver_details).length;
-        const maintenanceVehicles = vehicles.filter(v => v.status === 'MAINTENANCE').length;
+        const activeVehicles = vehicles.filter(v => v.driver_details).length;
+        const unassignedVehicles = totalVehicles - activeVehicles;
         
         document.getElementById('totalVehicles').textContent = totalVehicles;
         document.getElementById('activeVehicles').textContent = activeVehicles;
         document.getElementById('unassignedVehicles').textContent = unassignedVehicles;
-        document.getElementById('maintenanceVehicles').textContent = maintenanceVehicles;
         
         // Получение данных о расходах за месяц
         fetch('/api/v1/expenses/monthly_sum/')
@@ -909,6 +562,26 @@
         errorState.classList.add('hidden');
     }
     
+    // Поиск транспорта
+    function applySearch() {
+        const search = searchInput.value.toLowerCase().trim();
+        
+        let filteredData = [...allVehicles];
+        
+        if (search) {
+            filteredData = filteredData.filter(v => {
+                return (v.number && v.number.toLowerCase().includes(search)) || 
+                       (v.brand && v.brand.toLowerCase().includes(search)) || 
+                       (v.model && v.model.toLowerCase().includes(search)) ||
+                       (v.driver_details && 
+                        ((v.driver_details.first_name && v.driver_details.first_name.toLowerCase().includes(search)) || 
+                         (v.driver_details.last_name && v.driver_details.last_name.toLowerCase().includes(search))));
+            });
+        }
+        
+        displayVehicles(filteredData);
+    }
+    
     // Функция для адаптации под планшеты и мобильную версию
     function adjustLayoutForTablet() {
         // Для планшетной и мобильной версии
@@ -956,10 +629,8 @@
         // Загрузка данных
         loadVehicles();
         
-        // Обработчики событий для поиска и фильтров
-        searchInput.addEventListener('input', applyFilters);
-        statusFilter.addEventListener('change', applyFilters);
-        typeFilter.addEventListener('change', applyFilters);
+        // Обработчики событий
+        searchInput.addEventListener('input', applySearch);
         retryButton.addEventListener('click', loadVehicles);
         
         // Запускаем функцию исправления ссылок немедленно и с интервалом
