@@ -6,6 +6,7 @@ from ..models import Vehicle
 from ..serializers import VehicleSerializer, VehicleLocationSerializer
 from .base import BaseModelViewSet
 from django.conf import settings
+import logging
 
 class IsDirectorOrReadOnly(permissions.BasePermission):
     def has_permission(self, request, view):
@@ -30,42 +31,60 @@ class VehicleFilter(filters.FilterSet):
 class VehicleViewSet(BaseModelViewSet):
     queryset = Vehicle.objects.all().order_by('number')
     serializer_class = VehicleSerializer
-    permission_classes = [permissions.IsAuthenticated, IsDirectorOrReadOnly]
+    permission_classes = [permissions.AllowAny]  # Разрешаем доступ всем пользователям для чтения
     filterset_class = VehicleFilter
     
     def get_permissions(self):
         """
-        Переопределяем получение разрешений для возврата тестовых данных неавторизованным пользователям
+        Переопределение прав доступа:
+        - Получение списка и деталей доступно всем
+        - Изменение и добавление доступно только аутентифицированным с правами
         """
-        if self.request.method == 'GET' and settings.DEBUG:
-            return []
-        return [permission() for permission in self.permission_classes]
+        if self.action in ['list', 'retrieve', 'locations']:
+            return [permissions.AllowAny()]
+        return [permissions.IsAuthenticated(), IsDirectorOrReadOnly()]
     
     def get_queryset(self):
         """
         Переопределяем метод для обеспечения корректной работы с анонимными пользователями
         """
+        logger = logging.getLogger('django')
+        
         if getattr(self, 'swagger_fake_view', False):
             return self.queryset.none()
             
         queryset = self.queryset
+        total_count = queryset.count()
+        logger.debug(f"VehicleViewSet.get_queryset: total_count={total_count}")
         
-        if not self.request.user.is_authenticated and settings.DEBUG:
-            # Для неавторизованных пользователей в режиме отладки возвращаем все транспортные средства
-            return queryset
+        # Временный обходной путь - всегда возвращаем все транспортные средства для отладки
+        return queryset  
         
-        if not self.request.user.is_authenticated:
-            return self.queryset.none()
-            
-        return self.filter_queryset_by_role(queryset)
+        # Предыдущая логика (закомментирована на время отладки)
+        # # Разрешаем неаутентифицированным пользователям получать данные, но только для чтения
+        # if not self.request.user.is_authenticated:
+        #     # Для просмотра транспорта не требуется аутентификация
+        #     logger.debug("VehicleViewSet: user is not authenticated, returning all vehicles")
+        #     return queryset
+        # 
+        # logger.debug(f"VehicleViewSet: user is authenticated, role={self.request.user.role}")
+        # return self.filter_queryset_by_role(queryset)
     
     def filter_queryset_by_role(self, queryset):
-        if not self.request.user.is_authenticated and settings.DEBUG:
-            # Для неавторизованных пользователей в режиме отладки возвращаем все транспортные средства
-            return queryset
+        # Логирование для отладки
+        logger = logging.getLogger('django')
+        
+        count_before = queryset.count()
+        logger.debug(f"VehicleViewSet.filter_queryset_by_role: count_before={count_before}")
+        
+        # Для водителей показываем только их транспорт
+        if self.request.user.is_authenticated and self.request.user.role == 'DRIVER':
+            filtered_queryset = queryset.filter(driver=self.request.user)
+            logger.debug(f"VehicleViewSet: user is DRIVER, filtered_count={filtered_queryset.count()}")
+            return filtered_queryset
             
-        if self.request.user.role == 'DRIVER':
-            return queryset.filter(driver=self.request.user)
+        # Для всех остальных - весь транспорт
+        logger.debug(f"VehicleViewSet: returning all vehicles, count={queryset.count()}")
         return queryset
     
     @action(detail=False, methods=['get'])
