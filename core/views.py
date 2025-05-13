@@ -29,12 +29,22 @@ import pandas as pd
 from io import BytesIO
 import os
 from django.db.models import Q
+from django import forms
 from accounts.models import User
 
 from logistics.models import Task, Vehicle
 from .models import Notification, Waybill
 from logistics.models import Expense
 from .serializers import NotificationSerializer, WaybillSerializer, UserSerializer, UserCreateSerializer, UserUpdateSerializer, UserPhotoSerializer
+from django.shortcuts import render, redirect
+from django.views import View
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib import messages
+from django.contrib.auth import get_user_model
+from django.utils import timezone
+from django import forms
+from django.http import HttpResponseForbidden
+from logistics.models import Vehicle, VehiclePhoto, VehicleDocument
 
 User = get_user_model()
 
@@ -1499,126 +1509,172 @@ class EmployeeEditView(View):
 class VehiclesView(LoginRequiredMixin, TemplateView):
     template_name = 'core/vehicles.html'
     
+    def get(self, request, *args, **kwargs):
+        return redirect('core:trucks')
+    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['active_page'] = 'vehicles'
-        
-        # Загружаем транспорт из базы данных для начального рендеринга страницы
-        from logistics.models import Vehicle
-        
-        # Получаем весь транспорт
-        vehicles = Vehicle.objects.all().select_related('driver')
-        
-        # Если пользователь водитель, показываем только его транспорт
-        if self.request.user.role == 'DRIVER':
-            vehicles = vehicles.filter(driver=self.request.user)
-        
-        context['initial_vehicles'] = vehicles
         return context
+
+class VehicleForm(forms.Form):
+    # Основная информация
+    number = forms.CharField(max_length=20, required=True)
+    vehicle_type = forms.ChoiceField(choices=[
+        ('CAR', 'Легковой'),
+        ('TRUCK', 'Грузовой'),
+        ('SPECIAL', 'Спецтехника')
+    ], required=True)
+    brand = forms.CharField(max_length=100, required=True)
+    model = forms.CharField(max_length=100, required=True)
+    year = forms.IntegerField(required=True, min_value=1900, max_value=2100)
+    color = forms.CharField(max_length=50, required=False)
+    status = forms.ChoiceField(choices=[
+        ('ACTIVE', 'Активен'),
+        ('INACTIVE', 'Неактивен'),
+        ('MAINTENANCE', 'На обслуживании')
+    ], required=True)
+    driver = forms.ModelChoiceField(queryset=None, required=False)
+    description = forms.CharField(widget=forms.Textarea, required=False)
+    
+    # Технические характеристики
+    vin_number = forms.CharField(max_length=50, required=False)
+    engine_number = forms.CharField(max_length=50, required=False)
+    chassis_number = forms.CharField(max_length=50, required=False)
+    engine_capacity = forms.FloatField(required=False)
+    fuel_type = forms.ChoiceField(choices=[
+        ('', 'Не указан'),
+        ('DIESEL', 'Дизель'),
+        ('PETROL', 'Бензин'),
+        ('GAS', 'Газ'),
+        ('HYBRID', 'Гибрид'),
+        ('ELECTRIC', 'Электро')
+    ], required=False)
+    fuel_consumption = forms.FloatField(required=False)
+    length = forms.FloatField(required=False)
+    width = forms.FloatField(required=False)
+    height = forms.FloatField(required=False)
+    max_weight = forms.IntegerField(required=False)
+    cargo_capacity = forms.IntegerField(required=False)
+
+    def __init__(self, *args, **kwargs):
+        drivers = kwargs.pop('drivers', None)
+        super().__init__(*args, **kwargs)
+        if drivers is not None:
+            self.fields['driver'].queryset = drivers
 
 class VehicleCreateView(LoginRequiredMixin, View):
     template_name = 'core/vehicle_form.html'
     
     def dispatch(self, request, *args, **kwargs):
-        # Проверяем, аутентифицирован ли пользователь
         if not request.user.is_authenticated:
-            return redirect('login')
-        
-        # Проверяем права доступа
-        if not request.user.role in ['DIRECTOR', 'SUPERADMIN', 'TECH'] and not request.user.is_superuser:
-            return redirect('core:vehicles')
+            return self.handle_no_permission()
+        if not (request.user.role in ['DIRECTOR', 'MANAGER', 'SUPERADMIN'] or request.user.is_superuser):
+            return HttpResponseForbidden("У вас нет прав для создания транспорта")
         return super().dispatch(request, *args, **kwargs)
-    
+
     def get(self, request):
         # Получаем список водителей для поля выбора
         User = get_user_model()
         drivers = User.objects.filter(is_active=True, role='DRIVER')
         
-        # Создаем форму для транспорта с необходимыми полями
-        from django import forms
-        
-        class VehicleForm(forms.Form):
-            number = forms.CharField(max_length=20, required=True)
-            brand = forms.CharField(max_length=100, required=True)
-            model = forms.CharField(max_length=100, required=True)
-            year = forms.IntegerField(required=True, min_value=1900, max_value=2100)
-            driver = forms.ModelChoiceField(queryset=drivers, required=False)
-            
-        form = VehicleForm()  # Создаем экземпляр формы
-        
-        context = {
+        form = VehicleForm(drivers=drivers)
+        return render(request, self.template_name, {
             'form': form,
             'drivers': drivers,
             'title': 'Добавление транспорта',
-            'action': 'create',
-            'active_page': 'vehicles'
-        }
-        return render(request, self.template_name, context)
-        
+            'action': 'create'
+        })
+
     def post(self, request):
-        from logistics.models import Vehicle
-        from django import forms
-        
+        # Обрабатываем форму с текстовыми и файловыми полями
         User = get_user_model()
         drivers = User.objects.filter(is_active=True, role='DRIVER')
         
-        class VehicleForm(forms.Form):
-            number = forms.CharField(max_length=20, required=True)
-            brand = forms.CharField(max_length=100, required=True)
-            model = forms.CharField(max_length=100, required=True)
-            year = forms.IntegerField(required=True, min_value=1900, max_value=2100)
-            driver = forms.ModelChoiceField(queryset=drivers, required=False)
-        
-        form = VehicleForm(request.POST)
-        if form.is_valid():
-            number = form.cleaned_data['number']
-            brand = form.cleaned_data['brand']
-            model = form.cleaned_data['model']
-            year = form.cleaned_data['year']
-            driver = form.cleaned_data['driver']
+        form = VehicleForm(request.POST, drivers=drivers)
+        if not form.is_valid():
+            context = {'form': form, 'drivers': drivers, 'title': 'Добавление транспорта', 'action': 'create'}
+            return render(request, self.template_name, context)
             
-            # Проверка уникальности номера
-            if Vehicle.objects.filter(number=number).exists():
-                form.add_error('number', 'Транспорт с таким номером уже существует')
-                context = {
-                    'form': form,
-                    'drivers': drivers,
-                    'title': 'Добавление транспорта',
-                    'action': 'create',
-                    'active_page': 'vehicles'
-                }
-                return render(request, self.template_name, context)
-            
-            # Создаем транспорт
-            from django.utils import timezone
-            vehicle = Vehicle(
-                number=number,
-                brand=brand,
-                model=model,
-                year=year,
-                created_at=timezone.now(),
-                updated_at=timezone.now(),
-                created_by=request.user
+        # Если валидно, создаем транспорт без файлов сначала
+        data = form.cleaned_data
+        vehicle = Vehicle(
+            number=data['number'],
+            vehicle_type=data['vehicle_type'],
+            brand=data['brand'],
+            model=data['model'],
+            year=data['year'],
+            color=data.get('color'),
+            status=data['status'],
+            driver=data.get('driver'),
+            description=data.get('description'),
+            vin_number=data.get('vin_number'),
+            engine_number=data.get('engine_number'),
+            chassis_number=data.get('chassis_number'),
+            engine_capacity=data.get('engine_capacity'),
+            fuel_type=data.get('fuel_type'),
+            fuel_consumption=data.get('fuel_consumption'),
+            length=data.get('length'),
+            width=data.get('width'),
+            height=data.get('height'),
+            max_weight=data.get('max_weight'),
+            cargo_capacity=data.get('cargo_capacity'),
+            created_by=request.user
+        )
+        vehicle.save()
+
+        # Обработка загруженных фотографий
+        photos = request.FILES.getlist('photos')
+        for photo in photos:
+            VehiclePhoto.objects.create(
+                vehicle=vehicle,
+                photo=photo,
+                is_main=False,
+                uploaded_by=request.user
             )
             
-            # Если выбран водитель
-            if driver:
-                vehicle.driver = driver
+        # Если есть основное фото, делаем его главным
+        main_photo = request.FILES.get('main_photo')
+        if main_photo:
+            main_photo_obj = VehiclePhoto.objects.create(
+                vehicle=vehicle,
+                photo=main_photo,
+                is_main=True,
+                uploaded_by=request.user
+            )
             
-            vehicle.save()
+        # Сохраняем документы
+        if 'technical_passport' in request.FILES:
+            VehicleDocument.objects.create(
+                vehicle=vehicle,
+                document_type='REGISTRATION',
+                file=request.FILES['technical_passport'],
+                created_by=request.user,
+                issue_date=timezone.now().date()
+            )
             
-            messages.success(request, f'Транспорт {number} успешно добавлен')
-            return redirect('core:vehicles')
+        if 'insurance' in request.FILES:
+            VehicleDocument.objects.create(
+                vehicle=vehicle,
+                document_type='INSURANCE',
+                file=request.FILES['insurance'],
+                created_by=request.user,
+                issue_date=timezone.now().date()
+            )
+            
+        # Сохраняем дополнительные документы
+        additional_documents = request.FILES.getlist('additional_documents')
+        for doc in additional_documents:
+            VehicleDocument.objects.create(
+                vehicle=vehicle,
+                document_type='OTHER',
+                file=doc,
+                created_by=request.user,
+                issue_date=timezone.now().date()
+            )
         
-        # Если форма не прошла валидацию
-        context = {
-            'form': form,
-            'drivers': drivers,
-            'title': 'Добавление транспорта',
-            'action': 'create',
-            'active_page': 'vehicles'
-        }
-        return render(request, self.template_name, context)
+        messages.success(request, 'Транспорт успешно добавлен')
+        return redirect('core:trucks')
 
 class VehicleUpdateView(LoginRequiredMixin, View):
     template_name = 'core/vehicle_form.html'
@@ -1648,7 +1704,55 @@ class VehicleUpdateView(LoginRequiredMixin, View):
         User = get_user_model()
         drivers = User.objects.filter(is_active=True, role='DRIVER')
         
+        # Создаем форму и заполняем её данными из существующего транспорта
+        from django import forms
+        
+        class VehicleForm(forms.Form):
+            # Основная информация
+            number = forms.CharField(max_length=20, required=True, initial=self.vehicle.number)
+            vehicle_type = forms.ChoiceField(choices=[
+                ('CAR', 'Легковой'),
+                ('TRUCK', 'Грузовой'),
+                ('SPECIAL', 'Спецтехника')
+            ], required=True, initial=self.vehicle.vehicle_type)
+            brand = forms.CharField(max_length=100, required=True, initial=self.vehicle.brand)
+            model = forms.CharField(max_length=100, required=True, initial=self.vehicle.model)
+            year = forms.IntegerField(required=True, min_value=1900, max_value=2100, initial=self.vehicle.year)
+            color = forms.CharField(max_length=50, required=False, initial=self.vehicle.color)
+            status = forms.ChoiceField(choices=[
+                ('ACTIVE', 'Активен'),
+                ('INACTIVE', 'Неактивен'),
+                ('MAINTENANCE', 'На обслуживании')
+            ], required=True, initial=self.vehicle.status)
+            driver = forms.ModelChoiceField(queryset=drivers, required=False, initial=self.vehicle.driver)
+            description = forms.CharField(widget=forms.Textarea, required=False, initial=self.vehicle.description)
+            
+            # Технические характеристики
+            vin_number = forms.CharField(max_length=50, required=False, initial=self.vehicle.vin_number)
+            engine_number = forms.CharField(max_length=50, required=False, initial=self.vehicle.engine_number)
+            chassis_number = forms.CharField(max_length=50, required=False, initial=self.vehicle.chassis_number)
+            engine_capacity = forms.FloatField(required=False, initial=self.vehicle.engine_capacity)
+            fuel_type = forms.ChoiceField(choices=[
+                ('', 'Не указан'),
+                ('DIESEL', 'Дизель'),
+                ('PETROL', 'Бензин'),
+                ('GAS', 'Газ'),
+                ('HYBRID', 'Гибрид'),
+                ('ELECTRIC', 'Электро')
+            ], required=False, initial=self.vehicle.fuel_type)
+            fuel_consumption = forms.FloatField(required=False, initial=self.vehicle.fuel_consumption)
+            length = forms.FloatField(required=False, initial=self.vehicle.length)
+            width = forms.FloatField(required=False, initial=self.vehicle.width)
+            height = forms.FloatField(required=False, initial=self.vehicle.height)
+            max_weight = forms.IntegerField(required=False, initial=self.vehicle.max_weight)
+            cargo_capacity = forms.IntegerField(required=False, initial=self.vehicle.cargo_capacity)
+            
+            # Файловые поля обрабатываются вручную через request.FILES
+        
+        form = VehicleForm()
+        
         context = {
+            'form': form,
             'vehicle': self.vehicle,
             'drivers': drivers,
             'title': f'Редактирование {self.vehicle.brand} {self.vehicle.model} ({self.vehicle.number})',
@@ -1658,54 +1762,197 @@ class VehicleUpdateView(LoginRequiredMixin, View):
         return render(request, self.template_name, context)
     
     def post(self, request, pk):
-        from logistics.models import Vehicle
+        from logistics.models import Vehicle, VehiclePhoto, VehicleDocument
+        from django import forms
+        from django.core.files.storage import default_storage
+        from django.core.files.base import ContentFile
+        import os
         
-        number = request.POST.get('number')
-        brand = request.POST.get('brand')
-        model = request.POST.get('model')
-        year = request.POST.get('year')
-        driver_id = request.POST.get('driver')
+        User = get_user_model()
+        drivers = User.objects.filter(is_active=True, role='DRIVER')
         
-        # Валидация
-        if not number or not brand or not model or not year:
-            messages.error(request, 'Пожалуйста, заполните все обязательные поля')
-            return redirect('core:vehicle-edit', pk=pk)
+        class VehicleForm(forms.Form):
+            # Основная информация
+            number = forms.CharField(max_length=20, required=True)
+            vehicle_type = forms.ChoiceField(choices=[
+                ('CAR', 'Легковой'),
+                ('TRUCK', 'Грузовой'),
+                ('SPECIAL', 'Спецтехника')
+            ], required=True)
+            brand = forms.CharField(max_length=100, required=True)
+            model = forms.CharField(max_length=100, required=True)
+            year = forms.IntegerField(required=True, min_value=1900, max_value=2100)
+            color = forms.CharField(max_length=50, required=False)
+            status = forms.ChoiceField(choices=[
+                ('ACTIVE', 'Активен'),
+                ('INACTIVE', 'Неактивен'),
+                ('MAINTENANCE', 'На обслуживании')
+            ], required=True)
+            driver = forms.ModelChoiceField(queryset=drivers, required=False)
+            description = forms.CharField(widget=forms.Textarea, required=False)
+            
+            # Технические характеристики
+            vin_number = forms.CharField(max_length=50, required=False)
+            engine_number = forms.CharField(max_length=50, required=False)
+            chassis_number = forms.CharField(max_length=50, required=False)
+            engine_capacity = forms.FloatField(required=False)
+            fuel_type = forms.ChoiceField(choices=[
+                ('', 'Не указан'),
+                ('DIESEL', 'Дизель'),
+                ('PETROL', 'Бензин'),
+                ('GAS', 'Газ'),
+                ('HYBRID', 'Гибрид'),
+                ('ELECTRIC', 'Электро')
+            ], required=False)
+            fuel_consumption = forms.FloatField(required=False)
+            length = forms.FloatField(required=False)
+            width = forms.FloatField(required=False)
+            height = forms.FloatField(required=False)
+            max_weight = forms.IntegerField(required=False)
+            cargo_capacity = forms.IntegerField(required=False)
+            
+            # Файловые поля обрабатываются вручную через request.FILES
         
-        # Проверка уникальности номера
-        if Vehicle.objects.filter(number=number).exclude(id=pk).exists():
-            messages.error(request, 'Транспорт с таким номером уже существует')
-            return redirect('core:vehicle-edit', pk=pk)
+        form = VehicleForm(request.POST, request.FILES)
         
-        # Обновляем транспорт
-        vehicle = self.vehicle
-        vehicle.number = number
-        vehicle.brand = brand
-        vehicle.model = model
-        vehicle.year = year
-        
-        # Если выбран водитель
-        old_driver = vehicle.driver
-        if driver_id:
-            User = get_user_model()
+        # Проверяем, не пришел ли запрос на удаление фото или документа
+        delete_photo_id = request.POST.get('delete_photo')
+        if delete_photo_id:
             try:
-                vehicle.driver = User.objects.get(id=driver_id)
-            except User.DoesNotExist:
+                photo = VehiclePhoto.objects.get(id=delete_photo_id, vehicle=self.vehicle)
+                photo.delete()
+                messages.success(request, 'Фотография успешно удалена')
+                return redirect('core:vehicle-edit', pk=pk)
+            except VehiclePhoto.DoesNotExist:
                 pass
-        else:
-            vehicle.driver = None
         
-        vehicle.save()
+        delete_document_id = request.POST.get('delete_document')
+        if delete_document_id:
+            try:
+                document = VehicleDocument.objects.get(id=delete_document_id, vehicle=self.vehicle)
+                document.delete()
+                messages.success(request, 'Документ успешно удален')
+                return redirect('core:vehicle-edit', pk=pk)
+            except VehicleDocument.DoesNotExist:
+                pass
         
-        # Если водитель изменился, создаем уведомление
-        if old_driver != vehicle.driver and vehicle.driver:
-            Notification.create_system_notification(
-                vehicle.driver,
-                'Назначение транспорта',
-                f'Вам назначен транспорт: {vehicle.brand} {vehicle.model} ({vehicle.number})'
-            )
+        if form.is_valid():
+            number = form.cleaned_data['number']
+            vehicle_type = form.cleaned_data['vehicle_type']
+            brand = form.cleaned_data['brand']
+            model = form.cleaned_data['model']
+            year = form.cleaned_data['year']
+            color = form.cleaned_data['color']
+            status = form.cleaned_data['status']
+            driver = form.cleaned_data['driver']
+            description = form.cleaned_data['description']
+            
+            # Технические параметры
+            vin_number = form.cleaned_data['vin_number']
+            engine_number = form.cleaned_data['engine_number']
+            chassis_number = form.cleaned_data['chassis_number']
+            engine_capacity = form.cleaned_data['engine_capacity']
+            fuel_type = form.cleaned_data['fuel_type']
+            fuel_consumption = form.cleaned_data['fuel_consumption']
+            length = form.cleaned_data['length']
+            width = form.cleaned_data['width']
+            height = form.cleaned_data['height']
+            max_weight = form.cleaned_data['max_weight']
+            cargo_capacity = form.cleaned_data['cargo_capacity']
+            
+            # Проверка уникальности номера (исключая текущий транспорт)
+            if Vehicle.objects.filter(number=number).exclude(id=pk).exists():
+                form.add_error('number', 'Транспорт с таким номером уже существует')
+                context = {
+                    'form': form,
+                    'vehicle': self.vehicle,
+                    'drivers': drivers,
+                    'title': f'Редактирование {self.vehicle.brand} {self.vehicle.model} ({self.vehicle.number})',
+                    'action': 'update',
+                    'active_page': 'vehicles'
+                }
+                return render(request, self.template_name, context)
+            
+            # Обновляем транспорт
+            vehicle = self.vehicle
+            vehicle.number = number
+            vehicle.vehicle_type = vehicle_type
+            vehicle.brand = brand
+            vehicle.model = model
+            vehicle.year = year
+            vehicle.color = color
+            vehicle.status = status
+            vehicle.description = description
+            vehicle.vin_number = vin_number
+            vehicle.engine_number = engine_number
+            vehicle.chassis_number = chassis_number
+            vehicle.engine_capacity = engine_capacity
+            vehicle.fuel_type = fuel_type
+            vehicle.fuel_consumption = fuel_consumption
+            vehicle.length = length
+            vehicle.width = width
+            vehicle.height = height
+            vehicle.max_weight = max_weight
+            vehicle.cargo_capacity = cargo_capacity
+            vehicle.updated_at = timezone.now()
+            
+            # Обновляем водителя
+            old_driver = vehicle.driver
+            if driver:
+                vehicle.driver = driver
+            else:
+                vehicle.driver = None
+            
+            vehicle.save()
+            
+            # Обрабатываем основное фото
+            main_photo = form.cleaned_data.get('main_photo')
+            if main_photo:
+                # Если уже есть фото, заменяем его
+                if vehicle.main_photo:
+                    # При необходимости, можно удалить старое фото
+                    # default_storage.delete(vehicle.main_photo.path)
+                    pass
+                
+                vehicle.main_photo = main_photo
+                vehicle.save()
+            
+            # Обрабатываем документы
+            technical_passport = form.cleaned_data.get('technical_passport')
+            if technical_passport:
+                # Если уже есть документ, заменяем его
+                if vehicle.technical_passport:
+                    # При необходимости, можно удалить старый документ
+                    # default_storage.delete(vehicle.technical_passport.path)
+                    pass
+                
+                vehicle.technical_passport = technical_passport
+                vehicle.save()
+            
+            insurance = form.cleaned_data.get('insurance')
+            if insurance:
+                # Если уже есть документ, заменяем его
+                if vehicle.insurance:
+                    # При необходимости, можно удалить старый документ
+                    # default_storage.delete(vehicle.insurance.path)
+                    pass
+                
+                vehicle.insurance = insurance
+                vehicle.save()
+            
+            messages.success(request, f'Транспорт {number} успешно обновлен')
+            return redirect('core:vehicles')
         
-        messages.success(request, 'Транспорт успешно обновлен')
-        return redirect('core:vehicles')
+        # Если форма не прошла валидацию
+        context = {
+            'form': form,
+            'vehicle': self.vehicle,
+            'drivers': drivers,
+            'title': f'Редактирование {self.vehicle.brand} {self.vehicle.model} ({self.vehicle.number})',
+            'action': 'update',
+            'active_page': 'vehicles'
+        }
+        return render(request, self.template_name, context)
 
 class VehicleArchiveView(LoginRequiredMixin, View):
     def dispatch(self, request, *args, **kwargs):
@@ -1834,4 +2081,49 @@ class ChangePasswordView(LoginRequiredMixin, View):
         
         messages.success(request, 'Пароль успешно изменен')
         return redirect('core:profile')
+
+class TrucksView(LoginRequiredMixin, TemplateView):
+    template_name = 'core/trucks.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # помечаем активную страницу и передаем список грузовиков
+        context['active_page'] = 'trucks'
+        context['trucks'] = Vehicle.objects.all().order_by('brand', 'model')
+        return context
+
+class TruckDetailView(LoginRequiredMixin, DetailView):
+    model = Vehicle
+    template_name = 'core/truck_detail.html'
+    context_object_name = 'truck'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # помечаем активную страницу
+        context['active_page'] = 'trucks'
+        return context
+
+class VehicleDeleteView(LoginRequiredMixin, View):
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect('login')
+            
+        if not request.user.role in ['DIRECTOR', 'SUPERADMIN'] and not request.user.is_superuser:
+            messages.error(request, 'У вас нет прав для удаления транспорта')
+            return redirect('core:trucks')
+            
+        return super().dispatch(request, *args, **kwargs)
+    
+    def post(self, request, pk):
+        try:
+            vehicle = Vehicle.objects.get(id=pk)
+            number = vehicle.number
+            vehicle.delete()
+            messages.success(request, f'Транспорт {number} успешно удален')
+        except Vehicle.DoesNotExist:
+            messages.error(request, 'Транспорт не найден')
+        except Exception as e:
+            messages.error(request, f'Ошибка при удалении транспорта: {str(e)}')
+            
+        return redirect('core:trucks')
 

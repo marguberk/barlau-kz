@@ -7,6 +7,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('core.urls')),
     path('accounts/', include('accounts.urls')),
-    path('logistics/', include('logistics.urls')),
+    path('api/logistics/', include('logistics.urls', namespace='logistics-api')),
     path('', include('pwa.urls')),  # Добавляем URL-адреса PWA
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) 

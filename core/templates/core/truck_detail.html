@@ -1,0 +1,235 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}Грузовик {{ truck.number }} - BARLAU.KZ{% endblock %}
+
+{% block content %}
+<div class="w-full flex">
+    <!-- Боковая панель -->
+    <div class="w-64 h-screen bg-white border-r border-zinc-200 flex flex-col justify-start items-start fixed left-0 bottom-0 sidebar">
+        <div class="self-stretch px-5 py-6 relative flex flex-col justify-start items-start gap-2 sidebar-logo">
+            <div class="py-1 inline-flex justify-start items-center gap-2">
+                <img src="{% static 'core/img/logo.png' %}" alt="Barlau Logo" class="w-10 h-6">
+                <div class="text-center justify-start text-black text-2xl font-semibold leading-normal">Barlau.kz</div>
+            </div>
+        </div>
+        <div class="self-stretch flex-1 px-4 pt-2 pb-4 flex flex-col justify-start items-center gap-4 sidebar-menu">
+            <div class="self-stretch flex flex-col justify-start items-start gap-1">
+                <div class="self-stretch flex flex-col justify-start items-start">
+                    <a href="{% url 'core:home' %}" class="self-stretch px-3 py-3.5 relative bg-white rounded-lg inline-flex justify-start items-center gap-2">
+                        <div class="w-5 h-5 relative overflow-hidden">
+                            <img src="{% static 'core/img/home.svg' %}" alt="Home" class="w-4 h-4 desktop-icon">
+                            <img src="{% static 'core/img/mobile/home.svg' %}" alt="Home" class="mobile-icon hidden">
+                        </div>
+                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Главная</div>
+                    </a>
+                    <a href="{% url 'core:tasks' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex justify-start items-center gap-2">
+                        <div class="w-5 h-5 relative overflow-hidden">
+                            <img src="{% static 'core/img/check-square.svg' %}" alt="Tasks" class="w-4 h-4 desktop-icon">
+                            <img src="{% static 'core/img/mobile/check-square.svg' %}" alt="Tasks" class="mobile-icon hidden">
+                        </div>
+                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Задачи</div>
+                    </a>
+                    <a href="{% url 'core:map' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex justify-start items-center gap-2">
+                        <div class="w-5 h-5 relative overflow-hidden">
+                            <img src="{% static 'core/img/location.svg' %}?v={% now 'U' %}" alt="Map" class="w-4 h-4 desktop-icon">
+                            <img src="{% static 'core/img/mobile/location.svg' %}" alt="Map" class="mobile-icon hidden">
+                        </div>
+                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Карта</div>
+                    </a>
+                    <a href="{% url 'core:trucks' %}" class="self-stretch px-3 py-3.5 bg-gray-50 rounded-lg inline-flex justify-start items-center gap-2 relative">
+                        <div class="w-1 h-6 left-0 top-[calc(50%-12px)] absolute bg-blue-600 rounded-tr-lg rounded-br-lg"></div>
+                        <div class="w-5 h-5 relative overflow-hidden">
+                            <img src="{% static 'core/img/truck.svg' %}" alt="Trucks" class="w-4 h-4 desktop-icon">
+                            <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Trucks" class="mobile-icon hidden">
+                        </div>
+                        <div class="flex-1 justify-start text-blue-600 text-base font-medium leading-normal tracking-tight">Грузовики</div>
+                    </a>
+                    <a href="{% url 'core:employees' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex justify-start items-center gap-2">
+                        <div class="w-5 h-5 relative overflow-hidden">
+                            <img src="{% static 'core/img/employee.svg' %}" alt="Employees" class="w-4 h-4 desktop-icon">
+                            <img src="{% static 'core/img/mobile/employee.svg' %}" alt="Employees" class="mobile-icon hidden">
+                        </div>
+                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Сотрудники</div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Основной контент -->
+    <div class="ml-64 flex-1 min-h-screen bg-gray-50 main-content">
+        <!-- Верхняя панель -->
+        <div class="w-full h-20 px-8 py-5 bg-white border-b border-zinc-200 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <a href="{% url 'core:trucks' %}" class="w-11 h-11 flex items-center justify-center rounded-xl border border-zinc-200 hover:bg-gray-50 transition-colors">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M15.8334 10H4.16669M4.16669 10L10 15.8333M4.16669 10L10 4.16667" stroke="#6B7280" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </a>
+                <h1 class="text-2xl font-semibold">Грузовик {{ truck.brand }} {{ truck.model }}</h1>
+            </div>
+            <div class="flex items-center gap-4">
+                {% with is_manager=request.user.is_superuser %}
+                {% if request.user.role == 'DIRECTOR' or request.user.role == 'SUPERADMIN' or is_manager %}
+                <form action="{% url 'core:truck-delete' truck.id %}" method="post" onsubmit="return confirm('Вы уверены, что хотите удалить этот транспорт?');">
+                    {% csrf_token %}
+                    <button type="submit" class="w-11 h-11 flex items-center justify-center rounded-xl border border-red-200 hover:bg-red-50 transition-colors">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M2.5 5H17.5M15.8333 5V16.6667C15.8333 17.5 15 18.3333 14.1667 18.3333H5.83333C5 18.3333 4.16667 17.5 4.16667 16.6667V5M7.5 5V3.33333C7.5 2.5 8.33333 1.66667 9.16667 1.66667H10.8333C11.6667 1.66667 12.5 2.5 12.5 3.33333V5M8.33333 9.16667V14.1667M11.6667 9.16667V14.1667" stroke="#EF4444" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                </form>
+                {% endif %}
+                {% endwith %}
+                <a href="{% url 'core:notifications' %}" class="w-11 h-11 flex items-center justify-center rounded-xl border border-zinc-200 hover:bg-gray-50 transition-colors">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M7.35419 18.3334C7.98085 18.8534 8.95835 19.1667 10.0001 19.1667C11.0418 19.1667 12.0193 18.8534 12.646 18.3334M15.8334 6.66671C15.8334 5.34059 15.3069 4.0688 14.3692 3.13112C13.4315 2.19344 12.1597 1.66671 10.8334 1.66671C9.50728 1.66671 8.23549 2.19344 7.29781 3.13112C6.36013 4.0688 5.8334 5.34059 5.8334 6.66671C5.8334 9.16671 5.0001 14.1667 3.33344 15.8334H18.3334C16.6668 14.1667 15.8334 9.16671 15.8334 6.66671Z" stroke="#6B7280" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </a>
+                <a href="#" class="w-11 h-11 flex items-center justify-center rounded-xl border border-zinc-200 hover:bg-gray-50 transition-colors">
+                    <img src="{% static 'core/img/kz.png' %}" alt="Language" class="w-6 h-6 rounded">
+                </a>
+            </div>
+        </div>
+
+        <!-- Основная информация -->
+        <div class="p-8">
+            <div class="bg-white rounded-2xl border border-zinc-200 overflow-hidden">
+                <div class="p-8">
+                    <div class="flex items-start gap-8">
+                        <!-- Основная информация -->
+                        <div class="flex-1">
+                            <div class="mb-6">
+                                <p class="text-sm text-gray-500 mb-1">Государственный номер</p>
+                                <h2 class="text-3xl font-semibold text-zinc-950">№ {{ truck.number }}</h2>
+                            </div>
+                            
+                            <div class="grid grid-cols-2 gap-6 mb-8">
+                                <div>
+                                    <p class="text-sm text-gray-500 mb-1">Статус</p>
+                                    <p class="text-base text-zinc-950">{{ truck.get_status_display }}</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500 mb-1">Тип транспорта</p>
+                                    <p class="text-base text-zinc-950">{{ truck.get_vehicle_type_display }}</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500 mb-1">Год выпуска</p>
+                                    <p class="text-base text-zinc-950">{{ truck.year }}</p>
+                                </div>
+                                {% if truck.driver %}
+                                <div>
+                                    <p class="text-sm text-gray-500 mb-1">Водитель</p>
+                                    <p class="text-base text-zinc-950">{{ truck.driver.get_full_name }}</p>
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Технические характеристики -->
+                            <div class="border-t border-zinc-200 pt-8">
+                                <h3 class="text-lg font-semibold text-zinc-950 mb-6">Технические характеристики</h3>
+                                <div class="grid grid-cols-2 gap-6">
+                                    <div>
+                                        <p class="text-sm text-gray-500 mb-1">VIN номер</p>
+                                        <p class="text-base text-zinc-950 font-mono">{{ truck.vin_number|default:'—' }}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-500 mb-1">Номер двигателя</p>
+                                        <p class="text-base text-zinc-950 font-mono">{{ truck.engine_number|default:'—' }}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-500 mb-1">Номер шасси</p>
+                                        <p class="text-base text-zinc-950 font-mono">{{ truck.chassis_number|default:'—' }}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-500 mb-1">Объем двигателя</p>
+                                        <p class="text-base text-zinc-950">{{ truck.engine_capacity|default:'—' }} л</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-500 mb-1">Тип топлива</p>
+                                        <p class="text-base text-zinc-950">{{ truck.get_fuel_type_display|default:'—' }}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-500 mb-1">Габариты (Д×Ш×В)</p>
+                                        <p class="text-base text-zinc-950">{{ truck.length|default:'—' }}×{{ truck.width|default:'—' }}×{{ truck.height|default:'—' }} м</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-500 mb-1">Максимальная масса</p>
+                                        <p class="text-base text-zinc-950">{{ truck.max_weight|default:'—' }} кг</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-500 mb-1">Грузоподъемность</p>
+                                        <p class="text-base text-zinc-950">{{ truck.cargo_capacity|default:'—' }} кг</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Фотографии -->
+                        <div class="w-96">
+                            {% with main=truck.photos.first %}
+                            {% if main %}
+                                <div class="w-full h-64 rounded-xl overflow-hidden mb-4">
+                                    <img src="{{ main.photo.url }}" alt="Основное фото" class="w-full h-full object-cover">
+                                </div>
+                            {% else %}
+                                <div class="w-full h-64 rounded-xl overflow-hidden mb-4 bg-gray-100 flex items-center justify-center">
+                                    <img src="{% static 'core/img/truck-side.png' %}" alt="Truck" class="w-48 h-48 object-contain opacity-50">
+                                </div>
+                            {% endif %}
+                            {% endwith %}
+
+                            {% if truck.photos.count > 1 %}
+                            <div class="grid grid-cols-3 gap-4">
+                                {% for photo in truck.photos.all|slice:"1:4" %}
+                                <div class="aspect-square rounded-xl overflow-hidden">
+                                    <img src="{{ photo.photo.url }}" alt="Фото {{ forloop.counter }}" class="w-full h-full object-cover">
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Нижнее мобильное меню -->
+<nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 hidden max-lg:block">
+    <div class="flex justify-around items-center px-4 py-2">
+        <a href="{% url 'core:home' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600">
+            <div class="w-6 h-6 relative overflow-hidden">
+                <img src="{% static 'core/img/mobile/home.svg' %}" alt="Home" class="w-6 h-6">
+            </div>
+            <span class="text-xs mt-1">Главная</span>
+        </a>
+        <a href="{% url 'core:tasks' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600">
+            <div class="w-6 h-6 relative overflow-hidden">
+                <img src="{% static 'core/img/mobile/check-square.svg' %}" alt="Tasks" class="w-6 h-6">
+            </div>
+            <span class="text-xs mt-1">Задачи</span>
+        </a>
+        <a href="{% url 'core:map' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600">
+            <div class="w-6 h-6 relative overflow-hidden">
+                <img src="{% static 'core/img/mobile/location.svg' %}" alt="Map" class="w-6 h-6">
+            </div>
+            <span class="text-xs mt-1">Карта</span>
+        </a>
+        <a href="{% url 'core:trucks' %}" class="flex flex-col items-center text-blue-600">
+            <div class="w-6 h-6 relative overflow-hidden">
+                <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Trucks" class="w-6 h-6">
+            </div>
+            <span class="text-xs mt-1">Грузовики</span>
+        </a>
+        <a href="{% url 'core:employees' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600">
+            <div class="w-6 h-6 relative overflow-hidden">
+                <img src="{% static 'core/img/mobile/employee.svg' %}" alt="Employees" class="w-6 h-6">
+            </div>
+            <span class="text-xs mt-1">Сотрудники</span>
+        </a>
+    </div>
+</nav>
+{% endblock %} 

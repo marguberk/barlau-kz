@@ -31,10 +31,13 @@ from .views import (
     VehicleCreateView,
     VehicleUpdateView,
     VehicleArchiveView,
+    VehicleDeleteView,
     logout_view,
     MapView,
     ProfileEditView,
-    ChangePasswordView
+    ChangePasswordView,
+    TrucksView,
+    TruckDetailView,
 )
 from .api import update_profile, upload_profile_photo, get_profile_stats
 from django.views.generic import TemplateView
@@ -52,6 +55,10 @@ urlpatterns = [
     path('profile/', ProfileView.as_view(), name='profile'),
     path('notifications/', NotificationsView.as_view(), name='notifications'),
     path('vehicles/', VehiclesView.as_view(), name='vehicles'),
+    path('trucks/', TrucksView.as_view(), name='trucks'),
+    path('trucks/add/', VehicleCreateView.as_view(), name='truck-add'),
+    path('trucks/<int:pk>/', TruckDetailView.as_view(), name='truck-detail'),
+    path('trucks/<int:pk>/delete/', VehicleDeleteView.as_view(), name='truck-delete'),
     path('tasks/', TasksView.as_view(), name='tasks'),
     path('map/', MapView.as_view(), name='map'),
     path('expenses/', ExpensesView.as_view(), name='expenses'),
