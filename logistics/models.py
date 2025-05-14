@@ -73,6 +73,7 @@ class Vehicle(models.Model):
         default='ACTIVE',
         verbose_name='Статус'
     )
+    is_archived = models.BooleanField(default=False, verbose_name='В архиве')
     
     # Технические характеристики
     vin_number = models.CharField(max_length=20, blank=True, null=True, verbose_name='VIN номер')

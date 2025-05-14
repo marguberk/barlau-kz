@@ -145,3 +145,4 @@ open platforms/ios/BARLAU.KZ.xcworkspace
 ## Лицензия
 
 © 2024 BARLAU.KZ. Все права защищены. 
+ 

@@ -1,7 +1,7 @@
 {% extends "core/base.html" %}
 {% load static %}
 
-{% block title %}Грузовики - BARLAU.KZ{% endblock %}
+{% block title %}Автопарк - Barlau.kz{% endblock %}
 
 {% block content %}
 <div class="w-full flex">
@@ -16,7 +16,7 @@
         <div class="self-stretch flex-1 px-4 pt-2 pb-4 flex flex-col justify-start items-center gap-4 sidebar-menu">
             <div class="self-stretch flex flex-col justify-start items-start gap-1">
                 <div class="self-stretch flex flex-col justify-start items-start">
-                    <a href="{% url 'core:home' %}" class="self-stretch px-3 py-3.5 relative bg-white rounded-lg inline-flex justify-start items-center gap-2">
+                    <a href="{% url 'core:home' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex justify-start items-center gap-2">
                         <div class="w-5 h-5 relative overflow-hidden">
                             <img src="{% static 'core/img/home.svg' %}" alt="Home" class="w-4 h-4 desktop-icon">
                             <img src="{% static 'core/img/mobile/home.svg' %}" alt="Home" class="mobile-icon hidden">
@@ -61,7 +61,7 @@
     <div class="ml-64 flex-1 min-h-screen bg-gray-50 relative main-content">
         <!-- Верхняя панель -->
         <div class="w-full h-20 px-8 py-5 bg-white flex justify-between items-center">
-            <div class="justify-start text-zinc-950 text-2xl font-semibold leading-loose">Грузовики</div>
+            <div class="justify-start text-zinc-950 text-2xl font-semibold leading-loose">Автопарк</div>
             <div class="flex justify-start items-center gap-3">
                 <div class="flex justify-start items-start gap-2">
                     <a href="{% url 'core:notifications' %}" class="w-10 h-10 px-3 py-2 bg-white rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex justify-center items-center gap-1.5">
@@ -90,567 +90,673 @@
             </div>
         </div>
 
-        <!-- Панель поиска -->
+        <!-- Панель инструментов -->
         <div class="w-full px-8 pt-8">
-            <div class="mb-6 flex flex-col sm:flex-row justify-start gap-2">
-                <div class="flex-grow relative">
-                    <div class="flex h-10 w-full rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] border border-zinc-200 bg-white">
-                        <div class="flex items-center pl-3">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+                <p class="text-gray-600">Управление транспортными средствами компании</p>
+                
+                <div class="flex flex-wrap gap-3">
+                    {% if user.role == 'DIRECTOR' or user.role == 'SUPERADMIN' or user.role == 'TECH' or user.is_superuser %}
+                    <a href="{% url 'core:vehicle-add' %}" class="inline-flex items-center justify-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+                            <path d="M12 5v14M5 12h14"></path>
+                        </svg>
+                        <span>Добавить транспорт</span>
+                    </a>
+                    {% endif %}
+                    
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400">
                                 <circle cx="11" cy="11" r="8"></circle>
                                 <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                             </svg>
                         </div>
-                        <input type="text" id="searchInput" placeholder="Поиск" class="px-2 py-2 w-full focus:outline-none text-gray-700 rounded-lg" />
+                        <input type="text" id="vehicle-search" placeholder="Поиск..." class="pl-10 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-full md:w-auto">
                     </div>
+                    
+                    <select id="vehicle-filter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="ALL">Все типы</option>
+                        <option value="CAR">Легковые</option>
+                        <option value="TRUCK">Грузовые</option>
+                        <option value="SPECIAL">Спецтехника</option>
+                    </select>
+                    
+                    <select id="status-filter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="ALL">Все статусы</option>
+                        <option value="ACTIVE">Активные</option>
+                        <option value="INACTIVE">Неактивные</option>
+                        <option value="MAINTENANCE">На обслуживании</option>
+                    </select>
                 </div>
-                
-                {% if user.role == 'DIRECTOR' or user.role == 'SUPERADMIN' or user.is_superuser %}
-                <a href="{% url 'core:vehicle-add' %}" class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200">
-                    <i class="fas fa-plus mr-2"></i>Добавить транспорт
+            </div>
+        </div>
+
+        <!-- Статистика автопарка -->
+        <div class="w-full px-8 flex justify-start items-start gap-4 stats-cards">
+            <!-- Всего транспорта -->
+            <div class="flex-1 px-5 py-6 bg-white rounded-2xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex flex-col justify-start items-start gap-4 overflow-hidden">
+                <div class="self-stretch flex flex-col justify-start items-start gap-2">
+                    <div class="self-stretch inline-flex justify-between items-center">
+                        <div class="justify-start text-zinc-950 text-4xl font-semibold leading-10" id="total-vehicles">0</div>
+                        <div class="w-10 h-10 p-2 rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.10)] flex justify-center items-center gap-2 overflow-hidden" style="background: linear-gradient(135deg, #4287f5 0%, #2869db 100%);">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M18 8h1a4 4 0 0 1 0 8h-1"></path>
+                                <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path>
+                                <line x1="6" y1="1" x2="6" y2="4"></line>
+                                <line x1="10" y1="1" x2="10" y2="4"></line>
+                                <line x1="14" y1="1" x2="14" y2="4"></line>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="self-stretch justify-start text-gray-500 text-base font-normal leading-normal">Всего транспорта</div>
+                </div>
+            </div>
+            
+            <!-- Активный транспорт -->
+            <div class="flex-1 px-5 py-6 bg-white rounded-2xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex flex-col justify-start items-start gap-4 overflow-hidden">
+                <div class="self-stretch flex flex-col justify-start items-start gap-2">
+                    <div class="self-stretch inline-flex justify-between items-center">
+                        <div class="justify-start text-zinc-950 text-4xl font-semibold leading-10" id="active-vehicles">0</div>
+                        <div class="w-10 h-10 p-2 rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.10)] flex justify-center items-center gap-2 overflow-hidden" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="self-stretch justify-start text-gray-500 text-base font-normal leading-normal">Активный транспорт</div>
+                </div>
+            </div>
+            
+            <!-- На обслуживании -->
+            <div class="flex-1 px-5 py-6 bg-white rounded-2xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex flex-col justify-start items-start gap-4 overflow-hidden">
+                <div class="self-stretch flex flex-col justify-start items-start gap-2">
+                    <div class="self-stretch inline-flex justify-between items-center">
+                        <div class="justify-start text-zinc-950 text-4xl font-semibold leading-10" id="maintenance-vehicles">0</div>
+                        <div class="w-10 h-10 p-2 rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.10)] flex justify-center items-center gap-2 overflow-hidden" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="self-stretch justify-start text-gray-500 text-base font-normal leading-normal">На обслуживании</div>
+                </div>
+            </div>
+            
+            <!-- Неактивный транспорт -->
+            <div class="flex-1 px-5 py-6 bg-white rounded-2xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex flex-col justify-start items-start gap-4 overflow-hidden">
+                <div class="self-stretch flex flex-col justify-start items-start gap-2">
+                    <div class="self-stretch inline-flex justify-between items-center">
+                        <div class="justify-start text-zinc-950 text-4xl font-semibold leading-10" id="inactive-vehicles">0</div>
+                        <div class="w-10 h-10 p-2 rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.10)] flex justify-center items-center gap-2 overflow-hidden" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="15" y1="9" x2="9" y2="15"></line>
+                                <line x1="9" y1="9" x2="15" y2="15"></line>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="self-stretch justify-start text-gray-500 text-base font-normal leading-normal">Неактивный транспорт</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Список транспорта -->
+        <div class="w-full px-8 pt-8 pb-8">
+            <div id="vehicles-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <!-- Карточки транспорта будут добавлены с помощью JavaScript -->
+            </div>
+            
+            <!-- Сообщение, если нет транспорта -->
+            <div id="no-vehicles-message" class="hidden mt-8 bg-blue-50 text-blue-800 p-8 rounded-xl text-center">
+                <div class="mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mx-auto opacity-50">
+                        <path d="M18 8h1a4 4 0 0 1 0 8h-1"></path>
+                        <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path>
+                        <line x1="6" y1="1" x2="6" y2="4"></line>
+                        <line x1="10" y1="1" x2="10" y2="4"></line>
+                        <line x1="14" y1="1" x2="14" y2="4"></line>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold mb-2">Транспорт не найден</h3>
+                <p class="mb-4">По указанным параметрам поиска или фильтрации не найдено ни одного транспортного средства.</p>
+                {% if user.role == 'DIRECTOR' or user.role == 'SUPERADMIN' or user.role == 'TECH' or user.is_superuser %}
+                <a href="{% url 'core:vehicle-add' %}" class="inline-flex items-center justify-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+                        <path d="M12 5v14M5 12h14"></path>
+                    </svg>
+                    <span>Добавить транспорт</span>
                 </a>
                 {% endif %}
-            </div>
-        </div>
-
-        <!-- Статистика -->
-        <div class="w-full px-8">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-                <div class="bg-white rounded-xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] border border-zinc-200 p-4">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm font-medium text-gray-600">Всего транспорта</p>
-                            <h3 class="text-2xl font-bold text-gray-800" id="totalVehicles">0</h3>
-                        </div>
-                        <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                            <i class="fas fa-truck text-blue-600 text-xl"></i>
-                        </div>
-                    </div>
-                </div>
-                <div class="bg-white rounded-xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] border border-zinc-200 p-4">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm font-medium text-gray-600">С водителем</p>
-                            <h3 class="text-2xl font-bold text-gray-800" id="activeVehicles">0</h3>
-                        </div>
-                        <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                            <i class="fas fa-user-check text-green-600 text-xl"></i>
-                        </div>
-                    </div>
-                </div>
-                <div class="bg-white rounded-xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] border border-zinc-200 p-4">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm font-medium text-gray-600">Без водителя</p>
-                            <h3 class="text-2xl font-bold text-gray-800" id="unassignedVehicles">0</h3>
-                        </div>
-                        <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
-                            <i class="fas fa-user-alt-slash text-yellow-600 text-xl"></i>
-                        </div>
-                    </div>
-                </div>
-                <div class="bg-white rounded-xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] border border-zinc-200 p-4">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm font-medium text-gray-600">Расходы за месяц</p>
-                            <h3 class="text-2xl font-bold text-gray-800" id="monthlyExpenses">0 ₸</h3>
-                        </div>
-                        <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
-                            <i class="fas fa-money-bill text-red-600 text-xl"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Список грузовиков -->
-        <div class="w-full px-8 pb-8">
-            <!-- CSRF Token -->
-            <div style="display: none">{% csrf_token %}</div>
-            
-            <div id="vehiclesList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 hidden">
-                <!-- Грузовики будут добавлены через JavaScript -->
-            </div>
-
-            <!-- Загрузка -->
-            <div id="loadingIndicator" class="flex flex-col justify-center items-center py-12">
-                <div class="w-12 h-12 rounded-full border-4 border-blue-200 border-t-blue-600 animate-spin mb-4"></div>
-                <p class="text-gray-600">Загрузка транспорта...</p>
-            </div>
-
-            <!-- Нет транспорта -->
-            <div id="emptyState" class="hidden">
-                <div class="text-center py-12 bg-white rounded-xl shadow-sm border border-zinc-200">
-                    <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i class="fas fa-truck text-gray-400 text-2xl"></i>
-                    </div>
-                    <h3 class="text-xl font-medium text-gray-800 mb-2">Нет транспорта</h3>
-                    <p class="text-gray-600 mb-6 max-w-md mx-auto">Транспорт пока не добавлен или не найден по выбранным фильтрам</p>
-                    
-                    {% if user.role == 'DIRECTOR' or user.role == 'SUPERADMIN' or user.is_superuser %}
-                    <a href="{% url 'core:vehicle-add' %}" class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
-                        <i class="fas fa-plus mr-2"></i>Добавить первый транспорт
-                    </a>
-                    {% endif %}
-                </div>
-            </div>
-
-            <!-- Ошибка -->
-            <div id="errorState" class="hidden">
-                <div class="text-center py-12 bg-white rounded-xl shadow-sm border border-zinc-200">
-                    <div class="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i class="fas fa-exclamation-triangle text-red-500 text-2xl"></i>
-                    </div>
-                    <h3 class="text-xl font-medium text-gray-800 mb-2">Ошибка загрузки</h3>
-                    <p class="text-gray-600 mb-6 max-w-md mx-auto" id="errorMessage">Не удалось загрузить данные. Попробуйте обновить страницу.</p>
-                    
-                    <button id="retryButton" class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
-                        <i class="fas fa-sync-alt mr-2"></i>Повторить
-                    </button>
-                </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Нижнее мобильное меню - показываем только на мобильных устройствах -->
-<nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 hidden max-lg:block">
-    <div class="flex justify-around items-center px-4 py-2">
-        <a href="{% url 'core:home' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600 relative">
-            <div class="icon-container relative w-8 h-8 flex items-center justify-center">
-                <img src="{% static 'core/img/mobile/home.svg' %}" alt="Home" class="w-6 h-6">
+<!-- Модальное окно подробной информации -->
+<div id="vehicle-detail-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-xl shadow-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+        <div class="p-6 border-b border-gray-200">
+            <div class="flex justify-between items-center">
+                <h2 class="text-xl font-bold text-gray-800" id="modal-title">Информация о транспорте</h2>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
             </div>
-            <span class="text-xs text-[10px] mt-1">Главная</span>
-        </a>
-        <a href="{% url 'core:tasks' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600 relative">
-            <div class="icon-container relative w-8 h-8 flex items-center justify-center">
-                <img src="{% static 'core/img/mobile/check-square.svg' %}" alt="Tasks" class="w-6 h-6">
+        </div>
+        <div class="p-6" id="modal-content">
+            <div class="animate-pulse">
+                <div class="h-6 bg-gray-200 rounded mb-4"></div>
+                <div class="h-6 bg-gray-200 rounded w-3/4 mb-4"></div>
+                <div class="h-6 bg-gray-200 rounded w-1/2 mb-4"></div>
             </div>
-            <span class="text-xs text-[10px] mt-1">Задачи</span>
-        </a>
-        <a href="{% url 'core:map' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600 relative">
-            <div class="icon-container relative w-8 h-8 flex items-center justify-center">
-                <img src="{% static 'core/img/mobile/location.svg' %}" alt="Map" class="w-6 h-6">
-            </div>
-            <span class="text-xs text-[10px] mt-1">Карта</span>
-        </a>
-        <a href="{% url 'core:vehicles' %}" class="flex flex-col items-center text-blue-600 relative">
-            <div class="icon-container relative w-8 h-8 flex items-center justify-center">
-                <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Vehicles" class="w-6 h-6">
-            </div>
-            <span class="text-xs text-[10px] mt-1">Грузовики</span>
-            <div class="absolute -bottom-2 left-0 right-0 h-0.5 bg-blue-600 rounded-full"></div>
-        </a>
-        <a href="{% url 'core:employees' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600 relative">
-            <div class="icon-container relative w-8 h-8 flex items-center justify-center">
-                <img src="{% static 'core/img/mobile/employee.svg' %}" alt="Employees" class="w-6 h-6">
-            </div>
-            <span class="text-xs text-[10px] mt-1">Сотрудники</span>
-        </a>
+        </div>
     </div>
-</nav>
+</div>
 
-<style>
-    /* Обновленные стили для боковых иконок меню */
-    .sidebar-menu a {
-        color: #6B7280 !important; /* Серый цвет для неактивных пунктов */
-    }
-    
-    .sidebar-menu a.bg-gray-50 {
-        color: #2563EB !important; /* Синий цвет для активного пункта */
-    }
-    
-    .sidebar-menu a img.desktop-icon {
-        filter: brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(142deg) brightness(96%) contrast(91%); /* Серый фильтр для неактивных иконок */
-    }
-    
-    .sidebar-menu a.bg-gray-50 img.desktop-icon {
-        filter: brightness(0) saturate(100%) invert(32%) sepia(96%) saturate(7461%) hue-rotate(220deg) brightness(97%) contrast(98%); /* Синий фильтр для активной иконки */
-    }
-    
-    /* Общие стили для фиксации цветов иконок в меню */
-    a, a:visited, a:link, a:hover, a:active, 
-    a *, a:visited *, a:link *, a:hover *, a:active * {
-        text-decoration: none !important;
-    }
-
-    @media (max-width: 1100px) {
-        /* Убираем меню для планшетной и мобильной версий */
-        .sidebar {
-            display: none !important;
-        }
-        
-        .main-content {
-            margin-left: 0 !important;
-            width: 100% !important;
-            padding-bottom: 70px !important;
-        }
-        
-        /* Верхняя панель на всю ширину */
-        .main-content > div:first-child {
-            width: 100% !important;
-        }
-        
-        /* Устанавливаем размер и фильтр для мобильных иконок */
-        .icon-container img {
-            width: 24px !important;
-            height: 24px !important;
-        }
-        
-        /* Серый фильтр для неактивных иконок */
-        nav.fixed.bottom-0 a.text-gray-600 .icon-container img {
-            filter: brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(142deg) brightness(96%) contrast(91%) !important;
-        }
-        
-        /* Синий фильтр для активной иконки */
-        nav.fixed.bottom-0 a.text-blue-600 .icon-container img {
-            filter: brightness(0) saturate(100%) invert(32%) sepia(96%) saturate(7461%) hue-rotate(220deg) brightness(97%) contrast(98%) !important;
-        }
-    }
-    
-    /* Дополнительные коррекции для мобильных устройств */
-    @media (max-width: 640px) {
-        .main-content {
-            padding-left: 16px !important;
-            padding-right: 16px !important;
-        }
-        
-        .w-full.px-8 {
-            padding-left: 0 !important;
-            padding-right: 0 !important;
-        }
-        
-        /* Уменьшаем отступы для экономии места */
-        .px-8 {
-            padding-left: 16px !important;
-            padding-right: 16px !important;
-        }
-        
-        /* Адаптируем размер заголовков */
-        .text-2xl {
-            font-size: 1.25rem !important;
-        }
-    }
-    
-    /* Скрываем нижнее меню на этой странице для ПК версии */
-    body > nav.fixed.bottom-0 {
-        display: none !important;
-    }
-    
-    /* Скрываем верхнюю панель и корректируем отступы */
-    body > header.fixed.top-0 {
-        display: none !important;
-    }
-    
-    /* Убираем отступ от верхней панели */
-    main.mt-16 {
-        margin-top: 0 !important;
-    }
-</style>
+<!-- Модальное окно подтверждения архивации -->
+<div id="archive-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-xl shadow-lg max-w-md w-full">
+        <div class="p-6">
+            <h3 class="text-xl font-bold text-gray-800 mb-4">Подтверждение архивации</h3>
+            <p class="text-gray-600 mb-6">Вы действительно хотите архивировать транспорт <span id="archive-vehicle-number" class="font-semibold"></span>?</p>
+            
+            <div class="flex justify-end space-x-3">
+                <button onclick="closeArchiveModal()" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg transition-colors">
+                    Отмена
+                </button>
+                <form id="archive-form" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors">
+                        Архивировать
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    // Глобальные переменные
-    let allVehicles = [];
-    const searchInput = document.getElementById('searchInput');
-    const vehiclesList = document.getElementById('vehiclesList');
-    const loadingIndicator = document.getElementById('loadingIndicator');
-    const emptyState = document.getElementById('emptyState');
-    const errorState = document.getElementById('errorState');
-    const errorMessage = document.getElementById('errorMessage');
-    const retryButton = document.getElementById('retryButton');
-
-    // Загрузка данных о транспорте с API
-    async function loadVehicles() {
-        showLoading();
+    // Инициализация при загрузке страницы
+    document.addEventListener('DOMContentLoaded', function() {
+        // Загрузка списка транспорта
+        loadVehicles();
         
-        try {
-            console.log('Загрузка транспорта...');
-            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
-            const response = await fetch('/api/v1/vehicles/?token=' + new Date().getTime(), {
-                headers: {
-                    'X-CSRFToken': csrfToken || ''
-                }
-            });
-            
-            if (!response.ok) {
-                if (response.status === 403 || response.status === 401) {
-                    console.log('Ошибка аутентификации:', response.status);
-                    window.location.href = '/accounts/login/?next=/vehicles/';
-                    return;
-                }
-                throw new Error(`Ошибка HTTP: ${response.status}`);
-            }
-            
-            const data = await response.json();
-            console.log('Ответ API:', data);
-            
-            // Проверяем структуру данных
-            if (data.results !== undefined) {
-                // Данные в формате { count, next, previous, results: [] }
-                allVehicles = data.results || [];
-            } else {
-                // Данные напрямую в массиве
-                allVehicles = Array.isArray(data) ? data : [];
-            }
-            
-            console.log('Загружено транспортных средств:', allVehicles.length);
-            
-            if (allVehicles.length === 0) {
-                showEmpty();
-            } else {
-                displayVehicles(allVehicles);
-                updateStats(allVehicles);
-            }
-        } catch (error) {
-            console.error('Ошибка при загрузке данных:', error);
-            showError(error.message);
-        }
-    }
+        // Настройка поиска и фильтров
+        setupSearch();
+        setupFilters();
+    });
     
-    // Отображение транспорта
-    function displayVehicles(vehicles) {
-        if (!vehicles.length) {
-            showEmpty();
-            return;
-        }
+    // Загрузка списка транспорта с сервера
+    function loadVehicles() {
+        // Показываем индикатор загрузки в статистике
+        updateLoadingState(true);
         
-        hideLoading();
-        hideError();
-        hideEmpty();
-        
-        vehiclesList.classList.remove('hidden');
-        vehiclesList.innerHTML = vehicles.map(vehicle => {
-            const hasDriver = !!vehicle.driver_details;
-            const statusClass = hasDriver ? 'bg-green-50 text-green-600' : 'bg-yellow-50 text-yellow-600';
-            const statusText = hasDriver ? 'С водителем' : 'Без водителя';
-            const statusIcon = hasDriver ? 'user-check' : 'user-slash';
-            
-            return `
-                <div class="bg-white rounded-xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] border border-zinc-200 overflow-hidden flex flex-col h-full">
-                    <div class="px-4 py-3 border-b border-zinc-200 flex justify-between items-start">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
-                                <i class="fas fa-truck text-blue-600"></i>
-                            </div>
-                            <div class="font-semibold text-zinc-950">${vehicle.brand} ${vehicle.model}</div>
-                        </div>
-                    </div>
-                    <div class="px-4 py-3 space-y-3 flex-grow">
-                        <div class="flex items-center gap-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500">
-                                <rect x="2" y="4" width="20" height="16" rx="2"></rect>
-                                <path d="M8 4v16"></path>
-                            </svg>
-                            <span class="text-gray-500 text-sm font-medium">${vehicle.number}</span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500">
-                                <path d="M20 7h-3a2 2 0 0 1-2-2V2"></path>
-                                <path d="M16 2H8a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path>
-                            </svg>
-                            <span class="${statusClass} px-2 py-0.5 rounded text-sm font-medium">
-                                ${statusText}
-                            </span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500">
-                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                                <line x1="16" y1="2" x2="16" y2="6"></line>
-                                <line x1="8" y1="2" x2="8" y2="6"></line>
-                                <line x1="3" y1="10" x2="21" y2="10"></line>
-                            </svg>
-                            <span class="text-gray-500 text-sm font-medium">Год выпуска: ${vehicle.year}</span>
-                        </div>
-                        ${hasDriver ? `
-                        <div class="flex items-center gap-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500">
-                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                <circle cx="12" cy="7" r="4"></circle>
-                            </svg>
-                            <span class="text-gray-500 text-sm font-medium">
-                                ${vehicle.driver_details.first_name} ${vehicle.driver_details.last_name}
-                            </span>
-                        </div>
-                        ` : ''}
-                        ${hasDriver && vehicle.driver_details.phone ? `
-                        <div class="flex items-center gap-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500">
-                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
-                            </svg>
-                            <span class="text-gray-500 text-sm font-medium">${vehicle.driver_details.phone}</span>
-                        </div>
-                        ` : ''}
-                    </div>
-                    <div class="px-4 py-3 border-t border-zinc-200 mt-auto">
-                        <a href="/vehicles/${vehicle.id}/edit/" class="w-full h-10 px-3 py-2 bg-white rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] border border-zinc-200 flex justify-center items-center gap-1.5 text-sm font-semibold">
-                            <span>Управление ТС</span>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="m9 18 6-6-6-6"></path>
-                            </svg>
-                        </a>
-                    </div>
-                </div>
-            `;
-        }).join('');
-    }
-    
-    // Обновление статистики
-    function updateStats(vehicles) {
-        const totalVehicles = vehicles.length;
-        const activeVehicles = vehicles.filter(v => v.driver_details).length;
-        const unassignedVehicles = totalVehicles - activeVehicles;
-        
-        document.getElementById('totalVehicles').textContent = totalVehicles;
-        document.getElementById('activeVehicles').textContent = activeVehicles;
-        document.getElementById('unassignedVehicles').textContent = unassignedVehicles;
-        
-        // Получение данных о расходах за месяц
-        fetch('/api/v1/expenses/monthly_sum/')
+        // Выполняем запрос к API
+        fetch('/api/v1/vehicles/')
             .then(response => {
                 if (!response.ok) {
-                    if (response.status === 401 || response.status === 403) {
-                        console.log('Ошибка аутентификации при получении расходов');
-                        return { total_amount: 0 };
-                    }
-                    throw new Error(`Ошибка HTTP при получении расходов: ${response.status}`);
+                    throw new Error('Ошибка сети при загрузке данных');
                 }
                 return response.json();
             })
             .then(data => {
-                document.getElementById('monthlyExpenses').textContent = `${(data.total_amount || 0).toLocaleString()} ₸`;
+                // Обработка успешного ответа
+                if (data.results && Array.isArray(data.results)) {
+                    renderVehicles(data.results);
+                    updateStatistics(data.results);
+                    checkVisibleVehicles();
+                    updateLoadingState(false);
+                } else {
+                    throw new Error('Неверный формат данных от API');
+                }
             })
             .catch(error => {
-                console.error('Ошибка при получении данных о расходах:', error);
-                document.getElementById('monthlyExpenses').textContent = '0 ₸';
+                console.error('Ошибка при загрузке транспорта:', error);
+                // Показываем сообщение об ошибке
+                updateLoadingState(false);
+                document.getElementById('no-vehicles-message').classList.remove('hidden');
+                document.getElementById('vehicles-container').innerHTML = '';
             });
     }
     
-    // Вспомогательные функции для отображения UI
-    function showLoading() {
-        loadingIndicator.classList.remove('hidden');
-        vehiclesList.classList.add('hidden');
-        emptyState.classList.add('hidden');
-        errorState.classList.add('hidden');
-    }
-    
-    function hideLoading() {
-        loadingIndicator.classList.add('hidden');
-    }
-    
-    function showEmpty() {
-        emptyState.classList.remove('hidden');
-        vehiclesList.classList.add('hidden');
-        loadingIndicator.classList.add('hidden');
-        errorState.classList.add('hidden');
-    }
-    
-    function hideEmpty() {
-        emptyState.classList.add('hidden');
-    }
-    
-    function showError(message) {
-        errorMessage.textContent = message || 'Не удалось загрузить данные. Попробуйте обновить страницу.';
-        errorState.classList.remove('hidden');
-        vehiclesList.classList.add('hidden');
-        loadingIndicator.classList.add('hidden');
-        emptyState.classList.add('hidden');
-    }
-    
-    function hideError() {
-        errorState.classList.add('hidden');
-    }
-    
-    // Поиск транспорта
-    function applySearch() {
-        const search = searchInput.value.toLowerCase().trim();
+    // Отображение списка транспорта
+    function renderVehicles(vehicles) {
+        const container = document.getElementById('vehicles-container');
+        container.innerHTML = '';
         
-        let filteredData = [...allVehicles];
+        vehicles.forEach(vehicle => {
+            const card = createVehicleCard(vehicle);
+            container.appendChild(card);
+        });
+    }
+    
+    // Создание карточки транспорта из данных
+    function createVehicleCard(vehicle) {
+        // Создаем элемент карточки
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-xl shadow-sm overflow-hidden vehicle-card';
+        card.dataset.vehicleType = vehicle.vehicle_type;
+        card.dataset.status = vehicle.status;
+        card.dataset.search = `${vehicle.brand} ${vehicle.model} ${vehicle.number}`.toLowerCase();
         
-        if (search) {
-            filteredData = filteredData.filter(v => {
-                return (v.number && v.number.toLowerCase().includes(search)) || 
-                       (v.brand && v.brand.toLowerCase().includes(search)) || 
-                       (v.model && v.model.toLowerCase().includes(search)) ||
-                       (v.driver_details && 
-                        ((v.driver_details.first_name && v.driver_details.first_name.toLowerCase().includes(search)) || 
-                         (v.driver_details.last_name && v.driver_details.last_name.toLowerCase().includes(search))));
-            });
+        // Определяем классы и иконку для статуса
+        let statusClass, statusBgClass, statusIcon;
+        switch(vehicle.status) {
+            case 'ACTIVE':
+                statusClass = 'text-green-600';
+                statusBgClass = 'bg-green-50';
+                statusIcon = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>';
+                break;
+            case 'MAINTENANCE':
+                statusClass = 'text-amber-600';
+                statusBgClass = 'bg-amber-50';
+                statusIcon = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>';
+                break;
+            default:
+                statusClass = 'text-red-600';
+                statusBgClass = 'bg-red-50';
+                statusIcon = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>';
         }
         
-        displayVehicles(filteredData);
-    }
-    
-    // Функция для адаптации под планшеты и мобильную версию
-    function adjustLayoutForTablet() {
-        // Для планшетной и мобильной версии
-        if (window.innerWidth <= 1100) {
-            // Убираем боковую панель и настраиваем основной контент
-            document.querySelector('.main-content').style.marginLeft = '0';
-            document.querySelector('.sidebar').style.display = 'none';
-        } else {
-            resetLayoutToDesktop();
+        // Определяем тип транспорта
+        let vehicleTypeDisplay = '';
+        switch(vehicle.vehicle_type) {
+            case 'CAR':
+                vehicleTypeDisplay = 'Легковой';
+                break;
+            case 'TRUCK':
+                vehicleTypeDisplay = 'Грузовой';
+                break;
+            case 'SPECIAL':
+                vehicleTypeDisplay = 'Спецтехника';
+                break;
+            default:
+                vehicleTypeDisplay = 'Другой';
         }
-    }
-    
-    // Функция для возврата к десктопному режиму
-    function resetLayoutToDesktop() {
-        document.querySelector('.main-content').style.marginLeft = '16rem';
-        document.querySelector('.sidebar').style.display = 'flex';
-    }
-    
-    // Функция коррекции всех ссылок на странице
-    function fixAllLinks() {
-        const allLinks = document.querySelectorAll('a');
-        allLinks.forEach(link => {
-            // Исправление ссылок с неверным форматированием
-            if (link.href.includes('undefined') || link.href.includes('[object')) {
-                // Пытаемся исправить ссылку на основе текста
-                const linkText = link.textContent.trim().toLowerCase();
+        
+        // Заполняем HTML карточки
+        card.innerHTML = `
+            <div class="h-32 bg-gradient-to-r from-gray-700 to-gray-900 p-4 relative">
+                <div class="absolute top-3 right-3 flex items-center gap-1 px-2 py-1 rounded-full ${statusBgClass} ${statusClass} text-xs font-medium">
+                    ${statusIcon}
+                    <span>${vehicle.status_display || getStatusDisplay(vehicle.status)}</span>
+                </div>
+                <div class="absolute bottom-3 left-3">
+                    <span class="inline-block px-3 py-1 bg-white bg-opacity-80 rounded-lg text-gray-900 font-bold">
+                        ${vehicle.number}
+                    </span>
+                </div>
+                <div class="absolute bottom-3 right-3">
+                    <span class="inline-block px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
+                        ${vehicle.vehicle_type_display || vehicleTypeDisplay}
+                    </span>
+                </div>
+            </div>
+            
+            <div class="p-4">
+                <h3 class="text-lg font-bold text-gray-800 mb-1">${vehicle.brand} ${vehicle.model}</h3>
+                <p class="text-gray-500 text-sm mb-3">Год выпуска: ${vehicle.year}</p>
                 
-                if (linkText.includes('главная') || linkText.includes('dashboard')) {
-                    link.href = '/';
-                } else if (linkText.includes('задачи') || linkText.includes('tasks')) {
-                    link.href = '/tasks/';
-                } else if (linkText.includes('карта') || linkText.includes('map')) {
-                    link.href = '/map/';
-                } else if (linkText.includes('грузовики') || linkText.includes('vehicles')) {
-                    link.href = '/vehicles/';
-                } else if (linkText.includes('сотрудники') || linkText.includes('employees')) {
-                    link.href = '/employees/';
-                }
+                <div class="flex items-center mb-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400 mr-2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                    ${vehicle.driver ? 
+                    `<span>${vehicle.driver.full_name || (vehicle.driver_details ? vehicle.driver_details.first_name + ' ' + vehicle.driver_details.last_name : 'Водитель')}</span>` : 
+                    '<span class="text-gray-400">Не назначен</span>'}
+                </div>
+                
+                <div class="pt-3 mt-3 border-t border-gray-100 flex justify-between">
+                    <button onclick="showVehicleDetails(${vehicle.id})" class="text-blue-600 hover:text-blue-800 flex items-center gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                        <span>Подробнее</span>
+                    </button>
+                    
+                    ${isAdmin() ? `
+                    <div class="flex space-x-2">
+                        <a href="/dashboard/vehicles/${vehicle.id}/edit/" class="text-blue-600 hover:text-blue-800">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                            </svg>
+                        </a>
+                        
+                        <button onclick="confirmArchive(${vehicle.id}, '${vehicle.number}')" class="text-red-600 hover:text-red-800">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    ` : ''}
+                </div>
+            </div>
+        `;
+        
+        return card;
+    }
+    
+    // Обновление статистики
+    function updateStatistics(vehicles) {
+        const totalVehicles = vehicles.length;
+        const activeVehicles = vehicles.filter(v => v.status === 'ACTIVE').length;
+        const maintenanceVehicles = vehicles.filter(v => v.status === 'MAINTENANCE').length;
+        const inactiveVehicles = vehicles.filter(v => v.status === 'INACTIVE').length;
+        
+        document.getElementById('total-vehicles').textContent = totalVehicles;
+        document.getElementById('active-vehicles').textContent = activeVehicles;
+        document.getElementById('maintenance-vehicles').textContent = maintenanceVehicles;
+        document.getElementById('inactive-vehicles').textContent = inactiveVehicles;
+    }
+    
+    // Получение текстового представления статуса
+    function getStatusDisplay(status) {
+        switch(status) {
+            case 'ACTIVE': return 'Активен';
+            case 'MAINTENANCE': return 'На обслуживании';
+            case 'INACTIVE': return 'Неактивен';
+            default: return 'Неизвестно';
+        }
+    }
+    
+    // Проверка прав администратора
+    function isAdmin() {
+        // Проверяем наличие кнопки добавления транспорта как индикатор админских прав
+        const addButton = document.querySelector('a[href*="vehicle-add"]');
+        return addButton !== null;
+    }
+    
+    // Настройка поиска
+    function setupSearch() {
+        const searchInput = document.getElementById('vehicle-search');
+        searchInput.addEventListener('input', filterVehicles);
+    }
+    
+    // Настройка фильтров
+    function setupFilters() {
+        const typeFilter = document.getElementById('vehicle-filter');
+        const statusFilter = document.getElementById('status-filter');
+        
+        typeFilter.addEventListener('change', filterVehicles);
+        statusFilter.addEventListener('change', filterVehicles);
+    }
+    
+    // Фильтрация транспорта
+    function filterVehicles() {
+        const searchTerm = document.getElementById('vehicle-search').value.toLowerCase();
+        const typeFilter = document.getElementById('vehicle-filter').value;
+        const statusFilter = document.getElementById('status-filter').value;
+        
+        const vehicles = document.querySelectorAll('.vehicle-card');
+        let visibleCount = 0;
+        
+        vehicles.forEach(vehicle => {
+            const vehicleType = vehicle.dataset.vehicleType;
+            const status = vehicle.dataset.status;
+            const searchString = vehicle.dataset.search;
+            
+            const typeMatch = typeFilter === 'ALL' || vehicleType === typeFilter;
+            const statusMatch = statusFilter === 'ALL' || status === statusFilter;
+            const searchMatch = searchString.includes(searchTerm);
+            
+            if (typeMatch && statusMatch && searchMatch) {
+                vehicle.classList.remove('hidden');
+                visibleCount++;
+            } else {
+                vehicle.classList.add('hidden');
             }
         });
+        
+        // Показываем сообщение, если нет видимых транспортных средств
+        checkVisibleVehicles();
     }
     
-    // Инициализация при загрузке страницы
-    document.addEventListener('DOMContentLoaded', function() {
-        // Загрузка данных
-        loadVehicles();
+    // Проверка наличия видимых транспортных средств
+    function checkVisibleVehicles() {
+        const vehicles = document.querySelectorAll('.vehicle-card:not(.hidden)');
+        const container = document.getElementById('vehicles-container');
+        const noVehiclesMessage = document.getElementById('no-vehicles-message');
         
-        // Обработчики событий
-        searchInput.addEventListener('input', applySearch);
-        retryButton.addEventListener('click', loadVehicles);
+        if (vehicles.length === 0) {
+            noVehiclesMessage.classList.remove('hidden');
+            container.classList.add('hidden');
+        } else {
+            noVehiclesMessage.classList.add('hidden');
+            container.classList.remove('hidden');
+        }
+    }
+    
+    // Обновление состояния загрузки
+    function updateLoadingState(isLoading) {
+        const loaderHtml = '<span class="animate-pulse">Загрузка...</span>';
+        if (isLoading) {
+            document.getElementById('total-vehicles').innerHTML = loaderHtml;
+            document.getElementById('active-vehicles').innerHTML = loaderHtml;
+            document.getElementById('maintenance-vehicles').innerHTML = loaderHtml;
+            document.getElementById('inactive-vehicles').innerHTML = loaderHtml;
+        }
+    }
+    
+    // Отображение подробной информации о транспорте
+    function showVehicleDetails(vehicleId) {
+        const modal = document.getElementById('vehicle-detail-modal');
+        const modalContent = document.getElementById('modal-content');
+        const modalTitle = document.getElementById('modal-title');
         
-        // Запускаем функцию исправления ссылок немедленно и с интервалом
-        fixAllLinks();
-        const fixInterval = setInterval(fixAllLinks, 300);
+        // Показываем модальное окно с индикатором загрузки
+        modal.classList.remove('hidden');
+        modalContent.innerHTML = `
+            <div class="animate-pulse space-y-4">
+                <div class="h-6 bg-gray-200 rounded mb-4"></div>
+                <div class="h-6 bg-gray-200 rounded w-3/4 mb-4"></div>
+                <div class="h-6 bg-gray-200 rounded w-1/2 mb-4"></div>
+            </div>
+        `;
         
-        // После 5 секунд останавливаем интервал
-        setTimeout(() => clearInterval(fixInterval), 5000);
+        // Загружаем информацию о транспорте
+        fetch(`/api/v1/vehicles/${vehicleId}/`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Ошибка загрузки данных');
+                }
+                return response.json();
+            })
+            .then(vehicle => {
+                // Обновляем заголовок модального окна
+                modalTitle.textContent = `${vehicle.brand} ${vehicle.model} (${vehicle.number})`;
+                
+                // Формируем HTML с детальной информацией
+                let html = `
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h3 class="text-lg font-semibold mb-4 pb-2 border-b border-gray-200">Основная информация</h3>
+                            <div class="space-y-3">
+                                <div class="flex">
+                                    <span class="text-gray-500 w-40">Госномер:</span>
+                                    <span class="font-medium">${vehicle.number}</span>
+                                </div>
+                                <div class="flex">
+                                    <span class="text-gray-500 w-40">Марка:</span>
+                                    <span class="font-medium">${vehicle.brand}</span>
+                                </div>
+                                <div class="flex">
+                                    <span class="text-gray-500 w-40">Модель:</span>
+                                    <span class="font-medium">${vehicle.model}</span>
+                                </div>
+                                <div class="flex">
+                                    <span class="text-gray-500 w-40">Год выпуска:</span>
+                                    <span class="font-medium">${vehicle.year}</span>
+                                </div>
+                                <div class="flex">
+                                    <span class="text-gray-500 w-40">Тип транспорта:</span>
+                                    <span class="font-medium">${
+                                        vehicle.vehicle_type === 'CAR' ? 'Легковой' : 
+                                        vehicle.vehicle_type === 'TRUCK' ? 'Грузовой' : 
+                                        vehicle.vehicle_type === 'SPECIAL' ? 'Спецтехника' : 'Другой'
+                                    }</span>
+                                </div>
+                                <div class="flex">
+                                    <span class="text-gray-500 w-40">Статус:</span>
+                                    <span class="font-medium ${
+                                        vehicle.status === 'ACTIVE' ? 'text-green-600' : 
+                                        vehicle.status === 'MAINTENANCE' ? 'text-amber-600' : 'text-red-600'
+                                    }">${getStatusDisplay(vehicle.status)}</span>
+                                </div>
+                                <div class="flex">
+                                    <span class="text-gray-500 w-40">Водитель:</span>
+                                    <span class="font-medium">${
+                                        vehicle.driver ? 
+                                        (vehicle.driver.full_name || (vehicle.driver_details ? 
+                                            vehicle.driver_details.first_name + ' ' + vehicle.driver_details.last_name : 'Водитель')) : 
+                                        'Не назначен'
+                                    }</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-lg font-semibold mb-4 pb-2 border-b border-gray-200">Технические характеристики</h3>
+                            <div class="space-y-3">
+                                <div class="flex">
+                                    <span class="text-gray-500 w-40">VIN номер:</span>
+                                    <span class="font-medium">${vehicle.vin_number || 'Не указан'}</span>
+                                </div>
+                                <div class="flex">
+                                    <span class="text-gray-500 w-40">Номер двигателя:</span>
+                                    <span class="font-medium">${vehicle.engine_number || 'Не указан'}</span>
+                                </div>
+                                <div class="flex">
+                                    <span class="text-gray-500 w-40">Номер шасси:</span>
+                                    <span class="font-medium">${vehicle.chassis_number || 'Не указан'}</span>
+                                </div>
+                                <div class="flex">
+                                    <span class="text-gray-500 w-40">Объем двигателя:</span>
+                                    <span class="font-medium">${vehicle.engine_capacity ? vehicle.engine_capacity + ' л' : 'Не указан'}</span>
+                                </div>
+                                <div class="flex">
+                                    <span class="text-gray-500 w-40">Тип топлива:</span>
+                                    <span class="font-medium">${
+                                        vehicle.fuel_type === 'DIESEL' ? 'Дизель' : 
+                                        vehicle.fuel_type === 'PETROL' ? 'Бензин' : 
+                                        vehicle.fuel_type === 'GAS' ? 'Газ' : 
+                                        vehicle.fuel_type === 'HYBRID' ? 'Гибрид' : 
+                                        vehicle.fuel_type === 'ELECTRIC' ? 'Электро' : 'Не указан'
+                                    }</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Габариты и грузоподъемность -->
+                    <div class="mt-6">
+                        <h3 class="text-lg font-semibold mb-4 pb-2 border-b border-gray-200">Габариты и грузоподъемность</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="bg-gray-50 p-4 rounded-lg text-center">
+                                <p class="text-gray-500 text-sm">Длина</p>
+                                <p class="font-bold text-xl">${vehicle.length ? vehicle.length + ' м' : '—'}</p>
+                            </div>
+                            <div class="bg-gray-50 p-4 rounded-lg text-center">
+                                <p class="text-gray-500 text-sm">Ширина</p>
+                                <p class="font-bold text-xl">${vehicle.width ? vehicle.width + ' м' : '—'}</p>
+                            </div>
+                            <div class="bg-gray-50 p-4 rounded-lg text-center">
+                                <p class="text-gray-500 text-sm">Высота</p>
+                                <p class="font-bold text-xl">${vehicle.height ? vehicle.height + ' м' : '—'}</p>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                            <div class="bg-gray-50 p-4 rounded-lg text-center">
+                                <p class="text-gray-500 text-sm">Максимальная масса</p>
+                                <p class="font-bold text-xl">${vehicle.max_weight ? vehicle.max_weight + ' кг' : '—'}</p>
+                            </div>
+                            <div class="bg-gray-50 p-4 rounded-lg text-center">
+                                <p class="text-gray-500 text-sm">Грузоподъемность</p>
+                                <p class="font-bold text-xl">${vehicle.cargo_capacity ? vehicle.cargo_capacity + ' кг' : '—'}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Действия -->
+                    <div class="mt-6 pt-4 border-t border-gray-200 flex justify-end space-x-3">
+                        <button onclick="closeModal()" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg transition-colors">
+                            Закрыть
+                        </button>
+                        ${isAdmin() ? `
+                        <a href="/dashboard/vehicles/${vehicle.id}/edit/" class="inline-flex items-center justify-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                            </svg>
+                            Редактировать
+                        </a>
+                        ` : ''}
+                    </div>
+                `;
+                
+                modalContent.innerHTML = html;
+            })
+            .catch(error => {
+                console.error('Ошибка загрузки данных:', error);
+                modalContent.innerHTML = `
+                    <div class="text-center p-6">
+                        <div class="text-red-600 mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mx-auto">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">Ошибка загрузки данных</h3>
+                        <p class="text-gray-600">Не удалось загрузить информацию о транспорте.</p>
+                    </div>
+                `;
+            });
+    }
+    
+    // Закрытие модального окна
+    function closeModal() {
+        document.getElementById('vehicle-detail-modal').classList.add('hidden');
+    }
+    
+    // Подтверждение архивации
+    function confirmArchive(vehicleId, vehicleNumber) {
+        const modal = document.getElementById('archive-modal');
+        const vehicleNumberSpan = document.getElementById('archive-vehicle-number');
+        const form = document.getElementById('archive-form');
         
-        // Обработка изменения размера окна с защитой от частых вызовов
-        let resizeTimeout;
-        window.addEventListener('resize', function() {
-            clearTimeout(resizeTimeout);
-            resizeTimeout = setTimeout(function() {
-                adjustLayoutForTablet();
-            }, 250);
-        });
+        vehicleNumberSpan.textContent = vehicleNumber;
+        form.action = `/dashboard/vehicles/${vehicleId}/archive/`;
         
-        // Адаптируем под планшеты и мобильные устройства
-        adjustLayoutForTablet();
+        modal.classList.remove('hidden');
+    }
+    
+    // Закрытие модального окна архивации
+    function closeArchiveModal() {
+        document.getElementById('archive-modal').classList.add('hidden');
+    }
+    
+    // Закрытие модальных окон при клике вне их содержимого
+    window.addEventListener('click', function(event) {
+        const vehicleModal = document.getElementById('vehicle-detail-modal');
+        const archiveModal = document.getElementById('archive-modal');
+        
+        if (event.target === vehicleModal) {
+            closeModal();
+        }
+        
+        if (event.target === archiveModal) {
+            closeArchiveModal();
+        }
     });
 </script>
 {% endblock %} 

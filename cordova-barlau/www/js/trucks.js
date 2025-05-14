@@ -429,3 +429,4 @@ const TrucksModule = {
 
 // Экспортируем модуль
 window.TrucksModule = TrucksModule; 
+ 

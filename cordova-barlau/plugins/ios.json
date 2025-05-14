@@ -1,0 +1,31 @@
+{
+  "prepare_queue": {
+    "installed": [],
+    "uninstalled": []
+  },
+  "config_munge": {
+    "files": {}
+  },
+  "installed_plugins": {
+    "cordova-plugin-statusbar": {
+      "PACKAGE_NAME": "kz.barlau.app"
+    },
+    "cordova-plugin-splashscreen": {
+      "PACKAGE_NAME": "kz.barlau.app"
+    },
+    "cordova-plugin-inappbrowser": {
+      "PACKAGE_NAME": "kz.barlau.app"
+    },
+    "cordova-plugin-network-information": {
+      "PACKAGE_NAME": "kz.barlau.app"
+    },
+    "cordova-plugin-geolocation": {
+      "GPS_REQUIRED": "true",
+      "PACKAGE_NAME": "kz.barlau.app"
+    },
+    "cordova-plugin-device": {
+      "PACKAGE_NAME": "kz.barlau.app"
+    }
+  },
+  "dependent_plugins": {}
+}

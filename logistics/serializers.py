@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Vehicle, Task, Expense, WaybillDocument
+from .models import Vehicle, Task, Expense, WaybillDocument, VehiclePhoto, VehicleDocument, VehicleMaintenance
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
@@ -7,14 +7,36 @@ User = get_user_model()
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'first_name', 'last_name', 'role']
+        fields = ['id', 'username', 'first_name', 'last_name', 'role', 'phone']
+
+class VehiclePhotoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = VehiclePhoto
+        fields = '__all__'
+
+class VehicleDocumentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = VehicleDocument
+        fields = '__all__'
+
+class VehicleMaintenanceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = VehicleMaintenance
+        fields = '__all__'
 
 class VehicleSerializer(serializers.ModelSerializer):
     driver_details = UserSerializer(source='driver', read_only=True)
+    photos = VehiclePhotoSerializer(many=True, read_only=True)
+    documents = VehicleDocumentSerializer(many=True, read_only=True)
+    maintenance_records = VehicleMaintenanceSerializer(many=True, read_only=True)
     
     class Meta:
         model = Vehicle
-        fields = ['id', 'number', 'brand', 'model', 'year', 'vehicle_type', 'status', 'driver', 'driver_details', 'created_at', 'updated_at', 'created_by']
+        fields = ['id', 'number', 'brand', 'model', 'year', 'color', 'description', 'vehicle_type', 'status', 
+                 'vin_number', 'engine_number', 'chassis_number', 'engine_capacity', 'fuel_type', 'fuel_consumption',
+                 'length', 'width', 'height', 'max_weight', 'cargo_capacity',
+                 'driver', 'driver_details', 'created_at', 'updated_at', 'created_by',
+                 'photos', 'documents', 'maintenance_records']
 
 class VehicleLocationSerializer(serializers.ModelSerializer):
     driver_name = serializers.CharField(source='driver.get_full_name', read_only=True)

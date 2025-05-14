@@ -49,85 +49,10 @@
     {% block extra_head %}{% endblock %}
 </head>
 <body class="bg-background text-foreground">
-    <!-- Верхняя панель -->
-    <header class="fixed top-0 left-0 right-0 bg-white shadow-sm z-50">
-        <div class="flex justify-between items-center px-4 py-3">
-            <div class="flex items-center space-x-2">
-                <a href="/" class="flex items-center space-x-2">
-                    <h1 class="text-xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">BARLAU.KZ</h1>
-                </a>
-            </div>
-            <div class="flex items-center space-x-4">
-                {% if user.is_authenticated %}
-                    <div class="relative">
-                        <button id="userMenuBtn" class="flex items-center space-x-2 text-gray-700 hover:text-blue-600">
-                            <div class="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
-                                <i class="fas fa-user text-blue-600"></i>
-                            </div>
-                            <span class="text-sm hidden md:inline">{{ user.get_full_name|default:user.username }}</span>
-                        </button>
-                        <div id="userMenu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2">
-                            <a href="{% url 'core:profile' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50">
-                                <i class="fas fa-user-circle mr-2"></i>Мой профиль
-                            </a>
-                            <div class="border-t border-gray-100 my-2"></div>
-                            <form action="{% url 'core:custom-logout' %}" method="post" class="m-0">
-                                {% csrf_token %}
-                                <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">
-                                    <i class="fas fa-sign-out-alt mr-2"></i>Выйти
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                {% else %}
-                    <a href="{% url 'login' %}" class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2">
-                        <i class="fas fa-sign-in-alt mr-2"></i>Войти
-                    </a>
-                {% endif %}
-            </div>
-        </div>
-    </header>
-
     <!-- Основной контент -->
-    <main class="mt-16 mb-20">
+    <main>
         {% block content %}{% endblock %}
     </main>
-
-    <!-- Нижняя навигация -->
-    {% if user.is_authenticated %}
-    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 base-bottom-nav">
-        <div class="flex justify-around items-center px-4 py-2">
-            <a href="{% url 'core:home' %}" class="flex flex-col items-center {% if request.path == '/' %}text-blue-600{% else %}text-gray-600 hover:text-blue-600{% endif %}">
-                <div class="icon-container relative w-8 h-8 flex items-center justify-center">
-                    <i class="fas fa-home text-xl desktop-icon"></i>
-                    <img src="{% static 'core/img/mobile/home.svg' %}" alt="Home" class="w-8 h-8 mobile-icon hidden">
-                </div>
-                <span class="text-xs mt-1">Главная</span>
-            </a>
-            <a href="{% url 'core:tasks' %}" class="flex flex-col items-center {% if active_page == 'tasks' %}text-blue-600{% else %}text-gray-600 hover:text-blue-600{% endif %}">
-                <div class="icon-container relative w-8 h-8 flex items-center justify-center">
-                    <i class="fas fa-tasks text-xl desktop-icon"></i>
-                    <img src="{% static 'core/img/mobile/check-square.svg' %}" alt="Tasks" class="w-8 h-8 mobile-icon hidden">
-                </div>
-                <span class="text-xs mt-1">Задачи</span>
-            </a>
-            <a href="{% url 'core:map' %}" class="flex flex-col items-center {% if active_page == 'map' %}text-blue-600{% else %}text-gray-600 hover:text-blue-600{% endif %}">
-                <div class="icon-container relative w-8 h-8 flex items-center justify-center">
-                    <i class="fas fa-map-marker-alt text-xl desktop-icon"></i>
-                    <img src="{% static 'core/img/mobile/location.svg' %}" alt="Map" class="w-8 h-8 mobile-icon hidden">
-                </div>
-                <span class="text-xs mt-1">Карта</span>
-            </a>
-            <a href="{% url 'core:profile' %}" class="flex flex-col items-center {% if active_page == 'profile' %}text-blue-600{% else %}text-gray-600 hover:text-blue-600{% endif %}">
-                <div class="icon-container relative w-8 h-8 flex items-center justify-center">
-                    <i class="fas fa-user text-xl desktop-icon"></i>
-                    <img src="{% static 'core/img/mobile/employee.svg' %}" alt="Profile" class="w-8 h-8 mobile-icon hidden">
-                </div>
-                <span class="text-xs mt-1">Профиль</span>
-            </a>
-        </div>
-    </nav>
-    {% endif %}
 
     <!-- Модальное окно уведомлений -->
     <div id="notifyModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50">
@@ -163,20 +88,6 @@
     </div>
     
     <script>
-        // Меню пользователя
-        const userMenuBtn = document.getElementById('userMenuBtn');
-        const userMenu = document.getElementById('userMenu');
-        if (userMenuBtn && userMenu) {
-            userMenuBtn.addEventListener('click', () => {
-                userMenu.classList.toggle('hidden');
-            });
-            document.addEventListener('click', (e) => {
-                if (!userMenuBtn.contains(e.target) && !userMenu.contains(e.target)) {
-                    userMenu.classList.add('hidden');
-                }
-            });
-        }
-
         // Уведомления
         const notifyBtn = document.getElementById('notifyBtn');
         const notifyModal = document.getElementById('notifyModal');

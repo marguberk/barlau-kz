@@ -48,16 +48,22 @@ from logistics.models import Vehicle, VehiclePhoto, VehicleDocument
 
 User = get_user_model()
 
+
 class IsDirectorOrSuperAdmin(permissions.BasePermission):
     def has_permission(self, request, view):
         if request.method in permissions.SAFE_METHODS:
             return request.user.is_authenticated
-        return request.user.role in ['DIRECTOR', 'SUPERADMIN'] or request.user.is_superuser
+        return request.user.role in ['DIRECTOR',
+                                     'SUPERADMIN'] or request.user.is_superuser
+
 
 class EmployeeViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated, IsDirectorOrSuperAdmin]
-    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filter_backends = [
+        DjangoFilterBackend,
+        filters.SearchFilter,
+        filters.OrderingFilter]
     search_fields = ['username', 'first_name', 'last_name', 'email', 'phone']
     filterset_fields = ['role', 'is_active', 'is_archived']
     ordering_fields = ['date_joined', 'last_login', 'id', 'first_name', 'role']
@@ -65,7 +71,7 @@ class EmployeeViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = User.objects.all().order_by('-date_joined', 'id')
-        
+
         # Фильтрация по архивным сотрудникам
         is_archived = self.request.query_params.get('is_archived', None)
         if is_archived is not None:
@@ -74,7 +80,7 @@ class EmployeeViewSet(viewsets.ModelViewSet):
         else:
             # По умолчанию показываем только неархивированных сотрудников
             queryset = queryset.filter(is_archived=False)
-            
+
         return queryset
 
     def get_serializer_class(self):
@@ -96,17 +102,18 @@ class EmployeeViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'])
     def archive(self, request, pk=None):
         """Архивировать или разархивировать сотрудника"""
-        if not request.user.role in ['DIRECTOR', 'SUPERADMIN'] and not request.user.is_superuser:
+        if not request.user.role in [
+                'DIRECTOR', 'SUPERADMIN'] and not request.user.is_superuser:
             return Response(
                 {"detail": "У вас нет прав для архивирования сотрудников"},
                 status=status.HTTP_403_FORBIDDEN
             )
-            
+
         user = self.get_object()
         is_archived = request.data.get('is_archived', not user.is_archived)
         user.is_archived = is_archived
         user.save()
-        
+
         serializer = self.get_serializer(user)
         return Response(serializer.data)
 
@@ -127,19 +134,19 @@ class EmployeeViewSet(viewsets.ModelViewSet):
                 {"detail": "У вас нет прав для изменения ролей"},
                 status=status.HTTP_403_FORBIDDEN
             )
-            
+
         user = self.get_object()
         new_role = request.data.get('role')
-        
+
         if not new_role or new_role not in dict(User.Role.choices).keys():
             return Response(
                 {"detail": "Указана неверная роль"},
                 status=status.HTTP_400_BAD_REQUEST
             )
-            
+
         user.role = new_role
         user.save()
-        
+
         serializer = self.get_serializer(user)
         return Response(serializer.data)
 
@@ -149,12 +156,12 @@ class EmployeeViewSet(viewsets.ModelViewSet):
         import xlsxwriter
         from io import BytesIO
         from django.http import HttpResponse
-        
+
         # Создаем новый файл Excel
         output = BytesIO()
         workbook = xlsxwriter.Workbook(output)
         worksheet = workbook.add_worksheet('Сотрудники')
-        
+
         # Форматы
         header_format = workbook.add_format({
             'bold': True,
@@ -164,22 +171,22 @@ class EmployeeViewSet(viewsets.ModelViewSet):
             'font_color': 'white',
             'border': 1
         })
-        
+
         date_format = workbook.add_format({'num_format': 'dd.mm.yyyy'})
-        
+
         # Заголовки
         headers = [
-            'ID', 'Имя', 'Фамилия', 'Email', 'Телефон', 'Роль', 
+            'ID', 'Имя', 'Фамилия', 'Email', 'Телефон', 'Роль',
             'Должность', 'Статус', 'Дата регистрации', 'Последний вход'
         ]
-        
+
         for col, header in enumerate(headers):
             worksheet.write(0, col, header, header_format)
             worksheet.set_column(col, col, 15)  # Ширина колонки
-        
+
         # Данные
         queryset = self.filter_queryset(self.get_queryset())
-        
+
         for row, user in enumerate(queryset, start=1):
             worksheet.write(row, 0, user.id)
             worksheet.write(row, 1, user.first_name)
@@ -188,13 +195,19 @@ class EmployeeViewSet(viewsets.ModelViewSet):
             worksheet.write(row, 4, str(user.phone))
             worksheet.write(row, 5, user.get_role_display())
             worksheet.write(row, 6, user.position or '')
-            worksheet.write(row, 7, 'Активен' if user.is_active else 'Неактивен')
-            worksheet.write(row, 8, user.date_joined.strftime('%d.%m.%Y'), date_format)
+            worksheet.write(
+                row, 7, 'Активен' if user.is_active else 'Неактивен')
+            worksheet.write(
+                row,
+                8,
+                user.date_joined.strftime('%d.%m.%Y'),
+                date_format)
             if user.last_login:
-                worksheet.write(row, 9, user.last_login.strftime('%d.%m.%Y'), date_format)
-        
+                worksheet.write(
+                    row, 9, user.last_login.strftime('%d.%m.%Y'), date_format)
+
         workbook.close()
-        
+
         # Отправляем файл
         output.seek(0)
         response = HttpResponse(
@@ -206,19 +219,20 @@ class EmployeeViewSet(viewsets.ModelViewSet):
 
 # Create your views here.
 
+
 class NotificationViewSet(viewsets.ModelViewSet):
     serializer_class = NotificationSerializer
     permission_classes = [permissions.IsAuthenticated]
-    
+
     def get_queryset(self):
         return Notification.objects.filter(user=self.request.user)
-    
+
     @action(detail=False, methods=['post'])
     def mark_all_read(self, request):
         """Отметить все уведомления как прочитанные"""
         self.get_queryset().update(read=True)
         return Response(status=status.HTTP_204_NO_CONTENT)
-    
+
     @action(detail=True, methods=['post'])
     def mark_read(self, request, pk=None):
         """Отметить уведомление как прочитанное"""
@@ -226,21 +240,21 @@ class NotificationViewSet(viewsets.ModelViewSet):
         notification.read = True
         notification.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
-    
+
     @action(detail=False, methods=['get'])
     def unread_count(self, request):
         """Получить количество непрочитанных уведомлений"""
         count = self.get_queryset().filter(read=False).count()
         return Response({'count': count})
-    
+
     @action(detail=False, methods=['post'])
     def create_test(self, request):
         """Создать тестовое уведомление для отладки"""
-        types = [Notification.Type.TASK, Notification.Type.WAYBILL, 
-                Notification.Type.EXPENSE, Notification.Type.SYSTEM]
+        types = [Notification.Type.TASK, Notification.Type.WAYBILL,
+                 Notification.Type.EXPENSE, Notification.Type.SYSTEM]
         import random
         test_type = random.choice(types)
-        
+
         notification = Notification.objects.create(
             user=request.user,
             type=test_type,
@@ -248,17 +262,18 @@ class NotificationViewSet(viewsets.ModelViewSet):
             message=f"Это тестовое уведомление типа {test_type} для проверки функциональности",
             read=False
         )
-        
+
         serializer = self.get_serializer(notification)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+
 class HomeView(LoginRequiredMixin, TemplateView):
     template_name = 'core/dashboard.html'
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['active_page'] = 'home'
-        
+
         if self.request.user.is_authenticated:
             # Получаем статистику
             if self.request.user.role == 'DRIVER':
@@ -284,10 +299,10 @@ class HomeView(LoginRequiredMixin, TemplateView):
                 vehicles_count = Vehicle.objects.filter(
                     driver__isnull=False
                 ).count()
-            
+
             context['tasks_count'] = tasks_count
             context['vehicles_count'] = vehicles_count
-            
+
             # Получаем последние задачи
             if self.request.user.role == 'DRIVER':
                 tasks = Task.objects.filter(assigned_to=self.request.user)
@@ -295,17 +310,17 @@ class HomeView(LoginRequiredMixin, TemplateView):
                 tasks = Task.objects.all()
             else:
                 tasks = Task.objects.filter(created_by=self.request.user)
-                
+
             context['recent_tasks'] = tasks.select_related(
                 'assigned_to', 'vehicle'
             ).order_by('-created_at')[:5]
-            
+
             # Получаем количество непрочитанных уведомлений
             context['unread_notifications'] = Notification.objects.filter(
                 user=self.request.user,
                 read=False
             ).count()
-        
+
         # Основные разделы приложения
         context['main_sections'] = [
             {
@@ -349,12 +364,13 @@ class HomeView(LoginRequiredMixin, TemplateView):
                 'url': '/about/'
             }
         ]
-        
+
         # Быстрые действия в зависимости от роли
         quick_actions = []
-        
+
         if self.request.user.is_authenticated:
-            if self.request.user.role in ['DIRECTOR', 'SUPERADMIN', 'ACCOUNTANT']:
+            if self.request.user.role in [
+                    'DIRECTOR', 'SUPERADMIN', 'ACCOUNTANT']:
                 quick_actions.extend([
                     {
                         'icon': 'plus-circle',
@@ -369,7 +385,7 @@ class HomeView(LoginRequiredMixin, TemplateView):
                         'url': '/employees/add/'
                     }
                 ])
-            
+
             if self.request.user.role == 'DRIVER':
                 quick_actions.extend([
                     {
@@ -385,7 +401,7 @@ class HomeView(LoginRequiredMixin, TemplateView):
                         'url': '/waybills/add/'
                     }
                 ])
-            
+
             if self.request.user.role in ['ACCOUNTANT', 'SUPPLIER']:
                 quick_actions.extend([
                     {
@@ -401,17 +417,18 @@ class HomeView(LoginRequiredMixin, TemplateView):
                         'url': '/finance/'
                     }
                 ])
-        
+
         context['quick_actions'] = quick_actions
-        
+
         return context
+
 
 class AboutPageView(TemplateView):
     template_name = 'core/about.html'
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        
+
         context['company_info'] = {
             'name': 'Barlau.kz',
             'description': 'Система управления логистической компанией',
@@ -444,72 +461,82 @@ class AboutPageView(TemplateView):
                 'working_hours': 'Пн-Пт: 9:00 - 18:00'
             }
         }
-        
+
         return context
+
 
 class ProfileView(LoginRequiredMixin, TemplateView):
     template_name = 'core/profile.html'
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         user = self.request.user
-        
+
         # Получаем статистику по задачам
         tasks = Task.objects.filter(assigned_to=user)
         context['tasks_count'] = tasks.count()
         context['new_tasks_count'] = tasks.filter(status='NEW').count()
-        context['in_progress_tasks_count'] = tasks.filter(status='IN_PROGRESS').count()
-        context['completed_tasks_count'] = tasks.filter(status='COMPLETED').count()
+        context['in_progress_tasks_count'] = tasks.filter(
+            status='IN_PROGRESS').count()
+        context['completed_tasks_count'] = tasks.filter(
+            status='COMPLETED').count()
 
         # Статистика по путевым листам для водителей
         if user.role == 'DRIVER':
             today = timezone.now().date()
             week_ago = today - timedelta(days=7)
             month_ago = today - timedelta(days=30)
-            
+
             waybills = Waybill.objects.filter(driver=user)
             context['waybills_count'] = waybills.count()
-            context['today_waybills_count'] = waybills.filter(date=today).count()
-            context['week_waybills_count'] = waybills.filter(date__gte=week_ago).count()
-            context['month_waybills_count'] = waybills.filter(date__gte=month_ago).count()
+            context['today_waybills_count'] = waybills.filter(
+                date=today).count()
+            context['week_waybills_count'] = waybills.filter(
+                date__gte=week_ago).count()
+            context['month_waybills_count'] = waybills.filter(
+                date__gte=month_ago).count()
 
         # Статистика по расходам для бухгалтеров и снабженцев
         if user.role in ['ACCOUNTANT', 'SUPPLIER']:
             expenses = Expense.objects.filter(created_by=user)
             context['expenses_count'] = expenses.count()
-            context['pending_expenses_count'] = expenses.filter(status='PENDING').count()
-            context['approved_expenses_count'] = expenses.filter(status='APPROVED').count()
-            context['rejected_expenses_count'] = expenses.filter(status='REJECTED').count()
+            context['pending_expenses_count'] = expenses.filter(
+                status='PENDING').count()
+            context['approved_expenses_count'] = expenses.filter(
+                status='APPROVED').count()
+            context['rejected_expenses_count'] = expenses.filter(
+                status='REJECTED').count()
 
         # Уведомления
         from datetime import datetime, time
         today_min = datetime.combine(timezone.now().date(), time.min)
         today_max = datetime.combine(timezone.now().date(), time.max)
-        
+
         notifications = Notification.objects.filter(user=user)
         context['notifications_count'] = notifications.count()
-        context['unread_notifications_count'] = notifications.filter(read=False).count()
+        context['unread_notifications_count'] = notifications.filter(
+            read=False).count()
         context['today_notifications_count'] = notifications.filter(
             created_at__range=(today_min, today_max)
         ).count()
-        
+
         # Последние действия
         context['recent_actions'] = self.get_recent_actions(user)
-        
+
         return context
-    
+
     def get_recent_actions(self, user):
         # Здесь можно добавить логику получения последних действий пользователя
         # Например, из логов, истории действий и т.д.
-        
+
         # Пример:
         actions = []
-        
+
         # Последние задачи
         recent_tasks = Task.objects.filter(
             Q(created_by=user) | Q(assigned_to=user)
         ).order_by('-updated_at')[:3]
-        
+
         for task in recent_tasks:
             if task.created_by == user:
                 actions.append({
@@ -523,27 +550,28 @@ class ProfileView(LoginRequiredMixin, TemplateView):
                     'description': f'Назначена задача "{task.title}"',
                     'timestamp': task.updated_at
                 })
-        
+
         # Последние уведомления
         recent_notifications = Notification.objects.filter(
             user=user
         ).order_by('-created_at')[:3]
-        
+
         for notification in recent_notifications:
             actions.append({
                 'icon': 'bell',
                 'description': notification.title,
                 'timestamp': notification.created_at
             })
-        
+
         # Сортируем по времени
         actions.sort(key=lambda x: x['timestamp'], reverse=True)
-        
+
         return actions[:5]  # Возвращаем максимум 5 действий
+
 
 class NotificationsView(LoginRequiredMixin, TemplateView):
     template_name = 'core/notifications.html'
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['unread_notifications'] = Notification.objects.filter(
@@ -552,51 +580,55 @@ class NotificationsView(LoginRequiredMixin, TemplateView):
         ).count()
         return context
 
+
 class TasksView(LoginRequiredMixin, TemplateView):
     template_name = 'core/tasks.html'
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['active_page'] = 'tasks'
-        
+
         # Загружаем задачи из базы данных для начального рендеринга страницы
         from logistics.models import Task
-        
+
         # Получаем модель пользователя
         User = get_user_model()
-        
+
         # Получаем все задачи
-        tasks = Task.objects.all().select_related('assigned_to', 'vehicle', 'created_by')
-        
+        tasks = Task.objects.all().select_related(
+            'assigned_to', 'vehicle', 'created_by')
+
         # Если пользователь водитель, показываем только его задачи
         if self.request.user.role == 'DRIVER':
             tasks = tasks.filter(assigned_to=self.request.user)
-        
+
         context['initial_tasks'] = tasks
         return context
 
+
 class TaskCreateView(LoginRequiredMixin, View):
     template_name = 'core/task_form.html'
-    
+
     def dispatch(self, request, *args, **kwargs):
         # Проверяем, аутентифицирован ли пользователь
         if not request.user.is_authenticated:
             return redirect('login')
-            
+
         # Проверяем права доступа
-        if not request.user.role in ['DIRECTOR', 'SUPERADMIN', 'TECH'] and not request.user.is_superuser:
+        if not request.user.role in [
+                'DIRECTOR', 'SUPERADMIN', 'TECH'] and not request.user.is_superuser:
             return redirect('core:tasks')
         return super().dispatch(request, *args, **kwargs)
-    
+
     def get(self, request):
         # Получаем список сотрудников для поля выбора исполнителя
         User = get_user_model()
         employees = User.objects.filter(is_active=True)
-        
+
         # Получаем список транспорта для поля выбора
         from logistics.models import Vehicle
         vehicles = Vehicle.objects.all()
-        
+
         context = {
             'employees': employees,
             'vehicles': vehicles,
@@ -604,22 +636,23 @@ class TaskCreateView(LoginRequiredMixin, View):
             'active_page': 'tasks'
         }
         return render(request, self.template_name, context)
-    
+
     def post(self, request):
         from logistics.models import Task, Vehicle
-        
+
         title = request.POST.get('title')
         description = request.POST.get('description')
         priority = request.POST.get('priority')
         due_date = request.POST.get('due_date')
         assigned_to_id = request.POST.get('assigned_to')
         vehicle_id = request.POST.get('vehicle')
-        
+
         # Валидация
         if not title or not description or not priority or not due_date:
-            messages.error(request, 'Пожалуйста, заполните все обязательные поля')
+            messages.error(
+                request, 'Пожалуйста, заполните все обязательные поля')
             return redirect('core:task-add')
-        
+
         # Создаем задачу
         task = Task(
             title=title,
@@ -628,7 +661,7 @@ class TaskCreateView(LoginRequiredMixin, View):
             due_date=due_date,
             created_by=request.user
         )
-        
+
         # Если выбран исполнитель
         if assigned_to_id:
             User = get_user_model()
@@ -636,14 +669,14 @@ class TaskCreateView(LoginRequiredMixin, View):
                 task.assigned_to = User.objects.get(id=assigned_to_id)
             except User.DoesNotExist:
                 pass
-        
+
         # Если выбран транспорт
         if vehicle_id:
             try:
                 task.vehicle = Vehicle.objects.get(id=vehicle_id)
             except Vehicle.DoesNotExist:
                 pass
-        
+
         try:
             task.save()
             messages.success(request, 'Задача успешно создана')
@@ -652,12 +685,12 @@ class TaskCreateView(LoginRequiredMixin, View):
         except Exception as e:
             # Обрабатываем возможные ошибки при создании задачи
             messages.error(request, f'Ошибка при создании задачи: {str(e)}')
-            
+
             # Готовим контекст для повторного отображения формы
             User = get_user_model()
             employees = User.objects.filter(is_active=True)
             vehicles = Vehicle.objects.all()
-            
+
             context = {
                 'employees': employees,
                 'vehicles': vehicles,
@@ -674,14 +707,15 @@ class TaskCreateView(LoginRequiredMixin, View):
             }
             return render(request, self.template_name, context)
 
+
 class TaskUpdateView(LoginRequiredMixin, View):
     template_name = 'core/task_form.html'
-    
+
     def dispatch(self, request, *args, **kwargs):
         # Проверяем, аутентифицирован ли пользователь
         if not request.user.is_authenticated:
             return redirect('login')
-            
+
         # Проверяем существование задачи
         from logistics.models import Task
         try:
@@ -689,25 +723,26 @@ class TaskUpdateView(LoginRequiredMixin, View):
         except Task.DoesNotExist:
             messages.error(request, 'Задача не найдена')
             return redirect('core:tasks')
-        
+
         # Проверяем права доступа
-        if not (request.user.role in ['DIRECTOR', 'SUPERADMIN', 'TECH'] or 
-                request.user == self.task.created_by or 
+        if not (request.user.role in ['DIRECTOR', 'SUPERADMIN', 'TECH'] or
+                request.user == self.task.created_by or
                 request.user == self.task.assigned_to):
-            messages.error(request, 'У вас нет прав для редактирования этой задачи')
+            messages.error(
+                request, 'У вас нет прав для редактирования этой задачи')
             return redirect('core:tasks')
-            
+
         return super().dispatch(request, *args, **kwargs)
-    
+
     def get(self, request, pk):
         # Получаем список сотрудников для поля выбора исполнителя
         User = get_user_model()
         employees = User.objects.filter(is_active=True)
-        
+
         # Получаем список транспорта для поля выбора
         from logistics.models import Vehicle
         vehicles = Vehicle.objects.all()
-        
+
         context = {
             'task': self.task,
             'employees': employees,
@@ -716,7 +751,7 @@ class TaskUpdateView(LoginRequiredMixin, View):
             'active_page': 'tasks'
         }
         return render(request, self.template_name, context)
-    
+
     def post(self, request, pk):
         title = request.POST.get('title')
         description = request.POST.get('description')
@@ -724,19 +759,20 @@ class TaskUpdateView(LoginRequiredMixin, View):
         due_date = request.POST.get('due_date')
         assigned_to_id = request.POST.get('assigned_to')
         vehicle_id = request.POST.get('vehicle')
-        
+
         # Валидация
         if not title or not description or not priority or not due_date:
-            messages.error(request, 'Пожалуйста, заполните все обязательные поля')
+            messages.error(
+                request, 'Пожалуйста, заполните все обязательные поля')
             return redirect('core:task-edit', pk=pk)
-        
+
         # Обновляем задачу
         task = self.task
         task.title = title
         task.description = description
         task.priority = priority
         task.due_date = due_date
-        
+
         # Если выбран исполнитель
         if assigned_to_id:
             User = get_user_model()
@@ -745,14 +781,15 @@ class TaskUpdateView(LoginRequiredMixin, View):
                 if task.assigned_to != new_assigned_to:
                     old_assigned_to = task.assigned_to
                     task.assigned_to = new_assigned_to
-                    
+
                     # Создаем уведомление для нового исполнителя
-                    Notification.create_task_notification(new_assigned_to, task)
+                    Notification.create_task_notification(
+                        new_assigned_to, task)
             except User.DoesNotExist:
                 pass
         else:
             task.assigned_to = None
-        
+
         # Если выбран транспорт
         if vehicle_id:
             from logistics.models import Vehicle
@@ -762,18 +799,19 @@ class TaskUpdateView(LoginRequiredMixin, View):
                 pass
         else:
             task.vehicle = None
-        
+
         task.save()
-        
+
         messages.success(request, 'Задача успешно обновлена')
         return redirect('core:tasks')
+
 
 class TaskArchiveView(LoginRequiredMixin, View):
     def dispatch(self, request, *args, **kwargs):
         # Проверяем, аутентифицирован ли пользователь
         if not request.user.is_authenticated:
             return redirect('login')
-            
+
         # Проверяем существование задачи
         from logistics.models import Task
         try:
@@ -781,69 +819,84 @@ class TaskArchiveView(LoginRequiredMixin, View):
         except Task.DoesNotExist:
             messages.error(request, 'Задача не найдена')
             return redirect('core:tasks')
-        
+
         # Проверяем права доступа
-        if not (request.user.role in ['DIRECTOR', 'SUPERADMIN', 'TECH'] or 
+        if not (request.user.role in ['DIRECTOR', 'SUPERADMIN', 'TECH'] or
                 request.user == self.task.created_by):
             messages.error(request, 'У вас нет прав для архивации этой задачи')
             return redirect('core:tasks')
-            
+
         return super().dispatch(request, *args, **kwargs)
-    
+
     def post(self, request, pk):
         # Архивируем задачу
         self.task.status = 'CANCELLED'
         self.task.save()
-        
+
         messages.success(request, 'Задача отменена и перемещена в архив')
         return redirect('core:tasks')
 
+
 class ExpensesView(LoginRequiredMixin, TemplateView):
     template_name = 'core/expenses.html'
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['active_page'] = 'expenses'
         return context
 
+
 class FinanceView(LoginRequiredMixin, TemplateView):
     template_name = 'core/finance.html'
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['active_page'] = 'finance'
-        
+
         # Проверяем доступ к финансовой информации
         context['can_view_finance'] = self.request.user.role in [
             'DIRECTOR', 'SUPERADMIN', 'ACCOUNTANT'
         ]
-        
+
         return context
+
 
 class EmployeesView(LoginRequiredMixin, TemplateView):
     template_name = 'core/employees.html'
-    
+
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
             return self.handle_no_permission()
-        # Разрешаем всем аутентифицированным пользователям просматривать страницу сотрудников
+        # Разрешаем всем аутентифицированным пользователям просматривать
+        # страницу сотрудников
         return super().dispatch(request, *args, **kwargs)
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         # Получаем список активных сотрудников
-        context['employees'] = User.objects.filter(is_active=True).order_by('last_name', 'first_name')
+        context['employees'] = User.objects.filter(
+            is_active=True).order_by(
+            'last_name', 'first_name')
         context['active_page'] = 'employees'
-        context['can_manage_employees'] = self.request.user.role in ['DIRECTOR', 'SUPERADMIN'] or self.request.user.is_superuser
+        context['can_manage_employees'] = self.request.user.role in [
+            'DIRECTOR', 'SUPERADMIN'] or self.request.user.is_superuser
         return context
+
 
 class WaybillViewSet(viewsets.ModelViewSet):
     queryset = Waybill.objects.all()
     serializer_class = WaybillSerializer
     permission_classes = [permissions.IsAuthenticated]
-    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filter_backends = [
+        DjangoFilterBackend,
+        filters.SearchFilter,
+        filters.OrderingFilter]
     filterset_fields = ['vehicle', 'driver', 'date']
-    search_fields = ['number', 'departure_point', 'destination_point', 'cargo_description']
+    search_fields = [
+        'number',
+        'departure_point',
+        'destination_point',
+        'cargo_description']
     ordering_fields = ['date', 'created_at']
     ordering = ['-date']
 
@@ -856,7 +909,7 @@ class WaybillViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['get'])
     def print(self, request, pk=None):
         waybill = self.get_object()
-        
+
         # Подготовка контекста для шаблона
         context = {
             'waybill': waybill,
@@ -864,16 +917,18 @@ class WaybillViewSet(viewsets.ModelViewSet):
             'company_address': 'Адрес компании',
             'company_phone': 'Телефон компании',
         }
-        
+
         # Рендеринг HTML
         html_string = render_to_string('core/waybill_pdf.html', context)
-        
+
         # Создание PDF
         with tempfile.NamedTemporaryFile(suffix='.pdf') as output:
             HTML(string=html_string).write_pdf(output.name)
             output.seek(0)
-            response = HttpResponse(output.read(), content_type='application/pdf')
-            response['Content-Disposition'] = f'attachment; filename="waybill-{waybill.number}.pdf"'
+            response = HttpResponse(
+                output.read(), content_type='application/pdf')
+            response['Content-Disposition'] = f'attachment; filename="waybill-{
+                waybill.number}.pdf"'
             return response
 
     @action(detail=False, methods=['get'])
@@ -883,7 +938,7 @@ class WaybillViewSet(viewsets.ModelViewSet):
         """
         # Получаем отфильтрованный queryset
         queryset = self.filter_queryset(self.get_queryset())
-        
+
         # Создаем DataFrame
         data = []
         for waybill in queryset:
@@ -899,31 +954,34 @@ class WaybillViewSet(viewsets.ModelViewSet):
                 'Создан': waybill.created_at,
                 'Создатель': f"{waybill.created_by.first_name} {waybill.created_by.last_name}" if waybill.created_by else ""
             })
-        
+
         df = pd.DataFrame(data)
-        
+
         # Создаем Excel файл
         output = BytesIO()
         with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
             df.to_excel(writer, sheet_name='Путевые листы', index=False)
-            
+
             # Автоматическая настройка ширины столбцов
             worksheet = writer.sheets['Путевые листы']
             for i, col in enumerate(df.columns):
-                column_width = max(df[col].astype(str).map(len).max(), len(col)) + 2
+                column_width = max(
+                    df[col].astype(str).map(len).max(), len(col)) + 2
                 worksheet.set_column(i, i, column_width)
-        
+
         # Подготавливаем ответ
         output.seek(0)
-        filename = f"waybills_export_{timezone.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
-        
+        filename = f"waybills_export_{
+            timezone.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
+
         response = HttpResponse(
             output.read(),
             content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
         )
         response['Content-Disposition'] = f'attachment; filename="{filename}"'
-        
+
         return response
+
 
 class WaybillListView(LoginRequiredMixin, TemplateView):
     template_name = 'core/waybills.html'
@@ -933,17 +991,18 @@ class WaybillListView(LoginRequiredMixin, TemplateView):
         context['active_page'] = 'waybills'
         return context
 
+
 class WaybillPrintView(LoginRequiredMixin, DetailView):
     model = Waybill
-    
+
     def get(self, request, *args, **kwargs):
         waybill = self.get_object()
-        
+
         # Проверяем права доступа
-        if not (request.user.is_superuser or request.user == waybill.driver or 
+        if not (request.user.is_superuser or request.user == waybill.driver or
                 request.user == waybill.created_by or request.user.role in ['DIRECTOR', 'ACCOUNTANT']):
             return HttpResponse('Доступ запрещен', status=403)
-        
+
         # Подготовка контекста для шаблона
         context = {
             'waybill': waybill,
@@ -951,63 +1010,71 @@ class WaybillPrintView(LoginRequiredMixin, DetailView):
             'company_address': settings.COMPANY_ADDRESS,
             'company_phone': settings.COMPANY_PHONE,
         }
-        
+
         # Рендеринг HTML
         html_string = render_to_string('core/waybill_pdf.html', context)
-        
+
         # Создание PDF
         with tempfile.NamedTemporaryFile(suffix='.pdf') as output:
             HTML(string=html_string).write_pdf(output.name)
             output.seek(0)
-            response = HttpResponse(output.read(), content_type='application/pdf')
-            response['Content-Disposition'] = f'attachment; filename="waybill-{waybill.number}.pdf"'
+            response = HttpResponse(
+                output.read(), content_type='application/pdf')
+            response['Content-Disposition'] = f'attachment; filename="waybill-{
+                waybill.number}.pdf"'
             return response
+
 
 class WaybillCreateView(LoginRequiredMixin, CreateView):
     model = Waybill
     template_name = 'core/waybill_form.html'
-    fields = ['date', 'vehicle', 'driver', 'departure_point', 'destination_point', 
+    fields = ['date', 'vehicle', 'driver', 'departure_point', 'destination_point',
               'cargo_description', 'cargo_weight']
     success_url = reverse_lazy('core:waybills')
-    
+
     def dispatch(self, request, *args, **kwargs):
         # Проверяем права доступа
-        if not (request.user.is_superuser or request.user.role in ['DIRECTOR', 'SUPERADMIN', 'DRIVER']):
-            return HttpResponseForbidden('У вас нет прав для создания путевых листов')
+        if not (request.user.is_superuser or request.user.role in [
+                'DIRECTOR', 'SUPERADMIN', 'DRIVER']):
+            return HttpResponseForbidden(
+                'У вас нет прав для создания путевых листов')
         return super().dispatch(request, *args, **kwargs)
-    
+
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
         # Ограничиваем выбор водителей только водителями
-        form.fields['driver'].queryset = User.objects.filter(role='DRIVER', is_active=True)
-        # Если пользователь - водитель, устанавливаем его как водителя по умолчанию
+        form.fields['driver'].queryset = User.objects.filter(
+            role='DRIVER', is_active=True)
+        # Если пользователь - водитель, устанавливаем его как водителя по
+        # умолчанию
         if self.request.user.role == 'DRIVER':
             form.fields['driver'].initial = self.request.user
             form.fields['driver'].widget.attrs['readonly'] = True
         return form
-    
+
     def form_valid(self, form):
         # Устанавливаем создателя путевого листа
         form.instance.created_by = self.request.user
         return super().form_valid(form)
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['active_page'] = 'waybills'
         context['title'] = 'Создание путевого листа'
         return context
 
+
 class WaybillUpdateView(LoginRequiredMixin, UpdateView):
     model = Waybill
     template_name = 'core/waybill_form.html'
-    fields = ['date', 'vehicle', 'driver', 'departure_point', 'destination_point', 
+    fields = ['date', 'vehicle', 'driver', 'departure_point', 'destination_point',
               'cargo_description', 'cargo_weight']
-    
+
     def dispatch(self, request, *args, **kwargs):
         # Проверяем, аутентифицирован ли пользователь
         if not request.user.is_authenticated:
             return redirect('login')
-            
+
         # Проверяем существование транспорта
         from logistics.models import Vehicle
         try:
@@ -1015,75 +1082,88 @@ class WaybillUpdateView(LoginRequiredMixin, UpdateView):
         except Vehicle.DoesNotExist:
             messages.error(request, 'Транспорт не найден')
             return redirect('core:vehicles')
-        
+
         # Проверяем права доступа
-        if not request.user.role in ['DIRECTOR', 'SUPERADMIN', 'TECH'] and not request.user.is_superuser:
-            messages.error(request, 'У вас нет прав для редактирования транспорта')
+        if not request.user.role in [
+                'DIRECTOR', 'SUPERADMIN', 'TECH'] and not request.user.is_superuser:
+            messages.error(
+                request, 'У вас нет прав для редактирования транспорта')
             return redirect('core:vehicles')
-            
+
         return super().dispatch(request, *args, **kwargs)
-    
+
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
         # Ограничиваем выбор водителей только водителями
-        form.fields['driver'].queryset = User.objects.filter(role='DRIVER', is_active=True)
+        form.fields['driver'].queryset = User.objects.filter(
+            role='DRIVER', is_active=True)
         # Если пользователь - водитель, блокируем изменение водителя
         if self.request.user.role == 'DRIVER':
             form.fields['driver'].widget.attrs['readonly'] = True
         return form
-    
+
     def get_success_url(self):
         return reverse_lazy('core:waybills')
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['active_page'] = 'waybills'
         context['title'] = 'Редактирование путевого листа'
         return context
 
+
 class WaybillDeleteView(LoginRequiredMixin, View):
     """
     Представление для удаления путевого листа
     """
+
     def dispatch(self, request, *args, **kwargs):
         # Проверяем права доступа
         if not request.user.is_authenticated:
             return redirect('login')
-        
-        if request.user.role not in ['DIRECTOR', 'SUPERADMIN'] and not request.user.is_superuser:
-            messages.error(request, 'У вас нет прав для удаления путевых листов')
+
+        if request.user.role not in [
+                'DIRECTOR', 'SUPERADMIN'] and not request.user.is_superuser:
+            messages.error(
+                request, 'У вас нет прав для удаления путевых листов')
             return redirect('core:waybills')
-        
+
         return super().dispatch(request, *args, **kwargs)
-    
+
     def post(self, request, pk):
         waybill = get_object_or_404(Waybill, pk=pk)
         waybill_number = waybill.number
-        
+
         try:
             waybill.delete()
-            messages.success(request, f'Путевой лист №{waybill_number} успешно удален')
+            messages.success(
+                request, f'Путевой лист №{waybill_number} успешно удален')
         except Exception as e:
-            messages.error(request, f'Ошибка при удалении путевого листа: {str(e)}')
-        
+            messages.error(
+                request,
+                f'Ошибка при удалении путевого листа: {
+                    str(e)}')
+
         return redirect('core:waybills')
+
 
 class EmployeeDetailView(LoginRequiredMixin, DetailView):
     model = User
     template_name = 'core/employee_detail.html'
     context_object_name = 'employee'
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         return context
 
+
 class EmployeePDFView(LoginRequiredMixin, DetailView):
     model = User
     template_name = 'core/employee_pdf.html'
-    
+
     def get(self, request, *args, **kwargs):
         user = self.get_object()
-        
+
         # Подготавливаем контекст
         context = {
             'employee': user,
@@ -1094,24 +1174,25 @@ class EmployeePDFView(LoginRequiredMixin, DetailView):
             'STATIC_URL': request.build_absolute_uri(settings.STATIC_URL),
             'MEDIA_URL': request.build_absolute_uri(settings.MEDIA_URL),
         }
-        
+
         # Рендерим HTML
         template = get_template(self.template_name)
         html_string = template.render(context)
-        
+
         # Создаем PDF
         response = HttpResponse(content_type='application/pdf')
-        response['Content-Disposition'] = f'attachment; filename="{user.get_full_name()}_resume.pdf"'
-        
+        response['Content-Disposition'] = f'attachment; filename="{
+            user.get_full_name()}_resume.pdf"'
+
         # Конфигурация шрифтов
         font_config = FontConfiguration()
-        
+
         # Создаем HTML объект
         html = HTML(
             string=html_string,
             base_url=request.build_absolute_uri('/'),
         )
-        
+
         # Генерируем PDF
         html.write_pdf(
             response,
@@ -1119,8 +1200,9 @@ class EmployeePDFView(LoginRequiredMixin, DetailView):
             presentational_hints=True,
             optimize_size=('fonts', 'images'),
         )
-        
+
         return response
+
 
 class EmployeeFormView(LoginRequiredMixin, View):
     template_name = 'core/employee_form.html'
@@ -1140,7 +1222,7 @@ class EmployeeFormView(LoginRequiredMixin, View):
 
     def post(self, request, pk=None):
         employee = self.get_employee(pk)
-        
+
         if employee:
             # Обновление существующего сотрудника
             form_data = {
@@ -1166,14 +1248,14 @@ class EmployeeFormView(LoginRequiredMixin, View):
                 'recommendations': request.POST.get('recommendations'),
                 'hobbies': request.POST.get('hobbies'),
             }
-            
+
             for field, value in form_data.items():
                 if value:
                     setattr(employee, field, value)
-                    
+
             if 'photo' in request.FILES:
                 employee.photo = request.FILES['photo']
-                
+
             employee.save()
             messages.success(request, 'Сотрудник успешно обновлен')
         else:
@@ -1201,39 +1283,44 @@ class EmployeeFormView(LoginRequiredMixin, View):
                 recommendations=request.POST.get('recommendations'),
                 hobbies=request.POST.get('hobbies'),
             )
-            
+
             if 'photo' in request.FILES:
                 employee.photo = request.FILES['photo']
                 employee.save()
-                
+
             messages.success(request, 'Сотрудник успешно создан')
-            
+
         return redirect('core:employees')
+
 
 @method_decorator(csrf_exempt, name='dispatch')
 class EmployeePhotoUploadView(LoginRequiredMixin, View):
     """Представление для загрузки фотографий сотрудников через AJAX."""
-    
+
     def post(self, request, pk):
-        if not request.user.role in ['DIRECTOR', 'SUPERADMIN'] and not request.user.is_superuser:
-            return JsonResponse({'error': 'У вас нет прав для выполнения этого действия'}, status=403)
-            
+        if not request.user.role in [
+                'DIRECTOR', 'SUPERADMIN'] and not request.user.is_superuser:
+            return JsonResponse(
+                {'error': 'У вас нет прав для выполнения этого действия'}, status=403)
+
         employee = get_object_or_404(User, pk=pk)
-        
+
         if 'photo' in request.FILES:
             photo = request.FILES['photo']
             # Проверка типа файла
             if not photo.content_type.startswith('image/'):
-                return JsonResponse({'error': 'Загружаемый файл должен быть изображением'}, status=400)
-                
+                return JsonResponse(
+                    {'error': 'Загружаемый файл должен быть изображением'}, status=400)
+
             # Проверка размера файла (максимум 5 МБ)
             if photo.size > 5 * 1024 * 1024:
-                return JsonResponse({'error': 'Размер файла не должен превышать 5 МБ'}, status=400)
-                
+                return JsonResponse(
+                    {'error': 'Размер файла не должен превышать 5 МБ'}, status=400)
+
             # Сохраняем фото
             employee.photo = photo
             employee.save()
-            
+
             return JsonResponse({
                 'success': True,
                 'message': 'Фото успешно загружено',
@@ -1242,33 +1329,36 @@ class EmployeePhotoUploadView(LoginRequiredMixin, View):
         else:
             return JsonResponse({'error': 'Файл не был загружен'}, status=400)
 
+
 class EmployeeListView(LoginRequiredMixin, View):
     template_name = 'core/employee_list.html'
-    
+
     def get(self, request):
         # Проверяем права доступа
-        if not request.user.role in ['DIRECTOR', 'ACCOUNTANT', 'SUPERADMIN'] and not request.user.is_superuser:
-            messages.error(request, 'У вас нет прав для просмотра списка сотрудников')
+        if not request.user.role in [
+                'DIRECTOR', 'ACCOUNTANT', 'SUPERADMIN'] and not request.user.is_superuser:
+            messages.error(
+                request, 'У вас нет прав для просмотра списка сотрудников')
             return redirect('core:home')
-            
+
         # Получаем список сотрудников
         employees = User.objects.all().order_by('last_name', 'first_name')
-        
+
         # Фильтрация по роли, если указана
         role = request.GET.get('role')
         if role:
             employees = employees.filter(role=role)
-            
+
         # Поиск по имени, фамилии или email
         search = request.GET.get('search')
         if search:
             employees = employees.filter(
-                models.Q(first_name__icontains=search) | 
-                models.Q(last_name__icontains=search) | 
+                models.Q(first_name__icontains=search) |
+                models.Q(last_name__icontains=search) |
                 models.Q(email__icontains=search) |
                 models.Q(position__icontains=search)
             )
-            
+
         return render(request, self.template_name, {
             'employees': employees,
             'roles': User.Role.choices,
@@ -1276,31 +1366,36 @@ class EmployeeListView(LoginRequiredMixin, View):
             'search': search
         })
 
+
 class EmployeeCreateView(View):
     template_name = 'core/employee_form.html'
-    
+
     def get(self, request):
         # Проверка прав доступа
-        if not request.user.is_authenticated or request.user.role not in ['DIRECTOR', 'SUPERADMIN'] and not request.user.is_superuser:
-            messages.error(request, 'У вас нет прав для добавления сотрудников')
+        if not request.user.is_authenticated or request.user.role not in [
+                'DIRECTOR', 'SUPERADMIN'] and not request.user.is_superuser:
+            messages.error(
+                request, 'У вас нет прав для добавления сотрудников')
             return redirect('core:index')
-            
+
         # Получение списка ролей для формы
         roles = User.Role.choices
-        
+
         context = {
             'roles': roles,
             'is_new': True,
             'title': 'Добавление нового сотрудника'
         }
         return render(request, self.template_name, context)
-    
+
     def post(self, request):
         # Проверка прав доступа
-        if not request.user.is_authenticated or request.user.role not in ['DIRECTOR', 'SUPERADMIN'] and not request.user.is_superuser:
-            messages.error(request, 'У вас нет прав для добавления сотрудников')
+        if not request.user.is_authenticated or request.user.role not in [
+                'DIRECTOR', 'SUPERADMIN'] and not request.user.is_superuser:
+            messages.error(
+                request, 'У вас нет прав для добавления сотрудников')
             return redirect('core:index')
-        
+
         # Получение данных из формы
         first_name = request.POST.get('first_name', '')
         last_name = request.POST.get('last_name', '')
@@ -1308,7 +1403,7 @@ class EmployeeCreateView(View):
         phone = request.POST.get('phone', '')
         position = request.POST.get('position', '')
         role = request.POST.get('role', '')
-        
+
         # Базовая валидация
         errors = {}
         if not first_name:
@@ -1319,7 +1414,7 @@ class EmployeeCreateView(View):
             errors['email'] = 'Email обязателен для заполнения'
         elif User.objects.filter(email=email).exists():
             errors['email'] = 'Пользователь с таким email уже существует'
-        
+
         # Если есть ошибки, возвращаем форму с ошибками
         if errors:
             context = {
@@ -1335,7 +1430,7 @@ class EmployeeCreateView(View):
                 'title': 'Добавление нового сотрудника'
             }
             return render(request, self.template_name, context)
-        
+
         # Создание нового пользователя
         username = email.split('@')[0]
         # Генерация уникального имени пользователя
@@ -1344,10 +1439,14 @@ class EmployeeCreateView(View):
         while User.objects.filter(username=username).exists():
             username = f"{base_username}{counter}"
             counter += 1
-        
+
         # Генерация случайного пароля
-        password = ''.join(random.choices(string.ascii_letters + string.digits, k=12))
-        
+        password = ''.join(
+            random.choices(
+                string.ascii_letters +
+                string.digits,
+                k=12))
+
         # Создание пользователя
         user = User.objects.create_user(
             username=username,
@@ -1359,7 +1458,7 @@ class EmployeeCreateView(View):
             position=position,
             role=role
         )
-        
+
         # Дополнительные поля из формы
         user.desired_salary = request.POST.get('desired_salary', '')
         user.age = request.POST.get('age', '')
@@ -1370,39 +1469,44 @@ class EmployeeCreateView(View):
         user.certifications = request.POST.get('certifications', '')
         user.languages = request.POST.get('languages', '')
         user.hobbies = request.POST.get('hobbies', '')
-        
+
         # Обработка загрузки фото
         if 'photo' in request.FILES:
             user.photo = request.FILES['photo']
-            
+
         # Обработка загрузки файла рекомендации
         if 'recommendation_file' in request.FILES:
             user.recommendation_file = request.FILES['recommendation_file']
-        
+
         user.save()
-        
-        messages.success(request, f'Сотрудник {user.get_full_name()} успешно создан. Логин: {username}, пароль: {password}')
+
+        messages.success(
+            request, f'Сотрудник {
+                user.get_full_name()} успешно создан. Логин: {username}, пароль: {password}')
         return redirect('core:employee_edit', pk=user.pk)
+
 
 class EmployeeEditView(View):
     template_name = 'core/employee_form.html'
-    
+
     def get(self, request, pk):
         # Проверка прав доступа
-        if not request.user.is_authenticated or request.user.role not in ['DIRECTOR', 'SUPERADMIN'] and not request.user.is_superuser:
-            messages.error(request, 'У вас нет прав для редактирования сотрудников')
+        if not request.user.is_authenticated or request.user.role not in [
+                'DIRECTOR', 'SUPERADMIN'] and not request.user.is_superuser:
+            messages.error(
+                request, 'У вас нет прав для редактирования сотрудников')
             return redirect('core:index')
-            
+
         # Получение сотрудника
         try:
             employee = User.objects.get(pk=pk)
         except User.DoesNotExist:
             messages.error(request, 'Сотрудник не найден')
             return redirect('core:employees')
-        
+
         # Получение списка ролей для формы
         roles = User.Role.choices
-        
+
         context = {
             'employee': employee,
             'roles': roles,
@@ -1410,20 +1514,22 @@ class EmployeeEditView(View):
             'title': f'Редактирование сотрудника: {employee.get_full_name()}'
         }
         return render(request, self.template_name, context)
-    
+
     def post(self, request, pk):
         # Проверка прав доступа
-        if not request.user.is_authenticated or request.user.role not in ['DIRECTOR', 'SUPERADMIN'] and not request.user.is_superuser:
-            messages.error(request, 'У вас нет прав для редактирования сотрудников')
+        if not request.user.is_authenticated or request.user.role not in [
+                'DIRECTOR', 'SUPERADMIN'] and not request.user.is_superuser:
+            messages.error(
+                request, 'У вас нет прав для редактирования сотрудников')
             return redirect('core:index')
-        
+
         # Получение сотрудника
         try:
             employee = User.objects.get(pk=pk)
         except User.DoesNotExist:
             messages.error(request, 'Сотрудник не найден')
             return redirect('core:employees')
-        
+
         # Получение данных из формы
         first_name = request.POST.get('first_name', '')
         last_name = request.POST.get('last_name', '')
@@ -1431,7 +1537,7 @@ class EmployeeEditView(View):
         phone = request.POST.get('phone', '')
         position = request.POST.get('position', '')
         role = request.POST.get('role', '')
-        
+
         # Базовая валидация
         errors = {}
         if not first_name:
@@ -1442,7 +1548,7 @@ class EmployeeEditView(View):
             errors['email'] = 'Email обязателен для заполнения'
         elif User.objects.filter(email=email).exclude(pk=pk).exists():
             errors['email'] = 'Пользователь с таким email уже существует'
-        
+
         # Если есть ошибки, возвращаем форму с ошибками
         if errors:
             context = {
@@ -1453,7 +1559,7 @@ class EmployeeEditView(View):
                 'title': f'Редактирование сотрудника: {employee.get_full_name()}'
             }
             return render(request, self.template_name, context)
-        
+
         # Обновление данных сотрудника
         employee.first_name = first_name
         employee.last_name = last_name
@@ -1461,7 +1567,7 @@ class EmployeeEditView(View):
         employee.phone = phone
         employee.position = position
         employee.role = role
-        
+
         # Дополнительные поля из формы
         employee.desired_salary = request.POST.get('desired_salary', '')
         employee.age = request.POST.get('age', '')
@@ -1472,7 +1578,7 @@ class EmployeeEditView(View):
         employee.certifications = request.POST.get('certifications', '')
         employee.languages = request.POST.get('languages', '')
         employee.hobbies = request.POST.get('hobbies', '')
-        
+
         # Обработка загрузки фото
         if 'photo' in request.FILES:
             # Если было предыдущее фото, удаляем его
@@ -1484,9 +1590,9 @@ class EmployeeEditView(View):
                 except Exception as e:
                     # Логирование ошибки, но продолжаем выполнение
                     print(f"Ошибка при удалении старого фото: {e}")
-            
+
             employee.photo = request.FILES['photo']
-            
+
         # Обработка загрузки файла рекомендации
         if 'recommendation_file' in request.FILES:
             # Если был предыдущий файл, удаляем его
@@ -1497,25 +1603,30 @@ class EmployeeEditView(View):
                         os.remove(old_file_path)
                 except Exception as e:
                     # Логирование ошибки, но продолжаем выполнение
-                    print(f"Ошибка при удалении старого файла рекомендации: {e}")
-            
+                    print(
+                        f"Ошибка при удалении старого файла рекомендации: {e}")
+
             employee.recommendation_file = request.FILES['recommendation_file']
-        
+
         employee.save()
-        
-        messages.success(request, f'Данные сотрудника {employee.get_full_name()} успешно обновлены')
+
+        messages.success(
+            request, f'Данные сотрудника {
+                employee.get_full_name()} успешно обновлены')
         return redirect('core:employee_edit', pk=employee.pk)
+
 
 class VehiclesView(LoginRequiredMixin, TemplateView):
     template_name = 'core/vehicles.html'
-    
+
     def get(self, request, *args, **kwargs):
         return redirect('core:trucks')
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['active_page'] = 'vehicles'
         return context
+
 
 class VehicleForm(forms.Form):
     # Основная информация
@@ -1536,7 +1647,7 @@ class VehicleForm(forms.Form):
     ], required=True)
     driver = forms.ModelChoiceField(queryset=None, required=False)
     description = forms.CharField(widget=forms.Textarea, required=False)
-    
+
     # Технические характеристики
     vin_number = forms.CharField(max_length=50, required=False)
     engine_number = forms.CharField(max_length=50, required=False)
@@ -1563,21 +1674,24 @@ class VehicleForm(forms.Form):
         if drivers is not None:
             self.fields['driver'].queryset = drivers
 
+
 class VehicleCreateView(LoginRequiredMixin, View):
     template_name = 'core/vehicle_form.html'
-    
+
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
             return self.handle_no_permission()
-        if not (request.user.role in ['DIRECTOR', 'MANAGER', 'SUPERADMIN'] or request.user.is_superuser):
-            return HttpResponseForbidden("У вас нет прав для создания транспорта")
+        if not (request.user.role in [
+                'DIRECTOR', 'MANAGER', 'SUPERADMIN'] or request.user.is_superuser):
+            return HttpResponseForbidden(
+                "У вас нет прав для создания транспорта")
         return super().dispatch(request, *args, **kwargs)
 
     def get(self, request):
         # Получаем список водителей для поля выбора
         User = get_user_model()
         drivers = User.objects.filter(is_active=True, role='DRIVER')
-        
+
         form = VehicleForm(drivers=drivers)
         return render(request, self.template_name, {
             'form': form,
@@ -1590,12 +1704,16 @@ class VehicleCreateView(LoginRequiredMixin, View):
         # Обрабатываем форму с текстовыми и файловыми полями
         User = get_user_model()
         drivers = User.objects.filter(is_active=True, role='DRIVER')
-        
+
         form = VehicleForm(request.POST, drivers=drivers)
         if not form.is_valid():
-            context = {'form': form, 'drivers': drivers, 'title': 'Добавление транспорта', 'action': 'create'}
+            context = {
+                'form': form,
+                'drivers': drivers,
+                'title': 'Добавление транспорта',
+                'action': 'create'}
             return render(request, self.template_name, context)
-            
+
         # Если валидно, создаем транспорт без файлов сначала
         data = form.cleaned_data
         vehicle = Vehicle(
@@ -1632,7 +1750,7 @@ class VehicleCreateView(LoginRequiredMixin, View):
                 is_main=False,
                 uploaded_by=request.user
             )
-            
+
         # Если есть основное фото, делаем его главным
         main_photo = request.FILES.get('main_photo')
         if main_photo:
@@ -1642,7 +1760,7 @@ class VehicleCreateView(LoginRequiredMixin, View):
                 is_main=True,
                 uploaded_by=request.user
             )
-            
+
         # Сохраняем документы
         if 'technical_passport' in request.FILES:
             VehicleDocument.objects.create(
@@ -1652,7 +1770,7 @@ class VehicleCreateView(LoginRequiredMixin, View):
                 created_by=request.user,
                 issue_date=timezone.now().date()
             )
-            
+
         if 'insurance' in request.FILES:
             VehicleDocument.objects.create(
                 vehicle=vehicle,
@@ -1661,7 +1779,7 @@ class VehicleCreateView(LoginRequiredMixin, View):
                 created_by=request.user,
                 issue_date=timezone.now().date()
             )
-            
+
         # Сохраняем дополнительные документы
         additional_documents = request.FILES.getlist('additional_documents')
         for doc in additional_documents:
@@ -1672,18 +1790,19 @@ class VehicleCreateView(LoginRequiredMixin, View):
                 created_by=request.user,
                 issue_date=timezone.now().date()
             )
-        
+
         messages.success(request, 'Транспорт успешно добавлен')
         return redirect('core:trucks')
 
+
 class VehicleUpdateView(LoginRequiredMixin, View):
     template_name = 'core/vehicle_form.html'
-    
+
     def dispatch(self, request, *args, **kwargs):
         # Проверяем, аутентифицирован ли пользователь
         if not request.user.is_authenticated:
             return redirect('login')
-            
+
         # Проверяем существование транспорта
         from logistics.models import Vehicle
         try:
@@ -1691,47 +1810,77 @@ class VehicleUpdateView(LoginRequiredMixin, View):
         except Vehicle.DoesNotExist:
             messages.error(request, 'Транспорт не найден')
             return redirect('core:vehicles')
-        
+
         # Проверяем права доступа
-        if not request.user.role in ['DIRECTOR', 'SUPERADMIN', 'TECH'] and not request.user.is_superuser:
-            messages.error(request, 'У вас нет прав для редактирования транспорта')
+        if not request.user.role in [
+                'DIRECTOR', 'SUPERADMIN', 'TECH'] and not request.user.is_superuser:
+            messages.error(
+                request, 'У вас нет прав для редактирования транспорта')
             return redirect('core:vehicles')
-            
+
         return super().dispatch(request, *args, **kwargs)
-    
+
     def get(self, request, pk):
         # Получаем список водителей для поля выбора
         User = get_user_model()
         drivers = User.objects.filter(is_active=True, role='DRIVER')
-        
+
         # Создаем форму и заполняем её данными из существующего транспорта
         from django import forms
-        
+
         class VehicleForm(forms.Form):
             # Основная информация
-            number = forms.CharField(max_length=20, required=True, initial=self.vehicle.number)
+            number = forms.CharField(
+                max_length=20,
+                required=True,
+                initial=self.vehicle.number)
             vehicle_type = forms.ChoiceField(choices=[
                 ('CAR', 'Легковой'),
                 ('TRUCK', 'Грузовой'),
                 ('SPECIAL', 'Спецтехника')
             ], required=True, initial=self.vehicle.vehicle_type)
-            brand = forms.CharField(max_length=100, required=True, initial=self.vehicle.brand)
-            model = forms.CharField(max_length=100, required=True, initial=self.vehicle.model)
-            year = forms.IntegerField(required=True, min_value=1900, max_value=2100, initial=self.vehicle.year)
-            color = forms.CharField(max_length=50, required=False, initial=self.vehicle.color)
+            brand = forms.CharField(
+                max_length=100,
+                required=True,
+                initial=self.vehicle.brand)
+            model = forms.CharField(
+                max_length=100,
+                required=True,
+                initial=self.vehicle.model)
+            year = forms.IntegerField(
+                required=True,
+                min_value=1900,
+                max_value=2100,
+                initial=self.vehicle.year)
+            color = forms.CharField(
+                max_length=50,
+                required=False,
+                initial=self.vehicle.color)
             status = forms.ChoiceField(choices=[
                 ('ACTIVE', 'Активен'),
                 ('INACTIVE', 'Неактивен'),
                 ('MAINTENANCE', 'На обслуживании')
             ], required=True, initial=self.vehicle.status)
-            driver = forms.ModelChoiceField(queryset=drivers, required=False, initial=self.vehicle.driver)
-            description = forms.CharField(widget=forms.Textarea, required=False, initial=self.vehicle.description)
-            
+            driver = forms.ModelChoiceField(
+                queryset=drivers, required=False, initial=self.vehicle.driver)
+            description = forms.CharField(
+                widget=forms.Textarea,
+                required=False,
+                initial=self.vehicle.description)
+
             # Технические характеристики
-            vin_number = forms.CharField(max_length=50, required=False, initial=self.vehicle.vin_number)
-            engine_number = forms.CharField(max_length=50, required=False, initial=self.vehicle.engine_number)
-            chassis_number = forms.CharField(max_length=50, required=False, initial=self.vehicle.chassis_number)
-            engine_capacity = forms.FloatField(required=False, initial=self.vehicle.engine_capacity)
+            vin_number = forms.CharField(
+                max_length=50,
+                required=False,
+                initial=self.vehicle.vin_number)
+            engine_number = forms.CharField(
+                max_length=50,
+                required=False,
+                initial=self.vehicle.engine_number)
+            chassis_number = forms.CharField(
+                max_length=50, required=False, initial=self.vehicle.chassis_number)
+            engine_capacity = forms.FloatField(
+                required=False, initial=self.vehicle.engine_capacity)
             fuel_type = forms.ChoiceField(choices=[
                 ('', 'Не указан'),
                 ('DIESEL', 'Дизель'),
@@ -1740,17 +1889,23 @@ class VehicleUpdateView(LoginRequiredMixin, View):
                 ('HYBRID', 'Гибрид'),
                 ('ELECTRIC', 'Электро')
             ], required=False, initial=self.vehicle.fuel_type)
-            fuel_consumption = forms.FloatField(required=False, initial=self.vehicle.fuel_consumption)
-            length = forms.FloatField(required=False, initial=self.vehicle.length)
-            width = forms.FloatField(required=False, initial=self.vehicle.width)
-            height = forms.FloatField(required=False, initial=self.vehicle.height)
-            max_weight = forms.IntegerField(required=False, initial=self.vehicle.max_weight)
-            cargo_capacity = forms.IntegerField(required=False, initial=self.vehicle.cargo_capacity)
-            
+            fuel_consumption = forms.FloatField(
+                required=False, initial=self.vehicle.fuel_consumption)
+            length = forms.FloatField(
+                required=False, initial=self.vehicle.length)
+            width = forms.FloatField(
+                required=False, initial=self.vehicle.width)
+            height = forms.FloatField(
+                required=False, initial=self.vehicle.height)
+            max_weight = forms.IntegerField(
+                required=False, initial=self.vehicle.max_weight)
+            cargo_capacity = forms.IntegerField(
+                required=False, initial=self.vehicle.cargo_capacity)
+
             # Файловые поля обрабатываются вручную через request.FILES
-        
+
         form = VehicleForm()
-        
+
         context = {
             'form': form,
             'vehicle': self.vehicle,
@@ -1760,17 +1915,17 @@ class VehicleUpdateView(LoginRequiredMixin, View):
             'active_page': 'vehicles'
         }
         return render(request, self.template_name, context)
-    
+
     def post(self, request, pk):
         from logistics.models import Vehicle, VehiclePhoto, VehicleDocument
         from django import forms
         from django.core.files.storage import default_storage
         from django.core.files.base import ContentFile
         import os
-        
+
         User = get_user_model()
         drivers = User.objects.filter(is_active=True, role='DRIVER')
-        
+
         class VehicleForm(forms.Form):
             # Основная информация
             number = forms.CharField(max_length=20, required=True)
@@ -1781,7 +1936,8 @@ class VehicleUpdateView(LoginRequiredMixin, View):
             ], required=True)
             brand = forms.CharField(max_length=100, required=True)
             model = forms.CharField(max_length=100, required=True)
-            year = forms.IntegerField(required=True, min_value=1900, max_value=2100)
+            year = forms.IntegerField(
+                required=True, min_value=1900, max_value=2100)
             color = forms.CharField(max_length=50, required=False)
             status = forms.ChoiceField(choices=[
                 ('ACTIVE', 'Активен'),
@@ -1789,8 +1945,9 @@ class VehicleUpdateView(LoginRequiredMixin, View):
                 ('MAINTENANCE', 'На обслуживании')
             ], required=True)
             driver = forms.ModelChoiceField(queryset=drivers, required=False)
-            description = forms.CharField(widget=forms.Textarea, required=False)
-            
+            description = forms.CharField(
+                widget=forms.Textarea, required=False)
+
             # Технические характеристики
             vin_number = forms.CharField(max_length=50, required=False)
             engine_number = forms.CharField(max_length=50, required=False)
@@ -1810,32 +1967,34 @@ class VehicleUpdateView(LoginRequiredMixin, View):
             height = forms.FloatField(required=False)
             max_weight = forms.IntegerField(required=False)
             cargo_capacity = forms.IntegerField(required=False)
-            
+
             # Файловые поля обрабатываются вручную через request.FILES
-        
+
         form = VehicleForm(request.POST, request.FILES)
-        
+
         # Проверяем, не пришел ли запрос на удаление фото или документа
         delete_photo_id = request.POST.get('delete_photo')
         if delete_photo_id:
             try:
-                photo = VehiclePhoto.objects.get(id=delete_photo_id, vehicle=self.vehicle)
+                photo = VehiclePhoto.objects.get(
+                    id=delete_photo_id, vehicle=self.vehicle)
                 photo.delete()
                 messages.success(request, 'Фотография успешно удалена')
                 return redirect('core:vehicle-edit', pk=pk)
             except VehiclePhoto.DoesNotExist:
                 pass
-        
+
         delete_document_id = request.POST.get('delete_document')
         if delete_document_id:
             try:
-                document = VehicleDocument.objects.get(id=delete_document_id, vehicle=self.vehicle)
+                document = VehicleDocument.objects.get(
+                    id=delete_document_id, vehicle=self.vehicle)
                 document.delete()
                 messages.success(request, 'Документ успешно удален')
                 return redirect('core:vehicle-edit', pk=pk)
             except VehicleDocument.DoesNotExist:
                 pass
-        
+
         if form.is_valid():
             number = form.cleaned_data['number']
             vehicle_type = form.cleaned_data['vehicle_type']
@@ -1846,7 +2005,7 @@ class VehicleUpdateView(LoginRequiredMixin, View):
             status = form.cleaned_data['status']
             driver = form.cleaned_data['driver']
             description = form.cleaned_data['description']
-            
+
             # Технические параметры
             vin_number = form.cleaned_data['vin_number']
             engine_number = form.cleaned_data['engine_number']
@@ -1859,10 +2018,11 @@ class VehicleUpdateView(LoginRequiredMixin, View):
             height = form.cleaned_data['height']
             max_weight = form.cleaned_data['max_weight']
             cargo_capacity = form.cleaned_data['cargo_capacity']
-            
+
             # Проверка уникальности номера (исключая текущий транспорт)
             if Vehicle.objects.filter(number=number).exclude(id=pk).exists():
-                form.add_error('number', 'Транспорт с таким номером уже существует')
+                form.add_error(
+                    'number', 'Транспорт с таким номером уже существует')
                 context = {
                     'form': form,
                     'vehicle': self.vehicle,
@@ -1872,7 +2032,7 @@ class VehicleUpdateView(LoginRequiredMixin, View):
                     'active_page': 'vehicles'
                 }
                 return render(request, self.template_name, context)
-            
+
             # Обновляем транспорт
             vehicle = self.vehicle
             vehicle.number = number
@@ -1895,16 +2055,16 @@ class VehicleUpdateView(LoginRequiredMixin, View):
             vehicle.max_weight = max_weight
             vehicle.cargo_capacity = cargo_capacity
             vehicle.updated_at = timezone.now()
-            
+
             # Обновляем водителя
             old_driver = vehicle.driver
             if driver:
                 vehicle.driver = driver
             else:
                 vehicle.driver = None
-            
+
             vehicle.save()
-            
+
             # Обрабатываем основное фото
             main_photo = form.cleaned_data.get('main_photo')
             if main_photo:
@@ -1913,10 +2073,10 @@ class VehicleUpdateView(LoginRequiredMixin, View):
                     # При необходимости, можно удалить старое фото
                     # default_storage.delete(vehicle.main_photo.path)
                     pass
-                
+
                 vehicle.main_photo = main_photo
                 vehicle.save()
-            
+
             # Обрабатываем документы
             technical_passport = form.cleaned_data.get('technical_passport')
             if technical_passport:
@@ -1925,10 +2085,10 @@ class VehicleUpdateView(LoginRequiredMixin, View):
                     # При необходимости, можно удалить старый документ
                     # default_storage.delete(vehicle.technical_passport.path)
                     pass
-                
+
                 vehicle.technical_passport = technical_passport
                 vehicle.save()
-            
+
             insurance = form.cleaned_data.get('insurance')
             if insurance:
                 # Если уже есть документ, заменяем его
@@ -1936,13 +2096,13 @@ class VehicleUpdateView(LoginRequiredMixin, View):
                     # При необходимости, можно удалить старый документ
                     # default_storage.delete(vehicle.insurance.path)
                     pass
-                
+
                 vehicle.insurance = insurance
                 vehicle.save()
-            
+
             messages.success(request, f'Транспорт {number} успешно обновлен')
             return redirect('core:vehicles')
-        
+
         # Если форма не прошла валидацию
         context = {
             'form': form,
@@ -1954,12 +2114,13 @@ class VehicleUpdateView(LoginRequiredMixin, View):
         }
         return render(request, self.template_name, context)
 
+
 class VehicleArchiveView(LoginRequiredMixin, View):
     def dispatch(self, request, *args, **kwargs):
         # Проверяем, аутентифицирован ли пользователь
         if not request.user.is_authenticated:
             return redirect('login')
-            
+
         # Проверяем существование транспорта
         from logistics.models import Vehicle
         try:
@@ -1967,130 +2128,142 @@ class VehicleArchiveView(LoginRequiredMixin, View):
         except Vehicle.DoesNotExist:
             messages.error(request, 'Транспорт не найден')
             return redirect('core:vehicles')
-        
+
         # Проверяем права доступа
-        if not request.user.role in ['DIRECTOR', 'SUPERADMIN', 'TECH'] and not request.user.is_superuser:
+        if not request.user.role in [
+                'DIRECTOR', 'SUPERADMIN', 'TECH'] and not request.user.is_superuser:
             messages.error(request, 'У вас нет прав для архивации транспорта')
             return redirect('core:vehicles')
-            
+
         return super().dispatch(request, *args, **kwargs)
-    
+
     def post(self, request, pk):
         # Архивация транспорта - удаляем связь с водителем
         if self.vehicle.driver:
             old_driver = self.vehicle.driver
             self.vehicle.driver = None
             self.vehicle.save()
-            
+
             # Уведомляем водителя
             Notification.create_system_notification(
                 old_driver,
                 'Транспорт отозван',
-                f'Транспорт {self.vehicle.brand} {self.vehicle.model} ({self.vehicle.number}) отозван'
+                f'Транспорт {
+                    self.vehicle.brand} {
+                    self.vehicle.model} ({
+                    self.vehicle.number}) отозван'
             )
-        
+
         messages.success(request, 'Транспорт отвязан от водителя')
         return redirect('core:vehicles')
+
 
 def logout_view(request):
     logout(request)
     return redirect('login')
 
+
 class MapView(TemplateView):
     template_name = 'core/map.html'
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['active_page'] = 'map'
-        
+
         # Проверяем, является ли пользователь водителем
         is_driver = False
         can_see_all_employees = False
-        
+
         if self.request.user.is_authenticated:
             is_driver = self.request.user.role == 'DRIVER'
-            can_see_all_employees = self.request.user.role in ['ADMIN', 'DIRECTOR', 'DISPATCHER']
-        
+            can_see_all_employees = self.request.user.role in [
+                'ADMIN', 'DIRECTOR', 'DISPATCHER']
+
         context['is_driver'] = is_driver
         context['can_see_all_employees'] = can_see_all_employees
-        
+
         return context
-    
+
     # Убираем требование аутентификации, чтобы страница была доступна всем
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
 
+
 class ProfileEditView(LoginRequiredMixin, View):
     template_name = 'core/profile_edit.html'
-    
+
     def get(self, request):
         return render(request, self.template_name)
-    
+
     def post(self, request):
         user = request.user
-        
+
         # Обновление основной информации
         user.first_name = request.POST.get('first_name', user.first_name)
         user.last_name = request.POST.get('last_name', user.last_name)
         user.email = request.POST.get('email', user.email)
         user.phone = request.POST.get('phone', user.phone)
         user.position = request.POST.get('position', user.position)
-        
+
         # Обработка фото
         if 'photo' in request.FILES:
             user.photo = request.FILES['photo']
-        
+
         user.save()
-        
+
         messages.success(request, 'Профиль успешно обновлен')
         return redirect('core:profile')
 
+
 class ChangePasswordView(LoginRequiredMixin, View):
     template_name = 'core/change_password.html'
-    
+
     def get(self, request):
         return render(request, self.template_name)
-    
+
     def post(self, request):
         user = request.user
         old_password = request.POST.get('old_password')
         new_password1 = request.POST.get('new_password1')
         new_password2 = request.POST.get('new_password2')
-        
+
         # Проверка правильности текущего пароля
         if not user.check_password(old_password):
             messages.error(request, 'Неверный текущий пароль')
             return render(request, self.template_name)
-        
+
         # Проверка совпадения новых паролей
         if new_password1 != new_password2:
             messages.error(request, 'Новые пароли не совпадают')
             return render(request, self.template_name)
-        
+
         # Проверка сложности пароля (можно добавить дополнительные правила)
         if len(new_password1) < 8:
-            messages.error(request, 'Пароль должен содержать не менее 8 символов')
+            messages.error(
+                request, 'Пароль должен содержать не менее 8 символов')
             return render(request, self.template_name)
-        
+
         # Смена пароля
         user.set_password(new_password1)
         user.save()
-        
+
         # Обновление сессии для предотвращения выхода пользователя
         update_session_auth_hash(request, user)
-        
+
         messages.success(request, 'Пароль успешно изменен')
         return redirect('core:profile')
 
+
 class TrucksView(LoginRequiredMixin, TemplateView):
     template_name = 'core/trucks.html'
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         # помечаем активную страницу и передаем список грузовиков
         context['active_page'] = 'trucks'
         context['trucks'] = Vehicle.objects.all().order_by('brand', 'model')
         return context
+
 
 class TruckDetailView(LoginRequiredMixin, DetailView):
     model = Vehicle
@@ -2103,17 +2276,19 @@ class TruckDetailView(LoginRequiredMixin, DetailView):
         context['active_page'] = 'trucks'
         return context
 
+
 class VehicleDeleteView(LoginRequiredMixin, View):
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
             return redirect('login')
-            
-        if not request.user.role in ['DIRECTOR', 'SUPERADMIN'] and not request.user.is_superuser:
+
+        if not request.user.role in [
+                'DIRECTOR', 'SUPERADMIN'] and not request.user.is_superuser:
             messages.error(request, 'У вас нет прав для удаления транспорта')
             return redirect('core:trucks')
-            
+
         return super().dispatch(request, *args, **kwargs)
-    
+
     def post(self, request, pk):
         try:
             vehicle = Vehicle.objects.get(id=pk)
@@ -2123,7 +2298,9 @@ class VehicleDeleteView(LoginRequiredMixin, View):
         except Vehicle.DoesNotExist:
             messages.error(request, 'Транспорт не найден')
         except Exception as e:
-            messages.error(request, f'Ошибка при удалении транспорта: {str(e)}')
-            
-        return redirect('core:trucks')
+            messages.error(
+                request,
+                f'Ошибка при удалении транспорта: {
+                    str(e)}')
 
+        return redirect('core:trucks')
