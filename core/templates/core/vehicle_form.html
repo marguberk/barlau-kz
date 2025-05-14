@@ -3,215 +3,484 @@
 
 {% block title %}{{ title }} - Barlau.kz{% endblock %}
 
+{% block extra_head %}
+<link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet">
+<link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css" rel="stylesheet">
+{% endblock %}
+
 {% block content %}
-<div class="px-4 py-6 max-w-4xl mx-auto">
-    <!-- Заголовок с улучшенным дизайном -->
-    <div class="mb-6">
-        <div class="flex items-center justify-between">
-            <h1 class="text-2xl md:text-3xl font-bold text-gray-800 flex items-center">
-                <span class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-3">
-                    <i class="fas fa-{% if form.instance.id %}edit{% else %}plus{% endif %} text-blue-600"></i>
-                </span>
-                {% if form.instance.id %}Редактирование{% else %}Добавление{% endif %} транспорта
-            </h1>
-            <a href="{% url 'core:vehicles' %}" class="inline-flex items-center text-blue-600 hover:text-blue-800">
-                <i class="fas fa-arrow-left mr-1"></i> Вернуться к списку
-            </a>
+<div class="w-full flex">
+    <!-- Боковая панель -->
+    <div class="w-64 h-screen bg-white border-r border-zinc-200 flex flex-col justify-start items-start fixed left-0 bottom-0 sidebar">
+        <div class="self-stretch px-5 py-6 relative flex flex-col justify-start items-start gap-2 sidebar-logo">
+            <div class="py-1 inline-flex justify-start items-center gap-2">
+                <img src="{% static 'core/img/logo.png' %}" alt="Barlau Logo" class="w-10 h-6">
+                <div class="text-center justify-start text-black text-2xl font-semibold leading-normal">Barlau.kz</div>
+            </div>
         </div>
-        <p class="text-gray-600 mt-2 pl-12">
-            {% if form.instance.id %}
-            Изменение данных транспортного средства
-            {% else %}
-            Добавление нового транспортного средства в автопарк
-            {% endif %}
-        </p>
+        <div class="self-stretch flex-1 px-4 pt-2 pb-4 flex flex-col justify-start items-center gap-4 sidebar-menu">
+            <div class="self-stretch flex flex-col justify-start items-start gap-1">
+                <div class="self-stretch flex flex-col justify-start items-start">
+                    <a href="{% url 'core:home' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex justify-start items-center gap-2">
+                        <div class="w-5 h-5 relative overflow-hidden">
+                            <img src="{% static 'core/img/home.svg' %}" alt="Home" class="w-4 h-4 desktop-icon">
+                            <img src="{% static 'core/img/mobile/home.svg' %}" alt="Home" class="mobile-icon hidden">
+                        </div>
+                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Главная</div>
+                    </a>
+                    <a href="{% url 'core:tasks' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex justify-start items-center gap-2">
+                        <div class="w-5 h-5 relative overflow-hidden">
+                            <img src="{% static 'core/img/check-square.svg' %}" alt="Tasks" class="w-4 h-4 desktop-icon">
+                            <img src="{% static 'core/img/mobile/check-square.svg' %}" alt="Tasks" class="mobile-icon hidden">
+                        </div>
+                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Задачи</div>
+                    </a>
+                    <a href="{% url 'core:map' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex justify-start items-center gap-2">
+                        <div class="w-5 h-5 relative overflow-hidden">
+                            <img src="{% static 'core/img/location.svg' %}?v={% now 'U' %}" alt="Map" class="w-4 h-4 desktop-icon" onerror="this.onerror=null; this.src='/static/core/img/location.svg'">
+                            <img src="{% static 'core/img/mobile/location.svg' %}" alt="Map" class="mobile-icon hidden">
+                        </div>
+                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Карта</div>
+                    </a>
+                    <a href="{% url 'core:trucks' %}" class="self-stretch px-3 py-3.5 bg-gray-50 rounded-lg inline-flex justify-start items-center gap-2 relative">
+                        <div class="w-1 h-6 left-0 top-[calc(50%-12px)] absolute bg-blue-600 rounded-tr-lg rounded-br-lg"></div>
+                        <div class="w-5 h-5 relative overflow-hidden">
+                            <img src="{% static 'core/img/truck.svg' %}" alt="Vehicles" class="w-4 h-4 desktop-icon">
+                            <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Vehicles" class="mobile-icon hidden">
+                        </div>
+                        <div class="flex-1 justify-start text-blue-600 text-base font-medium leading-normal tracking-tight">Грузовики</div>
+                    </a>
+                    <a href="{% url 'core:employees' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex justify-start items-center gap-2">
+                        <div class="w-5 h-5 relative overflow-hidden">
+                            <img src="{% static 'core/img/employee.svg' %}" alt="Employees" class="w-4 h-4 desktop-icon">
+                            <img src="{% static 'core/img/mobile/employee.svg' %}" alt="Employees" class="mobile-icon hidden">
+                        </div>
+                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Сотрудники</div>
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
-
-    <!-- Форма с улучшенным дизайном -->
-    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
-        <div class="bg-gradient-to-r from-blue-500 to-indigo-600 px-6 py-4">
-            <h2 class="text-white font-medium">Заполните информацию о транспорте</h2>
-        </div>
         
-        <form method="post" class="p-6 space-y-6" novalidate>
-            {% csrf_token %}
-
-            {% if form.non_field_errors %}
-            <div class="bg-red-50 text-red-800 p-4 rounded-lg mb-6">
-                {% for error in form.non_field_errors %}
-                <p class="flex items-center">
-                    <i class="fas fa-exclamation-circle mr-2"></i>
-                    {{ error }}
-                </p>
-                {% endfor %}
-            </div>
-            {% endif %}
-
-            <!-- Основная информация -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Номер -->
-                <div>
-                    <label for="{{ form.number.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
-                        Номер транспортного средства <span class="text-red-500">*</span>
-                    </label>
-                    <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <i class="fas fa-id-card text-gray-400"></i>
-                        </div>
-                        <input type="text" name="{{ form.number.name }}" id="{{ form.number.id_for_label }}" 
-                               value="{{ form.number.value|default:'' }}" 
-                               class="pl-10 px-3 py-2 rounded-lg border border-gray-300 w-full focus:border-blue-500 focus:ring-2 focus:ring-blue-500 {% if form.number.errors %}border-red-500{% endif %}"
-                               placeholder="A123BC" required>
-                    </div>
-                    {% if form.number.errors %}
-                    <p class="mt-1 text-sm text-red-600">
-                        {% for error in form.number.errors %}{{ error }}{% endfor %}
-                    </p>
-                    {% endif %}
-                    <p class="mt-1 text-xs text-gray-500">Государственный регистрационный номер</p>
-                </div>
-
-                <!-- Марка -->
-                <div>
-                    <label for="{{ form.brand.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
-                        Марка <span class="text-red-500">*</span>
-                    </label>
-                    <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <i class="fas fa-building text-gray-400"></i>
-                        </div>
-                        <input type="text" name="{{ form.brand.name }}" id="{{ form.brand.id_for_label }}" 
-                               value="{{ form.brand.value|default:'' }}" 
-                               class="pl-10 px-3 py-2 rounded-lg border border-gray-300 w-full focus:border-blue-500 focus:ring-2 focus:ring-blue-500 {% if form.brand.errors %}border-red-500{% endif %}"
-                               placeholder="Volvo" required>
-                    </div>
-                    {% if form.brand.errors %}
-                    <p class="mt-1 text-sm text-red-600">
-                        {% for error in form.brand.errors %}{{ error }}{% endfor %}
-                    </p>
-                    {% endif %}
-                </div>
-
-                <!-- Модель -->
-                <div>
-                    <label for="{{ form.model.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
-                        Модель <span class="text-red-500">*</span>
-                    </label>
-                    <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <i class="fas fa-truck text-gray-400"></i>
-                        </div>
-                        <input type="text" name="{{ form.model.name }}" id="{{ form.model.id_for_label }}" 
-                               value="{{ form.model.value|default:'' }}" 
-                               class="pl-10 px-3 py-2 rounded-lg border border-gray-300 w-full focus:border-blue-500 focus:ring-2 focus:ring-blue-500 {% if form.model.errors %}border-red-500{% endif %}"
-                               placeholder="FH16" required>
-                    </div>
-                    {% if form.model.errors %}
-                    <p class="mt-1 text-sm text-red-600">
-                        {% for error in form.model.errors %}{{ error }}{% endfor %}
-                    </p>
-                    {% endif %}
-                </div>
-
-                <!-- Год выпуска -->
-                <div>
-                    <label for="{{ form.year.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
-                        Год выпуска <span class="text-red-500">*</span>
-                    </label>
-                    <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <i class="fas fa-calendar-alt text-gray-400"></i>
-                        </div>
-                        <input type="number" name="{{ form.year.name }}" id="{{ form.year.id_for_label }}" 
-                               value="{{ form.year.value|default:'' }}" 
-                               class="pl-10 px-3 py-2 rounded-lg border border-gray-300 w-full focus:border-blue-500 focus:ring-2 focus:ring-blue-500 {% if form.year.errors %}border-red-500{% endif %}"
-                               placeholder="2023" min="1900" max="2100" required>
-                    </div>
-                    {% if form.year.errors %}
-                    <p class="mt-1 text-sm text-red-600">
-                        {% for error in form.year.errors %}{{ error }}{% endfor %}
-                    </p>
-                    {% endif %}
-                </div>
-
-                <!-- Водитель -->
-                <div class="md:col-span-2">
-                    <label for="{{ form.driver.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
-                        Водитель
-                    </label>
-                    <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <i class="fas fa-user text-gray-400"></i>
-                        </div>
-                        <select name="{{ form.driver.name }}" id="{{ form.driver.id_for_label }}" 
-                                class="pl-10 px-3 py-2 rounded-lg border border-gray-300 w-full focus:border-blue-500 focus:ring-2 focus:ring-blue-500 {% if form.driver.errors %}border-red-500{% endif %}">
-                            <option value="">-- Выберите водителя --</option>
-                            {% for choice in form.driver.field.choices %}
-                                {% if choice.0 %}
-                                <option value="{{ choice.0 }}" {% if form.driver.value == choice.0 %}selected{% endif %}>
-                                    {{ choice.1 }}
-                                </option>
-                                {% endif %}
-                            {% endfor %}
-                        </select>
-                    </div>
-                    {% if form.driver.errors %}
-                    <p class="mt-1 text-sm text-red-600">
-                        {% for error in form.driver.errors %}{{ error }}{% endfor %}
-                    </p>
-                    {% endif %}
-                    <p class="mt-1 text-xs text-gray-500">Можно оставить пустым, если транспорт не закреплен за водителем</p>
-                </div>
-            </div>
-
-            <!-- Кнопки действий -->
-            <div class="flex justify-end space-x-4 pt-4 border-t border-gray-200">
-                <a href="{% url 'core:vehicles' %}" class="inline-flex items-center justify-center px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg transition-colors">
-                    <i class="fas fa-times mr-2"></i>Отмена
+    <!-- Основной контент -->
+    <div class="ml-64 flex-1 min-h-screen bg-gray-50 relative main-content">
+        <!-- Верхняя панель -->
+        <div class="w-full h-20 px-8 py-5 bg-white border-b border-gray-200 flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <a href="{% url 'core:trucks' %}" class="text-gray-500 hover:text-gray-700">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                    </svg>
                 </a>
-                <button type="submit" class="inline-flex items-center justify-center px-6 py-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-lg transition-colors shadow-sm">
-                    <i class="fas fa-{% if form.instance.id %}save{% else %}plus{% endif %} mr-2"></i>
-                    {% if form.instance.id %}Сохранить изменения{% else %}Добавить транспорт{% endif %}
-                </button>
+                <h1 class="text-2xl font-semibold text-gray-900">{{ title }}</h1>
             </div>
-        </form>
-    </div>
-    
-    <!-- Подсказки и рекомендации -->
-    <div class="mt-6 bg-blue-50 rounded-xl p-4 text-blue-800">
-        <h3 class="font-medium flex items-center mb-2">
-            <i class="fas fa-info-circle mr-2"></i>
-            Полезная информация
-        </h3>
-        <ul class="space-y-2 text-sm pl-6 list-disc">
-            <li>Номер транспортного средства должен быть уникальным</li>
-            <li>Укажите точную модель и марку для упрощения поиска</li>
-            <li>Если водитель не назначен, транспорт будет доступен для всех заданий</li>
-        </ul>
+            <div class="flex items-center gap-4">
+                {% if action == 'update' %}
+                <button type="submit" form="vehicle-form" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+                    Сохранить изменения
+                </button>
+                        {% else %}
+                <button type="submit" form="vehicle-form" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+                    Добавить транспорт
+                </button>
+                    {% endif %}
+            </div>
+        </div>
+
+        <!-- Форма транспорта -->
+        <div class="w-full p-8">
+            <form id="vehicle-form" method="post" enctype="multipart/form-data" class="space-y-6">
+                {% csrf_token %}
+                
+                <!-- Навигация по вкладкам -->
+                <div class="border-b border-gray-200">
+                    <nav class="flex space-x-8" aria-label="Tabs">
+                        <button type="button" class="tab-button active border-b-2 border-blue-500 py-4 px-1 text-sm font-medium text-blue-600" data-tab="basic">
+                                Основная информация
+                            </button>
+                        <button type="button" class="tab-button border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300" data-tab="technical">
+                                Технические характеристики
+                            </button>
+                        <button type="button" class="tab-button border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300" data-tab="documents">
+                            Документы и фото
+                            </button>
+                    </nav>
+                </div>
+
+                <!-- Контент вкладок -->
+                <div class="tab-content">
+                    <!-- Основная информация -->
+                    <div id="basic" class="tab-pane active bg-white rounded-xl shadow-sm p-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="space-y-6">
+                            <div class="form-group">
+                                    <label for="id_number" class="block text-sm font-medium text-gray-700">Госномер*</label>
+                                    <div class="mt-1">
+                                <input type="text" name="number" id="id_number" value="{{ form.number.value|default:'' }}" 
+                                            class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-lg"
+                                            placeholder="Например: 777 KZ 02">
+                                    </div>
+                                {% if form.number.errors %}
+                                    <p class="mt-2 text-sm text-red-600">{{ form.number.errors.0 }}</p>
+                                    {% endif %}
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="id_brand" class="block text-sm font-medium text-gray-700">Марка*</label>
+                                    <div class="mt-1">
+                                        <input type="text" name="brand" id="id_brand" value="{{ form.brand.value|default:'' }}"
+                                            class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-lg"
+                                            placeholder="Например: Mercedes-Benz">
+                                    </div>
+                                    {% if form.brand.errors %}
+                                    <p class="mt-2 text-sm text-red-600">{{ form.brand.errors.0 }}</p>
+                                    {% endif %}
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="id_model" class="block text-sm font-medium text-gray-700">Модель*</label>
+                                    <div class="mt-1">
+                                        <input type="text" name="model" id="id_model" value="{{ form.model.value|default:'' }}"
+                                            class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-lg"
+                                            placeholder="Например: Actros">
+                                    </div>
+                                    {% if form.model.errors %}
+                                    <p class="mt-2 text-sm text-red-600">{{ form.model.errors.0 }}</p>
+                                {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="space-y-6">
+                            <div class="form-group">
+                                    <label for="id_vehicle_type" class="block text-sm font-medium text-gray-700">Тип транспорта*</label>
+                                    <div class="mt-1">
+                                <select name="vehicle_type" id="id_vehicle_type" 
+                                            class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-lg">
+                                    <option value="">Выберите тип</option>
+                                    <option value="CAR" {% if form.vehicle_type.value == 'CAR' %}selected{% endif %}>Легковой</option>
+                                    <option value="TRUCK" {% if form.vehicle_type.value == 'TRUCK' %}selected{% endif %}>Грузовой</option>
+                                    <option value="SPECIAL" {% if form.vehicle_type.value == 'SPECIAL' %}selected{% endif %}>Спецтехника</option>
+                                </select>
+                                    </div>
+                                {% if form.vehicle_type.errors %}
+                                    <p class="mt-2 text-sm text-red-600">{{ form.vehicle_type.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="form-group">
+                                    <label for="id_year" class="block text-sm font-medium text-gray-700">Год выпуска*</label>
+                                    <div class="mt-1">
+                                        <input type="number" name="year" id="id_year" value="{{ form.year.value|default:'' }}"
+                                            class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-lg"
+                                            min="1900" max="{% now 'Y' %}" placeholder="{% now 'Y' %}">
+                            </div>
+                                {% if form.year.errors %}
+                                    <p class="mt-2 text-sm text-red-600">{{ form.year.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="form-group">
+                                    <label for="id_status" class="block text-sm font-medium text-gray-700">Статус*</label>
+                                    <div class="mt-1">
+                                <select name="status" id="id_status" 
+                                            class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-lg">
+                                    <option value="">Выберите статус</option>
+                                            <option value="ACTIVE" {% if form.status.value == 'ACTIVE' %}selected{% endif %}>
+                                                <span class="inline-flex items-center">
+                                                    <span class="w-2 h-2 rounded-full bg-green-400 mr-2"></span>
+                                                    Активен
+                                                </span>
+                                            </option>
+                                            <option value="INACTIVE" {% if form.status.value == 'INACTIVE' %}selected{% endif %}>
+                                                <span class="inline-flex items-center">
+                                                    <span class="w-2 h-2 rounded-full bg-red-400 mr-2"></span>
+                                                    Неактивен
+                                                </span>
+                                            </option>
+                                            <option value="MAINTENANCE" {% if form.status.value == 'MAINTENANCE' %}selected{% endif %}>
+                                                <span class="inline-flex items-center">
+                                                    <span class="w-2 h-2 rounded-full bg-yellow-400 mr-2"></span>
+                                                    На обслуживании
+                                                </span>
+                                            </option>
+                                </select>
+                                    </div>
+                                {% if form.status.errors %}
+                                    <p class="mt-2 text-sm text-red-600">{{ form.status.errors.0 }}</p>
+                                {% endif %}
+                                </div>
+                            </div>
+                            </div>
+                            
+                        <div class="mt-6">
+                            <label for="id_driver" class="block text-sm font-medium text-gray-700">Водитель</label>
+                            <div class="mt-1">
+                                <select name="driver" id="id_driver" 
+                                    class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-lg">
+                                    <option value="">Не назначен</option>
+                                    {% for driver in drivers %}
+                                    <option value="{{ driver.id }}" {% if form.driver.value == driver.id %}selected{% endif %}>
+                                        {{ driver.get_full_name }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            {% if form.driver.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ form.driver.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mt-6">
+                            <label for="id_description" class="block text-sm font-medium text-gray-700">Описание</label>
+                            <div class="mt-1">
+                            <textarea name="description" id="id_description" rows="4" 
+                                    class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-lg"
+                                    placeholder="Дополнительная информация о транспорте...">{{ form.description.value|default:'' }}</textarea>
+                            </div>
+                            {% if form.description.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ form.description.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Технические характеристики -->
+                    <div id="technical" class="tab-pane hidden bg-white rounded-xl shadow-sm p-6">
+                        <div class="space-y-6">
+                            <h3 class="text-lg font-medium text-gray-900">Регистрационные данные</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="form-group">
+                                    <label for="id_vin_number" class="block text-sm font-medium text-gray-700">VIN номер</label>
+                                    <div class="mt-1">
+                                    <input type="text" name="vin_number" id="id_vin_number" value="{{ form.vin_number.value|default:'' }}" 
+                                            class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-lg"
+                                            placeholder="17 символов">
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="id_engine_number" class="block text-sm font-medium text-gray-700">Номер двигателя</label>
+                                    <div class="mt-1">
+                                    <input type="text" name="engine_number" id="id_engine_number" value="{{ form.engine_number.value|default:'' }}" 
+                                            class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-lg">
+                                </div>
+                            </div>
+                        </div>
+                        
+                            <h3 class="text-lg font-medium text-gray-900 pt-6">Технические параметры</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div class="form-group">
+                                    <label for="id_engine_capacity" class="block text-sm font-medium text-gray-700">Объем двигателя (л)</label>
+                                    <div class="mt-1">
+                                        <input type="number" step="0.1" name="engine_capacity" id="id_engine_capacity" 
+                                            value="{{ form.engine_capacity.value|default:'' }}"
+                                            class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-lg">
+                                </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="id_fuel_type" class="block text-sm font-medium text-gray-700">Тип топлива</label>
+                                    <div class="mt-1">
+                                    <select name="fuel_type" id="id_fuel_type" 
+                                            class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-lg">
+                                        <option value="">Не указан</option>
+                                        <option value="DIESEL" {% if form.fuel_type.value == 'DIESEL' %}selected{% endif %}>Дизель</option>
+                                        <option value="PETROL" {% if form.fuel_type.value == 'PETROL' %}selected{% endif %}>Бензин</option>
+                                        <option value="GAS" {% if form.fuel_type.value == 'GAS' %}selected{% endif %}>Газ</option>
+                                        <option value="HYBRID" {% if form.fuel_type.value == 'HYBRID' %}selected{% endif %}>Гибрид</option>
+                                        <option value="ELECTRIC" {% if form.fuel_type.value == 'ELECTRIC' %}selected{% endif %}>Электро</option>
+                                    </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="id_fuel_consumption" class="block text-sm font-medium text-gray-700">Расход топлива (л/100км)</label>
+                                    <div class="mt-1">
+                                        <input type="number" step="0.1" name="fuel_consumption" id="id_fuel_consumption"
+                                            value="{{ form.fuel_consumption.value|default:'' }}"
+                                            class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-lg">
+                                </div>
+                            </div>
+                        </div>
+                        
+                            <h3 class="text-lg font-medium text-gray-900 pt-6">Габариты и масса</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div class="form-group">
+                                    <label for="id_length" class="block text-sm font-medium text-gray-700">Длина (м)</label>
+                                    <div class="mt-1">
+                                    <input type="number" step="0.01" name="length" id="id_length" value="{{ form.length.value|default:'' }}" 
+                                            class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-lg">
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="id_width" class="block text-sm font-medium text-gray-700">Ширина (м)</label>
+                                    <div class="mt-1">
+                                    <input type="number" step="0.01" name="width" id="id_width" value="{{ form.width.value|default:'' }}" 
+                                            class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-lg">
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="id_height" class="block text-sm font-medium text-gray-700">Высота (м)</label>
+                                    <div class="mt-1">
+                                    <input type="number" step="0.01" name="height" id="id_height" value="{{ form.height.value|default:'' }}" 
+                                            class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-lg">
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="id_max_weight" class="block text-sm font-medium text-gray-700">Максимальная масса (кг)</label>
+                                    <div class="mt-1">
+                                        <input type="number" name="max_weight" id="id_max_weight" value="{{ form.max_weight.value|default:'' }}"
+                                            class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-lg">
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="id_cargo_capacity" class="block text-sm font-medium text-gray-700">Грузоподъемность (кг)</label>
+                                    <div class="mt-1">
+                                        <input type="number" name="cargo_capacity" id="id_cargo_capacity" value="{{ form.cargo_capacity.value|default:'' }}"
+                                            class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-lg">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Документы и фото -->
+                    <div id="documents" class="tab-pane hidden bg-white rounded-xl shadow-sm p-6">
+                        <div class="space-y-6">
+                            <h3 class="text-lg font-medium text-gray-900">Фотографии</h3>
+                            <div class="grid grid-cols-1 gap-6">
+                                <div class="form-group">
+                                    <label class="block text-sm font-medium text-gray-700">Основное фото</label>
+                                    <div class="mt-1">
+                                        <input type="file" name="main_photo" class="filepond" 
+                                            accept="image/*" data-max-file-size="5MB">
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="block text-sm font-medium text-gray-700">Дополнительные фото</label>
+                                    <div class="mt-1">
+                                        <input type="file" name="additional_photos" class="filepond" 
+                                            accept="image/*" multiple data-max-file-size="5MB">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <h3 class="text-lg font-medium text-gray-900 pt-6">Документы</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="form-group">
+                                    <label class="block text-sm font-medium text-gray-700">Технический паспорт</label>
+                                    <div class="mt-1">
+                                        <input type="file" name="technical_passport" class="filepond" 
+                                            accept=".pdf,.doc,.docx" data-max-file-size="10MB">
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="block text-sm font-medium text-gray-700">Страховка</label>
+                                    <div class="mt-1">
+                                        <input type="file" name="insurance" class="filepond" 
+                                            accept=".pdf,.doc,.docx" data-max-file-size="10MB">
+                                    </div>
+                                </div>
+
+                                <div class="form-group col-span-2">
+                                    <label class="block text-sm font-medium text-gray-700">Дополнительные документы</label>
+                                    <div class="mt-1">
+                                        <input type="file" name="additional_documents" class="filepond" 
+                                            accept=".pdf,.doc,.docx" multiple data-max-file-size="10MB">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.js"></script>
+<script src="https://unpkg.com/filepond-plugin-file-validate-size/dist/filepond-plugin-file-validate-size.js"></script>
+<script src="https://unpkg.com/filepond-plugin-file-validate-type/dist/filepond-plugin-file-validate-type.js"></script>
+<script src="https://unpkg.com/filepond/dist/filepond.js"></script>
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Отображение выбранного водителя в селекте
-        const driverSelect = document.getElementById('{{ form.driver.id_for_label }}');
-        if (driverSelect) {
-            // Подсвечиваем активный выбор 
-            driverSelect.addEventListener('change', function() {
-                if (this.value) {
-                    this.classList.add('text-blue-700', 'font-medium');
-                } else {
-                    this.classList.remove('text-blue-700', 'font-medium');
-                }
+    // Инициализация FilePond
+    FilePond.registerPlugin(
+        FilePondPluginImagePreview,
+        FilePondPluginFileValidateSize,
+        FilePondPluginFileValidateType
+    );
+        
+    // Применяем FilePond ко всем input[type="file"]
+    document.querySelectorAll('input[type="file"]').forEach(inputElement => {
+        // Формируем массив допустимых типов на основе атрибута accept
+        let accepted = [];
+        if (inputElement.hasAttribute('accept')) {
+            accepted = inputElement.getAttribute('accept')
+                .split(',')
+                .map(t => t.trim())
+                .filter(t => t.length > 0);
+        }
+
+        const pond = FilePond.create(inputElement, {
+            storeAsFile: true,
+            // Если types указаны, передаём их плагину валидации
+            ...(accepted.length ? { acceptedFileTypes: accepted } : {})
+        });
+    });
+    
+    // Обработка вкладок
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const tabPanes = document.querySelectorAll('.tab-pane');
+        
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const tabId = button.getAttribute('data-tab');
+            
+            // Деактивируем все вкладки
+            tabButtons.forEach(btn => {
+                btn.classList.remove('active', 'border-blue-500', 'text-blue-600');
+                btn.classList.add('border-transparent', 'text-gray-500');
             });
             
-            // Инициализация стиля при загрузке
-            if (driverSelect.value) {
-                driverSelect.classList.add('text-blue-700', 'font-medium');
+                tabPanes.forEach(pane => {
+                    pane.classList.add('hidden');
+                });
+                
+            // Активируем выбранную вкладку
+            button.classList.add('active', 'border-blue-500', 'text-blue-600');
+            button.classList.remove('border-transparent', 'text-gray-500');
+            document.getElementById(tabId).classList.remove('hidden');
+        });
+    });
+
+    // Анимация при наведении на поля формы
+    const formInputs = document.querySelectorAll('input, select, textarea');
+    formInputs.forEach(input => {
+        input.addEventListener('focus', () => {
+            const group = input.closest('.form-group');
+            if (group) {
+                group.classList.add('ring-2', 'ring-blue-100', 'rounded-lg');
             }
-        }
+        });
+            
+        input.addEventListener('blur', () => {
+            const group = input.closest('.form-group');
+            if (group) {
+                group.classList.remove('ring-2', 'ring-blue-100', 'rounded-lg');
+            }
+        });
+    });
+
+    // Закрываем обработчик DOMContentLoaded
     });
 </script>
 {% endblock %} 
