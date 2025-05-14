@@ -25,6 +25,7 @@ from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import login_required
 from django.views.generic import RedirectView, TemplateView
 from django.shortcuts import redirect
+from core.views import FileUploadView
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -38,6 +39,7 @@ schema_view = get_schema_view(
 )
 
 urlpatterns = [
+    path('api/upload/', FileUploadView.as_view(), name='file-upload'),
     path('admin/', admin.site.urls),
     path('', lambda request: redirect('core:home'), name='index'),
     path('dashboard/', include('core.urls', namespace='core')),

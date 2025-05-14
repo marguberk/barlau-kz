@@ -192,6 +192,48 @@
                         </div>
                     </div>
                 </div>
+                <!-- ДОКУМЕНТЫ -->
+                <div class="p-8">
+                    <div class="bg-white rounded-2xl border border-zinc-200 overflow-hidden mt-8">
+                        <div class="p-8">
+                            <h3 class="text-lg font-semibold text-zinc-950 mb-4">Документы</h3>
+                            {% if truck.documents.exists %}
+                                <ul class="space-y-2">
+                                    {% for doc in truck.documents.all %}
+                                        <li>
+                                            <a href="{{ doc.file.url }}" target="_blank" class="text-blue-600 hover:underline">
+                                                {{ doc.get_document_type_display }}
+                                            </a>
+                                            {% if doc.number %} (№{{ doc.number }}){% endif %}
+                                            {% if doc.issue_date %} — от {{ doc.issue_date }}{% endif %}
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                <p class="text-gray-500">Документы не загружены.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <!-- ВСЕ ДОПОЛНИТЕЛЬНЫЕ ФОТО -->
+                <div class="p-8">
+                    <div class="bg-white rounded-2xl border border-zinc-200 overflow-hidden mt-8">
+                        <div class="p-8">
+                            <h3 class="text-lg font-semibold text-zinc-950 mb-4">Все фотографии</h3>
+                            {% if truck.photos.count > 0 %}
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                    {% for photo in truck.photos.all %}
+                                        <div class="aspect-square rounded-xl overflow-hidden">
+                                            <img src="{{ photo.photo.url }}" alt="Фото {{ forloop.counter }}" class="w-full h-full object-cover">
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <p class="text-gray-500">Фотографии не загружены.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

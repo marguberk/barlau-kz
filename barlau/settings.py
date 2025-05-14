@@ -266,3 +266,20 @@ LOGGING = {
         },
     },
 }
+
+# Максимальный размер загружаемого файла (в байтах)
+MAX_UPLOAD_SIZE = 10 * 1024 * 1024  # 10MB
+
+# Разрешённые типы документов
+ALLOWED_DOCUMENT_TYPES = [
+    'application/pdf',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+]
+
+# Разрешённые типы изображений
+ALLOWED_IMAGE_TYPES = [
+    'image/jpeg',
+    'image/png',
+    'image/gif',
+]

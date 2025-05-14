@@ -1701,11 +1701,13 @@ class VehicleCreateView(LoginRequiredMixin, View):
         })
 
     def post(self, request):
-        # Обрабатываем форму с текстовыми и файловыми полями
         User = get_user_model()
         drivers = User.objects.filter(is_active=True, role='DRIVER')
+        import os
+        from django.core.files.base import File
+        from django.core.files.storage import default_storage
 
-        form = VehicleForm(request.POST, drivers=drivers)
+        form = VehicleForm(request.POST, request.FILES, drivers=drivers)
         if not form.is_valid():
             context = {
                 'form': form,
@@ -1741,9 +1743,35 @@ class VehicleCreateView(LoginRequiredMixin, View):
         )
         vehicle.save()
 
-        # Обработка загруженных фотографий
-        photos = request.FILES.getlist('photos')
-        for photo in photos:
+        # --- Основное фото ---
+        main_photo_path = request.POST.get('main_photo_path')
+        if main_photo_path:
+            with default_storage.open(main_photo_path, 'rb') as f:
+                VehiclePhoto.objects.create(
+                    vehicle=vehicle,
+                    photo=File(f, name=os.path.basename(main_photo_path)),
+                    is_main=True,
+                    uploaded_by=request.user
+                )
+        elif 'main_photo' in request.FILES:
+            VehiclePhoto.objects.create(
+                vehicle=vehicle,
+                photo=request.FILES['main_photo'],
+                is_main=True,
+                uploaded_by=request.user
+            )
+
+        # --- Дополнительные фото ---
+        additional_photos_paths = request.POST.get('additional_photos_paths', '')
+        for path in filter(None, additional_photos_paths.split(',')):
+            with default_storage.open(path, 'rb') as f:
+                VehiclePhoto.objects.create(
+                    vehicle=vehicle,
+                    photo=File(f, name=os.path.basename(path)),
+                    is_main=False,
+                    uploaded_by=request.user
+                )
+        for photo in request.FILES.getlist('additional_photos'):
             VehiclePhoto.objects.create(
                 vehicle=vehicle,
                 photo=photo,
@@ -1751,18 +1779,18 @@ class VehicleCreateView(LoginRequiredMixin, View):
                 uploaded_by=request.user
             )
 
-        # Если есть основное фото, делаем его главным
-        main_photo = request.FILES.get('main_photo')
-        if main_photo:
-            main_photo_obj = VehiclePhoto.objects.create(
-                vehicle=vehicle,
-                photo=main_photo,
-                is_main=True,
-                uploaded_by=request.user
-            )
-
-        # Сохраняем документы
-        if 'technical_passport' in request.FILES:
+        # --- Технический паспорт ---
+        technical_passport_path = request.POST.get('technical_passport_path')
+        if technical_passport_path:
+            with default_storage.open(technical_passport_path, 'rb') as f:
+                VehicleDocument.objects.create(
+                    vehicle=vehicle,
+                    document_type='REGISTRATION',
+                    file=File(f, name=os.path.basename(technical_passport_path)),
+                    created_by=request.user,
+                    issue_date=timezone.now().date()
+                )
+        elif 'technical_passport' in request.FILES:
             VehicleDocument.objects.create(
                 vehicle=vehicle,
                 document_type='REGISTRATION',
@@ -1771,7 +1799,18 @@ class VehicleCreateView(LoginRequiredMixin, View):
                 issue_date=timezone.now().date()
             )
 
-        if 'insurance' in request.FILES:
+        # --- Страховка ---
+        insurance_path = request.POST.get('insurance_path')
+        if insurance_path:
+            with default_storage.open(insurance_path, 'rb') as f:
+                VehicleDocument.objects.create(
+                    vehicle=vehicle,
+                    document_type='INSURANCE',
+                    file=File(f, name=os.path.basename(insurance_path)),
+                    created_by=request.user,
+                    issue_date=timezone.now().date()
+                )
+        elif 'insurance' in request.FILES:
             VehicleDocument.objects.create(
                 vehicle=vehicle,
                 document_type='INSURANCE',
@@ -1780,9 +1819,18 @@ class VehicleCreateView(LoginRequiredMixin, View):
                 issue_date=timezone.now().date()
             )
 
-        # Сохраняем дополнительные документы
-        additional_documents = request.FILES.getlist('additional_documents')
-        for doc in additional_documents:
+        # --- Дополнительные документы ---
+        additional_documents_paths = request.POST.get('additional_documents_paths', '')
+        for path in filter(None, additional_documents_paths.split(',')):
+            with default_storage.open(path, 'rb') as f:
+                VehicleDocument.objects.create(
+                    vehicle=vehicle,
+                    document_type='OTHER',
+                    file=File(f, name=os.path.basename(path)),
+                    created_by=request.user,
+                    issue_date=timezone.now().date()
+                )
+        for doc in request.FILES.getlist('additional_documents'):
             VehicleDocument.objects.create(
                 vehicle=vehicle,
                 document_type='OTHER',
@@ -2304,3 +2352,27 @@ class VehicleDeleteView(LoginRequiredMixin, View):
                     str(e)}')
 
         return redirect('core:trucks')
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class FileUploadView(View):
+    def post(self, request):
+        if not request.FILES:
+            return JsonResponse({'error': 'Файл не предоставлен'}, status=400)
+        file = list(request.FILES.values())[0]
+        file_type = file.content_type
+        allowed_types = getattr(settings, 'ALLOWED_DOCUMENT_TYPES', []) + getattr(settings, 'ALLOWED_IMAGE_TYPES', [])
+        max_size = getattr(settings, 'MAX_UPLOAD_SIZE', 10 * 1024 * 1024)
+        if file_type not in allowed_types:
+            return JsonResponse({'error': 'Недопустимый тип файла'}, status=400)
+        if file.size > max_size:
+            return JsonResponse({'error': f'Размер файла превышает {max_size // (1024*1024)}MB'}, status=400)
+        ext = os.path.splitext(file.name)[1]
+        filename = f"{os.urandom(8).hex()}{ext}"
+        if file_type in getattr(settings, 'ALLOWED_IMAGE_TYPES', []):
+            upload_dir = 'uploads/images/'
+        else:
+            upload_dir = 'uploads/documents/'
+        path = os.path.join(upload_dir, filename)
+        saved_path = default_storage.save(path, ContentFile(file.read()))
+        return JsonResponse({'path': saved_path, 'url': default_storage.url(saved_path)})

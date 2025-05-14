@@ -38,6 +38,7 @@ from .views import (
     ChangePasswordView,
     TrucksView,
     TruckDetailView,
+    FileUploadView,
 )
 from .api import update_profile, upload_profile_photo, get_profile_stats
 from django.views.generic import TemplateView
