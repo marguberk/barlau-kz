@@ -117,7 +117,7 @@
                                     <label for="id_number" class="block text-sm font-medium text-gray-700">Госномер*</label>
                                     <div class="mt-1">
                                 <input type="text" name="number" id="id_number" value="{{ form.number.value|default:'' }}" 
-                                            class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-lg"
+                                            class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full h-12 px-4 border border-gray-300 rounded-lg sm:text-sm"
                                             placeholder="Например: 777 KZ 02">
                                     </div>
                                 {% if form.number.errors %}
@@ -129,7 +129,7 @@
                                     <label for="id_brand" class="block text-sm font-medium text-gray-700">Марка*</label>
                                     <div class="mt-1">
                                         <input type="text" name="brand" id="id_brand" value="{{ form.brand.value|default:'' }}"
-                                            class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-lg"
+                                            class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full h-12 px-4 border border-gray-300 rounded-lg sm:text-sm"
                                             placeholder="Например: Mercedes-Benz">
                                     </div>
                                     {% if form.brand.errors %}
@@ -141,7 +141,7 @@
                                     <label for="id_model" class="block text-sm font-medium text-gray-700">Модель*</label>
                                     <div class="mt-1">
                                         <input type="text" name="model" id="id_model" value="{{ form.model.value|default:'' }}"
-                                            class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-lg"
+                                            class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full h-12 px-4 border border-gray-300 rounded-lg sm:text-sm"
                                             placeholder="Например: Actros">
                                     </div>
                                     {% if form.model.errors %}
@@ -155,7 +155,7 @@
                                     <label for="id_vehicle_type" class="block text-sm font-medium text-gray-700">Тип транспорта*</label>
                                     <div class="mt-1">
                                 <select name="vehicle_type" id="id_vehicle_type" 
-                                            class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-lg">
+                                            class="custom-select shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full h-12 px-4 border border-gray-300 rounded-lg sm:text-sm">
                                     <option value="">Выберите тип</option>
                                     <option value="CAR" {% if form.vehicle_type.value == 'CAR' %}selected{% endif %}>Легковой</option>
                                     <option value="TRUCK" {% if form.vehicle_type.value == 'TRUCK' %}selected{% endif %}>Грузовой</option>
@@ -171,7 +171,7 @@
                                     <label for="id_year" class="block text-sm font-medium text-gray-700">Год выпуска*</label>
                                     <div class="mt-1">
                                         <input type="number" name="year" id="id_year" value="{{ form.year.value|default:'' }}"
-                                            class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-lg"
+                                            class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full h-12 px-4 border border-gray-300 rounded-lg sm:text-sm"
                                             min="1900" max="{% now 'Y' %}" placeholder="{% now 'Y' %}">
                             </div>
                                 {% if form.year.errors %}
@@ -183,7 +183,7 @@
                                     <label for="id_status" class="block text-sm font-medium text-gray-700">Статус*</label>
                                     <div class="mt-1">
                                 <select name="status" id="id_status" 
-                                            class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-lg">
+                                            class="custom-select shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full h-12 px-4 border border-gray-300 rounded-lg sm:text-sm">
                                     <option value="">Выберите статус</option>
                                             <option value="ACTIVE" {% if form.status.value == 'ACTIVE' %}selected{% endif %}>
                                                 <span class="inline-flex items-center">
@@ -216,7 +216,7 @@
                             <label for="id_driver" class="block text-sm font-medium text-gray-700">Водитель</label>
                             <div class="mt-1">
                                 <select name="driver" id="id_driver" 
-                                    class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-lg">
+                                    class="custom-select shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full h-12 px-4 border border-gray-300 rounded-lg sm:text-sm">
                                     <option value="">Не назначен</option>
                                     {% for driver in drivers %}
                                     <option value="{{ driver.id }}" {% if form.driver.value == driver.id %}selected{% endif %}>
@@ -234,8 +234,8 @@
                             <label for="id_description" class="block text-sm font-medium text-gray-700">Описание</label>
                             <div class="mt-1">
                             <textarea name="description" id="id_description" rows="4" 
-                                    class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-lg"
-                                    placeholder="Дополнительная информация о транспорте...">{{ form.description.value|default:'' }}</textarea>
+                                    class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full h-24 px-4 border border-gray-300 rounded-lg sm:text-sm"
+                                    placeholder="Дополнительная информация о транспорте..." style="line-height: 2; padding-top: 0.75rem !important;">{{ form.description.value|default:'' }}</textarea>
                             </div>
                             {% if form.description.errors %}
                             <p class="mt-2 text-sm text-red-600">{{ form.description.errors.0 }}</p>
@@ -247,12 +247,12 @@
                     <div id="technical" class="tab-pane hidden bg-white rounded-xl shadow-sm p-6">
                         <div class="space-y-6">
                             <h3 class="text-lg font-medium text-gray-900">Регистрационные данные</h3>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                                 <div class="form-group">
                                     <label for="id_vin_number" class="block text-sm font-medium text-gray-700">VIN номер</label>
                                     <div class="mt-1">
                                     <input type="text" name="vin_number" id="id_vin_number" value="{{ form.vin_number.value|default:'' }}" 
-                                            class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-lg"
+                                            class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full h-12 px-4 border border-gray-300 rounded-lg sm:text-sm"
                                             placeholder="17 символов">
                                     </div>
                                 </div>
@@ -261,7 +261,15 @@
                                     <label for="id_engine_number" class="block text-sm font-medium text-gray-700">Номер двигателя</label>
                                     <div class="mt-1">
                                     <input type="text" name="engine_number" id="id_engine_number" value="{{ form.engine_number.value|default:'' }}" 
-                                            class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-lg">
+                                            class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full h-12 px-4 border border-gray-300 rounded-lg sm:text-sm">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="id_chassis_number" class="block text-sm font-medium text-gray-700">Номер шасси</label>
+                                <div class="mt-1">
+                                    <input type="text" name="chassis_number" id="id_chassis_number" value="{{ form.chassis_number.value|default:'' }}"
+                                        class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full h-12 px-4 border border-gray-300 rounded-lg sm:text-sm"
+                                        placeholder="Например: CHS1234567890">
                                 </div>
                             </div>
                         </div>
@@ -273,7 +281,7 @@
                                     <div class="mt-1">
                                         <input type="number" step="0.1" name="engine_capacity" id="id_engine_capacity" 
                                             value="{{ form.engine_capacity.value|default:'' }}"
-                                            class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-lg">
+                                            class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full h-12 px-4 border border-gray-300 rounded-lg sm:text-sm">
                                 </div>
                                 </div>
                                 
@@ -281,7 +289,7 @@
                                     <label for="id_fuel_type" class="block text-sm font-medium text-gray-700">Тип топлива</label>
                                     <div class="mt-1">
                                     <select name="fuel_type" id="id_fuel_type" 
-                                            class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-lg">
+                                            class="custom-select shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full h-12 px-4 border border-gray-300 rounded-lg sm:text-sm">
                                         <option value="">Не указан</option>
                                         <option value="DIESEL" {% if form.fuel_type.value == 'DIESEL' %}selected{% endif %}>Дизель</option>
                                         <option value="PETROL" {% if form.fuel_type.value == 'PETROL' %}selected{% endif %}>Бензин</option>
@@ -297,7 +305,7 @@
                                     <div class="mt-1">
                                         <input type="number" step="0.1" name="fuel_consumption" id="id_fuel_consumption"
                                             value="{{ form.fuel_consumption.value|default:'' }}"
-                                            class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-lg">
+                                            class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full h-12 px-4 border border-gray-300 rounded-lg sm:text-sm">
                                 </div>
                             </div>
                         </div>
@@ -308,7 +316,7 @@
                                     <label for="id_length" class="block text-sm font-medium text-gray-700">Длина (м)</label>
                                     <div class="mt-1">
                                     <input type="number" step="0.01" name="length" id="id_length" value="{{ form.length.value|default:'' }}" 
-                                            class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-lg">
+                                            class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full h-12 px-4 border border-gray-300 rounded-lg sm:text-sm">
                                     </div>
                                 </div>
                                 
@@ -316,7 +324,7 @@
                                     <label for="id_width" class="block text-sm font-medium text-gray-700">Ширина (м)</label>
                                     <div class="mt-1">
                                     <input type="number" step="0.01" name="width" id="id_width" value="{{ form.width.value|default:'' }}" 
-                                            class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-lg">
+                                            class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full h-12 px-4 border border-gray-300 rounded-lg sm:text-sm">
                                     </div>
                                 </div>
                                 
@@ -324,7 +332,7 @@
                                     <label for="id_height" class="block text-sm font-medium text-gray-700">Высота (м)</label>
                                     <div class="mt-1">
                                     <input type="number" step="0.01" name="height" id="id_height" value="{{ form.height.value|default:'' }}" 
-                                            class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-lg">
+                                            class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full h-12 px-4 border border-gray-300 rounded-lg sm:text-sm">
                                     </div>
                                 </div>
 
@@ -332,7 +340,7 @@
                                     <label for="id_max_weight" class="block text-sm font-medium text-gray-700">Максимальная масса (кг)</label>
                                     <div class="mt-1">
                                         <input type="number" name="max_weight" id="id_max_weight" value="{{ form.max_weight.value|default:'' }}"
-                                            class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-lg">
+                                            class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full h-12 px-4 border border-gray-300 rounded-lg sm:text-sm">
                                     </div>
                                 </div>
 
@@ -340,7 +348,7 @@
                                     <label for="id_cargo_capacity" class="block text-sm font-medium text-gray-700">Грузоподъемность (кг)</label>
                                     <div class="mt-1">
                                         <input type="number" name="cargo_capacity" id="id_cargo_capacity" value="{{ form.cargo_capacity.value|default:'' }}"
-                                            class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-lg">
+                                            class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full h-12 px-4 border border-gray-300 rounded-lg sm:text-sm">
                                     </div>
                                 </div>
                             </div>
@@ -410,18 +418,32 @@
 <script src="https://unpkg.com/filepond-plugin-file-validate-type/dist/filepond-plugin-file-validate-type.js"></script>
 <script src="https://unpkg.com/filepond/dist/filepond.js"></script>
 
+<style>
+.filepond--credits { display: none !important; }
+
+/* Кастомная стрелка для select */
+.custom-select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background: url('data:image/svg+xml;utf8,<svg fill=\"none\" stroke=\"%239ca3af\" stroke-width=\"2\" viewBox=\"0 0 24 24\" xmlns=\"http://www.w3.org/2000/svg\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M19 9l-7 7-7-7\"/></svg>') no-repeat right 1rem center/1.5em 1.5em;
+    padding-right: 3rem !important;
+}
+
+/* Чуть ниже placeholder и текст в textarea */
+textarea {
+    line-height: 2;
+    padding-top: 0.75rem !important;
+}
+</style>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-    // Инициализация FilePond
     FilePond.registerPlugin(
         FilePondPluginImagePreview,
         FilePondPluginFileValidateSize,
         FilePondPluginFileValidateType
     );
-        
-    // Применяем FilePond ко всем input[type="file"]
     document.querySelectorAll('input[type="file"]').forEach(inputElement => {
-        // Формируем массив допустимых типов на основе атрибута accept
         let accepted = [];
         if (inputElement.hasAttribute('accept')) {
             accepted = inputElement.getAttribute('accept')
@@ -429,11 +451,26 @@
                 .map(t => t.trim())
                 .filter(t => t.length > 0);
         }
-
         const pond = FilePond.create(inputElement, {
             storeAsFile: true,
-            // Если types указаны, передаём их плагину валидации
-            ...(accepted.length ? { acceptedFileTypes: accepted } : {})
+            ...(accepted.length ? { acceptedFileTypes: accepted } : {}),
+            labelIdle: 'Перетащите файл или <span class="filepond--label-action">выберите</span>',
+            labelFileTypeNotAllowed: 'Недопустимый тип файла',
+            fileValidateTypeLabelExpectedTypes: 'Ожидается: {allTypes}',
+            labelFileProcessing: 'Загрузка...',
+            labelFileProcessingComplete: 'Файл загружен',
+            labelFileProcessingAborted: 'Загрузка отменена',
+            labelFileProcessingError: 'Ошибка при загрузке',
+            labelTapToCancel: 'Нажмите для отмены',
+            labelTapToRetry: 'Нажмите для повтора',
+            labelTapToUndo: 'Нажмите для отмены',
+            labelButtonRemoveItem: 'Удалить',
+            labelButtonAbortItemLoad: 'Отменить',
+            labelButtonRetryItemLoad: 'Повторить',
+            labelButtonAbortItemProcessing: 'Отменить',
+            labelButtonUndoItemProcessing: 'Отменить',
+            labelButtonRetryItemProcessing: 'Повторить',
+            labelButtonProcessItem: 'Загрузить',
         });
     });
     

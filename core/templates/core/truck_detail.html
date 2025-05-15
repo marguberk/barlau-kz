@@ -102,7 +102,7 @@
                         <div class="flex-1">
                             <div class="mb-6">
                                 <p class="text-sm text-gray-500 mb-1">Государственный номер</p>
-                                <h2 class="text-3xl font-semibold text-zinc-950">№ {{ truck.number }}</h2>
+                                <h2 class="text-3xl font-semibold text-zinc-950">{{ truck.number }}</h2>
                             </div>
                             
                             <div class="grid grid-cols-2 gap-6 mb-8">
@@ -168,17 +168,19 @@
 
                         <!-- Фотографии -->
                         <div class="w-96">
-                            {% with main=truck.photos.first %}
-                            {% if main %}
-                                <div class="w-full h-64 rounded-xl overflow-hidden mb-4">
-                                    <img src="{{ main.photo.url }}" alt="Основное фото" class="w-full h-full object-cover">
-                                </div>
-                            {% else %}
-                                <div class="w-full h-64 rounded-xl overflow-hidden mb-4 bg-gray-100 flex items-center justify-center">
-                                    <img src="{% static 'core/img/truck-side.png' %}" alt="Truck" class="w-48 h-48 object-contain opacity-50">
-                                </div>
-                            {% endif %}
-                            {% endwith %}
+                            <div class="w-[400px] h-[150px]">
+                                {% with main=truck.photos.first %}
+                                {% if main %}
+                                    <div class="w-full h-full rounded-xl overflow-hidden mb-4">
+                                        <img src="{{ main.photo.url }}" alt="Основное фото" class="w-full h-full object-cover">
+                                    </div>
+                                {% else %}
+                                    <div class="w-full h-full rounded-xl overflow-hidden mb-4 bg-gray-100 flex items-center justify-center">
+                                        <img src="{% static 'core/img/truck-side.png' %}" alt="Truck" class="object-contain opacity-50 w-48 h-18">
+                                    </div>
+                                {% endif %}
+                                {% endwith %}
+                            </div>
 
                             {% if truck.photos.count > 1 %}
                             <div class="grid grid-cols-3 gap-4">
