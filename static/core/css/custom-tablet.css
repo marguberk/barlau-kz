@@ -63,7 +63,7 @@
 }
 
 .main-content {
-    margin-left: 256px !important;
+    /* margin-left: 256px !important; */
     flex: 1 !important;
     background-color: #F9FAFB !important;
     min-height: 100vh !important;
@@ -146,6 +146,37 @@
         display: block !important;
         width: 32px !important;
         height: 32px !important;
+        opacity: 1 !important;
+        /* Базовый серый цвет для неактивных иконок */
+        fill: #6B7280 !important;
+        color: #6B7280 !important;
+    }
+    
+    /* Стили для неактивных иконок - используем прямое указание цвета */
+    .tablet-mode .sidebar-menu a .mobile-icon {
+        fill: #6B7280 !important;
+        color: #6B7280 !important;
+        opacity: 1 !important;
+    }
+    
+    /* Стили для активных иконок - прямой синий цвет */
+    .tablet-mode .sidebar-menu a.bg-gray-50 .mobile-icon {
+        fill: #2563EB !important;
+        color: #2563EB !important;
+        opacity: 1 !important;
+    }
+
+    /* Дополнительные правила для SVG внутри иконок */
+    .tablet-mode .sidebar-menu a .mobile-icon svg,
+    .tablet-mode .sidebar-menu a .mobile-icon path {
+        fill: #6B7280 !important;
+        stroke: #6B7280 !important;
+    }
+
+    .tablet-mode .sidebar-menu a.bg-gray-50 .mobile-icon svg,
+    .tablet-mode .sidebar-menu a.bg-gray-50 .mobile-icon path {
+        fill: #2563EB !important;
+        stroke: #2563EB !important;
     }
     
     .tablet-mode .desktop-icon {
@@ -217,17 +248,22 @@
 
 /* Стили для скрытия верхнего меню и показа нижнего на планшетах и мобильных */
 @media (max-width: 1100px) {
-    /* Скрываем боковое меню */
+    /* Убираем меню для планшетной и мобильной версий */
     .sidebar {
         display: none !important;
     }
     
-    /* Удаляем отступ слева для основного контента */
     .main-content {
         margin-left: 0 !important;
+        width: 100% !important;
+        padding-bottom: 70px !important;
     }
     
-    /* Скрываем базовое нижнее меню из base.html */
+    /* Закомментировано, чтобы не скрывать верхнюю панель в мобильной версии */
+    /* .w-full.h-20.px-8.py-5.bg-white {
+        display: none !important;
+    } */
+    
     .base-bottom-nav {
         display: none !important;
     }
@@ -238,8 +274,8 @@
     }
     
     /* Показываем нижнее меню если оно должно быть скрыто */
-    nav.fixed.bottom-0.hidden,
-    nav.mobile-nav.hidden {
+    body:not(.page-tasks):not(.page-map):not(.page-employees):not(.page-vehicles) nav.fixed.bottom-0.hidden,
+    body:not(.page-tasks):not(.page-map):not(.page-employees):not(.page-vehicles) nav.mobile-nav.hidden {
         display: block !important;
     }
     
@@ -247,9 +283,15 @@
     .fixed.bottom-0 {
         height: 60px !important;
         box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05) !important;
-        z-index: 9999 !important; /* Значительно увеличиваем z-index для перекрытия всех элементов */
+        z-index: 9999 !important;
         background-color: white !important;
         border-top: 1px solid #E5E7EB !important;
+        display: none !important; /* Скрываем по умолчанию */
+    }
+    
+    /* Показываем только на дашборде */
+    body:not(.page-tasks):not(.page-map):not(.page-employees):not(.page-vehicles) .fixed.bottom-0 {
+        display: block !important;
     }
     
     /* Стили для иконок в нижнем меню */
@@ -264,6 +306,15 @@
     .fixed.bottom-0 .icon-container img {
         width: 24px !important;
         height: 24px !important;
+        fill: #6B7280 !important;
+        color: #6B7280 !important;
+        opacity: 1 !important;
+    }
+
+    .fixed.bottom-0 a.text-blue-600 .icon-container img {
+        fill: #2563EB !important;
+        color: #2563EB !important;
+        opacity: 1 !important;
     }
     
     /* Стили для текста в нижнем меню */
@@ -272,32 +323,23 @@
         line-height: 1.2 !important;
         margin-top: 4px !important;
         text-align: center !important;
+        /* Цвет текста будет наследоваться от родительской ссылки (text-gray-600 или text-blue-600) */
     }
     
-    /* Серый фильтр для неактивных иконок */
-    .fixed.bottom-0 a.text-gray-600 .icon-container img {
-        filter: brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(142deg) brightness(96%) contrast(91%) !important;
-    }
-    
-    /* Синий фильтр для активной иконки */
-    .fixed.bottom-0 a.text-blue-600 .icon-container img {
-        filter: brightness(0) saturate(100%) invert(32%) sepia(96%) saturate(7461%) hue-rotate(220deg) brightness(97%) contrast(98%) !important;
-    }
-    
-    /* Стили для активного пункта меню */
+    /* Стили для активного пункта меню (текст) */
     .fixed.bottom-0 a.text-blue-600 span {
         color: #2563EB !important;
     }
     
     /* Индикатор активного пункта меню */
-    .fixed.bottom-0 a.text-blue-600 .absolute {
+    .fixed.bottom-0 a.text-blue-600 .absolute { /* Это для подчеркивания */
         height: 2px !important;
         background-color: #2563EB !important;
         border-radius: 9999px !important;
     }
 }
 
-/* Фиксы для цветов иконок в посещенных ссылках */
+/* Фиксы для цветов иконок в посещенных ссылках - УДАЛЯЕМ СТАРЫЕ ПРАВИЛА ДЛЯ МОБИЛЬНОГО МЕНЮ */
 .sidebar-menu a:visited svg path,
 .sidebar-menu a:visited svg line,
 .sidebar-menu a:visited svg rect,
@@ -314,14 +356,23 @@
     fill: none !important;
 }
 
-/* Обрабатываем SVG иконки в мобильной навигации */
-.fixed.bottom-0 a:visited img.mobile-icon,
-.fixed.bottom-0 a.text-gray-600:visited img {
-    filter: brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(142deg) brightness(96%) contrast(91%) !important;
-}
-
-.fixed.bottom-0 a.text-blue-600:visited img.mobile-icon,
-.fixed.bottom-0 a.text-blue-600:visited img,
-.fixed.bottom-0 a.text-blue-600 img {
-    filter: brightness(0) saturate(100%) invert(32%) sepia(96%) saturate(7461%) hue-rotate(220deg) brightness(97%) contrast(98%) !important;
+/* Дополнительные коррекции для мобильных устройств */
+@media (max-width: 640px) {
+    /* Убираем общие отступы */
+    .main-content {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    
+    /* Добавляем отступы только к блокам внутри контента */
+    .main-content > div.w-full.px-8,
+    .main-content > div.px-8 {
+        padding-left: 16px !important;
+        padding-right: 16px !important;
+    }
+    
+    /* Адаптируем размер заголовков */
+    .text-2xl {
+        font-size: 1.25rem !important;
+    }
 } 

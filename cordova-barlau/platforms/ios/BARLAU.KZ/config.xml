@@ -1,0 +1,105 @@
+<?xml version='1.0' encoding='utf-8'?>
+<widget id="kz.barlau.app" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+    <feature name="CDVWebViewEngine">
+        <param name="ios-package" value="CDVWebViewEngine" />
+    </feature>
+    <feature name="LaunchScreen">
+        <param name="ios-package" value="CDVLaunchScreen" />
+    </feature>
+    <feature name="LocalStorage">
+        <param name="ios-package" value="CDVLocalStorage" />
+    </feature>
+    <feature name="Console">
+        <param name="ios-package" value="CDVLogger" />
+        <param name="onload" value="true" />
+    </feature>
+    <feature name="HandleOpenUrl">
+        <param name="ios-package" value="CDVHandleOpenURL" />
+        <param name="onload" value="true" />
+    </feature>
+    <feature name="IntentAndNavigationFilter">
+        <param name="ios-package" value="CDVIntentAndNavigationFilter" />
+        <param name="onload" value="true" />
+    </feature>
+    <feature name="GestureHandler">
+        <param name="ios-package" value="CDVGestureHandler" />
+        <param name="onload" value="true" />
+    </feature>
+    <feature name="StatusBar">
+        <param name="ios-package" value="CDVStatusBar" />
+        <param name="onload" value="true" />
+    </feature>
+    <feature name="InAppBrowser">
+        <param name="ios-package" value="CDVWKInAppBrowser" />
+        <param name="onload" value="true" />
+    </feature>
+    <feature name="NetworkStatus">
+        <param name="ios-package" value="CDVConnection" />
+    </feature>
+    <feature name="Geolocation">
+        <param name="ios-package" value="CDVLocation" />
+    </feature>
+    <feature name="Device">
+        <param name="ios-package" value="CDVDevice" />
+    </feature>
+    <name>BARLAU.KZ</name>
+    <description>Система управления логистикой и сотрудниками</description>
+    <author email="info@barlau.kz" href="https://barlau.kz">BARLAU Team</author>
+    <content src="index.html" />
+    <access origin="*" />
+    <allow-intent href="http://*/*" />
+    <allow-intent href="https://*/*" />
+    <allow-intent href="tel:*" />
+    <allow-intent href="sms:*" />
+    <allow-intent href="mailto:*" />
+    <allow-intent href="geo:*" />
+    <allow-intent href="itms:*" />
+    <allow-intent href="itms-apps:*" />
+    <icon height="20" src="res/ios/icon-20.png" width="20" />
+    <icon height="40" src="res/ios/icon-20@2x.png" width="40" />
+    <icon height="60" src="res/ios/icon-20@3x.png" width="60" />
+    <icon height="29" src="res/ios/icon-29.png" width="29" />
+    <icon height="58" src="res/ios/icon-29@2x.png" width="58" />
+    <icon height="87" src="res/ios/icon-29@3x.png" width="87" />
+    <icon height="40" src="res/ios/icon-40.png" width="40" />
+    <icon height="80" src="res/ios/icon-40@2x.png" width="80" />
+    <icon height="120" src="res/ios/icon-40@3x.png" width="120" />
+    <icon height="120" src="res/ios/icon-60@2x.png" width="120" />
+    <icon height="180" src="res/ios/icon-60@3x.png" width="180" />
+    <icon height="76" src="res/ios/icon-76.png" width="76" />
+    <icon height="152" src="res/ios/icon-76@2x.png" width="152" />
+    <icon height="167" src="res/ios/icon-83.5@2x.png" width="167" />
+    <icon height="1024" src="res/ios/icon-1024.png" width="1024" />
+    <splash height="960" src="res/ios/splash-Default@2x~iphone.png" width="640" />
+    <splash height="1136" src="res/ios/splash-Default-568h@2x~iphone.png" width="640" />
+    <splash height="1334" src="res/ios/splash-Default-667h.png" width="750" />
+    <splash height="2208" src="res/ios/splash-Default-736h.png" width="1242" />
+    <splash height="1242" src="res/ios/splash-Default-Landscape-736h.png" width="2208" />
+    <splash height="1024" src="res/ios/splash-Default-Portrait~ipad.png" width="768" />
+    <splash height="768" src="res/ios/splash-Default-Landscape~ipad.png" width="1024" />
+    <splash height="2048" src="res/ios/splash-Default-Portrait@2x~ipad.png" width="1536" />
+    <splash height="1536" src="res/ios/splash-Default-Landscape@2x~ipad.png" width="2048" />
+    <splash height="2436" src="res/ios/splash-1125x2436.png" width="1125" />
+    <splash height="1125" src="res/ios/splash-2436x1125.png" width="2436" />
+    <preference name="AllowInlineMediaPlayback" value="true" />
+    <preference name="BackupWebStorage" value="local" />
+    <preference name="DisallowOverscroll" value="true" />
+    <preference name="EnableViewportScale" value="true" />
+    <preference name="KeyboardDisplayRequiresUserAction" value="true" />
+    <preference name="SuppressesIncrementalRendering" value="false" />
+    <preference name="SuppressesLongPressGesture" value="false" />
+    <preference name="Suppresses3DTouchGesture" value="false" />
+    <preference name="GapBetweenPages" value="0" />
+    <preference name="PageLength" value="0" />
+    <preference name="PaginationBreakingMode" value="page" />
+    <preference name="PaginationMode" value="unpaginated" />
+    <preference name="StatusBarOverlaysWebView" value="false" />
+    <preference name="StatusBarBackgroundColor" value="#2563EB" />
+    <preference name="StatusBarStyle" value="lightcontent" />
+    <preference name="Orientation" value="portrait" />
+    <preference name="target-device" value="universal" />
+    <preference name="deployment-target" value="12.0" />
+    <preference name="MediaTypesRequiringUserActionForPlayback" value="none" />
+    <preference name="WKWebViewOnly" value="true" />
+    <preference name="CordovaWebViewEngine" value="CDVWKWebViewEngine" />
+</widget>

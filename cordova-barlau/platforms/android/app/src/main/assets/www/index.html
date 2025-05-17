@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, width=device-width, viewport-fit=cover, user-scalable=no">
+    <meta http-equiv="Content-Security-Policy" content="default-src * data: gap: https://ssl.gstatic.com 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; media-src *; connect-src *">
+    <title>BARLAU.KZ</title>
+    <!-- Предзагрузка логотипа -->
+    <link rel="preload" href="img/logo.png" as="image">
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+        }
+        #appFrame {
+            border: none;
+            height: 100%;
+            width: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+        .app-loading {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        .app-loading img {
+            width: 120px;
+            height: 120px;
+            object-fit: contain;
+        }
+        .app-loading h1 {
+            margin-top: 20px;
+            font-family: Arial, sans-serif;
+            color: #2563EB;
+        }
+        .spinner {
+            width: 40px;
+            height: 40px;
+            margin: 20px auto;
+            background-color: #2563EB;
+            border-radius: 100%;  
+            -webkit-animation: sk-scaleout 1.0s infinite ease-in-out;
+            animation: sk-scaleout 1.0s infinite ease-in-out;
+        }
+        .error-message {
+            margin-top: 20px;
+            color: #e53e3e;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 0 20px;
+        }
+        .retry-button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: #2563EB;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-family: Arial, sans-serif;
+            cursor: pointer;
+        }
+        @-webkit-keyframes sk-scaleout {
+            0% { -webkit-transform: scale(0) }
+            100% { -webkit-transform: scale(1.0); opacity: 0; }
+        }
+        @keyframes sk-scaleout {
+            0% { transform: scale(0); -webkit-transform: scale(0); }
+            100% { transform: scale(1.0); -webkit-transform: scale(1.0); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-loading" id="loading">
+        <img src="img/logo.png" alt="BARLAU.KZ">
+        <h1>BARLAU.KZ</h1>
+        <div class="spinner" id="loading-spinner"></div>
+        <div id="error-container" style="display:none;">
+            <div class="error-message" id="error-message"></div>
+            <button class="retry-button" id="retry-button">Повторить</button>
+        </div>
+    </div>
+    <iframe id="appFrame" style="display:none;"></iframe>
+    
+    <script type="text/javascript" src="cordova.js"></script>
+    <script type="text/javascript" src="js/app.js"></script>
+    <script>
+        // Глобальные переменные
+        let loadTimeout;
+        const MAX_LOAD_TIME = 30000; // 30 секунд максимальное время загрузки
+        let loadAttempts = 0;
+        const MAX_LOAD_ATTEMPTS = 3;
+        const APP_URL = 'https://barlau.kz'; // URL приложения
+        
+        // Регистрация Service Worker для кэширования
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('service-worker.js')
+                .then(function(registration) {
+                    console.log('ServiceWorker зарегистрирован: ', registration.scope);
+                })
+                .catch(function(error) {
+                    console.log('Регистрация ServiceWorker не удалась: ', error);
+                });
+            });
+        }
+        
+        document.addEventListener('deviceready', onDeviceReady, false);
+        
+        function onDeviceReady() {
+            // Предзагрузка логотипа
+            preloadImage('img/logo.png');
+            
+            // Проверка наличия интернета перед загрузкой
+            checkConnection();
+            
+            // Обработка события возврата кнопкой "назад" на Android
+            document.addEventListener("backbutton", onBackKeyDown, false);
+            
+            // События сети
+            document.addEventListener("offline", onOffline, false);
+            document.addEventListener("online", onOnline, false);
+            
+            // Настройка статус-бара
+            if (window.StatusBar) {
+                StatusBar.backgroundColorByHexString("#2563EB");
+                StatusBar.styleLightContent();
+            }
+            
+            // Привязка кнопки повтора
+            document.getElementById('retry-button').addEventListener('click', retryLoading);
+        }
+        
+        // Предзагрузка изображения
+        function preloadImage(url) {
+            const img = new Image();
+            img.src = url;
+        }
+        
+        function checkConnection() {
+            let networkState = 'unknown';
+            
+            // Проверяем, доступен ли плагин Connection
+            if (navigator.connection) {
+                networkState = navigator.connection.type;
+                
+                if (networkState === Connection.NONE) {
+                    // Пробуем загрузить кэшированную версию
+                    tryLoadCachedVersion();
+                    return;
+                }
+            }
+            
+            // Если есть соединение, начать загрузку
+            loadWebApp();
+        }
+        
+        // Попытка загрузить кэшированную версию
+        function tryLoadCachedVersion() {
+            // Проверяем наличие кэша через fetch API
+            fetch(APP_URL, { cache: 'only-if-cached', mode: 'no-cors' })
+                .then(response => {
+                    if (response.ok) {
+                        loadWebApp();
+                    } else {
+                        showError("Отсутствует подключение к интернету и нет кэшированной версии. Пожалуйста, проверьте ваше соединение.");
+                    }
+                })
+                .catch(() => {
+                    showError("Отсутствует подключение к интернету. Пожалуйста, проверьте ваше соединение.");
+                });
+        }
+        
+        function loadWebApp() {
+            loadAttempts++;
+            
+            const frame = document.getElementById('appFrame');
+            const loadingEl = document.getElementById('loading');
+            const errorContainer = document.getElementById('error-container');
+            const loadingSpinner = document.getElementById('loading-spinner');
+            
+            // Сбрасываем состояние ошибки
+            errorContainer.style.display = 'none';
+            loadingSpinner.style.display = 'block';
+            
+            // Устанавливаем таймаут для загрузки
+            loadTimeout = setTimeout(function() {
+                // Если загрузка не завершилась за отведенное время
+                handleLoadError("Превышено время ожидания загрузки. Сервер не отвечает.");
+            }, MAX_LOAD_TIME);
+            
+            // Загрузка веб-приложения
+            frame.src = APP_URL;
+            
+            // События iframe
+            frame.onload = function() {
+                // Очищаем таймаут, так как загрузка завершена
+                clearTimeout(loadTimeout);
+                
+                // Проверяем, загрузилась ли страница корректно
+                try {
+                    // Проверка доступа к contentWindow как индикатор успешной загрузки
+                    if (frame.contentWindow && frame.contentWindow.document) {
+                        // Успешная загрузка
+                        loadingEl.style.display = 'none';
+                        frame.style.display = 'block';
+                        
+                        // Попытка автоматического входа, если сохранены учетные данные
+                        tryAutoLogin();
+                        
+                        // Сбрасываем счетчик попыток
+                        loadAttempts = 0;
+                    } else {
+                        throw new Error("Не удалось получить доступ к содержимому страницы");
+                    }
+                } catch (e) {
+                    handleLoadError("Ошибка загрузки: " + e.message);
+                }
+            };
+            
+            // Обработка ошибок загрузки iframe
+            frame.onerror = function(e) {
+                clearTimeout(loadTimeout);
+                console.error("Ошибка загрузки iframe:", e);
+                handleLoadError("Ошибка загрузки страницы");
+            };
+        }
+        
+        function handleLoadError(message) {
+            clearTimeout(loadTimeout); // На всякий случай очищаем таймаут
+            
+            if (loadAttempts < MAX_LOAD_ATTEMPTS) {
+                console.log("Попытка загрузки " + loadAttempts + " не удалась. Повторная попытка...");
+                setTimeout(loadWebApp, 2000); // Добавляем небольшую задержку перед повторной попыткой
+            } else {
+                showError(message);
+            }
+        }
+        
+        function showError(message) {
+            const errorContainer = document.getElementById('error-container');
+            const errorMessage = document.getElementById('error-message');
+            const loadingSpinner = document.getElementById('loading-spinner');
+            
+            // Показываем ошибку
+            errorMessage.textContent = message;
+            errorContainer.style.display = 'block';
+            loadingSpinner.style.display = 'none';
+        }
+        
+        function retryLoading() {
+            // Сбрасываем счетчик попыток и пробуем снова
+            loadAttempts = 0;
+            checkConnection();
+        }
+        
+        function onBackKeyDown() {
+            const frame = document.getElementById('appFrame');
+            // Отправляем событие нажатия кнопки "назад" в веб-приложение
+            if (frame.style.display === 'block' && frame.contentWindow) {
+                frame.contentWindow.postMessage('backbutton', '*');
+            } else {
+                // Если мы на экране загрузки или ошибки, выходим из приложения
+                navigator.app.exitApp();
+            }
+        }
+        
+        function onOffline() {
+            // Показать сообщение об отсутствии соединения
+            showError("Отсутствует подключение к интернету. Включите Wi-Fi или мобильные данные и попробуйте снова.");
+        }
+        
+        function onOnline() {
+            // Проверяем, нужно ли перезагрузить страницу
+            const frame = document.getElementById('appFrame');
+            if (frame.style.display !== 'block') {
+                // Если iframe не отображается, пробуем загрузить заново
+                retryLoading();
+            } else {
+                // Если iframe уже отображается, обновляем его содержимое
+                frame.contentWindow.location.reload();
+            }
+        }
+        
+        function tryAutoLogin() {
+            // Здесь можно добавить код для автоматического входа
+            // например, используя сохраненные в localStorage учетные данные
+        }
+    </script>
+</body>
+</html> 

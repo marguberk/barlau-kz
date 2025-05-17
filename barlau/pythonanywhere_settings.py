@@ -8,11 +8,14 @@ ALLOWED_HOSTS = ["barlaukz.pythonanywhere.com"]
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
-        "NAME": "barlaukz$barlau",
+        "NAME": "barlaukz$default",
         "USER": "barlaukz",
         "PASSWORD": "barlauhQ217$#",
         "HOST": "barlaukz.mysql.pythonanywhere-services.com",
         "PORT": "",
+        "OPTIONS": {
+            "init_command": "SET sql_mode='STRICT_TRANS_TABLES'",
+        },
     }
 }
 

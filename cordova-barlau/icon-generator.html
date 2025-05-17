@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Icon Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+        .canvas-container {
+            margin: 20px auto;
+            display: block;
+        }
+        canvas {
+            border: 1px solid #ccc;
+            margin: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #2563EB;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 10px;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #1D4ED8;
+        }
+        .icon-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .icon-item {
+            margin: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .icon-item p {
+            margin-top: 5px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <h1>BARLAU.KZ Icon & Splash Generator</h1>
+    
+    <div class="canvas-container">
+        <h2>Icon (1024x1024)</h2>
+        <canvas id="iconCanvas" width="1024" height="1024"></canvas>
+        <button id="downloadIcon">Download Icon</button>
+    </div>
+    
+    <div class="canvas-container">
+        <h2>Splash Screen (2732x2732)</h2>
+        <canvas id="splashCanvas" width="2732" height="2732"></canvas>
+        <button id="downloadSplash">Download Splash</button>
+    </div>
+    
+    <script>
+        // Функция для рисования иконки
+        function drawIcon(canvas) {
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            // Фон
+            const gradient = ctx.createLinearGradient(0, 0, width, height);
+            gradient.addColorStop(0, '#2563EB');
+            gradient.addColorStop(1, '#1E40AF');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, width, height);
+            
+            // Круг в центре
+            const centerX = width / 2;
+            const centerY = height / 2;
+            const radius = width * 0.35;
+            
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+            ctx.fill();
+            
+            // Текст
+            ctx.fillStyle = '#1E40AF';
+            ctx.font = `bold ${width * 0.15}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('B', centerX, centerY);
+            
+            // Внешнее кольцо
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius * 1.2, 0, 2 * Math.PI, false);
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+            ctx.lineWidth = width * 0.03;
+            ctx.stroke();
+        }
+        
+        // Функция для рисования заставки
+        function drawSplash(canvas) {
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            // Фон
+            const gradient = ctx.createLinearGradient(0, 0, width, height);
+            gradient.addColorStop(0, '#2563EB');
+            gradient.addColorStop(1, '#1E40AF');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, width, height);
+            
+            // Лого (такое же как на иконке, но меньше)
+            const centerX = width / 2;
+            const centerY = height / 2 - height * 0.05;
+            const radius = width * 0.2;
+            
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+            ctx.fill();
+            
+            ctx.fillStyle = '#1E40AF';
+            ctx.font = `bold ${width * 0.08}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('B', centerX, centerY);
+            
+            // Внешнее кольцо
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius * 1.2, 0, 2 * Math.PI, false);
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+            ctx.lineWidth = width * 0.02;
+            ctx.stroke();
+            
+            // Текст BARLAU.KZ
+            ctx.fillStyle = 'white';
+            ctx.font = `bold ${width * 0.06}px Arial`;
+            ctx.fillText('BARLAU.KZ', centerX, centerY + radius * 2);
+            
+            // Подзаголовок
+            ctx.font = `${width * 0.03}px Arial`;
+            ctx.fillText('Система управления логистикой', centerX, centerY + radius * 2.5);
+        }
+        
+        // Инициализация
+        window.onload = function() {
+            const iconCanvas = document.getElementById('iconCanvas');
+            const splashCanvas = document.getElementById('splashCanvas');
+            
+            drawIcon(iconCanvas);
+            drawSplash(splashCanvas);
+            
+            // Функция загрузки
+            function downloadCanvas(canvas, filename) {
+                const link = document.createElement('a');
+                link.download = filename;
+                link.href = canvas.toDataURL('image/png', 1.0);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+            
+            // Привязка кнопок
+            document.getElementById('downloadIcon').addEventListener('click', function() {
+                downloadCanvas(iconCanvas, 'icon-1024.png');
+            });
+            
+            document.getElementById('downloadSplash').addEventListener('click', function() {
+                downloadCanvas(splashCanvas, 'splash.png');
+            });
+        };
+    </script>
+</body>
+</html> 
+ 

@@ -16,5 +16,7 @@ django-model-utils==4.3.1
 weasyprint==60.1
 XlsxWriter==3.1.2
 reportlab==3.6.12
+numpy==1.24.4
 pandas==2.0.3
-mysqlclient==2.2.0 
+mysqlclient==2.2.0
+xhtml2pdf==0.2.16 

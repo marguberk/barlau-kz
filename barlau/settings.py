@@ -250,3 +250,36 @@ PWA_APP_SPLASH_SCREEN = [
         'media': '(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2)',
     }
 ]
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+        },
+    },
+}
+
+# Максимальный размер загружаемого файла (в байтах)
+MAX_UPLOAD_SIZE = 10 * 1024 * 1024  # 10MB
+
+# Разрешённые типы документов
+ALLOWED_DOCUMENT_TYPES = [
+    'application/pdf',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+]
+
+# Разрешённые типы изображений
+ALLOWED_IMAGE_TYPES = [
+    'image/jpeg',
+    'image/png',
+    'image/gif',
+]
