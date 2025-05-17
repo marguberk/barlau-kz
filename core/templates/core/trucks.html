@@ -16,64 +16,69 @@
         <div class="self-stretch flex-1 px-4 pt-2 pb-4 flex flex-col justify-start items-center gap-4 sidebar-menu">
             <div class="self-stretch flex flex-col justify-start items-start gap-1">
                 <div class="self-stretch flex flex-col justify-start items-start">
-                    <a href="{% url 'core:home' %}" class="self-stretch px-3 py-3.5 relative bg-white rounded-lg inline-flex justify-start items-center gap-2">
-                        <div class="w-5 h-5 relative overflow-hidden">
-                            <img src="{% static 'core/img/home.svg' %}" alt="Home" class="w-4 h-4 desktop-icon">
-                            <img src="{% static 'core/img/mobile/home.svg' %}" alt="Home" class="mobile-icon hidden">
-                        </div>
+                    <a href="{% url 'core:home' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2 relative">
+                        <img src="{% static 'core/img/home.svg' %}" alt="Home" class="w-5 h-5 desktop-icon align-middle">
+                        <img src="{% static 'core/img/mobile/home.svg' %}" alt="Home" class="mobile-icon hidden align-middle">
                         <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Главная</div>
                     </a>
-                    <a href="{% url 'core:tasks' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex justify-start items-center gap-2">
-                        <div class="w-5 h-5 relative overflow-hidden">
-                            <img src="{% static 'core/img/check-square.svg' %}" alt="Tasks" class="w-4 h-4 desktop-icon">
-                            <img src="{% static 'core/img/mobile/check-square.svg' %}" alt="Tasks" class="mobile-icon hidden">
-                        </div>
+                    <a href="{% url 'core:tasks' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2">
+                        <img src="{% static 'core/img/check-square.svg' %}" alt="Tasks" class="w-5 h-5 desktop-icon align-middle">
+                        <img src="{% static 'core/img/mobile/check-square.svg' %}" alt="Tasks" class="mobile-icon hidden align-middle">
                         <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Задачи</div>
                     </a>
-                    <a href="{% url 'core:map' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex justify-start items-center gap-2">
-                        <div class="w-5 h-5 relative overflow-hidden">
-                            <img src="{% static 'core/img/location.svg' %}?v={% now 'U' %}" alt="Map" class="w-4 h-4 desktop-icon" onerror="this.onerror=null; this.src='/static/core/img/location.svg'">
-                            <img src="{% static 'core/img/mobile/location.svg' %}" alt="Map" class="mobile-icon hidden">
-                        </div>
+                    <a href="{% url 'core:map' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2">
+                        <img src="{% static 'core/img/location.svg' %}?v={% now 'U' %}" alt="Map" class="w-5 h-5 desktop-icon align-middle" onerror="this.onerror=null; this.src='/static/core/img/location.svg'">
+                        <img src="{% static 'core/img/mobile/location.svg' %}" alt="Map" class="mobile-icon hidden align-middle">
                         <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Карта</div>
                     </a>
-                    <a href="{% url 'core:trucks' %}" class="self-stretch px-3 py-3.5 bg-gray-50 rounded-lg inline-flex justify-start items-center gap-2 relative">
+                    <a href="{% url 'core:vehicles' %}" class="self-stretch px-3 py-3.5 bg-gray-50 rounded-lg inline-flex items-center gap-2 relative">
                         <div class="w-1 h-6 left-0 top-[calc(50%-12px)] absolute bg-blue-600 rounded-tr-lg rounded-br-lg"></div>
-                        <div class="w-5 h-5 relative overflow-hidden">
-                            <img src="{% static 'core/img/truck.svg' %}" alt="Trucks" class="w-4 h-4 desktop-icon">
-                            <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Trucks" class="mobile-icon hidden">
-                        </div>
-                        <div class="flex-1 justify-start text-blue-600 text-base font-medium leading-normal tracking-tight">Грузовики</div>
+                        <img src="{% static 'core/img/truck.svg' %}" alt="Vehicles" class="w-5 h-5 desktop-icon">
+                        <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Vehicles" class="mobile-icon hidden w-5 h-5">
+                        <div class="flex-1 text-blue-600 text-base font-medium leading-normal tracking-tight">Грузовики</div>
                     </a>
-                    <a href="{% url 'core:employees' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex justify-start items-center gap-2">
-                        <div class="w-5 h-5 relative overflow-hidden">
-                            <img src="{% static 'core/img/employee.svg' %}" alt="Employees" class="w-4 h-4 desktop-icon">
-                            <img src="{% static 'core/img/mobile/employee.svg' %}" alt="Employees" class="mobile-icon hidden">
-                        </div>
+                    <a href="{% url 'core:employees' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2">
+                        <img src="{% static 'core/img/employee.svg' %}" alt="Employees" class="w-5 h-5 desktop-icon align-middle">
+                        <img src="{% static 'core/img/mobile/employee.svg' %}" alt="Employees" class="mobile-icon hidden align-middle">
                         <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Сотрудники</div>
                     </a>
                 </div>
             </div>
         </div>
     </div>
-
     <!-- Основной контент -->
-    <div class="ml-64 flex-1 min-h-screen bg-gray-50 main-content">
+    <div class="ml-64 flex-1 min-h-screen bg-gray-50 relative main-content">
         <!-- Верхняя панель -->
-        <div class="w-full h-20 px-8 py-5 bg-white border-b border-zinc-200 flex justify-between items-center">
-            <h1 class="text-2xl font-semibold">Грузовики</h1>
-            <div class="flex items-center gap-4">
-                <a href="{% url 'core:notifications' %}" class="w-11 h-11 flex items-center justify-center rounded-xl border border-zinc-200 hover:bg-gray-50 transition-colors">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M7.35419 18.3334C7.98085 18.8534 8.95835 19.1667 10.0001 19.1667C11.0418 19.1667 12.0193 18.8534 12.646 18.3334M15.8334 6.66671C15.8334 5.34059 15.3069 4.0688 14.3692 3.13112C13.4315 2.19344 12.1597 1.66671 10.8334 1.66671C9.50728 1.66671 8.23549 2.19344 7.29781 3.13112C6.36013 4.0688 5.8334 5.34059 5.8334 6.66671C5.8334 9.16671 5.0001 14.1667 3.33344 15.8334H18.3334C16.6668 14.1667 15.8334 9.16671 15.8334 6.66671Z" stroke="#6B7280" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+        <div class="w-full h-20 px-8 py-5 bg-white flex justify-between items-center">
+            <div class="justify-start text-zinc-950 text-2xl font-semibold leading-loose">Грузовики</div>
+            <div class="flex justify-start items-center gap-3">
+                <div class="flex justify-start items-start gap-2">
+                    <a href="{% url 'core:notifications' %}" class="w-10 h-10 px-3 py-2 bg-white rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex justify-center items-center gap-1.5 relative">
+                        <img src="{% static 'core/img/bell.svg' %}" alt="Notifications" class="w-5 h-5">
+                        <span id="notif-badge" class="hidden absolute -top-1 -right-1 w-3.5 h-3.5 bg-red-500 rounded-full border-2 border-white"></span>
+                    </a>
+                </div>
+                <div class="flex justify-start items-center gap-1.5">
+                    {% if request.user.is_authenticated %}
+                        {% if request.user.photo %}
+                            <img class="w-8 h-8 rounded-full object-cover" src="{{ request.user.photo.url }}" />
+                        {% else %}
+                            <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
                     </svg>
-                </a>
-                <a href="#" class="w-11 h-11 flex items-center justify-center rounded-xl border border-zinc-200 hover:bg-gray-50 transition-colors">
-                    <img src="{% static 'core/img/kz.png' %}" alt="Language" class="w-6 h-6 rounded">
-                </a>
+                        </div>
+                    {% endif %}
+                </div>
             </div>
         </div>
-
         <!-- Панель поиска и добавления -->
         <div class="w-full px-8 pt-8">
             <div class="flex justify-between items-center gap-4">
@@ -96,7 +101,6 @@
                 </a>
             </div>
         </div>
-
         <!-- Сетка карточек грузовиков -->
         <div class="w-full p-8">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -109,7 +113,6 @@
                                     <p class="text-sm text-gray-500 mb-1">{{ truck.brand }} {{ truck.model }}</p>
                                     <h3 class="text-2xl font-semibold text-zinc-950">{{ truck.number }}</h3>
                                 </div>
-                                
                                 <div class="flex items-center gap-8">
                                     <div class="flex items-center gap-8">
                                         {% if truck.driver %}
@@ -131,7 +134,6 @@
                                     </div>
                                 </div>
                             </div>
-                            
                             <div class="w-[240px] h-[90px] flex-shrink-0 rounded-xl overflow-hidden">
                                 {% with main=truck.photos.first %}
                                 {% if main %}
@@ -159,38 +161,38 @@
     </div>
 </div>
 
-<!-- Нижнее мобильное меню -->
+<!-- Нижнее мобильное меню - показываем только на мобильных устройствах -->
 <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 hidden max-lg:block">
-    <div class="flex justify-around items-center px-4 py-2">
-        <a href="{% url 'core:home' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600">
-            <div class="w-6 h-6 relative overflow-hidden">
+    <div class="flex justify-between items-center px-2">
+        <a href="{% url 'core:home' %}" class="flex-1 flex flex-col items-center text-gray-600 hover:text-blue-600 relative mx-1">
+            <div class="icon-container w-8 h-8 flex items-center justify-center">
                 <img src="{% static 'core/img/mobile/home.svg' %}" alt="Home" class="w-6 h-6">
             </div>
-            <span class="text-xs mt-1">Главная</span>
+            <span class="text-xs text-[9px] mt-1">Главная</span>
         </a>
-        <a href="{% url 'core:tasks' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600">
-            <div class="w-6 h-6 relative overflow-hidden">
+        <a href="{% url 'core:tasks' %}" class="flex-1 flex flex-col items-center text-gray-600 hover:text-blue-600 relative mx-1">
+            <div class="icon-container w-8 h-8 flex items-center justify-center">
                 <img src="{% static 'core/img/mobile/check-square.svg' %}" alt="Tasks" class="w-6 h-6">
             </div>
-            <span class="text-xs mt-1">Задачи</span>
+            <span class="text-xs text-[9px] mt-1">Задачи</span>
         </a>
-        <a href="{% url 'core:map' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600">
-            <div class="w-6 h-6 relative overflow-hidden">
+        <a href="{% url 'core:map' %}" class="flex-1 flex flex-col items-center text-gray-600 hover:text-blue-600 relative mx-1">
+            <div class="icon-container w-8 h-8 flex items-center justify-center">
                 <img src="{% static 'core/img/mobile/location.svg' %}" alt="Map" class="w-6 h-6">
             </div>
-            <span class="text-xs mt-1">Карта</span>
+            <span class="text-xs text-[9px] mt-1">Карта</span>
         </a>
-        <a href="{% url 'core:trucks' %}" class="flex flex-col items-center text-blue-600">
-            <div class="w-6 h-6 relative overflow-hidden">
-                <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Trucks" class="w-6 h-6">
+        <a href="{% url 'core:vehicles' %}" class="flex-1 flex flex-col items-center text-blue-600 relative mx-1">
+            <div class="icon-container w-8 h-8 flex items-center justify-center">
+                <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Vehicles" class="w-6 h-6">
             </div>
-            <span class="text-xs mt-1">Грузовики</span>
+            <span class="text-xs text-[9px] mt-1">Грузовики</span>
         </a>
-        <a href="{% url 'core:employees' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600">
-            <div class="w-6 h-6 relative overflow-hidden">
+        <a href="{% url 'core:employees' %}" class="flex-1 flex flex-col items-center text-gray-600 hover:text-blue-600 relative mx-1">
+            <div class="icon-container w-8 h-8 flex items-center justify-center">
                 <img src="{% static 'core/img/mobile/employee.svg' %}" alt="Employees" class="w-6 h-6">
             </div>
-            <span class="text-xs mt-1">Сотрудники</span>
+            <span class="text-xs text-[9px] mt-1">Сотрудники</span>
         </a>
     </div>
 </nav>
