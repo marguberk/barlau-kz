@@ -1801,6 +1801,7 @@ class VehicleCreateView(LoginRequiredMixin, View):
             )
 
         # --- Технический паспорт ---
+        technical_passport_expiry = request.POST.get('registration_expiry_date') or None
         technical_passport_path = request.POST.get('technical_passport_path')
         if technical_passport_path:
             with default_storage.open(technical_passport_path, 'rb') as f:
@@ -1809,7 +1810,8 @@ class VehicleCreateView(LoginRequiredMixin, View):
                     document_type='REGISTRATION',
                     file=File(f, name=os.path.basename(technical_passport_path)),
                     created_by=request.user,
-                    issue_date=timezone.now().date()
+                    issue_date=timezone.now().date(),
+                    expiry_date=technical_passport_expiry
                 )
         elif 'technical_passport' in request.FILES:
             VehicleDocument.objects.create(
@@ -1817,10 +1819,12 @@ class VehicleCreateView(LoginRequiredMixin, View):
                 document_type='REGISTRATION',
                 file=request.FILES['technical_passport'],
                 created_by=request.user,
-                issue_date=timezone.now().date()
+                issue_date=timezone.now().date(),
+                expiry_date=technical_passport_expiry
             )
 
         # --- Страховка ---
+        insurance_expiry = request.POST.get('insurance_expiry_date') or None
         insurance_path = request.POST.get('insurance_path')
         if insurance_path:
             with default_storage.open(insurance_path, 'rb') as f:
@@ -1829,7 +1833,8 @@ class VehicleCreateView(LoginRequiredMixin, View):
                     document_type='INSURANCE',
                     file=File(f, name=os.path.basename(insurance_path)),
                     created_by=request.user,
-                    issue_date=timezone.now().date()
+                    issue_date=timezone.now().date(),
+                    expiry_date=insurance_expiry
                 )
         elif 'insurance' in request.FILES:
             VehicleDocument.objects.create(
@@ -1837,7 +1842,20 @@ class VehicleCreateView(LoginRequiredMixin, View):
                 document_type='INSURANCE',
                 file=request.FILES['insurance'],
                 created_by=request.user,
-                issue_date=timezone.now().date()
+                issue_date=timezone.now().date(),
+                expiry_date=insurance_expiry
+            )
+
+        # --- Техосмотр ---
+        technical_inspection_expiry = request.POST.get('technical_inspection_expiry_date') or None
+        if 'technical_inspection' in request.FILES:
+            VehicleDocument.objects.create(
+                vehicle=vehicle,
+                document_type='TECHNICAL_INSPECTION',
+                file=request.FILES['technical_inspection'],
+                created_by=request.user,
+                issue_date=timezone.now().date(),
+                expiry_date=technical_inspection_expiry
             )
 
         # --- Дополнительные документы ---
