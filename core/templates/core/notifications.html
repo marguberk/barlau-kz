@@ -83,8 +83,7 @@
                 {% csrf_token %}
                 
                 <!-- Заголовок -->
-                <div class="flex justify-between items-center mb-6">
-                    <h1 class="text-2xl font-bold text-gray-800">Уведомления</h1>
+                <div class="flex justify-end items-center mb-6">
                     <button id="markAllReadBtn" class="text-blue-600 hover:text-blue-800 text-sm">
                         <i class="fas fa-check-double mr-1"></i>
                         Отметить все как прочитанные
@@ -185,9 +184,9 @@
 </nav>
 
 <style>
-/* Современные карточки уведомлений */
+/* Карточки уведомлений без градиентов и сиреневого */
 .notification-card {
-    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    background: #fff;
     border-radius: 1rem;
     box-shadow: 0 4px 16px 0 rgba(37, 99, 235, 0.07), 0 1.5px 4px 0 rgba(13,13,18,0.06);
     border: 1.5px solid #e0e7ef;
@@ -201,7 +200,7 @@
 }
 .notification-card.unread {
     border-left: 5px solid #2563eb;
-    background: linear-gradient(135deg, #e0e7ff 0%, #f1f5f9 100%);
+    background: #f8fafc;
     box-shadow: 0 8px 24px 0 rgba(37, 99, 235, 0.13), 0 2px 8px 0 rgba(13,13,18,0.08);
 }
 .notification-card:hover {
@@ -214,6 +213,7 @@
     to { opacity: 1; transform: translateY(0); }
 }
 
+/* Иконка уведомления без сиреневого */
 .notification-icon {
     min-width: 3rem;
     min-height: 3rem;
@@ -235,7 +235,7 @@
 .notification-icon .fa-tasks { color: #2563eb; }
 .notification-icon .fa-file-alt { color: #22c55e; }
 .notification-icon .fa-receipt { color: #f59e42; }
-.notification-icon .fa-cog { color: #a21caf; }
+.notification-icon .fa-cog { color: #64748b; }
 .notification-icon .fa-bell { color: #64748b; }
 
 .notification-content {
@@ -435,17 +435,6 @@
         `).join('');
     }
 
-    // Получение цвета для типа уведомления
-    function getNotificationColor(type) {
-        switch (type) {
-            case 'TASK': return 'blue';
-            case 'WAYBILL': return 'green';
-            case 'EXPENSE': return 'yellow';
-            case 'SYSTEM': return 'purple';
-            default: return 'gray';
-        }
-    }
-
     // Получение иконки для типа уведомления
     function getNotificationIcon(type) {
         switch (type) {
@@ -536,23 +525,23 @@
         }
     }
 
+    // Инициализация
+    updateFilterButtons();
+    loadNotifications();
+
     // Цвет фона иконки по типу и прочитанности
     function getNotificationBg(type, read) {
         if (!read) {
             switch (type) {
-                case 'TASK': return 'linear-gradient(135deg, #2563eb 0%, #38bdf8 100%)';
-                case 'WAYBILL': return 'linear-gradient(135deg, #22c55e 0%, #38bdf8 100%)';
-                case 'EXPENSE': return 'linear-gradient(135deg, #f59e42 0%, #fbbf24 100%)';
-                case 'SYSTEM': return 'linear-gradient(135deg, #a21caf 0%, #818cf8 100%)';
-                default: return 'linear-gradient(135deg, #64748b 0%, #cbd5e1 100%)';
+                case 'TASK': return '#e0e7ff';
+                case 'WAYBILL': return '#e6f9ed';
+                case 'EXPENSE': return '#fff7e6';
+                case 'SYSTEM': return '#f1f5f9';
+                default: return '#f1f5f9';
             }
         } else {
-            return 'linear-gradient(135deg, #e0e7ef 0%, #f1f5f9 100%)';
+            return '#f1f5f9';
         }
     }
-
-    // Инициализация
-    updateFilterButtons();
-    loadNotifications();
 </script>
 {% endblock %} 
