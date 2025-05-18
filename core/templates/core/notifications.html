@@ -1,78 +1,354 @@
 {% extends "core/base.html" %}
+{% load static %}
 
 {% block content %}
-<div class="container mx-auto px-4 py-8">
-    <div class="max-w-3xl mx-auto">
-        <!-- CSRF Token для AJAX-запросов -->
-        {% csrf_token %}
-        
-        <!-- Заголовок -->
-        <div class="flex justify-between items-center mb-6">
-            <h1 class="text-2xl font-bold text-gray-800">Уведомления</h1>
-            <button id="markAllReadBtn" class="text-blue-600 hover:text-blue-800 text-sm">
-                <i class="fas fa-check-double mr-1"></i>
-                Отметить все как прочитанные
-            </button>
-        </div>
-
-        <!-- Фильтры -->
-        <div class="bg-white rounded-xl shadow-sm p-4 mb-6">
-            <div class="flex flex-wrap gap-4">
-                <button class="filter-btn px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-                        data-filter="all">
-                    Все
-                </button>
-                <button class="filter-btn px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-                        data-filter="unread">
-                    Непрочитанные
-                </button>
-                <button class="filter-btn px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-                        data-filter="TASK">
-                    Задачи
-                </button>
-                <button class="filter-btn px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-                        data-filter="WAYBILL">
-                    КАТы
-                </button>
-                <button class="filter-btn px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-                        data-filter="EXPENSE">
-                    Расходы
-                </button>
-                <button class="filter-btn px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-                        data-filter="SYSTEM">
-                    Системные
-                </button>
+<div class="w-full flex">
+    <!-- Боковая панель -->
+    <div class="w-64 h-screen bg-white border-r border-zinc-200 flex flex-col justify-start items-start fixed left-0 bottom-0 sidebar">
+        <div class="self-stretch px-5 py-6 relative flex flex-col justify-start items-start gap-2 sidebar-logo">
+            <div class="py-1 inline-flex justify-start items-center gap-2">
+                <img src="{% static 'core/img/logo.png' %}" alt="Barlau Logo" class="w-10 h-6">
+                <div class="text-center justify-start text-black text-2xl font-semibold leading-normal">Barlau.kz</div>
             </div>
         </div>
-
-        <!-- Список уведомлений -->
-        <div id="notificationsList" class="space-y-4">
-            <!-- Уведомления будут добавлены через JavaScript -->
-        </div>
-
-        <!-- Загрузка -->
-        <div id="loadingIndicator" class="hidden">
-            <div class="flex justify-center items-center py-8">
-                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            </div>
-        </div>
-
-        <!-- Нет уведомлений -->
-        <div id="emptyState" class="hidden">
-            <div class="text-center py-12">
-                <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i class="fas fa-bell text-gray-400 text-2xl"></i>
+        <div class="self-stretch flex-1 px-4 pt-2 pb-4 flex flex-col justify-start items-center gap-4 sidebar-menu">
+            <div class="self-stretch flex flex-col justify-start items-start gap-1">
+                <div class="self-stretch flex flex-col justify-start items-start">
+                    <a href="{% url 'core:home' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2 relative">
+                        <img src="{% static 'core/img/home.svg' %}" alt="Home" class="w-5 h-5 desktop-icon align-middle">
+                        <img src="{% static 'core/img/mobile/home.svg' %}" alt="Home" class="mobile-icon hidden align-middle">
+                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Главная</div>
+                    </a>
+                    <a href="{% url 'core:tasks' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2">
+                        <img src="{% static 'core/img/check-square.svg' %}" alt="Tasks" class="w-5 h-5 desktop-icon align-middle">
+                        <img src="{% static 'core/img/mobile/check-square.svg' %}" alt="Tasks" class="mobile-icon hidden align-middle">
+                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Задачи</div>
+                    </a>
+                    <a href="{% url 'core:map' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2">
+                        <img src="{% static 'core/img/location.svg' %}?v={% now 'U' %}" alt="Map" class="w-5 h-5 desktop-icon align-middle" onerror="this.onerror=null; this.src='/static/core/img/location.svg'">
+                        <img src="{% static 'core/img/mobile/location.svg' %}" alt="Map" class="mobile-icon hidden align-middle">
+                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Карта</div>
+                    </a>
+                    <a href="{% url 'core:vehicles' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2">
+                        <img src="{% static 'core/img/truck.svg' %}" alt="Vehicles" class="w-5 h-5 desktop-icon align-middle">
+                        <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Vehicles" class="mobile-icon hidden align-middle">
+                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Грузовики</div>
+                    </a>
+                    <a href="{% url 'core:employees' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2">
+                        <img src="{% static 'core/img/employee.svg' %}" alt="Employees" class="w-5 h-5 desktop-icon align-middle">
+                        <img src="{% static 'core/img/mobile/employee.svg' %}" alt="Employees" class="mobile-icon hidden align-middle">
+                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Сотрудники</div>
+                    </a>
                 </div>
-                <h3 class="text-lg font-medium text-gray-800 mb-2">Нет уведомлений</h3>
-                <p class="text-gray-600">У вас пока нет уведомлений</p>
+            </div>
+        </div>
+    </div>
+    <!-- Основной контент -->
+    <div class="ml-64 flex-1 min-h-screen bg-gray-50 relative main-content">
+        <!-- Верхняя панель -->
+        <div class="w-full h-20 px-8 py-5 bg-white flex justify-between items-center">
+            <div class="justify-start text-zinc-950 text-2xl font-semibold leading-loose">Уведомления</div>
+            <div class="flex justify-start items-center gap-3">
+                <div class="flex justify-start items-start gap-2 relative">
+                    <a href="{% url 'core:notifications' %}" class="w-10 h-10 px-3 py-2 bg-white rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex justify-center items-center gap-1.5 relative">
+                        <img src="{% static 'core/img/bell.svg' %}" alt="Notifications" class="w-5 h-5">
+                        <span id="notif-badge" class="hidden absolute -top-1 -right-1 w-3.5 h-3.5 bg-red-500 rounded-full border-2 border-white"></span>
+                    </a>
+                </div>
+                <div class="flex justify-start items-center gap-1.5">
+                    {% if request.user.is_authenticated %}
+                        {% if request.user.photo %}
+                            <img class="w-8 h-8 rounded-full object-cover" src="{{ request.user.photo.url }}" />
+                        {% else %}
+                            <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <!-- Контент уведомлений -->
+        <div class="container mx-auto px-4 py-8">
+            <div class="max-w-3xl mx-auto">
+                <!-- CSRF Token для AJAX-запросов -->
+                {% csrf_token %}
+                
+                <!-- Заголовок -->
+                <div class="flex justify-between items-center mb-6">
+                    <h1 class="text-2xl font-bold text-gray-800">Уведомления</h1>
+                    <button id="markAllReadBtn" class="text-blue-600 hover:text-blue-800 text-sm">
+                        <i class="fas fa-check-double mr-1"></i>
+                        Отметить все как прочитанные
+                    </button>
+                </div>
+
+                <!-- Фильтры -->
+                <div class="bg-white rounded-xl shadow-sm p-4 mb-6">
+                    <div class="flex flex-wrap gap-4">
+                        <button class="filter-btn px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                                data-filter="all">
+                            Все
+                        </button>
+                        <button class="filter-btn px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                                data-filter="unread">
+                            Непрочитанные
+                        </button>
+                        <button class="filter-btn px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                                data-filter="TASK">
+                            Задачи
+                        </button>
+                        <button class="filter-btn px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                                data-filter="WAYBILL">
+                            КАТы
+                        </button>
+                        <button class="filter-btn px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                                data-filter="EXPENSE">
+                            Расходы
+                        </button>
+                        <button class="filter-btn px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                                data-filter="SYSTEM">
+                            Системные
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Список уведомлений -->
+                <div id="notificationsList" class="space-y-4">
+                    <!-- Уведомления будут добавлены через JavaScript -->
+                </div>
+
+                <!-- Загрузка -->
+                <div id="loadingIndicator" class="hidden">
+                    <div class="flex justify-center items-center py-8">
+                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                    </div>
+                </div>
+
+                <!-- Нет уведомлений -->
+                <div id="emptyState" class="hidden">
+                    <div class="text-center py-12">
+                        <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-bell text-gray-400 text-2xl"></i>
+                        </div>
+                        <h3 class="text-lg font-medium text-gray-800 mb-2">Нет уведомлений</h3>
+                        <p class="text-gray-600">У вас пока нет уведомлений</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-{% endblock %}
+<!-- Нижнее мобильное меню - показываем только на мобильных устройствах -->
+<nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 hidden max-lg:block">
+    <div class="flex justify-between items-center px-2">
+        <a href="{% url 'core:home' %}" class="flex-1 flex flex-col items-center text-gray-600 hover:text-blue-600 relative mx-1">
+            <div class="icon-container w-8 h-8 flex items-center justify-center">
+                <img src="{% static 'core/img/mobile/home.svg' %}" alt="Home" class="w-6 h-6">
+            </div>
+            <span class="text-xs text-[9px] mt-1">Главная</span>
+        </a>
+        <a href="{% url 'core:tasks' %}" class="flex-1 flex flex-col items-center text-gray-600 hover:text-blue-600 relative mx-1">
+            <div class="icon-container w-8 h-8 flex items-center justify-center">
+                <img src="{% static 'core/img/mobile/check-square.svg' %}" alt="Tasks" class="w-6 h-6">
+            </div>
+            <span class="text-xs text-[9px] mt-1">Задачи</span>
+        </a>
+        <a href="{% url 'core:map' %}" class="flex-1 flex flex-col items-center text-gray-600 hover:text-blue-600 relative mx-1">
+            <div class="icon-container w-8 h-8 flex items-center justify-center">
+                <img src="{% static 'core/img/mobile/location.svg' %}" alt="Map" class="w-6 h-6">
+            </div>
+            <span class="text-xs text-[9px] mt-1">Карта</span>
+        </a>
+        <a href="{% url 'core:vehicles' %}" class="flex-1 flex flex-col items-center text-gray-600 hover:text-blue-600 relative mx-1">
+            <div class="icon-container w-8 h-8 flex items-center justify-center">
+                <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Vehicles" class="w-6 h-6">
+            </div>
+            <span class="text-xs text-[9px] mt-1">Грузовики</span>
+        </a>
+        <a href="{% url 'core:employees' %}" class="flex-1 flex flex-col items-center text-gray-600 hover:text-blue-600 relative mx-1">
+            <div class="icon-container w-8 h-8 flex items-center justify-center">
+                <img src="{% static 'core/img/mobile/employee.svg' %}" alt="Employees" class="w-6 h-6">
+            </div>
+            <span class="text-xs text-[9px] mt-1">Сотрудники</span>
+        </a>
+    </div>
+</nav>
 
-{% block extra_scripts %}
+<style>
+/* Современные карточки уведомлений */
+.notification-card {
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border-radius: 1rem;
+    box-shadow: 0 4px 16px 0 rgba(37, 99, 235, 0.07), 0 1.5px 4px 0 rgba(13,13,18,0.06);
+    border: 1.5px solid #e0e7ef;
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 1.25rem;
+    transition: box-shadow 0.2s, border 0.2s, background 0.2s;
+    position: relative;
+    animation: fadeInUp 0.5s;
+}
+.notification-card.unread {
+    border-left: 5px solid #2563eb;
+    background: linear-gradient(135deg, #e0e7ff 0%, #f1f5f9 100%);
+    box-shadow: 0 8px 24px 0 rgba(37, 99, 235, 0.13), 0 2px 8px 0 rgba(13,13,18,0.08);
+}
+.notification-card:hover {
+    box-shadow: 0 8px 32px 0 rgba(37, 99, 235, 0.18), 0 4px 16px 0 rgba(13,13,18,0.10);
+    border-color: #2563eb;
+    background: #f3f6fa;
+}
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.notification-icon {
+    min-width: 3rem;
+    min-height: 3rem;
+    border-radius: 50%;
+    background: #f1f5f9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px 0 rgba(37, 99, 235, 0.10);
+    font-size: 1.5rem;
+    margin-right: 0.5rem;
+    transition: background 0.2s;
+}
+.notification-card.unread .notification-icon {
+    background: #e0e7ff;
+}
+
+/* Цветные иконки внутри notification-icon */
+.notification-icon .fa-tasks { color: #2563eb; }
+.notification-icon .fa-file-alt { color: #22c55e; }
+.notification-icon .fa-receipt { color: #f59e42; }
+.notification-icon .fa-cog { color: #a21caf; }
+.notification-icon .fa-bell { color: #64748b; }
+
+.notification-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+.notification-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 0.1rem;
+}
+.notification-message {
+    color: #64748b;
+    font-size: 1rem;
+    margin-bottom: 0.2rem;
+}
+.notification-link {
+    color: #2563eb;
+    font-weight: 500;
+    font-size: 0.95rem;
+    margin-top: 0.2rem;
+    transition: color 0.2s;
+}
+.notification-link:hover {
+    color: #1d4ed8;
+    text-decoration: underline;
+}
+.notification-date {
+    color: #94a3b8;
+    font-size: 0.95rem;
+    margin-top: 0.2rem;
+    font-weight: 500;
+}
+.notification-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.5rem;
+    min-width: 70px;
+}
+.notification-actions button {
+    background: #f1f5f9;
+    color: #2563eb;
+    border: none;
+    border-radius: 0.5rem;
+    padding: 0.3rem 0.7rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+.notification-actions button:hover {
+    background: #2563eb;
+    color: #fff;
+}
+
+/* Фильтры и кнопки */
+.filter-btn {
+    background: #f1f5f9;
+    color: #2563eb;
+    border: none;
+    border-radius: 0.7rem;
+    padding: 0.6rem 1.2rem;
+    font-size: 1rem;
+    font-weight: 500;
+    margin-bottom: 0.2rem;
+    transition: background 0.2s, color 0.2s;
+    box-shadow: 0 1px 2px 0 rgba(37, 99, 235, 0.04);
+}
+.filter-btn.bg-blue-600 {
+    background: linear-gradient(135deg, #2563eb 0%, #38bdf8 100%);
+    color: #fff;
+    box-shadow: 0 2px 8px 0 rgba(37, 99, 235, 0.10);
+}
+.filter-btn:hover {
+    background: #2563eb;
+    color: #fff;
+}
+
+#markAllReadBtn {
+    background: #f1f5f9;
+    color: #2563eb;
+    border-radius: 0.7rem;
+    padding: 0.5rem 1.1rem;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: background 0.2s, color 0.2s;
+    border: none;
+    box-shadow: 0 1px 2px 0 rgba(37, 99, 235, 0.04);
+}
+#markAllReadBtn:hover {
+    background: #2563eb;
+    color: #fff;
+}
+
+/* Адаптивность */
+@media (max-width: 900px) {
+    .notification-card {
+        flex-direction: column;
+        gap: 0.7rem;
+        padding: 1rem 1rem;
+    }
+    .notification-actions {
+        flex-direction: row;
+        gap: 0.7rem;
+        min-width: 0;
+    }
+}
+</style>
+
 <script>
     let currentFilter = 'all';
     let notifications = [];
@@ -96,15 +372,27 @@
     }
 
     // Загрузка уведомлений
-    async function loadNotifications() {
+    async function loadNotifications(page = 1) {
         loadingIndicator.classList.remove('hidden');
         notificationsList.classList.add('hidden');
         emptyState.classList.add('hidden');
 
+        let url = `/api/notifications/?page=${page}`;
+        if (currentFilter === 'unread') {
+            url += '&unread=true';
+        } else if (currentFilter !== 'all') {
+            url += `&type=${currentFilter}`;
+        }
+
         try {
-            const response = await fetch('/api/notifications/');
+            const response = await fetch(url, { credentials: 'same-origin' });
+            if (!response.ok) {
+                throw new Error('Ошибка API: ' + response.status);
+            }
             notifications = await response.json();
+            console.log('Notifications response', notifications);
             renderNotifications();
+            updateNotifBadge();
         } catch (error) {
             console.error('Ошибка при загрузке уведомлений:', error);
             alert('Не удалось загрузить уведомления');
@@ -115,48 +403,33 @@
 
     // Отрисовка уведомлений
     function renderNotifications() {
-        let filteredNotifications = notifications.results;
-
+        let allNotifications = Array.isArray(notifications) ? notifications : notifications.results || [];
+        let filteredNotifications = allNotifications;
         if (currentFilter === 'unread') {
             filteredNotifications = filteredNotifications.filter(n => !n.read);
         } else if (currentFilter !== 'all') {
             filteredNotifications = filteredNotifications.filter(n => n.type === currentFilter);
         }
-
         if (filteredNotifications.length === 0) {
             notificationsList.classList.add('hidden');
             emptyState.classList.remove('hidden');
             return;
         }
-
         notificationsList.classList.remove('hidden');
         emptyState.classList.add('hidden');
-
         notificationsList.innerHTML = filteredNotifications.map(notification => `
-            <div class="bg-white rounded-xl shadow-sm p-4 transition-all ${notification.read ? '' : 'border-l-4 border-blue-600'}">
-                <div class="flex items-start justify-between">
-                    <div class="flex items-start space-x-3">
-                        <div class="w-8 h-8 rounded-full bg-${getNotificationColor(notification.type)}-100 flex items-center justify-center">
-                            <i class="fas fa-${getNotificationIcon(notification.type)} text-${getNotificationColor(notification.type)}-600"></i>
-                        </div>
-                        <div>
-                            <h3 class="font-medium text-gray-800">${notification.title}</h3>
-                            <p class="text-gray-600 mt-1">${notification.message}</p>
-                            ${notification.link ? `
-                                <a href="${notification.link}" class="text-blue-600 hover:text-blue-800 text-sm mt-2 inline-block">
-                                    Подробнее <i class="fas fa-chevron-right ml-1"></i>
-                                </a>
-                            ` : ''}
-                        </div>
-                    </div>
-                    <div class="flex flex-col items-end">
-                        <span class="text-xs text-gray-500">${notification.created_at_display}</span>
-                        ${!notification.read ? `
-                            <button onclick="markAsRead(${notification.id})" class="text-blue-600 hover:text-blue-800 text-sm mt-2">
-                                <i class="fas fa-check"></i>
-                            </button>
-                        ` : ''}
-                    </div>
+            <div class="notification-card${notification.read ? '' : ' unread'}">
+                <div class="notification-icon" style="background: ${getNotificationBg(notification.type, notification.read)};">
+                    <i class="fas fa-${getNotificationIcon(notification.type)}"></i>
+                </div>
+                <div class="notification-content">
+                    <div class="notification-title">${notification.title}</div>
+                    <div class="notification-message">${notification.message}</div>
+                    ${notification.link ? `<a href="${notification.link}" class="notification-link">Подробнее <i class="fas fa-chevron-right ml-1"></i></a>` : ''}
+                    <div class="notification-date">${notification.created_at_display}</div>
+                </div>
+                <div class="notification-actions">
+                    ${!notification.read ? `<button onclick="markAsRead('${notification.id}')"><i class="fas fa-check mr-1"></i>Прочитано</button>` : ''}
                 </div>
             </div>
         `).join('');
@@ -191,7 +464,8 @@
                 method: 'POST',
                 headers: {
                     'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-                }
+                },
+                credentials: 'same-origin'
             });
             await loadNotifications();
         } catch (error) {
@@ -207,7 +481,8 @@
                 method: 'POST',
                 headers: {
                     'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-                }
+                },
+                credentials: 'same-origin'
             });
             await loadNotifications();
         } catch (error) {
@@ -216,16 +491,65 @@
         }
     }
 
-    // Обработчики событий
+    // Фильтрация по кнопкам
     filterButtons.forEach(btn => {
         btn.addEventListener('click', () => {
             currentFilter = btn.dataset.filter;
             updateFilterButtons();
-            renderNotifications();
+            loadNotifications();
         });
     });
 
     markAllReadBtn.addEventListener('click', markAllAsRead);
+
+    // Пагинация: подгрузка следующей страницы при прокрутке вниз
+    let currentPage = 1;
+    let isLoadingMore = false;
+    window.addEventListener('scroll', async () => {
+        if (isLoadingMore) return;
+        if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 200) {
+            if (notifications.next) {
+                isLoadingMore = true;
+                try {
+                    const response = await fetch(notifications.next, { credentials: 'same-origin' });
+                    const more = await response.json();
+                    notifications.results = notifications.results.concat(more.results);
+                    notifications.next = more.next;
+                    renderNotifications();
+                } catch (e) { /* ignore */ }
+                isLoadingMore = false;
+            }
+        }
+    });
+
+    // После renderNotifications добавляем обновление бейджа
+    function updateNotifBadge() {
+        let allNotifications = Array.isArray(notifications) ? notifications : notifications.results || [];
+        let hasUnread = allNotifications.some(n => !n.read);
+        const badge = document.getElementById('notif-badge');
+        if (badge) {
+            if (hasUnread) {
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+    }
+
+    // Цвет фона иконки по типу и прочитанности
+    function getNotificationBg(type, read) {
+        if (!read) {
+            switch (type) {
+                case 'TASK': return 'linear-gradient(135deg, #2563eb 0%, #38bdf8 100%)';
+                case 'WAYBILL': return 'linear-gradient(135deg, #22c55e 0%, #38bdf8 100%)';
+                case 'EXPENSE': return 'linear-gradient(135deg, #f59e42 0%, #fbbf24 100%)';
+                case 'SYSTEM': return 'linear-gradient(135deg, #a21caf 0%, #818cf8 100%)';
+                default: return 'linear-gradient(135deg, #64748b 0%, #cbd5e1 100%)';
+            }
+        } else {
+            return 'linear-gradient(135deg, #e0e7ef 0%, #f1f5f9 100%)';
+        }
+    }
 
     // Инициализация
     updateFilterButtons();
