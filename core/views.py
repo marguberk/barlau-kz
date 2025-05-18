@@ -1,8 +1,8 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from django.views.generic import TemplateView, DetailView, View, CreateView, UpdateView
+from django.views.generic import TemplateView, DetailView, View, CreateView, UpdateView, FormView
 from django.utils import timezone
 from django.contrib.auth.mixins import LoginRequiredMixin
-from rest_framework import viewsets, permissions, status
+from rest_framework import viewsets, permissions, status, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
@@ -31,6 +31,7 @@ import os
 from django.db.models import Q
 from django import forms
 from accounts.models import User
+from rest_framework.pagination import PageNumberPagination
 
 from logistics.models import Task, Vehicle
 from .models import Notification, Waybill
@@ -220,12 +221,26 @@ class EmployeeViewSet(viewsets.ModelViewSet):
 # Create your views here.
 
 
+class NotificationPagination(PageNumberPagination):
+    page_size = 20
+    page_size_query_param = 'page_size'
+    max_page_size = 100
+
+
 class NotificationViewSet(viewsets.ModelViewSet):
     serializer_class = NotificationSerializer
     permission_classes = [permissions.IsAuthenticated]
+    pagination_class = NotificationPagination
 
     def get_queryset(self):
-        return Notification.objects.filter(user=self.request.user)
+        queryset = Notification.objects.filter(user=self.request.user)
+        notif_type = self.request.query_params.get('type')
+        unread = self.request.query_params.get('unread')
+        if notif_type and notif_type != 'all':
+            queryset = queryset.filter(type=notif_type)
+        if unread == 'true':
+            queryset = queryset.filter(read=False)
+        return queryset
 
     @action(detail=False, methods=['post'])
     def mark_all_read(self, request):
@@ -679,6 +694,13 @@ class TaskCreateView(LoginRequiredMixin, View):
 
         try:
             task.save()
+            # --- Уведомления ---
+            print('[DEBUG] Перед созданием уведомления о задаче', task.created_by, task)
+            from core.models import Notification
+            if task.assigned_to:
+                Notification.create_task_notification(task.assigned_to, task)
+            if task.created_by and task.created_by != task.assigned_to:
+                Notification.create_task_notification(task.created_by, task)
             messages.success(request, 'Задача успешно создана')
             # Перенаправляем на страницу со всеми задачами
             return redirect('core:tasks')
@@ -781,10 +803,7 @@ class TaskUpdateView(LoginRequiredMixin, View):
                 if task.assigned_to != new_assigned_to:
                     old_assigned_to = task.assigned_to
                     task.assigned_to = new_assigned_to
-
-                    # Создаем уведомление для нового исполнителя
-                    Notification.create_task_notification(
-                        new_assigned_to, task)
+                    # Уведомление больше не создаём здесь, оно теперь только в API
             except User.DoesNotExist:
                 pass
         else:
@@ -1709,13 +1728,14 @@ class VehicleCreateView(LoginRequiredMixin, View):
 
         form = VehicleForm(request.POST, request.FILES, drivers=drivers)
         if not form.is_valid():
+            print('[DEBUG] Форма транспорта невалидна:', form.errors)
             context = {
                 'form': form,
                 'drivers': drivers,
                 'title': 'Добавление транспорта',
                 'action': 'create'}
             return render(request, self.template_name, context)
-
+        print('[DEBUG] Форма транспорта валидна')
         # Если валидно, создаем транспорт без файлов сначала
         data = form.cleaned_data
         vehicle = Vehicle(
@@ -1742,6 +1762,7 @@ class VehicleCreateView(LoginRequiredMixin, View):
             created_by=request.user
         )
         vehicle.save()
+        print('[DEBUG] Транспорт сохранён:', vehicle)
 
         # --- Основное фото ---
         main_photo_path = request.POST.get('main_photo_path')
@@ -1839,6 +1860,12 @@ class VehicleCreateView(LoginRequiredMixin, View):
                 issue_date=timezone.now().date()
             )
 
+        # --- Уведомления ---
+        print('[DEBUG] Перед созданием уведомления о транспорте', request.user, vehicle)
+        from core.models import Notification
+        Notification.create_vehicle_notification(request.user, vehicle)
+        if vehicle.driver and vehicle.driver != request.user:
+            Notification.create_vehicle_notification(vehicle.driver, vehicle)
         messages.success(request, 'Транспорт успешно добавлен')
         return redirect('core:trucks')
 
@@ -2376,3 +2403,38 @@ class FileUploadView(View):
         path = os.path.join(upload_dir, filename)
         saved_path = default_storage.save(path, ContentFile(file.read()))
         return JsonResponse({'path': saved_path, 'url': default_storage.url(saved_path)})
+
+
+class NotificationManualForm(forms.Form):
+    user = forms.ModelChoiceField(queryset=User.objects.all(), label='Получатель')
+    type = forms.ChoiceField(choices=Notification.Type.choices, label='Тип')
+    title = forms.CharField(max_length=100, label='Заголовок')
+    message = forms.CharField(widget=forms.Textarea, label='Текст')
+    link = forms.CharField(max_length=255, label='Ссылка', required=False)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs['class'] = 'w-full rounded-lg border-gray-300'
+        self.fields['user'].widget.attrs['placeholder'] = 'Выберите пользователя'
+        self.fields['type'].widget.attrs['placeholder'] = 'Тип'
+        self.fields['title'].widget.attrs['placeholder'] = 'Заголовок'
+        self.fields['message'].widget.attrs['placeholder'] = 'Текст уведомления'
+        self.fields['message'].widget.attrs['rows'] = 4
+        self.fields['link'].widget.attrs['placeholder'] = 'https://...'
+
+class NotificationManualCreateView(LoginRequiredMixin, FormView):
+    template_name = 'core/notification_manual_create.html'
+    form_class = NotificationManualForm
+    success_url = '/dashboard/notifications/'
+
+    def form_valid(self, form):
+        Notification.objects.create(
+            user=form.cleaned_data['user'],
+            type=form.cleaned_data['type'],
+            title=form.cleaned_data['title'],
+            message=form.cleaned_data['message'],
+            link=form.cleaned_data['link']
+        )
+        messages.success(self.request, 'Уведомление отправлено!')
+        return super().form_valid(form)

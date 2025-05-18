@@ -6,6 +6,7 @@ from .views.vehicle import VehicleViewSet
 from .views.finance import FinanceViewSet
 from .views.expense import ExpenseViewSet
 from .views.waybill import WaybillDocumentViewSet
+from core.views import NotificationViewSet
 
 app_name = 'logistics'
 
@@ -16,6 +17,7 @@ router.register(r'expenses', ExpenseViewSet, basename='expense')
 router.register(r'waybills', WaybillDocumentViewSet, basename='waybill')
 router.register(r'map', MapViewSet, basename='map')
 router.register(r'finance', FinanceViewSet, basename='finance')
+router.register(r'notifications', NotificationViewSet, basename='notification')
 
 urlpatterns = [
     path('', include(router.urls)),

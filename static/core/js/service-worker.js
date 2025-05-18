@@ -169,14 +169,24 @@ self.addEventListener('fetch', event => {
   const request = event.request;
   const url = new URL(request.url);
   
-  // Пропускаем запросы к внешним ресурсам
-  if (url.origin !== self.location.origin) {
-    return;
-  }
-  
-  // Для запросов API используем стратегию только сеть с резервной синхронизацией
+  // Для API запросов используем только сеть
   if (url.pathname.startsWith('/api/')) {
-    event.respondWith(networkOnlyWithBackup(request));
+    event.respondWith(
+      fetch(request)
+        .catch(error => {
+          console.error('Ошибка при запросе к API:', error);
+          return new Response(
+            JSON.stringify({
+              error: 'Нет соединения с сервером'
+            }), {
+              status: 503,
+              headers: {
+                'Content-Type': 'application/json'
+              }
+            }
+          );
+        })
+    );
     return;
   }
   
@@ -187,27 +197,42 @@ self.addEventListener('fetch', event => {
       url.pathname.endsWith('.png') || 
       url.pathname.endsWith('.jpg') ||
       url.pathname.endsWith('.svg')) {
-    event.respondWith(cacheFirstThenNetwork(request));
+    event.respondWith(
+      caches.match(request)
+        .then(response => {
+          return response || fetch(request)
+            .then(response => {
+              const responseClone = response.clone();
+              caches.open(CACHE_NAME)
+                .then(cache => {
+                  cache.put(request, responseClone);
+                });
+              return response;
+            });
+        })
+    );
     return;
   }
   
   // Для HTML-страниц используем стратегию сначала сеть, затем кэш
   if (request.headers.get('Accept').includes('text/html')) {
-    event.respondWith(networkFirstThenCache(request));
+    event.respondWith(
+      fetch(request)
+        .catch(() => {
+          return caches.match(request)
+            .then(response => {
+              return response || caches.match('/offline.html');
+            });
+        })
+    );
     return;
   }
   
-  // Для остальных запросов стандартное поведение
+  // Для остальных запросов
   event.respondWith(
     caches.match(request)
-      .then(cachedResponse => cachedResponse || fetch(request))
-      .catch(error => {
-        console.log('Ошибка при получении ресурса', error);
-        
-        // Возвращаем страницу офлайн для HTML-запросов
-        if (request.headers.get('Accept').includes('text/html')) {
-          return caches.match('/offline.html');
-        }
+      .then(response => {
+        return response || fetch(request);
       })
   );
 });

@@ -84,16 +84,22 @@ class VehicleSerializer(serializers.ModelSerializer):
 
 class NotificationSerializer(serializers.ModelSerializer):
     time_since = serializers.SerializerMethodField()
+    created_at_display = serializers.SerializerMethodField()
 
     class Meta:
         model = Notification
-        fields = ['id', 'type', 'title', 'message', 'link', 'read', 'created_at', 'time_since']
+        fields = ['id', 'type', 'title', 'message', 'link', 'read', 'created_at', 'time_since', 'created_at_display']
 
     def get_time_since(self, obj):
         if not obj.created_at:
             return ''
         else:
-            return timesince(obj.created_at, now) + " назад"
+            return timesince(obj.created_at, now()) + " назад"
+
+    def get_created_at_display(self, obj):
+        if not obj.created_at:
+            return ''
+        return obj.created_at.strftime('%d.%m.%Y %H:%M')
 
 class WaybillSerializer(serializers.ModelSerializer):
     vehicle_details = VehicleSerializer(source='vehicle', read_only=True)

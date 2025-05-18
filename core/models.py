@@ -5,12 +5,14 @@ from django.utils import timezone
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator
 from django.utils.translation import gettext_lazy as _
+import uuid
 
 User = settings.AUTH_USER_MODEL
 
 # Create your models here.
 
 class Notification(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     class Type(models.TextChoices):
         TASK = 'TASK', 'Задача'
         WAYBILL = 'WAYBILL', 'Путевой лист'
@@ -25,7 +27,7 @@ class Notification(models.Model):
     )
     title = models.CharField(max_length=200, verbose_name='Заголовок')
     message = models.TextField(verbose_name='Сообщение')
-    link = models.CharField(max_length=200, verbose_name='Ссылка', blank=True)
+    link = models.CharField(max_length=255, verbose_name='Ссылка', blank=True, null=True)
     read = models.BooleanField(default=False, verbose_name='Прочитано')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Создано')
     
@@ -39,6 +41,7 @@ class Notification(models.Model):
 
     @classmethod
     def create_task_notification(cls, user, task):
+        print(f"[DEBUG] Notification.create_task_notification: user={user}, task={task}")
         """Создать уведомление о задаче"""
         if task.status == 'NEW':
             title = 'Новая задача'
@@ -93,6 +96,18 @@ class Notification(models.Model):
             link=link
         )
 
+    @classmethod
+    def create_vehicle_notification(cls, user, vehicle):
+        print(f"[DEBUG] Notification.create_vehicle_notification: user={user}, vehicle={vehicle}")
+        """Создать уведомление о новом транспорте"""
+        return cls.objects.create(
+            user=user,
+            type=cls.Type.SYSTEM,
+            title='Добавлен новый транспорт',
+            message=f'Транспорт {vehicle.brand} {vehicle.model} ({vehicle.number}) успешно добавлен',
+            link=f'/trucks/{vehicle.id}/'
+        )
+
 class Waybill(models.Model):
     number = models.CharField(max_length=50, unique=True, verbose_name='Номер КАТа')
     date = models.DateField(verbose_name='Дата', default=timezone.now)
@@ -137,14 +152,7 @@ class Waybill(models.Model):
             self.number = f'КАТ-{date_str}-{new_number}'
         
         super().save(*args, **kwargs)
-
-        # Создаем уведомление для водителя
-        if self.driver:
-            Notification.create_waybill_notification(self.driver, self)
-        
-        # Создаем уведомление для создателя, если это не водитель
-        if self.created_by and self.created_by != self.driver:
-            Notification.create_waybill_notification(self.created_by, self)
+        # ... уведомления больше не создаём здесь, теперь только в API
 
     def get_absolute_url(self):
         return reverse('core:waybill-detail', kwargs={'pk': self.pk})

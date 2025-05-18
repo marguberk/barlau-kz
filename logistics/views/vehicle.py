@@ -7,6 +7,7 @@ from ..serializers import VehicleSerializer, VehicleLocationSerializer
 from .base import BaseModelViewSet
 from django.conf import settings
 import logging
+from core.models import Notification
 
 class IsDirectorOrReadOnly(permissions.BasePermission):
     def has_permission(self, request, view):
@@ -122,4 +123,7 @@ class VehicleViewSet(BaseModelViewSet):
         return Response(serializer.data)
 
     def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user) 
+        vehicle = serializer.save(created_by=self.request.user)
+        Notification.create_vehicle_notification(self.request.user, vehicle)
+        if vehicle.driver and vehicle.driver != self.request.user:
+            Notification.create_vehicle_notification(vehicle.driver, vehicle) 

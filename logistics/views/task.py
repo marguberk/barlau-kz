@@ -6,6 +6,7 @@ from ..models import Task
 from ..serializers import TaskSerializer
 from .base import BaseModelViewSet
 from django.conf import settings
+from core.models import Notification
 
 class TaskFilter(filters.FilterSet):
     min_due_date = filters.DateTimeFilter(field_name="due_date", lookup_expr='gte')
@@ -65,7 +66,13 @@ class TaskViewSet(BaseModelViewSet):
         return queryset
     
     def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user)
+        task = serializer.save(created_by=self.request.user)
+        # Уведомление для исполнителя
+        if task.assigned_to:
+            Notification.create_task_notification(task.assigned_to, task)
+        # Уведомление для создателя, если это разные люди
+        if task.created_by and task.created_by != task.assigned_to:
+            Notification.create_task_notification(task.created_by, task)
     
     @action(detail=True, methods=['post'])
     def change_status(self, request, pk=None):

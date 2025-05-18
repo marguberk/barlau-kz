@@ -1,0 +1,37 @@
+{% extends 'core/base.html' %}
+{% block content %}
+<div class="max-w-xl mx-auto mt-10 bg-white p-8 rounded-xl shadow">
+    <h1 class="text-2xl font-bold mb-6">Создать уведомление вручную</h1>
+    <form method="post" class="space-y-5">
+        {% csrf_token %}
+        <div>
+            <label for="id_user" class="block text-sm font-medium text-gray-700 mb-1">Получатель</label>
+            {{ form.user }}
+        </div>
+        <div>
+            <label for="id_type" class="block text-sm font-medium text-gray-700 mb-1">Тип уведомления</label>
+            {{ form.type }}
+        </div>
+        <div>
+            <label for="id_title" class="block text-sm font-medium text-gray-700 mb-1">Заголовок</label>
+            {{ form.title }}
+        </div>
+        <div>
+            <label for="id_message" class="block text-sm font-medium text-gray-700 mb-1">Текст</label>
+            {{ form.message }}
+        </div>
+        <div>
+            <label for="id_link" class="block text-sm font-medium text-gray-700 mb-1">Ссылка (необязательно)</label>
+            {{ form.link }}
+        </div>
+        <button type="submit" class="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg w-full">Отправить</button>
+    </form>
+    {% if messages %}
+        <ul class="mt-4">
+            {% for message in messages %}
+                <li class="text-green-600">{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+</div>
+{% endblock %} 

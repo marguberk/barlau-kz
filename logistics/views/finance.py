@@ -169,4 +169,14 @@ class FinanceViewSet(viewsets.ViewSet):
             content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
         )
         response['Content-Disposition'] = 'attachment; filename="financial-report.xlsx"'
-        return response 
+        return response
+
+    def perform_create(self, serializer):
+        expense = serializer.save(created_by=self.request.user)
+        from core.models import Notification
+        # Уведомление для всех бухгалтеров
+        for accountant in expense.get_accountants():
+            Notification.create_expense_notification(accountant, expense)
+        # Уведомление для создателя, если он не бухгалтер
+        if not self.request.user.role == 'ACCOUNTANT':
+            Notification.create_expense_notification(self.request.user, expense) 

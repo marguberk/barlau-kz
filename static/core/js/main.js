@@ -31,4 +31,31 @@ document.addEventListener('DOMContentLoaded', function() {
             alert(title + ': ' + message);
         }
     };
+
+    updateNotifBadgeUniversal();
+    setInterval(updateNotifBadgeUniversal, 60000); // Проверять раз в минуту
 });
+
+// Универсальный badge для колокольчика уведомлений
+async function updateNotifBadgeUniversal() {
+    try {
+        const badge = document.getElementById('notif-badge');
+        if (!badge) return;
+        const response = await fetch('/api/notifications/?unread=true', { credentials: 'same-origin' });
+        if (!response.ok) {
+            badge.classList.add('hidden');
+            return;
+        }
+        const data = await response.json();
+        let unread = Array.isArray(data) ? data : (data.results || []);
+        if (unread.length > 0) {
+            badge.classList.remove('hidden');
+        } else {
+            badge.classList.add('hidden');
+        }
+    } catch (e) {
+        // В случае ошибки скрываем badge
+        const badge = document.getElementById('notif-badge');
+        if (badge) badge.classList.add('hidden');
+    }
+}

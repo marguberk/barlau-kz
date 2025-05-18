@@ -39,6 +39,7 @@ from .views import (
     TrucksView,
     TruckDetailView,
     FileUploadView,
+    NotificationManualCreateView,
 )
 from .api import update_profile, upload_profile_photo, get_profile_stats
 from django.views.generic import TemplateView
@@ -104,4 +105,7 @@ urlpatterns = [
     
     # Офлайн-страница для PWA
     path('offline/', TemplateView.as_view(template_name='offline.html'), name='offline'),
+    
+    # Ручное создание уведомления
+    path('notifications/manual_create/', NotificationManualCreateView.as_view(), name='notification-manual-create'),
 ] 
