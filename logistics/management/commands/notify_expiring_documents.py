@@ -18,9 +18,10 @@ class Command(BaseCommand):
             if not doc.expiry_date:
                 continue
             days_left = (doc.expiry_date - today).days
+            vehicle = doc.vehicle
+            doc_type = dict(VehicleDocument.DOCUMENT_TYPE_CHOICES).get(doc.document_type, doc.document_type)
+            self.stdout.write(f"Документ: {doc_type}, авто: {vehicle}, expiry_date: {doc.expiry_date}, days_left: {days_left}")
             if days_left in notify_days:
-                vehicle = doc.vehicle
-                doc_type = dict(VehicleDocument.DOCUMENT_TYPE_CHOICES).get(doc.document_type, doc.document_type)
                 for user in recipients:
                     Notification.create_system_notification(
                         user=user,
