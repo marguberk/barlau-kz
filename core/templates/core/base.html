@@ -45,6 +45,14 @@
         .animate-pulse-slow {
             animation: pulse 2s infinite;
         }
+        /* Анимация для тоста */
+        @keyframes fade-in-up {
+            0% { opacity: 0; transform: translateY(40px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in-up {
+            animation: fade-in-up 0.4s cubic-bezier(.4,0,.2,1) both;
+        }
     </style>
     {% block extra_head %}{% endblock %}
 </head>
