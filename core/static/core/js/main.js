@@ -1,5 +1,14 @@
 // Всплывающая карточка уведомления
 function showToastNotification(title, message, link = null) {
+    // Воспроизвести звук уведомления (mp3 -> wav)
+    try {
+        let audio = new Audio('/static/core/sounds/notification.mp3');
+        audio.play().then(()=>console.log('[DEBUG] mp3 played')).catch((err) => {
+            console.log('[DEBUG] mp3 error', err);
+            let audioWav = new Audio('/static/core/sounds/notification.wav');
+            audioWav.play().then(()=>console.log('[DEBUG] wav played')).catch((err)=>console.log('[DEBUG] wav error', err));
+        });
+    } catch (e) { console.log('[DEBUG] audio error', e); }
     // Если уже есть тост — удаляем
     const oldToast = document.getElementById('toast-notification');
     if (oldToast) oldToast.remove();
@@ -96,4 +105,29 @@ window.addEventListener('DOMContentLoaded', async () => {
         }
     } catch (e) {}
     setInterval(checkNewNotifications, 10000); // каждые 10 секунд
-}); 
+});
+
+// --- Обновление бейджа уведомлений на всех страницах ---
+async function updateGlobalNotifBadge() {
+    const badge = document.getElementById('notif-badge');
+    if (!badge) return;
+    try {
+        const response = await fetch('/api/notifications/unread_count/', { credentials: 'same-origin' });
+        if (!response.ok) return;
+        const data = await response.json();
+        console.log('[DEBUG] unread_count:', data.count);
+        if (data.count && data.count > 0) {
+            badge.textContent = data.count > 99 ? '99+' : data.count;
+            badge.style.opacity = '1';
+        } else {
+            badge.textContent = '';
+            badge.style.opacity = '0';
+        }
+    } catch (e) { console.log('[DEBUG] badge error', e); }
+}
+window.addEventListener('DOMContentLoaded', () => {
+    updateGlobalNotifBadge();
+    // Тестовый вызов для проверки звука (убрать после теста)
+    // showToastNotification('Тест', 'Проверка звука');
+});
+setInterval(updateGlobalNotifBadge, 15000); 
