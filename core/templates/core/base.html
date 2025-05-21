@@ -62,6 +62,18 @@
         {% block content %}{% endblock %}
     </main>
 
+    {% if messages %}
+    <script>
+      document.addEventListener("DOMContentLoaded", function() {
+        if (typeof showToastNotification === 'function') {
+          {% for message in messages %}
+            showToastNotification('{{ message.tags|capfirst|escapejs }}','{{ message|escapejs }}');
+          {% endfor %}
+        }
+      });
+    </script>
+    {% endif %}
+
     <!-- Модальное окно уведомлений -->
     <div id="notifyModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50">
         <div class="fixed top-16 right-0 bottom-0 w-full max-w-md bg-white shadow-lg">

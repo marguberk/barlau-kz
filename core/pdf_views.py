@@ -6,7 +6,9 @@ from django.conf import settings
 from weasyprint import HTML
 from weasyprint.text.fonts import FontConfiguration
 import os
-from core.models import User
+from django.contrib.auth import get_user_model
+# from core.models import User
+User = get_user_model()
 
 class EmployeePDFView(LoginRequiredMixin, DetailView):
     model = User

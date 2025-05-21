@@ -65,7 +65,7 @@ function showToastNotification(title, message, link = null) {
 
     toast.style.position = 'fixed';
     toast.style.right = '1rem';
-    toast.style.top = '1.5rem';
+    toast.style.top = '4.5rem';
     toast.style.left = '';
     toast.style.bottom = '';
     toast.style.zIndex = 9999;
@@ -140,9 +140,10 @@ async function updateGlobalNotifBadge() {
             badge.style.opacity = '1';
             badge.style.display = 'flex';
             badge.style.width = badge.style.height = '1.4rem';
-            badge.style.fontSize = '0.85rem';
+            badge.style.fontSize = '0.75rem';
+            badge.style.fontWeight = 600;
             badge.style.color = '#fff';
-            badge.style.padding = '0 0.3em';
+            badge.style.padding = '0 0.38em';
             badge.style.justifyContent = 'center';
             badge.style.alignItems = 'center';
         } else {
@@ -152,6 +153,7 @@ async function updateGlobalNotifBadge() {
         }
     } catch (e) { console.log('[DEBUG] badge error', e); }
 }
+window.updateGlobalNotifBadge = updateGlobalNotifBadge;
 window.addEventListener('DOMContentLoaded', () => {
     updateGlobalNotifBadge();
     // showToastNotification('Тест', 'Проверка звука'); // убрано

@@ -5,6 +5,8 @@ from django.contrib.auth import get_user_model
 from model_utils import FieldTracker
 from django.utils import timezone
 
+User = get_user_model()
+
 def vehicle_document_upload_path(instance, filename):
     """
     Функция для определения пути загрузки документов транспортного средства
@@ -275,7 +277,6 @@ class Expense(models.Model):
 
     def get_accountants(self):
         """Получить список бухгалтеров"""
-        User = get_user_model()
         return User.objects.filter(role='ACCOUNTANT', is_active=True)
 
 class WaybillDocument(models.Model):
