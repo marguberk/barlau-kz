@@ -89,10 +89,14 @@
                 {% csrf_token %}
                 
                 <!-- Заголовок -->
-                <div class="flex justify-end items-center mb-6">
+                <div class="flex justify-end items-center mb-6 gap-4">
                     <button id="markAllReadBtn" class="text-blue-600 hover:text-blue-800 text-sm">
                         <i class="fas fa-check-double mr-1"></i>
                         Отметить все как прочитанные
+                    </button>
+                    <button id="deleteAllNotifBtn" class="text-red-600 hover:text-red-800 text-sm flex items-center gap-1">
+                        <i class="fas fa-trash-alt"></i>
+                        Удалить все
                     </button>
                 </div>
 
@@ -566,6 +570,30 @@
             });
             document.addEventListener('click', function() {
                 dropdown.classList.add('hidden');
+            });
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const deleteBtn = document.getElementById('deleteAllNotifBtn');
+        if (deleteBtn) {
+            deleteBtn.addEventListener('click', function() {
+                if (!confirm('Удалить все уведомления?')) return;
+                fetch('/api/notifications/delete_all/', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    },
+                    credentials: 'same-origin'
+                })
+                .then(r => r.json())
+                .then(data => {
+                    // Обновить список уведомлений и бейдж
+                    if (window.updateGlobalNotifBadge) window.updateGlobalNotifBadge();
+                    const notifList = document.getElementById('notificationsList');
+                    if (notifList) notifList.innerHTML = '';
+                    document.getElementById('emptyState').classList.remove('hidden');
+                });
             });
         }
     });
