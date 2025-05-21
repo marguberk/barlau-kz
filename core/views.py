@@ -281,6 +281,12 @@ class NotificationViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(notification)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+    @action(detail=False, methods=['post'])
+    def delete_all(self, request):
+        """Удалить все уведомления пользователя"""
+        count, _ = Notification.objects.filter(user=request.user).delete()
+        return Response({'deleted': count}, status=status.HTTP_204_NO_CONTENT)
+
 
 class HomeView(LoginRequiredMixin, TemplateView):
     template_name = 'core/dashboard.html'
