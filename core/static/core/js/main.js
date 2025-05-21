@@ -1,3 +1,4 @@
+console.log('main.js подключён!');
 // Всплывающая карточка уведомления
 function showToastNotification(title, message, link = null) {
     // Воспроизвести звук уведомления (mp3 -> wav)
@@ -16,10 +17,18 @@ function showToastNotification(title, message, link = null) {
     // Создаём контейнер
     const toast = document.createElement('div');
     toast.id = 'toast-notification';
-    toast.className = 'fixed z-[9999] right-4 bottom-6 bg-white border border-blue-500 shadow-xl rounded-xl px-5 py-4 flex items-start gap-3 animate-fade-in-up';
+    toast.className = 'fixed z-[9999] right-4 top-6 bg-white border border-blue-500 shadow-xl rounded-xl px-5 py-4 flex items-start gap-3 animate-fade-in-down';
     toast.style.minWidth = '320px';
     toast.style.maxWidth = '90vw';
     toast.style.transition = 'opacity 0.4s, transform 0.4s';
+
+    // Полоса-таймер
+    const timerBar = document.createElement('div');
+    timerBar.className = 'absolute left-0 top-0 h-1 bg-blue-500 rounded-t-xl';
+    timerBar.style.width = '100%';
+    timerBar.style.transition = 'width 5s linear';
+    toast.appendChild(timerBar);
+    setTimeout(() => { timerBar.style.width = '0%'; }, 10);
 
     // Иконка
     const icon = document.createElement('span');
@@ -40,19 +49,29 @@ function showToastNotification(title, message, link = null) {
     closeBtn.className = 'ml-4 text-gray-400 hover:text-gray-700 text-xl font-bold focus:outline-none';
     closeBtn.onclick = () => {
         toast.style.opacity = '0';
-        toast.style.transform = 'translateY(40px)';
+        toast.style.transform = 'translateY(-40px)';
         setTimeout(() => toast.remove(), 400);
     };
     toast.appendChild(closeBtn);
 
     // Анимация появления
     toast.animate([
-        { opacity: 0, transform: 'translateY(40px)' },
+        { opacity: 0, transform: 'translateY(-40px)' },
         { opacity: 1, transform: 'translateY(0)' }
     ], {
         duration: 400,
         fill: 'forwards'
     });
+
+    toast.style.position = 'fixed';
+    toast.style.right = '1rem';
+    toast.style.top = '1.5rem';
+    toast.style.left = '';
+    toast.style.bottom = '';
+    toast.style.zIndex = 9999;
+    toast.style.boxShadow = '0 8px 32px rgba(37,99,235,0.15)';
+    toast.style.overflow = 'visible';
+    toast.style.paddingTop = '1.5rem';
 
     document.body.appendChild(toast);
 
@@ -60,7 +79,7 @@ function showToastNotification(title, message, link = null) {
     setTimeout(() => {
         if (toast.parentNode) {
             toast.style.opacity = '0';
-            toast.style.transform = 'translateY(40px)';
+            toast.style.transform = 'translateY(-40px)';
             setTimeout(() => toast.remove(), 400);
         }
     }, 5000);
@@ -119,15 +138,22 @@ async function updateGlobalNotifBadge() {
         if (data.count && data.count > 0) {
             badge.textContent = data.count > 99 ? '99+' : data.count;
             badge.style.opacity = '1';
+            badge.style.display = 'flex';
+            badge.style.width = badge.style.height = '1.4rem';
+            badge.style.fontSize = '0.85rem';
+            badge.style.color = '#fff';
+            badge.style.padding = '0 0.3em';
+            badge.style.justifyContent = 'center';
+            badge.style.alignItems = 'center';
         } else {
             badge.textContent = '';
             badge.style.opacity = '0';
+            badge.style.display = 'none';
         }
     } catch (e) { console.log('[DEBUG] badge error', e); }
 }
 window.addEventListener('DOMContentLoaded', () => {
     updateGlobalNotifBadge();
-    // Тестовый вызов для проверки звука (убрать после теста)
-    // showToastNotification('Тест', 'Проверка звука');
+    // showToastNotification('Тест', 'Проверка звука'); // убрано
 });
 setInterval(updateGlobalNotifBadge, 15000); 
