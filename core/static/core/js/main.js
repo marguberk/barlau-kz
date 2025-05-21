@@ -61,3 +61,39 @@ function showToastNotification(title, message, link = null) {
 // showToastNotification('Новое уведомление', 'Это пример всплывающей карточки уведомления!');
 
 // Для интеграции: вызывай showToastNotification(title, message, link) при получении нового уведомления через WebSocket или polling 
+
+// --- Polling для новых уведомлений ---
+let lastNotifId = null;
+
+async function checkNewNotifications() {
+    try {
+        const response = await fetch('/api/notifications/?unread=true&page_size=1');
+        if (!response.ok) return;
+        const data = await response.json();
+        if (data.results && data.results.length > 0) {
+            const notif = data.results[0];
+            if (notif.id !== lastNotifId) {
+                // Показываем toast только если это новое уведомление
+                if (lastNotifId !== null) {
+                    showToastNotification(notif.title, notif.message, notif.link);
+                }
+                lastNotifId = notif.id;
+            }
+        }
+    } catch (e) {
+        // ignore
+    }
+}
+
+// Получаем id последнего уведомления при загрузке
+window.addEventListener('DOMContentLoaded', async () => {
+    try {
+        const response = await fetch('/api/notifications/?unread=true&page_size=1');
+        if (!response.ok) return;
+        const data = await response.json();
+        if (data.results && data.results.length > 0) {
+            lastNotifId = data.results[0].id;
+        }
+    } catch (e) {}
+    setInterval(checkNewNotifications, 10000); // каждые 10 секунд
+}); 
