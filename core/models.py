@@ -62,7 +62,7 @@ class Notification(models.Model):
             type=cls.Type.TASK,
             title=title,
             message=message,
-            link=reverse('task-detail', args=[task.id])
+            link=reverse('tasks')
         )
 
     @classmethod
