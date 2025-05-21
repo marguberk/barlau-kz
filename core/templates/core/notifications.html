@@ -361,6 +361,17 @@
         min-width: 0;
     }
 }
+
+.notification-card.document-expiry {
+    border-left: 5px solid #f87171;
+    background: #fef2f2;
+}
+.notification-card.document-expiry .notification-icon {
+    background: #fef2f2;
+}
+.notification-card.document-expiry .notification-icon .fa-exclamation-triangle {
+    color: #f87171;
+}
 </style>
 
 <script>
@@ -431,22 +442,28 @@
         }
         notificationsList.classList.remove('hidden');
         emptyState.classList.add('hidden');
-        notificationsList.innerHTML = filteredNotifications.map(notification => `
-            <div class="notification-card${notification.read ? '' : ' unread'}">
-                <div class="notification-icon" style="background: ${getNotificationBg(notification.type, notification.read)};">
-                    <i class="fas fa-${getNotificationIcon(notification.type)}"></i>
+        notificationsList.innerHTML = filteredNotifications.map(notification => {
+            let cardClass = 'notification-card';
+            let icon = getNotificationIcon(notification.type);
+            if (notification.type === 'DOCUMENT') {
+                cardClass += ' document-expiry';
+                icon = 'exclamation-triangle';
+            }
+            return `
+                <div class="${cardClass}${notification.read ? '' : ' unread'}">
+                    <div class="notification-icon"><i class="fas fa-${icon}"></i></div>
+                    <div class="notification-content">
+                        <div class="notification-title">${notification.title}</div>
+                        <div class="notification-message">${notification.message}</div>
+                        ${notification.link ? `<a href="${notification.link}" class="notification-link">Подробнее <i class="fas fa-chevron-right ml-1"></i></a>` : ''}
+                        <div class="notification-date">${notification.created_at_display}</div>
+                    </div>
+                    <div class="notification-actions">
+                        ${!notification.read ? `<button onclick="markAsRead('${notification.id}')"><i class="fas fa-check mr-1"></i>Прочитано</button>` : ''}
+                    </div>
                 </div>
-                <div class="notification-content">
-                    <div class="notification-title">${notification.title}</div>
-                    <div class="notification-message">${notification.message}</div>
-                    ${notification.link ? `<a href="${notification.link}" class="notification-link">Подробнее <i class="fas fa-chevron-right ml-1"></i></a>` : ''}
-                    <div class="notification-date">${notification.created_at_display}</div>
-                </div>
-                <div class="notification-actions">
-                    ${!notification.read ? `<button onclick="markAsRead('${notification.id}')"><i class="fas fa-check mr-1"></i>Прочитано</button>` : ''}
-                </div>
-            </div>
-        `).join('');
+            `;
+        }).join('');
     }
 
     // Получение иконки для типа уведомления

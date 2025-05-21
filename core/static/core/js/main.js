@@ -1,15 +1,14 @@
 console.log('main.js подключён!');
 // Всплывающая карточка уведомления
-function showToastNotification(title, message, link = null) {
+function showToastNotification(title, message, link = null, type = null) {
     // Воспроизвести звук уведомления (mp3 -> wav)
     try {
         let audio = new Audio('/static/core/sounds/notification.mp3');
-        audio.play().then(()=>console.log('[DEBUG] mp3 played')).catch((err) => {
-            console.log('[DEBUG] mp3 error', err);
+        audio.play().catch(() => {
             let audioWav = new Audio('/static/core/sounds/notification.wav');
-            audioWav.play().then(()=>console.log('[DEBUG] wav played')).catch((err)=>console.log('[DEBUG] wav error', err));
+            audioWav.play();
         });
-    } catch (e) { console.log('[DEBUG] audio error', e); }
+    } catch (e) {}
     // Если уже есть тост — удаляем
     const oldToast = document.getElementById('toast-notification');
     if (oldToast) oldToast.remove();
@@ -17,72 +16,96 @@ function showToastNotification(title, message, link = null) {
     // Создаём контейнер
     const toast = document.createElement('div');
     toast.id = 'toast-notification';
-    toast.className = 'fixed z-[9999] right-4 top-6 bg-white border border-blue-500 shadow-xl rounded-xl px-5 py-4 flex items-start gap-3 animate-fade-in-down';
+    toast.className = 'fixed z-[9999] right-6 top-[4.5rem] bg-white border border-blue-500 shadow-xl rounded-xl px-5 py-4 flex items-start gap-3 animate-fade-in-up';
     toast.style.minWidth = '320px';
     toast.style.maxWidth = '90vw';
     toast.style.transition = 'opacity 0.4s, transform 0.4s';
+    toast.style.pointerEvents = 'auto';
+    toast.style.boxSizing = 'border-box';
+    toast.style.overflow = 'hidden';
 
-    // Полоса-таймер
-    const timerBar = document.createElement('div');
-    timerBar.className = 'absolute left-0 top-0 h-1 bg-blue-500 rounded-t-xl';
-    timerBar.style.width = '100%';
-    timerBar.style.transition = 'width 5s linear';
-    toast.appendChild(timerBar);
-    setTimeout(() => { timerBar.style.width = '0%'; }, 10);
+    // --- Цвет и иконка для типа ---
+    let iconHtml = '<i class="fa fa-bell text-blue-500 text-2xl"></i>';
+    let iconBg = '#e0e7ff';
+    let borderColor = '#3b82f6';
+    if (type === 'DOCUMENT' || title.toLowerCase().includes('документ')) {
+        iconHtml = '<i class="fa fa-exclamation-triangle text-red-500 text-2xl"></i>';
+        iconBg = '#fef2f2';
+        borderColor = '#f87171';
+        toast.style.borderColor = borderColor;
+    }
 
     // Иконка
     const icon = document.createElement('span');
-    icon.innerHTML = `<i class="fa fa-bell text-blue-500 text-2xl"></i>`;
+    icon.innerHTML = iconHtml;
+    icon.style.background = iconBg;
+    icon.style.borderRadius = '50%';
+    icon.style.width = '2.5rem';
+    icon.style.height = '2.5rem';
+    icon.style.display = 'flex';
+    icon.style.alignItems = 'center';
+    icon.style.justifyContent = 'center';
     toast.appendChild(icon);
 
     // Контент
     const content = document.createElement('div');
-    content.innerHTML = `<div class="font-semibold text-base text-blue-700">${title}</div><div class="text-gray-700 text-sm mt-1">${message}</div>`;
-    if (link) {
-        content.innerHTML += `<a href="${link}" class="text-blue-600 hover:underline text-xs mt-2 inline-block">Подробнее</a>`;
-    }
+    content.className = 'flex flex-col';
+    content.innerHTML = `<div class='font-semibold text-blue-600 mb-1'>${title}</div><div class='text-gray-700 mb-1'>${message}</div>`;
     toast.appendChild(content);
 
     // Кнопка закрытия
     const closeBtn = document.createElement('button');
-    closeBtn.innerHTML = '&times;';
-    closeBtn.className = 'ml-4 text-gray-400 hover:text-gray-700 text-xl font-bold focus:outline-none';
+    closeBtn.innerHTML = '<i class="fa fa-times text-gray-400 text-lg"></i>';
+    closeBtn.className = 'absolute top-2 right-3';
+    closeBtn.style.background = 'none';
+    closeBtn.style.border = 'none';
+    closeBtn.style.cursor = 'pointer';
     closeBtn.onclick = () => {
+        toast.style.transform = 'translateX(120%)';
         toast.style.opacity = '0';
-        toast.style.transform = 'translateY(-40px)';
         setTimeout(() => toast.remove(), 400);
     };
     toast.appendChild(closeBtn);
 
-    // Анимация появления
-    toast.animate([
-        { opacity: 0, transform: 'translateY(-40px)' },
-        { opacity: 1, transform: 'translateY(0)' }
-    ], {
-        duration: 400,
-        fill: 'forwards'
-    });
-
+    // Прогресс-бар
+    const progress = document.createElement('div');
+    progress.style.position = 'absolute';
+    progress.style.left = '0.75rem';
+    progress.style.top = '0.5rem';
+    progress.style.width = 'calc(100% - 2.5rem)';
+    progress.style.height = '5px';
+    progress.style.background = '#e5e7eb';
+    progress.style.borderRadius = '3px';
+    progress.style.overflow = 'hidden';
+    progress.style.zIndex = '1';
+    // Цвет прогресса по типу
+    let progColor = '#3b82f6';
+    if (type === 'DOCUMENT' || title.toLowerCase().includes('документ')) progColor = '#f87171';
+    const progBar = document.createElement('div');
+    progBar.style.height = '100%';
+    progBar.style.width = '100%';
+    progBar.style.background = progColor;
+    progBar.style.borderRadius = '3px';
+    progBar.style.transition = 'width 0.4s linear';
+    progress.appendChild(progBar);
+    toast.appendChild(progress);
     toast.style.position = 'fixed';
-    toast.style.right = '1rem';
     toast.style.top = '4.5rem';
-    toast.style.left = '';
-    toast.style.bottom = '';
-    toast.style.zIndex = 9999;
-    toast.style.boxShadow = '0 8px 32px rgba(37,99,235,0.15)';
-    toast.style.overflow = 'visible';
-    toast.style.paddingTop = '1.5rem';
+    toast.style.right = '1.5rem';
+    toast.style.left = 'auto';
 
+    // Добавляем в body
     document.body.appendChild(toast);
 
-    // Автоматическое скрытие через 5 секунд
+    // Анимация прогресса и исчезновения
     setTimeout(() => {
-        if (toast.parentNode) {
-            toast.style.opacity = '0';
-            toast.style.transform = 'translateY(-40px)';
-            setTimeout(() => toast.remove(), 400);
-        }
-    }, 5000);
+        progBar.style.width = '0%';
+    }, 50);
+    setTimeout(() => {
+        toast.style.transform = 'translateX(120%)';
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 400);
+    }, 4000);
 }
 
 // Пример использования (раскомментируй для теста)
@@ -103,7 +126,7 @@ async function checkNewNotifications() {
             if (notif.id !== lastNotifId) {
                 // Показываем toast только если это новое уведомление
                 if (lastNotifId !== null) {
-                    showToastNotification(notif.title, notif.message, notif.link);
+                    showToastNotification(notif.title, notif.message, notif.link, notif.type);
                 }
                 lastNotifId = notif.id;
             }
