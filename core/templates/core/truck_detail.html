@@ -50,36 +50,40 @@
     <!-- Основной контент -->
     <div class="ml-64 flex-1 min-h-screen bg-gray-50 main-content">
         <!-- Верхняя панель -->
-        <div class="w-full h-20 px-8 py-5 bg-white border-b border-zinc-200 flex justify-between items-center">
-            <div class="flex items-center gap-3">
-                <a href="{% url 'core:trucks' %}" class="w-11 h-11 flex items-center justify-center rounded-xl border border-zinc-200 hover:bg-gray-50 transition-colors">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M15.8334 10H4.16669M4.16669 10L10 15.8333M4.16669 10L10 4.16667" stroke="#6B7280" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                </a>
-                <h1 class="text-2xl font-semibold">Грузовик {{ truck.brand }} {{ truck.model }}</h1>
-            </div>
-            <div class="flex items-center gap-4">
-                {% with is_manager=request.user.is_superuser %}
-                {% if request.user.role == 'DIRECTOR' or request.user.role == 'SUPERADMIN' or is_manager %}
-                <form action="{% url 'core:truck-delete' truck.id %}" method="post" onsubmit="return confirm('Вы уверены, что хотите удалить этот транспорт?');">
-                    {% csrf_token %}
-                    <button type="submit" class="w-11 h-11 flex items-center justify-center rounded-xl border border-red-200 hover:bg-red-50 transition-colors">
-                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M2.5 5H17.5M15.8333 5V16.6667C15.8333 17.5 15 18.3333 14.1667 18.3333H5.83333C5 18.3333 4.16667 17.5 4.16667 16.6667V5M7.5 5V3.33333C7.5 2.5 8.33333 1.66667 9.16667 1.66667H10.8333C11.6667 1.66667 12.5 2.5 12.5 3.33333V5M8.33333 9.16667V14.1667M11.6667 9.16667V14.1667" stroke="#EF4444" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </button>
-                </form>
-                {% endif %}
-                {% endwith %}
-                <a href="{% url 'core:notifications' %}" class="w-11 h-11 flex items-center justify-center rounded-xl border border-zinc-200 hover:bg-gray-50 transition-colors">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M7.35419 18.3334C7.98085 18.8534 8.95835 19.1667 10.0001 19.1667C11.0418 19.1667 12.0193 18.8534 12.646 18.3334M15.8334 6.66671C15.8334 5.34059 15.3069 4.0688 14.3692 3.13112C13.4315 2.19344 12.1597 1.66671 10.8334 1.66671C9.50728 1.66671 8.23549 2.19344 7.29781 3.13112C6.36013 4.0688 5.8334 5.34059 5.8334 6.66671C5.8334 9.16671 5.0001 14.1667 3.33344 15.8334H18.3334C16.6668 14.1667 15.8334 9.16671 15.8334 6.66671Z" stroke="#6B7280" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                </a>
-                <a href="#" class="w-11 h-11 flex items-center justify-center rounded-xl border border-zinc-200 hover:bg-gray-50 transition-colors">
-                    <img src="{% static 'core/img/kz.png' %}" alt="Language" class="w-6 h-6 rounded">
-                </a>
+        <div class="w-full h-20 px-8 py-5 bg-white flex justify-between items-center">
+            <div class="justify-start text-zinc-950 text-2xl font-semibold leading-loose">Грузовики</div>
+            <div class="flex justify-start items-center gap-3">
+                <div class="flex justify-start items-start gap-2">
+                    <a href="{% url 'core:notifications' %}" class="w-10 h-10 px-3 py-2 bg-white rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex justify-center items-center gap-1.5 relative">
+                        <img src="{% static 'core/img/bell.svg' %}" alt="Notifications" class="w-5 h-5">
+                        <span id="notif-badge" class="hidden absolute -top-1 -right-1 w-3.5 h-3.5 bg-red-500 rounded-full border-2 border-white"></span>
+                    </a>
+                </div>
+                <div class="flex justify-start items-center gap-1.5 relative">
+                    {% if request.user.is_authenticated %}
+                        <div class="relative group" id="user-menu">
+                            {% if request.user.photo %}
+                                <img class="w-8 h-8 rounded-full object-cover cursor-pointer" src="{{ request.user.photo.url }}" id="user-avatar" />
+                            {% else %}
+                                <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center cursor-pointer" id="user-avatar">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                                    </svg>
+                                </div>
+                            {% endif %}
+                            <div class="hidden group-hover:block absolute right-0 mt-2 w-44 bg-white border border-gray-200 rounded-lg shadow-lg z-50" id="user-dropdown">
+                                <a href="{% url 'core:profile' %}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Профиль</a>
+                                <a href="{% url 'core:custom-logout' %}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Выйти</a>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                    {% endif %}
+                </div>
             </div>
         </div>
 
@@ -233,37 +237,36 @@
 
 <!-- Нижнее мобильное меню - показываем только на мобильных устройствах -->
 <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 hidden max-lg:block">
-    <div class="flex justify-around items-center px-4 py-2">
-        <a href="{% url 'core:home' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600 relative">
-            <div class="icon-container relative w-8 h-8 flex items-center justify-center">
+    <div class="flex justify-between items-center px-2">
+        <a href="{% url 'core:home' %}" class="flex-1 flex flex-col items-center text-gray-600 hover:text-blue-600 relative mx-1">
+            <div class="icon-container w-8 h-8 flex items-center justify-center">
                 <img src="{% static 'core/img/mobile/home.svg' %}" alt="Home" class="w-6 h-6">
             </div>
-            <span class="text-xs text-[10px] mt-1">Главная</span>
+            <span class="text-xs text-[9px] mt-1">Главная</span>
         </a>
-        <a href="{% url 'core:tasks' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600 relative">
-            <div class="icon-container relative w-8 h-8 flex items-center justify-center">
+        <a href="{% url 'core:tasks' %}" class="flex-1 flex flex-col items-center text-gray-600 hover:text-blue-600 relative mx-1">
+            <div class="icon-container w-8 h-8 flex items-center justify-center">
                 <img src="{% static 'core/img/mobile/check-square.svg' %}" alt="Tasks" class="w-6 h-6">
             </div>
-            <span class="text-xs text-[10px] mt-1">Задачи</span>
+            <span class="text-xs text-[9px] mt-1">Задачи</span>
         </a>
-        <a href="{% url 'core:map' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600 relative">
-            <div class="icon-container relative w-8 h-8 flex items-center justify-center">
+        <a href="{% url 'core:map' %}" class="flex-1 flex flex-col items-center text-gray-600 hover:text-blue-600 relative mx-1">
+            <div class="icon-container w-8 h-8 flex items-center justify-center">
                 <img src="{% static 'core/img/mobile/location.svg' %}" alt="Map" class="w-6 h-6">
             </div>
-            <span class="text-xs text-[10px] mt-1">Карта</span>
+            <span class="text-xs text-[9px] mt-1">Карта</span>
         </a>
-        <a href="{% url 'core:trucks' %}" class="flex flex-col items-center text-blue-600 relative">
-            <div class="icon-container relative w-8 h-8 flex items-center justify-center">
-                <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Trucks" class="w-6 h-6">
+        <a href="{% url 'core:vehicles' %}" class="flex-1 flex flex-col items-center text-blue-600 relative mx-1">
+            <div class="icon-container w-8 h-8 flex items-center justify-center">
+                <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Vehicles" class="w-6 h-6">
             </div>
-            <span class="text-xs text-[10px] mt-1">Грузовики</span>
-            <div class="absolute -bottom-2 left-0 right-0 h-0.5 bg-blue-600 rounded-full"></div>
+            <span class="text-xs text-[9px] mt-1">Грузовики</span>
         </a>
-        <a href="{% url 'core:employees' %}" class="flex flex-col items-center text-gray-600 hover:text-blue-600 relative">
-            <div class="icon-container relative w-8 h-8 flex items-center justify-center">
+        <a href="{% url 'core:employees' %}" class="flex-1 flex flex-col items-center text-gray-600 hover:text-blue-600 relative mx-1">
+            <div class="icon-container w-8 h-8 flex items-center justify-center">
                 <img src="{% static 'core/img/mobile/employee.svg' %}" alt="Employees" class="w-6 h-6">
             </div>
-            <span class="text-xs text-[10px] mt-1">Сотрудники</span>
+            <span class="text-xs text-[9px] mt-1">Сотрудники</span>
         </a>
     </div>
 </nav>
