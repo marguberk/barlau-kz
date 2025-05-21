@@ -18,6 +18,7 @@ class Notification(models.Model):
         WAYBILL = 'WAYBILL', 'Путевой лист'
         EXPENSE = 'EXPENSE', 'Расход'
         SYSTEM = 'SYSTEM', 'Системное'
+        DOCUMENT = 'DOCUMENT', 'Документ'
     
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='core_notifications')
     type = models.CharField(
@@ -222,6 +223,17 @@ class User(AbstractUser):
         default=False,
         verbose_name='Отслеживание местоположения включено'
     )
+    # --- Дополнительные поля для резюме сотрудника ---
+    skills = models.TextField(blank=True, null=True, verbose_name='Навыки')
+    certifications = models.TextField(blank=True, null=True, verbose_name='Сертификаты и достижения')
+    languages = models.TextField(blank=True, null=True, verbose_name='Языки')
+    hobbies = models.TextField(blank=True, null=True, verbose_name='Хобби')
+    experience = models.TextField(blank=True, null=True, verbose_name='Опыт работы')
+    education = models.TextField(blank=True, null=True, verbose_name='Образование')
+    desired_salary = models.CharField(max_length=100, blank=True, null=True, verbose_name='Желаемая зарплата')
+    age = models.PositiveIntegerField(blank=True, null=True, verbose_name='Возраст')
+    location = models.CharField(max_length=255, blank=True, null=True, verbose_name='Местоположение')
+    recommendation_file = models.FileField(upload_to='recommendations/', blank=True, null=True, verbose_name='Файл рекомендации')
 
     class Meta:
         verbose_name = 'Пользователь'

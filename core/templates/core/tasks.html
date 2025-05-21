@@ -59,17 +59,23 @@
                         <span id="notif-badge" class="hidden absolute -top-1 -right-1 w-3.5 h-3.5 bg-red-500 rounded-full border-2 border-white"></span>
                     </a>
                 </div>
-                <div class="flex justify-start items-center gap-1.5">
+                <div class="flex justify-start items-center gap-1.5 relative">
                     {% if request.user.is_authenticated %}
-                        {% if request.user.photo %}
-                            <img class="w-8 h-8 rounded-full object-cover" src="{{ request.user.photo.url }}" />
-                        {% else %}
-                            <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
-                                </svg>
+                        <div class="relative group" id="user-menu">
+                            {% if request.user.photo %}
+                                <img class="w-8 h-8 rounded-full object-cover cursor-pointer" src="{{ request.user.photo.url }}" id="user-avatar" />
+                            {% else %}
+                                <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center cursor-pointer" id="user-avatar">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                                    </svg>
+                                </div>
+                            {% endif %}
+                            <div class="hidden group-hover:block absolute right-0 mt-2 w-44 bg-white border border-gray-200 rounded-lg shadow-lg z-50" id="user-dropdown">
+                                <a href="{% url 'core:profile' %}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Профиль</a>
+                                <a href="{% url 'core:custom-logout' %}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Выйти</a>
                             </div>
-                        {% endif %}
+                        </div>
                     {% else %}
                         <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
@@ -891,6 +897,18 @@
         
         // Адаптируем под планшеты и мобильные устройства
         adjustLayoutForTablet();
+
+        const avatar = document.getElementById('user-avatar');
+        const dropdown = document.getElementById('user-dropdown');
+        if (avatar && dropdown) {
+            avatar.addEventListener('click', function(e) {
+                e.stopPropagation();
+                dropdown.classList.toggle('hidden');
+            });
+            document.addEventListener('click', function() {
+                dropdown.classList.add('hidden');
+            });
+        }
     });
 </script>
 {% endblock %} 

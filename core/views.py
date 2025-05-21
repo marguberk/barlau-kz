@@ -1422,6 +1422,8 @@ class EmployeeCreateView(View):
         phone = request.POST.get('phone', '')
         position = request.POST.get('position', '')
         role = request.POST.get('role', '')
+        password = request.POST.get('password', '')
+        password2 = request.POST.get('password2', '')
 
         # Базовая валидация
         errors = {}
@@ -1433,6 +1435,12 @@ class EmployeeCreateView(View):
             errors['email'] = 'Email обязателен для заполнения'
         elif User.objects.filter(email=email).exists():
             errors['email'] = 'Пользователь с таким email уже существует'
+        # Валидация пароля
+        if password or password2:
+            if password != password2:
+                errors['password2'] = 'Пароли не совпадают'
+            elif len(password) < 6:
+                errors['password'] = 'Пароль должен быть не короче 6 символов'
 
         # Если есть ошибки, возвращаем форму с ошибками
         if errors:
@@ -1459,18 +1467,17 @@ class EmployeeCreateView(View):
             username = f"{base_username}{counter}"
             counter += 1
 
-        # Генерация случайного пароля
-        password = ''.join(
-            random.choices(
-                string.ascii_letters +
-                string.digits,
-                k=12))
+        # Используем введённый пароль или генерируем
+        if password and password2 and password == password2:
+            final_password = password
+        else:
+            final_password = ''.join(random.choices(string.ascii_letters + string.digits, k=12))
 
         # Создание пользователя
         user = User.objects.create_user(
             username=username,
             email=email,
-            password=password,
+            password=final_password,
             first_name=first_name,
             last_name=last_name,
             phone=phone,
@@ -1500,8 +1507,7 @@ class EmployeeCreateView(View):
         user.save()
 
         messages.success(
-            request, f'Сотрудник {
-                user.get_full_name()} успешно создан. Логин: {username}, пароль: {password}')
+            request, f'Сотрудник {user.get_full_name()} успешно создан. Логин: {username}, пароль: {final_password}')
         return redirect('core:employee_edit', pk=user.pk)
 
 
@@ -1720,6 +1726,7 @@ class VehicleCreateView(LoginRequiredMixin, View):
         })
 
     def post(self, request):
+        print('[DEBUG] post VehicleCreateView')
         User = get_user_model()
         drivers = User.objects.filter(is_active=True, role='DRIVER')
         import os
@@ -1805,7 +1812,7 @@ class VehicleCreateView(LoginRequiredMixin, View):
         technical_passport_path = request.POST.get('technical_passport_path')
         if technical_passport_path:
             with default_storage.open(technical_passport_path, 'rb') as f:
-                VehicleDocument.objects.create(
+                doc = VehicleDocument.objects.create(
                     vehicle=vehicle,
                     document_type='REGISTRATION',
                     file=File(f, name=os.path.basename(technical_passport_path)),
@@ -1813,8 +1820,10 @@ class VehicleCreateView(LoginRequiredMixin, View):
                     issue_date=timezone.now().date(),
                     expiry_date=technical_passport_expiry
                 )
+                print(f'[DEBUG] Создан документ: {doc}, expiry_date={doc.expiry_date}')
+                create_expiry_notification(vehicle, 'REGISTRATION', doc.expiry_date)
         elif 'technical_passport' in request.FILES:
-            VehicleDocument.objects.create(
+            doc = VehicleDocument.objects.create(
                 vehicle=vehicle,
                 document_type='REGISTRATION',
                 file=request.FILES['technical_passport'],
@@ -1822,13 +1831,15 @@ class VehicleCreateView(LoginRequiredMixin, View):
                 issue_date=timezone.now().date(),
                 expiry_date=technical_passport_expiry
             )
+            print(f'[DEBUG] Создан документ: {doc}, expiry_date={doc.expiry_date}')
+            create_expiry_notification(vehicle, 'REGISTRATION', doc.expiry_date)
 
         # --- Страховка ---
         insurance_expiry = request.POST.get('insurance_expiry_date') or None
         insurance_path = request.POST.get('insurance_path')
         if insurance_path:
             with default_storage.open(insurance_path, 'rb') as f:
-                VehicleDocument.objects.create(
+                doc = VehicleDocument.objects.create(
                     vehicle=vehicle,
                     document_type='INSURANCE',
                     file=File(f, name=os.path.basename(insurance_path)),
@@ -1836,8 +1847,10 @@ class VehicleCreateView(LoginRequiredMixin, View):
                     issue_date=timezone.now().date(),
                     expiry_date=insurance_expiry
                 )
+                print(f'[DEBUG] Создан документ: {doc}, expiry_date={doc.expiry_date}')
+                create_expiry_notification(vehicle, 'INSURANCE', doc.expiry_date)
         elif 'insurance' in request.FILES:
-            VehicleDocument.objects.create(
+            doc = VehicleDocument.objects.create(
                 vehicle=vehicle,
                 document_type='INSURANCE',
                 file=request.FILES['insurance'],
@@ -1845,11 +1858,13 @@ class VehicleCreateView(LoginRequiredMixin, View):
                 issue_date=timezone.now().date(),
                 expiry_date=insurance_expiry
             )
+            print(f'[DEBUG] Создан документ: {doc}, expiry_date={doc.expiry_date}')
+            create_expiry_notification(vehicle, 'INSURANCE', doc.expiry_date)
 
         # --- Техосмотр ---
         technical_inspection_expiry = request.POST.get('technical_inspection_expiry_date') or None
         if 'technical_inspection' in request.FILES:
-            VehicleDocument.objects.create(
+            doc = VehicleDocument.objects.create(
                 vehicle=vehicle,
                 document_type='TECHNICAL_INSPECTION',
                 file=request.FILES['technical_inspection'],
@@ -1857,6 +1872,8 @@ class VehicleCreateView(LoginRequiredMixin, View):
                 issue_date=timezone.now().date(),
                 expiry_date=technical_inspection_expiry
             )
+            print(f'[DEBUG] Создан документ: {doc}, expiry_date={doc.expiry_date}')
+            create_expiry_notification(vehicle, 'TECHNICAL_INSPECTION', doc.expiry_date)
 
         # --- Дополнительные документы ---
         additional_documents_paths = request.POST.get('additional_documents_paths', '')
@@ -1885,6 +1902,58 @@ class VehicleCreateView(LoginRequiredMixin, View):
         if vehicle.driver and vehicle.driver != request.user:
             Notification.create_vehicle_notification(vehicle.driver, vehicle)
         messages.success(request, 'Транспорт успешно добавлен')
+        return redirect('core:trucks')
+
+        # --- После создания всех документов ---
+        from django.db import models
+        # from django.utils import timezone  # Удаляю этот импорт, чтобы не было ошибки
+        notify_days = [30, 14, 7, 1]
+        today = timezone.now().date()
+        recipients = User.objects.filter(is_active=True).filter(
+            models.Q(role__in=['DIRECTOR', 'SUPERADMIN']) | models.Q(is_superuser=True)
+        ).distinct()
+        for doc in VehicleDocument.objects.filter(vehicle=vehicle, expiry_date__isnull=False):
+            if not doc.expiry_date:
+                continue
+            days_left = (doc.expiry_date - today).days
+            print(f'[DEBUG] Документ: {doc.document_type}, expiry_date: {doc.expiry_date}, days_left: {days_left}')
+            if 0 <= days_left <= 30:
+                doc_type = dict(doc.DOCUMENT_TYPE_CHOICES).get(doc.document_type, doc.document_type)
+                for user in recipients:
+                    if not Notification.objects.filter(user=user, type=Notification.Type.DOCUMENT, message__contains=doc.expiry_date.strftime('%d.%m.%Y')).exists():
+                        print(f'[DEBUG] Создаю уведомление для {user.email} по документу {doc_type} ({doc.expiry_date})')
+                        Notification.objects.create(
+                            user=user,
+                            type=Notification.Type.DOCUMENT,
+                            title='Скоро истекает срок документа',
+                            message=f'У {vehicle.brand} {vehicle.model} ({vehicle.number}) истекает срок: {doc_type} — {doc.expiry_date.strftime('%d.%m.%Y')}',
+                            link=f'/trucks/{vehicle.id}/'
+                        )
+
+        vehicle.refresh_from_db()
+        notify_days = [30, 14, 7, 1]
+        today = timezone.now().date()
+        recipients = User.objects.filter(is_active=True).filter(
+            models.Q(role__in=['DIRECTOR', 'SUPERADMIN']) | models.Q(is_superuser=True)
+        ).distinct()
+        for doc in VehicleDocument.objects.filter(vehicle=vehicle, expiry_date__isnull=False):
+            if not doc.expiry_date:
+                continue
+            days_left = (doc.expiry_date - today).days
+            print(f'[DEBUG] Документ: {doc.document_type}, expiry_date: {doc.expiry_date}, days_left: {days_left}')
+            if 0 <= days_left <= 30:
+                doc_type = dict(doc.DOCUMENT_TYPE_CHOICES).get(doc.document_type, doc.document_type)
+                for user in recipients:
+                    if not Notification.objects.filter(user=user, type=Notification.Type.DOCUMENT, message__contains=doc.expiry_date.strftime('%d.%m.%Y')).exists():
+                        print(f'[DEBUG] Создаю уведомление для {user.email} по документу {doc_type} ({doc.expiry_date})')
+                        Notification.objects.create(
+                            user=user,
+                            type=Notification.Type.DOCUMENT,
+                            title='Скоро истекает срок документа',
+                            message=f'У {vehicle.brand} {vehicle.model} ({vehicle.number}) истекает срок: {doc_type} — {doc.expiry_date.strftime('%d.%m.%Y')}',
+                            link=f'/trucks/{vehicle.id}/'
+                        )
+
         return redirect('core:trucks')
 
 
@@ -2456,3 +2525,49 @@ class NotificationManualCreateView(LoginRequiredMixin, FormView):
         )
         messages.success(self.request, 'Уведомление отправлено!')
         return super().form_valid(form)
+
+def create_expiry_notification(vehicle, document_type, expiry_date):
+    print('[DEBUG] create_expiry_notification вызвана', vehicle, document_type, expiry_date)
+    from django.db import models
+    from core.models import Notification
+    from django.contrib.auth import get_user_model
+    User = get_user_model()
+    from logistics.models import VehicleDocument
+    from django.utils import timezone
+    from datetime import datetime, date
+    if not expiry_date:
+        print('[DEBUG] expiry_date отсутствует, уведомление не будет создано')
+        return
+    print('[DEBUG] expiry_date type:', type(expiry_date))
+    if isinstance(expiry_date, str):
+        try:
+            expiry_date = datetime.strptime(expiry_date, "%Y-%m-%d").date()
+            print('[DEBUG] expiry_date преобразована из строки:', expiry_date)
+        except Exception as e:
+            print('[DEBUG] Ошибка преобразования expiry_date:', e)
+            return
+    today = timezone.now().date()
+    days_left = (expiry_date - today).days
+    print(f'[DEBUG] today={today}, expiry_date={expiry_date}, days_left={days_left}')
+    if 0 <= days_left <= 30:
+        recipients = User.objects.filter(is_active=True).filter(
+            models.Q(role__in=['DIRECTOR', 'SUPERADMIN']) | models.Q(is_superuser=True)
+        ).distinct()
+        print('[DEBUG] Найдено реципиентов:', recipients.count())
+        for user in recipients:
+            print(f'[DEBUG] Реципиент: id={user.id}, username={user.username}, email={user.email}, role={getattr(user, "role", None)}, is_superuser={getattr(user, "is_superuser", None)}')
+        doc_type = dict(VehicleDocument.DOCUMENT_TYPE_CHOICES).get(document_type, document_type)
+        for user in recipients:
+            exists = Notification.objects.filter(user=user, type=Notification.Type.DOCUMENT, message__contains=expiry_date.strftime('%d.%m.%Y')).exists()
+            print(f'[DEBUG] Проверяю уведомление для {user.email}: exists={exists}')
+            if not exists:
+                Notification.objects.create(
+                    user=user,
+                    type=Notification.Type.DOCUMENT,
+                    title='Скоро истекает срок документа',
+                    message=f'У {vehicle.brand} {vehicle.model} ({vehicle.number}) истекает срок: {doc_type} — {expiry_date.strftime('%d.%m.%Y')}',
+                    link=f'/trucks/{vehicle.id}/'
+                )
+                print(f'[DEBUG] Уведомление создано для {user.email}')
+    else:
+        print('[DEBUG] days_left вне диапазона 0-30, уведомление не создается')
