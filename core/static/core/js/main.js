@@ -29,7 +29,7 @@ function showToastNotification(title, message, link = null, type = null) {
     let iconBg = '#e0e7ff';
     let borderColor = '#3b82f6';
     if (type === 'DOCUMENT' || title.toLowerCase().includes('документ')) {
-        iconHtml = '<i class="fa fa-exclamation-triangle text-red-500 text-2xl"></i>';
+        iconHtml = '<i class="fa fa-clock text-red-500 text-2xl"></i>';
         iconBg = '#fef2f2';
         borderColor = '#f87171';
         toast.style.borderColor = borderColor;
