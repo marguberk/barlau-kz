@@ -1,1024 +1,316 @@
 {% extends "core/base.html" %}
 {% load static %}
 
-{% block title %}Карта транспорта - BARLAU.KZ{% endblock %}
+{% block title %}Карта и поездки - BARLAU.KZ{% endblock %}
 
 {% block extra_head %}
-<!-- Подключаем Leaflet CSS и JS -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
-<!-- Font Awesome для иконок -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" crossorigin="anonymous" />
-
 <style>
-    #mapContainer {
-        width: 100%;
-        height: calc(100vh - 200px);
-        min-height: 500px;
-        z-index: 1;
-    }
-    
-    .info-panel {
-        background: white;
-        padding: 15px;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px -1px rgba(13,13,18,0.06);
-        border: 1px solid #e5e7eb;
-        margin-bottom: 15px;
-    }
-    
-    .info-header {
+    .map-trips-layout {
         display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 12px;
+        flex-direction: row;
+        gap: 0;
+        width: 100vw;
+        min-height: 80vh;
+        background: #f9fafb;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(13,13,18,0.06);
     }
-    
-    .vehicle-counter {
-        display: flex;
-        justify-content: flex-start;
-        gap: 16px;
-    }
-    
-    .counter-item {
+    .map-panel {
+        width: 34vw;
+        min-width: 340px;
+        max-width: 500px;
+        background: #fff;
+        border-right: 1px solid #e5e7eb;
+        position: relative;
         display: flex;
         flex-direction: column;
-        align-items: flex-start;
+        justify-content: flex-start;
+        align-items: stretch;
     }
-    
-    .counter-value {
-        font-size: 1.5rem;
-        font-weight: 600;
-        color: #1E3A8A;
+    #mapContainer {
+        width: 100%;
+        height: 100vh;
+        min-height: 600px;
+        border-radius: 0;
+        z-index: 1;
     }
-    
-    .counter-label {
-        font-size: 0.875rem;
-        color: #4B5563;
+    .trips-panel {
+        flex: 1 1 0%;
+        background: #f9fafb;
+        padding: 32px 32px 32px 32px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
     }
-    
-    .refresh-button {
-        background-color: #2563EB;
-        color: white;
+    .trip-list {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(13,13,18,0.06);
+        padding: 20px;
+        margin-bottom: 16px;
+    }
+    .trip-item {
+        border-bottom: 1px solid #e5e7eb;
+        padding: 12px 0;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+    .trip-item:last-child { border-bottom: none; }
+    .trip-marker {
+        width: 16px; height: 16px; border-radius: 50%;
+        background: #2679DB; box-shadow: 0 0 0 4px #e0e7ef;
+        margin-right: 8px;
+    }
+    .trip-info { flex: 1; }
+    .trip-title { font-weight: 600; color: #1e293b; }
+    .trip-desc { color: #64748b; font-size: 0.95em; }
+    .trip-date { color: #94a3b8; font-size: 0.9em; }
+    .trip-actions { margin-left: 8px; }
+    .btn-main {
+        background: #2563eb;
+        color: #fff;
         border: none;
-        padding: 8px 15px;
-        border-radius: 6px;
-        cursor: pointer;
+        border-radius: 8px;
+        padding: 8px 18px;
         font-weight: 500;
-        display: flex;
-        align-items: center;
-        gap: 5px;
-        transition: background-color 0.2s;
+        font-size: 1em;
+        cursor: pointer;
+        transition: background 0.2s;
     }
-    
-    .refresh-button:hover {
-        background-color: #1D4ED8;
+    .btn-main:hover { background: #1d4ed8; }
+    .trip-form-modal {
+        position: fixed; left: 0; top: 0; width: 100vw; height: 100vh;
+        background: rgba(0,0,0,0.35); z-index: 1000;
+        display: flex; align-items: center; justify-content: center;
     }
-    
-    .vehicle-marker {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 50%;
-        background: white;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    .trip-form-content {
+        background: #fff; border-radius: 16px; box-shadow: 0 2px 16px rgba(13,13,18,0.12);
+        padding: 32px; min-width: 340px; max-width: 420px; width: 100%;
     }
-    
-    .vehicle-marker i {
-        font-size: 18px;
+    .form-group { margin-bottom: 18px; }
+    .form-label { font-weight: 500; color: #334155; margin-bottom: 6px; display: block; }
+    .form-input, .form-select, .form-textarea {
+        width: 100%; border: 1px solid #e5e7eb; border-radius: 8px;
+        padding: 8px 12px; font-size: 1em; color: #1e293b;
+        margin-bottom: 2px;
     }
-    
-    /* Пульсирующая анимация для активного маркера */
-    .active-marker {
-        animation: pulse 2s infinite;
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+        outline: none; border-color: #2563eb; box-shadow: 0 0 0 2px #2563eb22;
     }
-    
-    @keyframes pulse {
-        0% {
-            transform: scale(1);
-            opacity: 1;
-        }
-        50% {
-            transform: scale(1.1);
-            opacity: 0.9;
-        }
-        100% {
-            transform: scale(1);
-            opacity: 1;
-        }
+    .address-autocomplete {
+        position: relative;
     }
-    
-    .legend {
-        margin-top: 15px;
-        display: flex;
-        align-items: center;
-        gap: 20px;
+    .autocomplete-list {
+        position: absolute; left: 0; right: 0; top: 100%; z-index: 10;
+        background: #fff; border: 1px solid #e5e7eb; border-radius: 0 0 8px 8px;
+        box-shadow: 0 2px 8px rgba(13,13,18,0.06);
+        max-height: 180px; overflow-y: auto;
     }
-    
-    .legend-item {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        font-size: 0.875rem;
-        color: #4B5563;
+    .autocomplete-item {
+        padding: 8px 12px; cursor: pointer;
     }
-    
-    .legend-color {
-        width: 12px;
-        height: 12px;
-        border-radius: 50%;
-    }
-    
-    .update-info {
-        font-size: 0.8rem;
-        color: #6B7280;
-        margin-top: 8px;
+    .autocomplete-item:hover { background: #f1f5f9; }
+    @media (max-width: 900px) {
+        .map-trips-layout { flex-direction: column; }
+        .map-panel { width: 100vw; min-width: 0; max-width: none; height: 320px; }
+        #mapContainer { height: 320px !important; }
+        .trips-panel { padding: 16px; }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="w-full flex">
-    <!-- Боковая панель -->
-    <div class="w-64 h-screen bg-white border-r border-zinc-200 flex flex-col justify-start items-start fixed left-0 bottom-0 sidebar">
-        <div class="self-stretch px-5 py-6 relative flex flex-col justify-start items-start gap-2 sidebar-logo">
-            <div class="py-1 inline-flex justify-start items-center gap-2">
-                <img src="{% static 'core/img/logo.png' %}" alt="Barlau Logo" class="w-10 h-6">
-                <div class="text-center justify-start text-black text-2xl font-semibold leading-normal">Barlau.kz</div>
-            </div>
-        </div>
-        <div class="self-stretch flex-1 px-4 pt-2 pb-4 flex flex-col justify-start items-center gap-4 sidebar-menu">
-            <div class="self-stretch flex flex-col justify-start items-start gap-1">
-                <div class="self-stretch flex flex-col justify-start items-start">
-                    <a href="{% url 'core:home' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2 relative">
-                        <img src="{% static 'core/img/home.svg' %}" alt="Home" class="w-5 h-5 desktop-icon align-middle">
-                        <img src="{% static 'core/img/mobile/home.svg' %}" alt="Home" class="mobile-icon hidden align-middle">
-                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Главная</div>
-                    </a>
-                    <a href="{% url 'core:tasks' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2">
-                        <img src="{% static 'core/img/check-square.svg' %}" alt="Tasks" class="w-5 h-5 desktop-icon align-middle">
-                        <img src="{% static 'core/img/mobile/check-square.svg' %}" alt="Tasks" class="mobile-icon hidden align-middle">
-                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Задачи</div>
-                    </a>
-                    <a href="{% url 'core:map' %}" class="self-stretch px-3 py-3.5 bg-gray-50 rounded-lg inline-flex items-center gap-2 relative">
-                        <div class="w-1 h-6 left-0 top-[calc(50%-12px)] absolute bg-blue-600 rounded-tr-lg rounded-br-lg"></div>
-                        <img src="{% static 'core/img/location.svg' %}?v={% now 'U' %}" alt="Map" class="w-5 h-5 desktop-icon">
-                        <img src="{% static 'core/img/mobile/location.svg' %}" alt="Map" class="mobile-icon hidden w-5 h-5">
-                        <div class="flex-1 text-blue-600 text-base font-medium leading-normal tracking-tight">Карта</div>
-                    </a>
-                    <a href="{% url 'core:trucks' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2">
-                        <img src="{% static 'core/img/truck.svg' %}" alt="Trucks" class="w-5 h-5 desktop-icon align-middle">
-                        <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Trucks" class="mobile-icon hidden align-middle">
-                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Грузовики</div>
-                    </a>
-                    <a href="{% url 'core:employees' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2">
-                        <img src="{% static 'core/img/employee.svg' %}" alt="Employees" class="w-5 h-5 desktop-icon align-middle">
-                        <img src="{% static 'core/img/mobile/employee.svg' %}" alt="Employees" class="mobile-icon hidden align-middle">
-                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Сотрудники</div>
-                    </a>
-                </div>
-            </div>
-        </div>
+<div class="map-trips-layout">
+    <div class="map-panel">
+        <div id="mapContainer"></div>
     </div>
-
-    <!-- Основной контент -->
-    <div class="ml-64 flex-1 min-h-screen bg-gray-50 relative main-content">
-        <!-- Верхняя панель -->
-        <div class="w-full h-20 px-8 py-5 bg-white flex justify-between items-center">
-            <div class="justify-start text-zinc-950 text-2xl font-semibold leading-loose">Карта</div>
-            <div class="flex justify-start items-center gap-3">
-                <div class="flex justify-start items-start gap-2">
-                    <a href="{% url 'core:notifications' %}" class="w-10 h-10 px-3 py-2 bg-white rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex justify-center items-center gap-1.5 relative">
-                        <img src="{% static 'core/img/bell.svg' %}" alt="Notifications" class="w-5 h-5">
-                        <span id="notif-badge" class="hidden absolute -top-1 -right-1 w-3.5 h-3.5 bg-red-500 rounded-full border-2 border-white"></span>
-                    </a>
-                </div>
-                <div class="flex justify-start items-center gap-1.5 relative">
-                    {% if request.user.is_authenticated %}
-                        <div class="relative group" id="user-menu">
-                            {% if request.user.photo %}
-                                <img class="w-8 h-8 rounded-full object-cover cursor-pointer" src="{{ request.user.photo.url }}" id="user-avatar" />
-                            {% else %}
-                                <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center cursor-pointer" id="user-avatar">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
-                                    </svg>
-                                </div>
-                            {% endif %}
-                            <div class="hidden group-hover:block absolute right-0 mt-2 w-44 bg-white border border-gray-200 rounded-lg shadow-lg z-50" id="user-dropdown">
-                                <a href="{% url 'core:profile' %}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Профиль</a>
-                                <a href="{% url 'core:custom-logout' %}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Выйти</a>
-                            </div>
-                        </div>
-                    {% else %}
-                        <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
-                            </svg>
-                        </div>
-                    {% endif %}
-                </div>
-            </div>
+    <div class="trips-panel">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-2xl font-semibold">Поездки</h2>
+            {% if request.user.is_authenticated and request.user.role in 'DIRECTOR SUPERADMIN ADMIN' or request.user.is_superuser %}
+            <button class="btn-main" id="openTripFormBtn"><i class="fas fa-plus mr-2"></i>Создать поездку</button>
+            {% endif %}
         </div>
-
-        <!-- Содержимое страницы карты -->
-        <div class="w-full px-8 py-6">
-            <div class="info-panel">
-                <div class="info-header">
-                    <div class="vehicle-counter">
-                        <div class="counter-item">
-                            <span class="counter-value" id="totalVehicles">0</span>
-                            <span class="counter-label">Всего</span>
-                        </div>
-                        <div class="counter-item">
-                            <span class="counter-value" id="activeVehicles">0</span>
-                            <span class="counter-label">В движении</span>
-                        </div>
-                        <div class="counter-item">
-                            <span class="counter-value" id="stoppedVehicles">0</span>
-                            <span class="counter-label">На стоянке</span>
-                        </div>
-                    </div>
-                    <button id="refreshButton" class="refresh-button">
-                        <i class="fas fa-sync-alt"></i> Обновить
-                    </button>
-                </div>
-                <div class="legend">
-                    <div class="legend-item">
-                        <div class="legend-color" style="background-color: #2563EB;"></div>
-                        <span>В движении</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background-color: #6B7280;"></div>
-                        <span>На стоянке</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background-color: #EF4444;"></div>
-                        <span>Простой > 1 часа</span>
-                    </div>
-                </div>
-                <div class="update-info" id="lastUpdate">Последнее обновление: </div>
-            </div>
-            
-            <!-- Контейнер карты с явными размерами -->
-            <div id="mapContainer" style="width: 100%; height: 600px; position: relative; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px -1px rgba(13,13,18,0.06); border: 1px solid #e5e7eb;"></div>
+        <div id="tripList" class="trip-list">
+            <div class="text-gray-400">Загрузка...</div>
         </div>
     </div>
 </div>
 
-<style>
-    /* Обновленные стили для боковых иконок меню */
-    .sidebar-menu a {
-        color: #6B7280 !important; /* Серый цвет для неактивных пунктов */
-    }
-    
-    .sidebar-menu a.bg-gray-50 {
-        color: #2563EB !important; /* Синий цвет для активного пункта */
-    }
-    
-    .sidebar-menu a img.desktop-icon {
-        filter: brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(142deg) brightness(96%) contrast(91%); /* Серый фильтр для неактивных иконок */
-    }
-    
-    .sidebar-menu a.bg-gray-50 img.desktop-icon {
-        filter: brightness(0) saturate(100%) invert(32%) sepia(96%) saturate(7461%) hue-rotate(220deg) brightness(97%) contrast(98%); /* Синий фильтр для активной иконки */
-    }
-    
-    /* Общие стили для фиксации цветов иконок в меню */
-    a, a:visited, a:link, a:hover, a:active, 
-    a *, a:visited *, a:link *, a:hover *, a:active * {
-        text-decoration: none !important;
-    }
-
-    @media (max-width: 1100px) {
-        /* Убираем меню для планшетной и мобильной версий */
-        .sidebar {
-            display: none !important;
-        }
-        
-        .main-content {
-            margin-left: 0 !important;
-            width: 100% !important;
-            padding-bottom: 70px !important;
-        }
-        
-        /* Закомментировано, чтобы не скрывать верхнюю панель в мобильной версии */
-        /* .w-full.h-20.px-8.py-5.bg-white {
-            display: none !important;
-        } */
-        
-        /* Устанавливаем размер и фильтр для мобильных иконок */
-        .icon-container img {
-            width: 24px !important;
-            height: 24px !important;
-        }
-        
-        /* Серый фильтр для неактивных иконок */
-        nav.fixed.bottom-0 a.text-gray-600 .icon-container img {
-            filter: brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(142deg) brightness(96%) contrast(91%) !important;
-        }
-        
-        /* Синий фильтр для активной иконки */
-        nav.fixed.bottom-0 a.text-blue-600 .icon-container img {
-            filter: brightness(0) saturate(100%) invert(32%) sepia(96%) saturate(7461%) hue-rotate(220deg) brightness(97%) contrast(98%) !important;
-        }
-        
-        /* Подстраиваем карту под мобильные устройства */
-        #mapContainer {
-            height: 450px !important;
-        }
-        
-        /* Адаптируем счетчики для мобильных */
-        .vehicle-counter {
-            flex-direction: column;
-            gap: 8px;
-        }
-        
-        .counter-item {
-            flex-direction: row;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .counter-value {
-            font-size: 1.25rem;
-        }
-        
-        /* Адаптируем легенду для мобильных */
-        .legend {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 8px;
-        }
-        
-        .fixed.bottom-0 {
-            padding-top: 10px !important;
-            height: 70px !important;
-        }
-    }
-    
-    /* Дополнительные коррекции для мобильных устройств */
-    @media (max-width: 640px) {
-        .main-content {
-            /* Убираем отступы для всей страницы */
-            padding-left: 0 !important;
-            padding-right: 0 !important;
-        }
-        
-        /* Сохраняем отступы для блоков внутри контента */
-        .w-full.px-8, .px-8 {
-            padding-left: 16px !important;
-            padding-right: 16px !important;
-        }
-        
-        /* Адаптируем размер заголовков */
-        .text-2xl {
-            font-size: 1.25rem !important;
-        }
-        
-        /* Подстраиваем карту под мобильные устройства */
-        #mapContainer {
-            height: 350px !important;
-        }
-        
-        /* Подстраиваем заголовок информационной панели */
-        .info-header {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 12px;
-        }
-        
-        .refresh-button {
-            align-self: flex-start;
-        }
-    }
-    
-    /* Скрываем нижнее меню на этой странице для ПК версии */
-    body > nav.fixed.bottom-0 {
-        display: none !important;
-    }
-    
-    /* Скрываем верхнюю панель и корректируем отступы */
-    body > header.fixed.top-0 {
-        display: none !important;
-    }
-    
-    /* Убираем отступ от верхней панели */
-    main.mt-16 {
-        margin-top: 0 !important;
-    }
-</style>
+<!-- Модалка создания поездки -->
+<div id="tripFormModal" class="trip-form-modal" style="display:none;">
+    <div class="trip-form-content">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-semibold">Создать поездку</h3>
+            <button onclick="closeTripForm()" class="text-gray-400 hover:text-gray-700"><i class="fas fa-times"></i></button>
+        </div>
+        <form id="tripForm">
+            <div class="form-group">
+                <label class="form-label">Транспорт</label>
+                <select id="tripVehicle" name="vehicle" class="form-select" required></select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Водитель</label>
+                <select id="tripDriver" name="driver" class="form-select" required></select>
+            </div>
+            <div class="form-group address-autocomplete">
+                <label class="form-label">Адрес отправления</label>
+                <input type="text" id="startAddress" class="form-input" placeholder="Введите адрес или отметьте на карте" autocomplete="off" required>
+                <div id="startAutocomplete" class="autocomplete-list" style="display:none;"></div>
+            </div>
+            <div class="form-group address-autocomplete">
+                <label class="form-label">Адрес назначения</label>
+                <input type="text" id="endAddress" class="form-input" placeholder="Введите адрес или отметьте на карте" autocomplete="off" required>
+                <div id="endAutocomplete" class="autocomplete-list" style="display:none;"></div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Описание груза</label>
+                <textarea id="cargoDesc" name="cargo_description" class="form-textarea" rows="2" required></textarea>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Дата</label>
+                <input type="date" id="tripDate" name="date" class="form-input" required>
+            </div>
+            <div class="flex justify-end gap-3 mt-4">
+                <button type="button" onclick="closeTripForm()" class="btn-main" style="background:#e5e7eb;color:#334155;">Отмена</button>
+                <button type="submit" class="btn-main">Сохранить</button>
+            </div>
+        </form>
+    </div>
+</div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('Инициализация страницы карты');
-    
-    // Создаем карту с центром на Алматы
-    var map = L.map('mapContainer', {
+// --- Leaflet карта ---
+let map, startMarker, endMarker, routeLine;
+let startCoords = null, endCoords = null;
+
+function initMap() {
+    map = L.map('mapContainer', {
         zoomControl: true,
         attributionControl: true
     }).setView([43.238949, 76.889709], 12);
-    
-    console.log('Создание карты Leaflet');
-    
-    // Добавляем стилизованный слой карты CartoDB Positron (светлый, серый стиль)
     L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, &copy; <a href="https://carto.com/attributions">CARTO</a>',
         subdomains: 'abcd',
         maxZoom: 19
     }).addTo(map);
-    
-    console.log('Карта создана, загружаем данные о транспорте');
-    
-    // Переменные для хранения маркеров
-    var vehicleMarkers = {};
-    
-    // Демо-данные для транспортных средств (только для запасного варианта)
-    var demoVehicles = [
-        {
-            id: 1, 
-            number: "KZ 456 DEF", 
-            brand: "VOLVO FH",
-            model: "460",
-            status: "active",
-            lastUpdate: new Date().getTime() - 5 * 60 * 1000, // 5 минут назад
-            speed: 67,
-            driver: {
-                fullname: "Петров Петр",
-                phone: "+7 (701) 234-5678",
-                current_latitude: 43.252863,
-                current_longitude: 76.945870
-            }
-        },
-        {
-            id: 2, 
-            number: "KZ 789 GHI", 
-            brand: "Mercedes-Benz",
-            model: "Actros",
-            status: "inactive",
-            lastUpdate: new Date().getTime() - 35 * 60 * 1000, // 35 минут назад
-            speed: 0,
-            driver: {
-                fullname: "Сидоров Сидор",
-                phone: "+7 (702) 345-6789",
-                current_latitude: 43.225211,
-                current_longitude: 76.862957
-            }
-        },
-        {
-            id: 3, 
-            number: "KZ 123 JKL", 
-            brand: "Scania",
-            model: "R500",
-            status: "inactive",
-            lastUpdate: new Date().getTime() - 75 * 60 * 1000, // 1 час 15 минут назад
-            speed: 0,
-            driver: {
-                fullname: "Иванов Иван",
-                phone: "+7 (705) 987-6543",
-                current_latitude: 43.238949,
-                current_longitude: 76.889709
-            }
-        }
-    ];
-    
-    // Загружаем транспортные средства
-    loadVehicles();
-    
-    // Функция загрузки транспортных средств
-    function loadVehicles() {
-        console.log('Загружаем транспортные средства');
-        
-        // Очищаем существующие маркеры
-        clearVehicleMarkers();
-        
-        // Запрос к API для получения данных о транспортных средствах
-        fetch('/api/v1/map/')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Ошибка при загрузке данных о транспортных средствах');
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log('Данные с API:', data);
-                if (data && data.vehicles && data.vehicles.vehicles) {
-                    // Преобразуем формат данных от API к формату, используемому в функции отображения
-                    const apiVehicles = data.vehicles.vehicles.map(vehicle => {
-                        return {
-                            id: vehicle.id,
-                            number: vehicle.number,
-                            brand: vehicle.type === 'truck' ? 'Грузовик' : (vehicle.type === 'special' ? 'Спецтехника' : 'Автомобиль'),
-                            model: '',
-                            status: vehicle.status,
-                            lastUpdate: new Date().getTime() - 5 * 60 * 1000, // Примерно 5 минут назад
-                            speed: vehicle.status === 'active' ? 65 : 0,
-                            driver: {
-                                fullname: vehicle.driver.fullname,
-                                phone: "+7 (701) xxx-xxxx", // Телефон не приходит с API, используем заглушку
-                                current_latitude: vehicle.driver.current_latitude,
-                                current_longitude: vehicle.driver.current_longitude
-                            }
-                        };
-                    });
-                    
-                    // Отображаем транспортные средства и обновляем счетчики
-                    displayVehicles(apiVehicles);
-                    updateCounters(apiVehicles);
-                } else {
-                    console.error('Некорректный формат данных API');
-                    // В случае ошибки используем демо-данные
-                    displayVehicles(demoVehicles);
-                    updateCounters(demoVehicles);
-                }
-            })
-            .catch(error => {
-                console.error('Ошибка при загрузке данных:', error);
-                // В случае ошибки используем демо-данные
-                displayVehicles(demoVehicles);
-                updateCounters(demoVehicles);
-            })
-            .finally(() => {
-                // Обновляем время последнего обновления
-                updateLastUpdateTime();
-            });
-    }
-    
-    // Отображение транспортных средств на карте
-    function displayVehicles(vehicles) {
-        console.log('Отображаем транспортные средства:', vehicles);
-        
-        vehicles.forEach(function(vehicle) {
-            var latlng = [
-                vehicle.driver.current_latitude,
-                vehicle.driver.current_longitude
-            ];
-            
-            // Определяем цвет в зависимости от статуса и времени простоя
-            var iconColor;
-            var isActive = vehicle.status === 'active' && vehicle.speed > 0;
-            var isLongStopped = vehicle.lastUpdate && (new Date().getTime() - vehicle.lastUpdate > 60 * 60 * 1000); // Больше часа простоя
-            
-            if (isActive) {
-                iconColor = '#2563EB'; // Синий - активен в движении
-            } else if (isLongStopped) {
-                iconColor = '#EF4444'; // Красный - долгий простой
+}
+
+// --- Автокомплит адресов через Nominatim ---
+async function fetchAddresses(query) {
+    if (!query) return [];
+    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&addressdetails=1`;
+    const resp = await fetch(url);
+    return await resp.json();
+}
+function setupAutocomplete(inputId, listId, setCoordsFn) {
+    const input = document.getElementById(inputId);
+    const list = document.getElementById(listId);
+    let timer;
+    input.addEventListener('input', function() {
+        clearTimeout(timer);
+        const val = input.value.trim();
+        if (!val) { list.style.display = 'none'; return; }
+        timer = setTimeout(async () => {
+            const results = await fetchAddresses(val);
+            if (results.length) {
+                list.innerHTML = results.map(r => `<div class='autocomplete-item' data-lat='${r.lat}' data-lon='${r.lon}'>${r.display_name}</div>`).join('');
+                list.style.display = 'block';
             } else {
-                iconColor = '#6B7280'; // Серый - на стоянке
+                list.innerHTML = '<div class="autocomplete-item">Ничего не найдено</div>';
+                list.style.display = 'block';
             }
-            
-            // Создаем маркер с соответствующим стилем
-            var vehicleIcon = L.divIcon({
-                className: isActive ? 'vehicle-marker active-marker' : 'vehicle-marker',
-                html: '<i class="fas fa-truck" style="color: ' + iconColor + '"></i>',
-                iconSize: [30, 30],
-                iconAnchor: [15, 15]
-            });
-            
-            var marker = L.marker(latlng, {icon: vehicleIcon}).addTo(map);
-            
-            // Форматируем время последнего обновления
-            var lastUpdateText = '';
-            if (vehicle.lastUpdate) {
-                var timeDiff = Math.floor((new Date().getTime() - vehicle.lastUpdate) / (60 * 1000)); // в минутах
-                if (timeDiff < 60) {
-                    lastUpdateText = timeDiff + ' мин. назад';
-                } else {
-                    var hours = Math.floor(timeDiff / 60);
-                    var mins = timeDiff % 60;
-                    lastUpdateText = hours + ' ч. ' + (mins > 0 ? mins + ' мин.' : '') + ' назад';
-                }
-            }
-            
-            // Добавляем всплывающее окно с подробной информацией
-            marker.bindPopup(
-                '<div class="p-2">' +
-                '<h3 class="text-lg font-semibold mb-2">' + vehicle.brand + ' ' + vehicle.model + '</h3>' +
-                '<p class="text-sm mb-1"><strong>Гос. номер:</strong> ' + vehicle.number + '</p>' +
-                '<p class="text-sm mb-1"><strong>Водитель:</strong> ' + vehicle.driver.fullname + '</p>' +
-                '<p class="text-sm mb-1"><strong>Телефон:</strong> ' + vehicle.driver.phone + '</p>' +
-                '<p class="text-sm mb-1"><strong>Скорость:</strong> ' + vehicle.speed + ' км/ч</p>' +
-                '<p class="text-sm"><strong>Последнее обновление:</strong> ' + lastUpdateText + '</p>' +
-                '</div>'
-            );
-            
-            // Сохраняем маркер
-            vehicleMarkers[vehicle.id] = marker;
-        });
-    }
-    
-    // Очистка маркеров транспортных средств
-    function clearVehicleMarkers() {
-        for (var id in vehicleMarkers) {
-            map.removeLayer(vehicleMarkers[id]);
-        }
-        vehicleMarkers = {};
-    }
-    
-    // Обновление счетчиков транспорта
-    function updateCounters(vehicles) {
-        var total = vehicles.length;
-        var active = vehicles.filter(v => v.status === 'active' && v.speed > 0).length;
-        var stopped = total - active;
-        
-        document.getElementById('totalVehicles').textContent = total;
-        document.getElementById('activeVehicles').textContent = active;
-        document.getElementById('stoppedVehicles').textContent = stopped;
-    }
-    
-    // Обновление времени последнего обновления
-    function updateLastUpdateTime() {
-        var now = new Date();
-        var timeString = now.toLocaleTimeString();
-        document.getElementById('lastUpdate').textContent = 'Последнее обновление: ' + timeString;
-    }
-    
-    // Обработчик нажатия на кнопку обновления
-    document.getElementById('refreshButton').addEventListener('click', function() {
-        loadVehicles();
+        }, 300);
     });
-    
-    // Функция для адаптации под планшеты и мобильную версию
-    function adjustLayoutForTablet() {
-        // Для планшетной и мобильной версии
-        if (window.innerWidth <= 1100) {
-            // Убираем боковую панель и настраиваем основной контент
-            document.querySelector('.main-content').style.marginLeft = '0';
-            document.querySelector('.sidebar').style.display = 'none';
-            
-            // Важно: НЕ скрываем верхнюю панель
-            // const topPanel = document.querySelector('.w-full.h-20.px-8.py-5.bg-white');
-            // if (topPanel) {
-            //     topPanel.style.display = 'none';
-            // }
-            
-            // Показываем нижнее мобильное меню
-            const mobileNav = document.querySelector('nav.fixed.bottom-0');
-            if (mobileNav) {
-                mobileNav.style.display = 'block';
+    list.addEventListener('click', function(e) {
+        if (e.target.classList.contains('autocomplete-item')) {
+            input.value = e.target.textContent;
+            list.style.display = 'none';
+            if (e.target.dataset.lat && e.target.dataset.lon) {
+                setCoordsFn([parseFloat(e.target.dataset.lat), parseFloat(e.target.dataset.lon)]);
             }
+        }
+    });
+    input.addEventListener('blur', () => setTimeout(() => list.style.display = 'none', 200));
+}
+
+// --- Выбор точки на карте ---
+function enableMapPointSelection(type) {
+    map.once('click', function(e) {
+        if (type === 'start') {
+            setStartCoords([e.latlng.lat, e.latlng.lng]);
         } else {
-            resetLayoutToDesktop();
+            setEndCoords([e.latlng.lat, e.latlng.lng]);
         }
-        
-        // Исправляем отображение карты после изменения размеров
-        if (map) {
-            map.invalidateSize();
-        }
-    }
-    
-    // Функция для возврата к десктопному режиму
-    function resetLayoutToDesktop() {
-        document.querySelector('.main-content').style.marginLeft = '16rem';
-        document.querySelector('.sidebar').style.display = 'flex';
-        
-        // Скрываем мобильное меню
-        const mobileNav = document.querySelector('nav.fixed.bottom-0');
-        if (mobileNav) {
-            mobileNav.style.display = 'none';
-        }
-        
-        // Исправляем отображение карты после изменения размеров
-        if (map) {
-            map.invalidateSize();
-        }
-    }
-    
-    // Функция коррекции всех ссылок на странице
-    function fixAllLinks() {
-        const allLinks = document.querySelectorAll('a');
-        allLinks.forEach(link => {
-            // Исправление ссылок с неверным форматированием
-            if (link.href.includes('undefined') || link.href.includes('[object')) {
-                // Пытаемся исправить ссылку на основе текста
-                const linkText = link.textContent.trim().toLowerCase();
-                
-                if (linkText.includes('главная') || linkText.includes('dashboard')) {
-                    link.href = '/';
-                } else if (linkText.includes('задачи') || linkText.includes('tasks')) {
-                    link.href = '/tasks/';
-                } else if (linkText.includes('карта') || linkText.includes('map')) {
-                    link.href = '/map/';
-                } else if (linkText.includes('грузовики') || linkText.includes('vehicles')) {
-                    link.href = '/trucks/';
-                } else if (linkText.includes('сотрудники') || linkText.includes('employees')) {
-                    link.href = '/employees/';
-                }
-            }
-        });
-    }
-    
-    // Обработка изменения размера окна с защитой от частых вызовов
-    let resizeTimeout;
-    window.addEventListener('resize', function() {
-        clearTimeout(resizeTimeout);
-        resizeTimeout = setTimeout(function() {
-            adjustLayoutForTablet();
-        }, 250);
     });
-    
-    // Адаптируем под планшеты и мобильные устройства
-    adjustLayoutForTablet();
-    
-    // Запускаем функцию исправления ссылок немедленно и с интервалом
-    fixAllLinks();
-    const fixInterval = setInterval(fixAllLinks, 300);
-    
-    // После 5 секунд останавливаем интервал
-    setTimeout(() => clearInterval(fixInterval), 5000);
-    
-    // Запускаем автоматическое обновление каждые 15 секунд
-    setInterval(loadVehicles, 15 * 1000);
-    
-    // Исправляем отображение карты, если есть проблемы с контейнером
-    setTimeout(function() {
-        map.invalidateSize();
-    }, 100);
+}
+function setStartCoords(coords) {
+    startCoords = coords;
+    if (startMarker) map.removeLayer(startMarker);
+    startMarker = L.marker(coords, {icon: L.divIcon({className:'',html:'<i class="fa-solid fa-circle" style="color:#34D399;font-size:22px;"></i>',iconSize:[22,22],iconAnchor:[11,11]})}).addTo(map);
+    if (routeLine) map.removeLayer(routeLine);
+    if (startCoords && endCoords) drawRoute();
+}
+function setEndCoords(coords) {
+    endCoords = coords;
+    if (endMarker) map.removeLayer(endMarker);
+    endMarker = L.marker(coords, {icon: L.divIcon({className:'',html:'<i class="fa-solid fa-location-dot" style="color:#2679DB;font-size:22px;"></i>',iconSize:[22,22],iconAnchor:[11,11]})}).addTo(map);
+    if (routeLine) map.removeLayer(routeLine);
+    if (startCoords && endCoords) drawRoute();
+}
+function drawRoute() {
+    if (routeLine) map.removeLayer(routeLine);
+    routeLine = L.polyline([startCoords, endCoords], {color:'#2679DB',weight:6,opacity:0.85,smoothFactor:1.2}).addTo(map);
+    map.fitBounds([startCoords, endCoords], {padding:[40,40]});
+}
 
-    const avatar = document.getElementById('user-avatar');
-    const dropdown = document.getElementById('user-dropdown');
-    if (avatar && dropdown) {
-        avatar.addEventListener('click', function(e) {
-            e.stopPropagation();
-            dropdown.classList.toggle('hidden');
-        });
-        document.addEventListener('click', function() {
-            dropdown.classList.add('hidden');
-        });
-    }
+// --- Trip form modal logic ---
+function openTripForm() {
+    document.getElementById('tripFormModal').style.display = 'flex';
+}
+function closeTripForm() {
+    document.getElementById('tripFormModal').style.display = 'none';
+    document.getElementById('tripForm').reset();
+    if (startMarker) map.removeLayer(startMarker); startMarker = null; startCoords = null;
+    if (endMarker) map.removeLayer(endMarker); endMarker = null; endCoords = null;
+    if (routeLine) map.removeLayer(routeLine); routeLine = null;
+}
 
-    // === GEO & MAP LOGIC ===
-    const USER_ROLE = '{{ request.user.role|default:"" }}';
-    const USER_ID = '{{ request.user.id|default:"" }}';
-
-    // --- 1. Запрос геолокации у водителя и отправка на сервер ---
-    function sendDriverLocation(lat, lng) {
-        fetch('/api/driver_locations/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken')
-            },
-            body: JSON.stringify({ latitude: lat, longitude: lng })
-        });
-    }
-
-    function startDriverGeolocation() {
-        if (navigator.geolocation) {
-            function success(pos) {
-                const lat = pos.coords.latitude;
-                const lng = pos.coords.longitude;
-                sendDriverLocation(lat, lng);
-            }
-            function error(err) {
-                console.warn('Геолокация не разрешена:', err);
-            }
-            // Сразу отправляем
-            navigator.geolocation.getCurrentPosition(success, error);
-            // И далее каждые 30 сек
-            setInterval(() => {
-                navigator.geolocation.getCurrentPosition(success, error);
-            }, 30000);
-        }
-    }
-
-    // --- 2. Загрузка и отображение локаций и маршрутов ---
-    async function loadTripsAndLocations() {
-        // Получаем поездки
-        const tripsResp = await fetch('/api/trips/');
-        const trips = await tripsResp.json();
-        // Получаем локации
-        const locResp = await fetch('/api/driver_locations/');
-        const locations = await locResp.json();
-        return { trips, locations };
-    }
-
-    function clearMapLayers(layers) {
-        layers.forEach(l => map.removeLayer(l));
-    }
-
-    let tripLayers = [];
-    let locationMarkers = [];
-
-    function renderMap(trips, locations) {
-        clearMapLayers(tripLayers);
-        clearMapLayers(locationMarkers);
-        tripLayers = [];
-        locationMarkers = [];
-
-        // --- Для админов: все водители, для водителя: только себя ---
-        let filteredTrips = trips;
-        let filteredLocations = locations;
-        if (USER_ROLE === 'DRIVER') {
-            filteredTrips = trips.filter(t => t.driver === USER_ID || (t.driver_details && t.driver_details.id == USER_ID));
-            filteredLocations = locations.filter(l => l.driver === USER_ID || (l.driver_details && l.driver_details.id == USER_ID));
-        }
-
-        // --- Маршруты ---
-        filteredTrips.forEach(trip => {
-            const route = [
-                [parseFloat(trip.start_latitude), parseFloat(trip.start_longitude)],
-                [parseFloat(trip.end_latitude), parseFloat(trip.end_longitude)]
-            ];
-            const polyline = L.polyline(route, {
-                color: '#2679DB',
-                weight: 5,
-                opacity: 0.8,
-                lineJoin: 'round',
-                dashArray: '8 8',
-            }).addTo(map);
-            tripLayers.push(polyline);
-            // Маркеры начала/конца
-            const startMarker = L.circleMarker(route[0], { radius: 8, color: '#34D399', fillColor: '#34D399', fillOpacity: 1 }).addTo(map);
-            const endMarker = L.circleMarker(route[1], { radius: 8, color: '#F87171', fillColor: '#F87171', fillOpacity: 1 }).addTo(map);
-            tripLayers.push(startMarker, endMarker);
-        });
-
-        // --- Последние точки водителей ---
-        // Для каждого водителя берём только самую свежую точку
-        const latestByDriver = {};
-        filteredLocations.forEach(loc => {
-            const driverId = loc.driver || (loc.driver_details && loc.driver_details.id);
-            if (!latestByDriver[driverId] || new Date(loc.timestamp) > new Date(latestByDriver[driverId].timestamp)) {
-                latestByDriver[driverId] = loc;
-            }
-        });
-        Object.values(latestByDriver).forEach(loc => {
-            const lat = parseFloat(loc.latitude);
-            const lng = parseFloat(loc.longitude);
-            const marker = L.marker([lat, lng], {
-                icon: L.divIcon({
-                    className: 'vehicle-marker active-marker',
-                    html: '<i class="fa-solid fa-truck" style="color:#2563EB;font-size:22px;"></i>',
-                    iconSize: [32, 32],
-                    iconAnchor: [16, 16],
-                })
-            }).addTo(map);
-            let popup = '';
-            if (loc.driver_details) {
-                popup += `<b>${loc.driver_details.full_name}</b><br>`;
-            }
-            if (loc.trip_details) {
-                popup += `<span style='color:#2679DB'>${loc.trip_details.cargo_description||''}</span><br>`;
-            }
-            popup += `<span style='font-size:12px;color:#6B7280'>${loc.timestamp.replace('T',' ').slice(0,16)}</span>`;
-            marker.bindPopup(popup);
-            locationMarkers.push(marker);
-        });
-
-        // Центрируем карту по всем точкам
-        const allPoints = [
-            ...filteredTrips.flatMap(t => [
-                [parseFloat(t.start_latitude), parseFloat(t.start_longitude)],
-                [parseFloat(t.end_latitude), parseFloat(t.end_longitude)]
-            ]),
-            ...Object.values(latestByDriver).map(l => [parseFloat(l.latitude), parseFloat(l.longitude)])
-        ];
-        if (allPoints.length) {
-            map.fitBounds(allPoints, { padding: [40, 40] });
-        }
-    }
-
-    // --- 3. Инициализация ---
-    document.addEventListener('DOMContentLoaded', function() {
-        if (USER_ROLE === 'DRIVER') {
-            startDriverGeolocation();
-        }
-        // Загружаем и рендерим карту
-        loadTripsAndLocations().then(({trips, locations}) => {
-            renderMap(trips, locations);
-        });
-        // Периодически обновляем карту
-        setInterval(() => {
-            loadTripsAndLocations().then(({trips, locations}) => {
-                renderMap(trips, locations);
-            });
-        }, 30000);
-    });
-});
-</script>
-
-<!-- Нижнее мобильное меню - показываем только на мобильных устройствах -->
-<nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 hidden max-lg:block">
-    <div class="flex justify-between items-center px-2">
-        <a href="{% url 'core:home' %}" class="flex-1 flex flex-col items-center text-gray-600 hover:text-blue-600 relative mx-1">
-            <div class="icon-container w-8 h-8 flex items-center justify-center">
-                <img src="{% static 'core/img/mobile/home.svg' %}" alt="Home" class="w-6 h-6">
-            </div>
-            <span class="text-xs text-[9px] mt-1">Главная</span>
-        </a>
-        <a href="{% url 'core:tasks' %}" class="flex-1 flex flex-col items-center text-gray-600 hover:text-blue-600 relative mx-1">
-            <div class="icon-container w-8 h-8 flex items-center justify-center">
-                <img src="{% static 'core/img/mobile/check-square.svg' %}" alt="Tasks" class="w-6 h-6">
-            </div>
-            <span class="text-xs text-[9px] mt-1">Задачи</span>
-        </a>
-        <a href="{% url 'core:map' %}" class="flex-1 flex flex-col items-center text-blue-600 relative mx-1">
-            <div class="icon-container w-8 h-8 flex items-center justify-center">
-                <img src="{% static 'core/img/mobile/location.svg' %}" alt="Map" class="w-6 h-6">
-            </div>
-            <span class="text-xs text-[9px] mt-1">Карта</span>
-        </a>
-        <a href="{% url 'core:trucks' %}" class="flex-1 flex flex-col items-center text-gray-600 hover:text-blue-600 relative mx-1">
-            <div class="icon-container w-8 h-8 flex items-center justify-center">
-                <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Trucks" class="w-6 h-6">
-            </div>
-            <span class="text-xs text-[9px] mt-1">Грузовики</span>
-        </a>
-        <a href="{% url 'core:employees' %}" class="flex-1 flex flex-col items-center text-gray-600 hover:text-blue-600 relative mx-1">
-            <div class="icon-container w-8 h-8 flex items-center justify-center">
-                <img src="{% static 'core/img/mobile/employee.svg' %}" alt="Employees" class="w-6 h-6">
-            </div>
-            <span class="text-xs text-[9px] mt-1">Сотрудники</span>
-        </a>
-    </div>
-</nav>
-
-{% if request.user.is_authenticated and request.user.role in 'DIRECTOR SUPERADMIN ADMIN' or request.user.is_superuser %}
-<div class="w-full flex justify-end px-8 mt-4">
-    <button id="addTripBtn" class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-        <i class="fas fa-route mr-2"></i>Создать поездку
-    </button>
-</div>
-{% endif %}
-
-<!-- Модальное окно создания поездки -->
-<div id="tripModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50">
-    <div class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl bg-white rounded-xl shadow-lg">
-        <div class="flex justify-between items-center p-6 border-b">
-            <h3 class="text-lg font-semibold">Создать поездку</h3>
-            <button class="text-gray-500 hover:text-gray-700" onclick="closeTripModal()">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-        <form id="tripForm" class="p-6 space-y-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Транспорт</label>
-                    <select name="vehicle" id="tripVehicle" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></select>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Водитель</label>
-                    <select name="driver" id="tripDriver" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></select>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Координаты отправления (широта, долгота)</label>
-                    <div class="flex gap-2">
-                        <input type="number" step="0.000001" name="start_latitude" id="startLat" required placeholder="Широта" class="w-1/2 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                        <input type="number" step="0.000001" name="start_longitude" id="startLng" required placeholder="Долгота" class="w-1/2 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Координаты назначения (широта, долгота)</label>
-                    <div class="flex gap-2">
-                        <input type="number" step="0.000001" name="end_latitude" id="endLat" required placeholder="Широта" class="w-1/2 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                        <input type="number" step="0.000001" name="end_longitude" id="endLng" required placeholder="Долгота" class="w-1/2 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                    </div>
-                </div>
-                <div class="md:col-span-2">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Описание груза</label>
-                    <textarea name="cargo_description" id="cargoDesc" rows="2" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></textarea>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Дата</label>
-                    <input type="date" name="date" id="tripDate" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                </div>
-            </div>
-            <div class="flex justify-end space-x-4 mt-6">
-                <button type="button" onclick="closeTripModal()" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">Отмена</button>
-                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Сохранить</button>
-            </div>
-        </form>
-    </div>
-</div>
-<script>
-// === TRIP MODAL LOGIC ===
-const tripModal = document.getElementById('tripModal');
-const tripForm = document.getElementById('tripForm');
-const addTripBtn = document.getElementById('addTripBtn');
-function openTripModal() { tripModal.classList.remove('hidden'); }
-function closeTripModal() { tripModal.classList.add('hidden'); tripForm.reset(); }
-if (addTripBtn) addTripBtn.onclick = openTripModal;
-
-// Загрузка транспорта и водителей
+// --- Trip form: загрузка транспорта и водителей ---
 async function loadTripFormData() {
-    // Транспорт
     const vehicleSelect = document.getElementById('tripVehicle');
     const respV = await fetch('/api/v1/vehicles/');
     const vehicles = (await respV.json()).results || [];
     vehicleSelect.innerHTML = '<option value="">Выберите транспорт</option>' + vehicles.map(v => `<option value="${v.id}">${v.brand} ${v.model} (${v.number})</option>`).join('');
-    // Водители
     const driverSelect = document.getElementById('tripDriver');
     const respD = await fetch('/api/v1/users/?role=DRIVER');
     const drivers = (await respD.json()).results || [];
     driverSelect.innerHTML = '<option value="">Выберите водителя</option>' + drivers.map(d => `<option value="${d.id}">${d.first_name} ${d.last_name}</option>`).join('');
 }
-if (addTripBtn) addTripBtn.addEventListener('click', loadTripFormData);
 
-// Отправка формы
-if (tripForm) tripForm.onsubmit = async function(e) {
+// --- Trip form: submit ---
+document.getElementById('tripForm').onsubmit = async function(e) {
     e.preventDefault();
-    const data = Object.fromEntries(new FormData(tripForm).entries());
+    const data = {
+        vehicle: document.getElementById('tripVehicle').value,
+        driver: document.getElementById('tripDriver').value,
+        cargo_description: document.getElementById('cargoDesc').value,
+        date: document.getElementById('tripDate').value,
+        start_latitude: startCoords ? startCoords[0] : null,
+        start_longitude: startCoords ? startCoords[1] : null,
+        end_latitude: endCoords ? endCoords[0] : null,
+        end_longitude: endCoords ? endCoords[1] : null,
+    };
+    if (!data.start_latitude || !data.end_latitude) {
+        alert('Выберите адреса отправления и назначения (или отметьте на карте)');
+        return;
+    }
     try {
         const resp = await fetch('/api/trips/', {
             method: 'POST',
@@ -1029,11 +321,8 @@ if (tripForm) tripForm.onsubmit = async function(e) {
             body: JSON.stringify(data)
         });
         if (resp.ok) {
-            closeTripModal();
-            // Обновить карту и маршруты
-            if (typeof loadTripsAndLocations === 'function') {
-                loadTripsAndLocations().then(({trips, locations}) => renderMap(trips, locations));
-            }
+            closeTripForm();
+            loadTrips();
         } else {
             const err = await resp.json();
             alert('Ошибка: ' + JSON.stringify(err));
@@ -1042,5 +331,71 @@ if (tripForm) tripForm.onsubmit = async function(e) {
         alert('Ошибка: ' + err);
     }
 };
+
+// --- Trip form: инициализация ---
+document.getElementById('openTripFormBtn')?.addEventListener('click', function() {
+    openTripForm();
+    loadTripFormData();
+});
+setupAutocomplete('startAddress', 'startAutocomplete', setStartCoords);
+setupAutocomplete('endAddress', 'endAutocomplete', setEndCoords);
+document.getElementById('startAddress').addEventListener('focus', () => enableMapPointSelection('start'));
+document.getElementById('endAddress').addEventListener('focus', () => enableMapPointSelection('end'));
+
+// --- Загрузка и отображение поездок ---
+let tripPolylines = [];
+async function loadTrips() {
+    const resp = await fetch('/api/trips/');
+    const trips = await resp.json();
+    renderTripList(trips);
+    renderTripRoutes(trips);
+}
+function renderTripList(trips) {
+    const list = document.getElementById('tripList');
+    if (!trips.length) {
+        list.innerHTML = '<div class="text-gray-400">Нет поездок</div>';
+        return;
+    }
+    list.innerHTML = trips.map(trip => `
+        <div class="trip-item">
+            <div class="trip-marker"></div>
+            <div class="trip-info">
+                <div class="trip-title">${trip.vehicle_details ? trip.vehicle_details.brand + ' ' + trip.vehicle_details.model : ''} (${trip.vehicle_details ? trip.vehicle_details.number : ''})</div>
+                <div class="trip-desc">${trip.cargo_description || ''}</div>
+                <div class="trip-date">${trip.date || ''}</div>
+            </div>
+        </div>
+    `).join('');
+}
+function renderTripRoutes(trips) {
+    // Удаляем старые линии
+    tripPolylines.forEach(l => map.removeLayer(l));
+    tripPolylines = [];
+    trips.forEach(trip => {
+        if (trip.start_latitude && trip.end_latitude) {
+            const route = [
+                [parseFloat(trip.start_latitude), parseFloat(trip.start_longitude)],
+                [parseFloat(trip.end_latitude), parseFloat(trip.end_longitude)]
+            ];
+            const polyline = L.polyline(route, {
+                color: '#2679DB',
+                weight: 6,
+                opacity: 0.85,
+                smoothFactor: 1.2
+            }).addTo(map);
+            tripPolylines.push(polyline);
+            // Маркеры начала/конца
+            const startM = L.circleMarker(route[0], { radius: 8, color: '#34D399', fillColor: '#34D399', fillOpacity: 1 }).addTo(map);
+            const endM = L.circleMarker(route[1], { radius: 8, color: '#F87171', fillColor: '#F87171', fillOpacity: 1 }).addTo(map);
+            tripPolylines.push(startM, endM);
+        }
+    });
+}
+
+// --- Инициализация ---
+document.addEventListener('DOMContentLoaded', function() {
+    initMap();
+    loadTrips();
+});
 </script>
 {% endblock %} 
