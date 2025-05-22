@@ -4,7 +4,7 @@ from django.utils.timesince import timesince
 from django.utils.timezone import now
 from django.contrib.auth.password_validation import validate_password
 from django.db import IntegrityError
-from .models import Notification, Waybill
+from .models import Notification, Waybill, Trip, DriverLocation
 from logistics.models import Vehicle
 
 User = get_user_model()
@@ -137,3 +137,27 @@ class UserPhotoSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError("Поддерживаются только форматы: JPEG, PNG")
                 
         return value 
+
+class TripSerializer(serializers.ModelSerializer):
+    vehicle_details = VehicleSerializer(source='vehicle', read_only=True)
+    driver_details = UserSerializer(source='driver', read_only=True)
+
+    class Meta:
+        model = Trip
+        fields = [
+            'id', 'vehicle', 'vehicle_details', 'driver', 'driver_details',
+            'start_latitude', 'start_longitude', 'end_latitude', 'end_longitude',
+            'cargo_description', 'date', 'created_at'
+        ]
+        read_only_fields = ['created_at']
+
+class DriverLocationSerializer(serializers.ModelSerializer):
+    driver_details = UserSerializer(source='driver', read_only=True)
+    trip_details = TripSerializer(source='trip', read_only=True)
+
+    class Meta:
+        model = DriverLocation
+        fields = [
+            'id', 'driver', 'driver_details', 'latitude', 'longitude', 'timestamp', 'trip', 'trip_details'
+        ]
+        read_only_fields = ['timestamp'] 

@@ -245,3 +245,37 @@ class User(AbstractUser):
 
     def get_full_name(self):
         return f"{self.first_name} {self.last_name}".strip() or self.username
+
+class Trip(models.Model):
+    vehicle = models.ForeignKey('logistics.Vehicle', on_delete=models.CASCADE, related_name='trips', verbose_name='Транспорт')
+    driver = models.ForeignKey(User, on_delete=models.CASCADE, related_name='trips', verbose_name='Водитель')
+    start_latitude = models.DecimalField(max_digits=9, decimal_places=6, verbose_name='Широта отправления')
+    start_longitude = models.DecimalField(max_digits=9, decimal_places=6, verbose_name='Долгота отправления')
+    end_latitude = models.DecimalField(max_digits=9, decimal_places=6, verbose_name='Широта назначения')
+    end_longitude = models.DecimalField(max_digits=9, decimal_places=6, verbose_name='Долгота назначения')
+    cargo_description = models.TextField(verbose_name='Описание груза', blank=True)
+    date = models.DateField(verbose_name='Дата поездки', default=timezone.now)
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Создано')
+
+    class Meta:
+        verbose_name = 'Поездка'
+        verbose_name_plural = 'Поездки'
+        ordering = ['-date', '-created_at']
+
+    def __str__(self):
+        return f'{self.vehicle} — {self.driver} ({self.date})'
+
+class DriverLocation(models.Model):
+    driver = models.ForeignKey(User, on_delete=models.CASCADE, related_name='locations', verbose_name='Водитель')
+    latitude = models.DecimalField(max_digits=9, decimal_places=6, verbose_name='Широта')
+    longitude = models.DecimalField(max_digits=9, decimal_places=6, verbose_name='Долгота')
+    timestamp = models.DateTimeField(auto_now_add=True, verbose_name='Время')
+    trip = models.ForeignKey(Trip, on_delete=models.SET_NULL, null=True, blank=True, related_name='locations', verbose_name='Поездка')
+
+    class Meta:
+        verbose_name = 'Геолокация водителя'
+        verbose_name_plural = 'Геолокации водителей'
+        ordering = ['-timestamp']
+
+    def __str__(self):
+        return f'{self.driver} ({self.latitude}, {self.longitude}) @ {self.timestamp}'

@@ -3,9 +3,10 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.utils import timezone
 from datetime import timedelta
-from .serializers import UserUpdateSerializer, UserPhotoSerializer
-from .models import Notification, Waybill
-from logistics.models import Task, Expense
+from .serializers import UserUpdateSerializer, UserPhotoSerializer, TripSerializer, DriverLocationSerializer
+from .models import Notification, Waybill, Trip, DriverLocation
+from logistics.models import Task, Expense, Vehicle
+from rest_framework import status
 
 @api_view(['PATCH'])
 @permission_classes([IsAuthenticated])
@@ -72,4 +73,44 @@ def get_profile_stats(request):
             'rejected': Expense.objects.filter(created_by=user, status='REJECTED').count()
         }
     
-    return Response(stats) 
+    return Response(stats)
+
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
+def trips_api(request):
+    """Получить список поездок или создать новую"""
+    user = request.user
+    if request.method == 'GET':
+        if user.role in ['DIRECTOR', 'SUPERADMIN', 'ADMIN'] or user.is_superuser:
+            trips = Trip.objects.all().order_by('-date')
+        else:
+            trips = Trip.objects.filter(driver=user).order_by('-date')
+        serializer = TripSerializer(trips, many=True)
+        return Response(serializer.data)
+    elif request.method == 'POST':
+        serializer = TripSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=400)
+
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
+def driver_locations_api(request):
+    """Получить историю геолокаций или отправить новую точку"""
+    user = request.user
+    if request.method == 'GET':
+        if user.role in ['DIRECTOR', 'SUPERADMIN', 'ADMIN'] or user.is_superuser:
+            locations = DriverLocation.objects.all().order_by('-timestamp')
+        else:
+            locations = DriverLocation.objects.filter(driver=user).order_by('-timestamp')
+        serializer = DriverLocationSerializer(locations, many=True)
+        return Response(serializer.data)
+    elif request.method == 'POST':
+        data = request.data.copy()
+        data['driver'] = user.id
+        serializer = DriverLocationSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=400) 

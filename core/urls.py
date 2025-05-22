@@ -41,7 +41,7 @@ from .views import (
     FileUploadView,
     NotificationManualCreateView,
 )
-from .api import update_profile, upload_profile_photo, get_profile_stats
+from .api import update_profile, upload_profile_photo, get_profile_stats, trips_api, driver_locations_api
 from django.views.generic import TemplateView
 
 app_name = 'core'
@@ -76,6 +76,8 @@ urlpatterns = [
     path('api/users/me/', update_profile, name='api-profile-update'),
     path('api/users/me/photo/', upload_profile_photo, name='api-profile-photo-upload'),
     path('api/users/me/stats/', get_profile_stats, name='api-profile-stats'),
+    path('api/trips/', trips_api, name='api-trips'),
+    path('api/driver_locations/', driver_locations_api, name='api-driver-locations'),
     
     # Employees
     path('employees/', EmployeesView.as_view(), name='employees'),
