@@ -42,7 +42,7 @@
             <h2 class="text-lg font-semibold mb-4">Основные разделы</h2>
             <div class="grid grid-cols-4 gap-4">
                 {% for section in main_sections %}
-                <a href="{% if section.name == 'Транспорт' %}{% url 'core:vehicles' %}
+                <a href="{% if section.name == 'Транспорт' %}{% url 'core:trucks' %}
                         {% elif section.name == 'Сотрудники' %}{% url 'core:employees' %}
                         {% elif section.name == 'КАТы' %}{% url 'core:waybills' %}
                         {% elif section.name == 'Задачи' %}{% url 'core:tasks' %}

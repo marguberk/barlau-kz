@@ -248,7 +248,7 @@ class User(AbstractUser):
 
 class Trip(models.Model):
     vehicle = models.ForeignKey('logistics.Vehicle', on_delete=models.CASCADE, related_name='trips', verbose_name='Транспорт')
-    driver = models.ForeignKey(User, on_delete=models.CASCADE, related_name='trips', verbose_name='Водитель')
+    driver = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='trips', verbose_name='Водитель')
     start_latitude = models.DecimalField(max_digits=9, decimal_places=6, verbose_name='Широта отправления')
     start_longitude = models.DecimalField(max_digits=9, decimal_places=6, verbose_name='Долгота отправления')
     end_latitude = models.DecimalField(max_digits=9, decimal_places=6, verbose_name='Широта назначения')

@@ -29,6 +29,16 @@ class VehicleSerializer(serializers.ModelSerializer):
     photos = VehiclePhotoSerializer(many=True, read_only=True)
     documents = VehicleDocumentSerializer(many=True, read_only=True)
     maintenance_records = VehicleMaintenanceSerializer(many=True, read_only=True)
+    main_photo_url = serializers.SerializerMethodField()
+
+    def get_main_photo_url(self, obj):
+        main = obj.photos.filter(is_main=True).first()
+        if main and main.photo:
+            return main.photo.url
+        main = obj.photos.first()
+        if main and main.photo:
+            return main.photo.url
+        return None
     
     class Meta:
         model = Vehicle
@@ -36,7 +46,7 @@ class VehicleSerializer(serializers.ModelSerializer):
                  'vin_number', 'engine_number', 'chassis_number', 'engine_capacity', 'fuel_type', 'fuel_consumption',
                  'length', 'width', 'height', 'max_weight', 'cargo_capacity',
                  'driver', 'driver_details', 'created_at', 'updated_at', 'created_by',
-                 'photos', 'documents', 'maintenance_records']
+                 'photos', 'documents', 'maintenance_records', 'main_photo_url']
 
 class VehicleLocationSerializer(serializers.ModelSerializer):
     driver_name = serializers.CharField(source='driver.get_full_name', read_only=True)

@@ -106,7 +106,7 @@ PWA_APP_SPLASH_SCREEN = [
 ]
 PWA_APP_DIR = 'ltr'
 PWA_APP_LANG = 'ru-RU'
-PWA_SERVICE_WORKER_PATH = os.path.join(BASE_DIR, 'static/core/js', 'service-worker.js')
+PWA_SERVICE_WORKER_PATH = os.path.join(BASE_DIR, 'static/core/js', 'service-worker.js') 
 
 # Logging settings
 LOGGING = {

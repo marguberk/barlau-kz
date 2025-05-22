@@ -12,17 +12,20 @@
         display: flex;
         flex-direction: row;
         gap: 0;
-        width: 100vw;
+        max-width: 100%;
+        width: 100%;
         min-height: 80vh;
+        height: 80vh;
         background: #f9fafb;
         border-radius: 16px;
         overflow: hidden;
         box-shadow: 0 2px 8px rgba(13,13,18,0.06);
+        padding: 0;
     }
     .map-panel {
-        width: 34vw;
+        width: 48vw;
         min-width: 340px;
-        max-width: 500px;
+        max-width: 700px;
         background: #fff;
         border-right: 1px solid #e5e7eb;
         position: relative;
@@ -30,13 +33,16 @@
         flex-direction: column;
         justify-content: flex-start;
         align-items: stretch;
+        height: 100%;
+        padding: 0;
     }
     #mapContainer {
         width: 100%;
-        height: 100vh;
-        min-height: 600px;
+        height: 100%;
+        min-height: 400px;
         border-radius: 0;
         z-index: 1;
+        padding: 0;
     }
     .trips-panel {
         flex: 1 1 0%;
@@ -46,13 +52,93 @@
         display: flex;
         flex-direction: column;
         gap: 24px;
+        height: 100%;
     }
     .trip-list {
+        background: transparent;
+        border-radius: 0;
+        box-shadow: none;
+        padding: 0;
+        margin-bottom: 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    .trip-card {
+        position: relative;
+        display: flex;
+        flex-direction: row;
+        align-items: stretch;
+        min-height: 90px;
         background: #fff;
+        border-radius: 16px;
+        border: 1.2px solid #e5e7eb;
+        box-shadow: 0 1px 3px rgba(13,13,18,0.03);
+        padding: 18px 24px 18px 18px;
+        margin: 0;
+        transition: box-shadow 0.18s, border-color 0.18s;
+        cursor: pointer;
+        overflow: hidden;
+    }
+    .trip-card:hover {
+        border-color: #2563eb;
+        box-shadow: 0 4px 16px rgba(37,99,235,0.10);
+    }
+    .trip-card-info {
+        flex: 1 1 0%;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 2px;
+        z-index: 1;
+    }
+    .trip-card-brand {
+        font-size: 0.92em;
+        color: #64748b;
+        font-weight: 400;
+        letter-spacing: 0.01em;
+        text-transform: none;
+        margin-bottom: 1px;
+    }
+    .trip-card-number {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #1e293b;
+        margin-bottom: 2px;
+        line-height: 1.1;
+        text-transform: uppercase;
+    }
+    .trip-card-desc {
+        color: #334155;
+        font-size: 1em;
+        font-weight: 400;
+        margin-bottom: 1px;
+    }
+    .trip-card-date {
+        color: #94a3b8;
+        font-size: 0.93em;
+        font-weight: 400;
+    }
+    .trip-card-img {
+        flex-shrink: 0;
+        margin-left: 24px;
+        width: 240px;
+        height: 90px;
         border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(13,13,18,0.06);
-        padding: 20px;
-        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 0;
+        box-shadow: none;
+        background: none;
+    }
+    .trip-card-img img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 12px;
+        background: none;
     }
     .trip-item {
         border-bottom: 1px solid #e5e7eb;
@@ -105,7 +191,7 @@
     }
     .address-autocomplete {
         position: relative;
-    }
+        }
     .autocomplete-list {
         position: absolute; left: 0; right: 0; top: 100%; z-index: 10;
         background: #fff; border: 1px solid #e5e7eb; border-radius: 0 0 8px 8px;
@@ -114,7 +200,7 @@
     }
     .autocomplete-item {
         padding: 8px 12px; cursor: pointer;
-    }
+        }
     .autocomplete-item:hover { background: #f1f5f9; }
     @media (max-width: 900px) {
         .map-trips-layout { flex-direction: column; }
@@ -122,69 +208,224 @@
         #mapContainer { height: 320px !important; }
         .trips-panel { padding: 16px; }
     }
+    @media (max-width: 1100px) {
+        body nav.fixed.bottom-0 {
+            height: 70px !important;
+            padding-top: 10px !important;
+            box-shadow: none !important;
+            z-index: 999 !important;
+            background-color: #fff !important;
+            border-top: 1px solid #E5E7EB !important;
+        }
+    }
+    .trips-panel-wrapper {
+        flex: 1 1 0%;
+        min-width: 320px;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+    @media (max-width: 900px) {
+        .trips-panel-wrapper {
+            min-width: 0;
+            width: 100vw;
+    }
+    }
+    @media (max-width: 600px) {
+      .trip-card-img {
+        width: 160px;
+        height: 60px;
+        margin-left: 10px;
+    }
+      .trip-card {
+        padding: 10px 8px 10px 8px;
+      }
+    }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="map-trips-layout">
-    <div class="map-panel">
-        <div id="mapContainer"></div>
-    </div>
-    <div class="trips-panel">
-        <div class="flex justify-between items-center mb-4">
-            <h2 class="text-2xl font-semibold">Поездки</h2>
-            {% if request.user.is_authenticated and request.user.role in 'DIRECTOR SUPERADMIN ADMIN' or request.user.is_superuser %}
-            <button class="btn-main" id="openTripFormBtn"><i class="fas fa-plus mr-2"></i>Создать поездку</button>
-            {% endif %}
+<div class="w-full flex">
+    <!-- Боковая панель -->
+    <div class="w-64 h-screen bg-white border-r border-zinc-200 flex flex-col justify-start items-start fixed left-0 bottom-0 sidebar">
+        <div class="self-stretch px-5 py-6 relative flex flex-col justify-start items-start gap-2 sidebar-logo">
+            <div class="py-1 inline-flex justify-start items-center gap-2">
+                <img src="{% static 'core/img/logo.png' %}" alt="Barlau Logo" class="w-10 h-6">
+                <div class="text-center justify-start text-black text-2xl font-semibold leading-normal">Barlau.kz</div>
+            </div>
         </div>
-        <div id="tripList" class="trip-list">
-            <div class="text-gray-400">Загрузка...</div>
+        <div class="self-stretch flex-1 px-4 pt-2 pb-4 flex flex-col justify-start items-center gap-4 sidebar-menu">
+            <div class="self-stretch flex flex-col justify-start items-start gap-1">
+                <div class="self-stretch flex flex-col justify-start items-start">
+                    <a href="{% url 'core:home' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2 relative">
+                        <img src="{% static 'core/img/home.svg' %}" alt="Home" class="w-5 h-5 desktop-icon align-middle">
+                        <img src="{% static 'core/img/mobile/home.svg' %}" alt="Home" class="mobile-icon hidden align-middle">
+                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Главная</div>
+                    </a>
+                    <a href="{% url 'core:tasks' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2">
+                        <img src="{% static 'core/img/check-square.svg' %}" alt="Tasks" class="w-5 h-5 desktop-icon align-middle">
+                        <img src="{% static 'core/img/mobile/check-square.svg' %}" alt="Tasks" class="mobile-icon hidden align-middle">
+                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Задачи</div>
+                    </a>
+                    <a href="{% url 'core:map' %}" class="self-stretch px-3 py-3.5 bg-gray-50 rounded-lg inline-flex items-center gap-2 relative">
+                        <div class="w-1 h-6 left-0 top-[calc(50%-12px)] absolute bg-blue-600 rounded-tr-lg rounded-br-lg"></div>
+                        <img src="{% static 'core/img/location.svg' %}?v={% now 'U' %}" alt="Map" class="w-5 h-5 desktop-icon align-middle" onerror="this.onerror=null; this.src='/static/core/img/location.svg'">
+                        <img src="{% static 'core/img/mobile/location.svg' %}" alt="Map" class="mobile-icon hidden align-middle">
+                        <div class="flex-1 text-blue-600 text-base font-medium leading-normal tracking-tight">Карта</div>
+                    </a>
+                    <a href="{% url 'core:trucks' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2 relative">
+                        <img src="{% static 'core/img/truck.svg' %}" alt="Vehicles" class="w-5 h-5 desktop-icon">
+                        <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Vehicles" class="mobile-icon hidden w-5 h-5">
+                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Грузовики</div>
+                    </a>
+                    <a href="{% url 'core:employees' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2">
+                        <img src="{% static 'core/img/employee.svg' %}" alt="Employees" class="w-5 h-5 desktop-icon align-middle">
+                        <img src="{% static 'core/img/mobile/employee.svg' %}" alt="Employees" class="mobile-icon hidden align-middle">
+                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Сотрудники</div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Основной контент -->
+    <div class="ml-64 flex-1 min-h-screen bg-gray-50 relative main-content">
+        <!-- Верхняя панель -->
+        <div class="w-full h-20 px-8 py-5 bg-white flex justify-between items-center">
+            <div class="justify-start text-zinc-950 text-2xl font-semibold leading-loose">Карта и поездки</div>
+            <div class="flex justify-start items-center gap-3">
+                <div class="flex justify-start items-start gap-2">
+                    <a href="{% url 'core:notifications' %}" class="w-10 h-10 px-3 py-2 bg-white rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex justify-center items-center gap-1.5 relative">
+                        <img src="{% static 'core/img/bell.svg' %}" alt="Notifications" class="w-5 h-5">
+                        <span id="notif-badge" class="hidden absolute -top-1 -right-1 w-3.5 h-3.5 bg-red-500 rounded-full border-2 border-white"></span>
+                    </a>
+                </div>
+                <div class="flex justify-start items-center gap-1.5 relative">
+                    {% if request.user.is_authenticated %}
+                        <div class="relative group" id="user-menu">
+                        {% if request.user.photo %}
+                                <img class="w-8 h-8 rounded-full object-cover cursor-pointer" src="{{ request.user.photo.url }}" id="user-avatar" />
+                        {% else %}
+                                <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center cursor-pointer" id="user-avatar">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                        {% endif %}
+                            <div class="hidden group-hover:block absolute right-0 mt-2 w-44 bg-white border border-gray-200 rounded-lg shadow-lg z-50" id="user-dropdown">
+                                <a href="{% url 'core:profile' %}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Профиль</a>
+                                <a href="{% url 'core:custom-logout' %}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Выйти</a>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <!-- Контент карты и поездок -->
+        <div class="p-0">
+            <div class="map-trips-layout">
+                <div class="map-panel">
+                    <div id="mapContainer"></div>
+                        </div>
+                <div class="flex flex-col items-stretch trips-panel-wrapper" style="height:100%;">
+                  <div class="rounded-2xl px-5 py-5 mx-0 my-1" style="min-height:calc(80vh - 8px); display:flex; flex-direction:column; gap:20px;">
+                    <div class="flex justify-between items-center mb-2">
+                      <h2 class="text-2xl font-semibold">Поездки</h2>
+                      {% if request.user.is_authenticated and request.user.role in 'DIRECTOR SUPERADMIN ADMIN' or request.user.is_superuser %}
+                      <button class="btn-main" id="openTripFormBtn"><i class="fas fa-plus mr-2"></i>Создать поездку</button>
+                      {% endif %}
+                        </div>
+                    <div class="trips-panel" style="padding:0; background:transparent; box-shadow:none;">
+                        <div id="tripList" class="trip-list">
+                            <div class="text-gray-400">Загрузка...</div>
+                        </div>
+                    </div>
+                  </div>
+                </div>
+            </div>
+            <div id="tripFormModal" class="trip-form-modal" style="display:none;">
+                <div class="trip-form-content">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold">Создать поездку</h3>
+                        <button onclick="closeTripForm()" class="text-gray-400 hover:text-gray-700"><i class="fas fa-times"></i></button>
+                    </div>
+                    <form id="tripForm">
+                        <div class="form-group">
+                            <label class="form-label">Транспорт</label>
+                            <select id="tripVehicle" name="vehicle" class="form-select" required></select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Водитель</label>
+                            <select id="tripDriver" name="driver" class="form-select" required></select>
+                        </div>
+                        <div class="form-group address-autocomplete">
+                            <label class="form-label">Адрес отправления</label>
+                            <input type="text" id="startAddress" class="form-input" placeholder="Введите адрес или отметьте на карте" autocomplete="off" required>
+                            <div id="startAutocomplete" class="autocomplete-list" style="display:none;"></div>
+                        </div>
+                        <div class="form-group address-autocomplete">
+                            <label class="form-label">Адрес назначения</label>
+                            <input type="text" id="endAddress" class="form-input" placeholder="Введите адрес или отметьте на карте" autocomplete="off" required>
+                            <div id="endAutocomplete" class="autocomplete-list" style="display:none;"></div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Описание груза</label>
+                            <textarea id="cargoDesc" name="cargo_description" class="form-textarea" rows="2" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Дата</label>
+                            <input type="date" id="tripDate" name="date" class="form-input" required>
+                    </div>
+                        <div class="flex justify-end gap-3 mt-4">
+                            <button type="button" onclick="closeTripForm()" class="btn-main" style="background:#e5e7eb;color:#334155;">Отмена</button>
+                            <button type="submit" class="btn-main">Сохранить</button>
+                    </div>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 </div>
-
-<!-- Модалка создания поездки -->
-<div id="tripFormModal" class="trip-form-modal" style="display:none;">
-    <div class="trip-form-content">
-        <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg font-semibold">Создать поездку</h3>
-            <button onclick="closeTripForm()" class="text-gray-400 hover:text-gray-700"><i class="fas fa-times"></i></button>
-        </div>
-        <form id="tripForm">
-            <div class="form-group">
-                <label class="form-label">Транспорт</label>
-                <select id="tripVehicle" name="vehicle" class="form-select" required></select>
+<!-- Нижнее мобильное меню - показываем только на мобильных устройствах -->
+<nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 hidden max-lg:block">
+    <div class="flex justify-between items-center px-2">
+        <a href="{% url 'core:home' %}" class="flex-1 flex flex-col items-center text-gray-600 hover:text-blue-600 relative mx-1">
+            <div class="icon-container w-8 h-8 flex items-center justify-center">
+                <img src="{% static 'core/img/mobile/home.svg' %}" alt="Home" class="w-6 h-6">
             </div>
-            <div class="form-group">
-                <label class="form-label">Водитель</label>
-                <select id="tripDriver" name="driver" class="form-select" required></select>
+            <span class="text-xs text-[9px] mt-1">Главная</span>
+        </a>
+        <a href="{% url 'core:tasks' %}" class="flex-1 flex flex-col items-center text-gray-600 hover:text-blue-600 relative mx-1">
+            <div class="icon-container w-8 h-8 flex items-center justify-center">
+                <img src="{% static 'core/img/mobile/check-square.svg' %}" alt="Tasks" class="w-6 h-6">
             </div>
-            <div class="form-group address-autocomplete">
-                <label class="form-label">Адрес отправления</label>
-                <input type="text" id="startAddress" class="form-input" placeholder="Введите адрес или отметьте на карте" autocomplete="off" required>
-                <div id="startAutocomplete" class="autocomplete-list" style="display:none;"></div>
+            <span class="text-xs text-[9px] mt-1">Задачи</span>
+        </a>
+        <a href="{% url 'core:map' %}" class="flex-1 flex flex-col items-center text-blue-600 relative mx-1">
+            <div class="icon-container w-8 h-8 flex items-center justify-center">
+                <img src="{% static 'core/img/mobile/location.svg' %}" alt="Map" class="w-6 h-6">
             </div>
-            <div class="form-group address-autocomplete">
-                <label class="form-label">Адрес назначения</label>
-                <input type="text" id="endAddress" class="form-input" placeholder="Введите адрес или отметьте на карте" autocomplete="off" required>
-                <div id="endAutocomplete" class="autocomplete-list" style="display:none;"></div>
+            <span class="text-xs text-[9px] mt-1">Карта</span>
+        </a>
+        <a href="{% url 'core:trucks' %}" class="flex-1 flex flex-col items-center text-gray-600 hover:text-blue-600 relative mx-1">
+            <div class="icon-container w-8 h-8 flex items-center justify-center">
+                <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Vehicles" class="w-6 h-6">
             </div>
-            <div class="form-group">
-                <label class="form-label">Описание груза</label>
-                <textarea id="cargoDesc" name="cargo_description" class="form-textarea" rows="2" required></textarea>
+            <span class="text-xs text-[9px] mt-1">Грузовики</span>
+        </a>
+        <a href="{% url 'core:employees' %}" class="flex-1 flex flex-col items-center text-gray-600 hover:text-blue-600 relative mx-1">
+            <div class="icon-container w-8 h-8 flex items-center justify-center">
+                <img src="{% static 'core/img/mobile/employee.svg' %}" alt="Employees" class="w-6 h-6">
             </div>
-            <div class="form-group">
-                <label class="form-label">Дата</label>
-                <input type="date" id="tripDate" name="date" class="form-input" required>
-            </div>
-            <div class="flex justify-end gap-3 mt-4">
-                <button type="button" onclick="closeTripForm()" class="btn-main" style="background:#e5e7eb;color:#334155;">Отмена</button>
-                <button type="submit" class="btn-main">Сохранить</button>
-            </div>
-        </form>
+            <span class="text-xs text-[9px] mt-1">Сотрудники</span>
+        </a>
     </div>
-</div>
-
+</nav>
 <script>
 // --- CSRF helper ---
 function getCookie(name) {
@@ -196,12 +437,12 @@ function getCookie(name) {
             if (cookie.substring(0, name.length + 1) === (name + '=')) {
                 cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
                 break;
-            }
+        }
         }
     }
     return cookieValue;
-}
-
+    }
+    
 // --- Leaflet карта ---
 let map, startMarker, endMarker, routeLine;
 let startCoords = null, endCoords = null;
@@ -261,9 +502,9 @@ function enableMapPointSelection(type) {
     map.once('click', function(e) {
         if (type === 'start') {
             setStartCoords([e.latlng.lat, e.latlng.lng]);
-        } else {
+                } else {
             setEndCoords([e.latlng.lat, e.latlng.lng]);
-        }
+                }
     });
 }
 function setStartCoords(coords) {
@@ -296,8 +537,8 @@ function closeTripForm() {
     if (startMarker) map.removeLayer(startMarker); startMarker = null; startCoords = null;
     if (endMarker) map.removeLayer(endMarker); endMarker = null; endCoords = null;
     if (routeLine) map.removeLayer(routeLine); routeLine = null;
-}
-
+            }
+            
 // --- Trip form: загрузка транспорта и водителей ---
 async function loadTripFormData() {
     const vehicleSelect = document.getElementById('tripVehicle');
@@ -311,6 +552,7 @@ async function loadTripFormData() {
 }
 
 // --- Trip form: submit ---
+const round6 = x => x !== null && x !== undefined ? Number.parseFloat(x).toFixed(6) : null;
 document.getElementById('tripForm').onsubmit = async function(e) {
     e.preventDefault();
     const data = {
@@ -318,17 +560,17 @@ document.getElementById('tripForm').onsubmit = async function(e) {
         driver: document.getElementById('tripDriver').value,
         cargo_description: document.getElementById('cargoDesc').value,
         date: document.getElementById('tripDate').value,
-        start_latitude: startCoords ? startCoords[0] : null,
-        start_longitude: startCoords ? startCoords[1] : null,
-        end_latitude: endCoords ? endCoords[0] : null,
-        end_longitude: endCoords ? endCoords[1] : null,
+        start_latitude: round6(startCoords ? startCoords[0] : null),
+        start_longitude: round6(startCoords ? startCoords[1] : null),
+        end_latitude: round6(endCoords ? endCoords[0] : null),
+        end_longitude: round6(endCoords ? endCoords[1] : null),
     };
     if (!data.start_latitude || !data.end_latitude) {
         alert('Выберите адреса отправления и назначения (или отметьте на карте)');
         return;
     }
     try {
-        const resp = await fetch('/api/trips/', {
+        const resp = await fetch('/dashboard/api/trips/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -345,7 +587,7 @@ document.getElementById('tripForm').onsubmit = async function(e) {
         }
     } catch (err) {
         alert('Ошибка: ' + err);
-    }
+        }
 };
 
 // --- Trip form: инициализация ---
@@ -361,27 +603,49 @@ document.getElementById('endAddress').addEventListener('focus', () => enableMapP
 // --- Загрузка и отображение поездок ---
 let tripPolylines = [];
 async function loadTrips() {
-    const resp = await fetch('/api/trips/');
+    const resp = await fetch('/dashboard/api/trips/');
     const trips = await resp.json();
     renderTripList(trips);
     renderTripRoutes(trips);
-}
+        }
 function renderTripList(trips) {
     const list = document.getElementById('tripList');
     if (!trips.length) {
         list.innerHTML = '<div class="text-gray-400">Нет поездок</div>';
         return;
     }
-    list.innerHTML = trips.map(trip => `
-        <div class="trip-item">
-            <div class="trip-marker"></div>
-            <div class="trip-info">
-                <div class="trip-title">${trip.vehicle_details ? trip.vehicle_details.brand + ' ' + trip.vehicle_details.model : ''} (${trip.vehicle_details ? trip.vehicle_details.number : ''})</div>
-                <div class="trip-desc">${trip.cargo_description || ''}</div>
-                <div class="trip-date">${trip.date || ''}</div>
-            </div>
+    list.innerHTML = trips.map(trip => {
+        const brand = trip.vehicle_details ? trip.vehicle_details.brand + ' ' + trip.vehicle_details.model : '';
+        const number = trip.vehicle_details ? trip.vehicle_details.number : '';
+        let img = '';
+        if (trip.vehicle_details && trip.vehicle_details.main_photo_url) {
+            img = `<img src="${trip.vehicle_details.main_photo_url}" alt="Truck" />`;
+        } else {
+            img = `<img src="/static/core/img/truck.svg" alt="Truck" style="opacity:0.7;" />`;
+        }
+        // Сокращённые адреса (только город/нас.пункт)
+        function shortAddr(addr) {
+            if (!addr) return '';
+            // Берём только первые 1-2 слова (обычно это город/посёлок)
+            let parts = addr.split(',');
+            let city = parts[0].trim();
+            if (city.match(/\d/)) city = (parts[1]||'').trim(); // если первое - улица с номером
+            return city;
+        }
+        let pointA = shortAddr(trip.start_address);
+        let pointB = shortAddr(trip.end_address);
+        let route = (pointA && pointB) ? `${pointA} — ${pointB}` : '';
+        return `
+        <div class="trip-card">
+          <div class="trip-card-info">
+            <div class="trip-card-brand">${brand}</div>
+            <div class="trip-card-number">${number}</div>
+            <div class="trip-card-desc">${route}</div>
+          </div>
+          <div class="trip-card-img">${img}</div>
         </div>
-    `).join('');
+        `;
+    }).join('');
 }
 function renderTripRoutes(trips) {
     // Удаляем старые линии
@@ -404,10 +668,10 @@ function renderTripRoutes(trips) {
             const startM = L.circleMarker(route[0], { radius: 8, color: '#34D399', fillColor: '#34D399', fillOpacity: 1 }).addTo(map);
             const endM = L.circleMarker(route[1], { radius: 8, color: '#F87171', fillColor: '#F87171', fillOpacity: 1 }).addTo(map);
             tripPolylines.push(startM, endM);
-        }
-    });
-}
-
+            }
+        });
+    }
+    
 // --- Инициализация ---
 document.addEventListener('DOMContentLoaded', function() {
     initMap();

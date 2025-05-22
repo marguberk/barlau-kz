@@ -78,9 +78,17 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         return value
 
 class VehicleSerializer(serializers.ModelSerializer):
+    main_photo_url = serializers.SerializerMethodField()
+
     class Meta:
         model = Vehicle
-        fields = ['id', 'number', 'brand', 'model', 'year']
+        fields = ['id', 'number', 'brand', 'model', 'year', 'main_photo_url']
+
+    def get_main_photo_url(self, obj):
+        main_photo = obj.photos.filter(is_main=True).first() or obj.photos.first()
+        if main_photo and main_photo.photo:
+            return main_photo.photo.url
+        return None
 
 class NotificationSerializer(serializers.ModelSerializer):
     time_since = serializers.SerializerMethodField()
