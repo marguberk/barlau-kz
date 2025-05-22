@@ -746,6 +746,155 @@ document.addEventListener('DOMContentLoaded', function() {
             dropdown.classList.add('hidden');
         });
     }
+
+    // === GEO & MAP LOGIC ===
+    const USER_ROLE = '{{ request.user.role|default:"" }}';
+    const USER_ID = '{{ request.user.id|default:"" }}';
+
+    // --- 1. Запрос геолокации у водителя и отправка на сервер ---
+    function sendDriverLocation(lat, lng) {
+        fetch('/api/driver_locations/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({ latitude: lat, longitude: lng })
+        });
+    }
+
+    function startDriverGeolocation() {
+        if (navigator.geolocation) {
+            function success(pos) {
+                const lat = pos.coords.latitude;
+                const lng = pos.coords.longitude;
+                sendDriverLocation(lat, lng);
+            }
+            function error(err) {
+                console.warn('Геолокация не разрешена:', err);
+            }
+            // Сразу отправляем
+            navigator.geolocation.getCurrentPosition(success, error);
+            // И далее каждые 30 сек
+            setInterval(() => {
+                navigator.geolocation.getCurrentPosition(success, error);
+            }, 30000);
+        }
+    }
+
+    // --- 2. Загрузка и отображение локаций и маршрутов ---
+    async function loadTripsAndLocations() {
+        // Получаем поездки
+        const tripsResp = await fetch('/api/trips/');
+        const trips = await tripsResp.json();
+        // Получаем локации
+        const locResp = await fetch('/api/driver_locations/');
+        const locations = await locResp.json();
+        return { trips, locations };
+    }
+
+    function clearMapLayers(layers) {
+        layers.forEach(l => map.removeLayer(l));
+    }
+
+    let tripLayers = [];
+    let locationMarkers = [];
+
+    function renderMap(trips, locations) {
+        clearMapLayers(tripLayers);
+        clearMapLayers(locationMarkers);
+        tripLayers = [];
+        locationMarkers = [];
+
+        // --- Для админов: все водители, для водителя: только себя ---
+        let filteredTrips = trips;
+        let filteredLocations = locations;
+        if (USER_ROLE === 'DRIVER') {
+            filteredTrips = trips.filter(t => t.driver === USER_ID || (t.driver_details && t.driver_details.id == USER_ID));
+            filteredLocations = locations.filter(l => l.driver === USER_ID || (l.driver_details && l.driver_details.id == USER_ID));
+        }
+
+        // --- Маршруты ---
+        filteredTrips.forEach(trip => {
+            const route = [
+                [parseFloat(trip.start_latitude), parseFloat(trip.start_longitude)],
+                [parseFloat(trip.end_latitude), parseFloat(trip.end_longitude)]
+            ];
+            const polyline = L.polyline(route, {
+                color: '#2679DB',
+                weight: 5,
+                opacity: 0.8,
+                lineJoin: 'round',
+                dashArray: '8 8',
+            }).addTo(map);
+            tripLayers.push(polyline);
+            // Маркеры начала/конца
+            const startMarker = L.circleMarker(route[0], { radius: 8, color: '#34D399', fillColor: '#34D399', fillOpacity: 1 }).addTo(map);
+            const endMarker = L.circleMarker(route[1], { radius: 8, color: '#F87171', fillColor: '#F87171', fillOpacity: 1 }).addTo(map);
+            tripLayers.push(startMarker, endMarker);
+        });
+
+        // --- Последние точки водителей ---
+        // Для каждого водителя берём только самую свежую точку
+        const latestByDriver = {};
+        filteredLocations.forEach(loc => {
+            const driverId = loc.driver || (loc.driver_details && loc.driver_details.id);
+            if (!latestByDriver[driverId] || new Date(loc.timestamp) > new Date(latestByDriver[driverId].timestamp)) {
+                latestByDriver[driverId] = loc;
+            }
+        });
+        Object.values(latestByDriver).forEach(loc => {
+            const lat = parseFloat(loc.latitude);
+            const lng = parseFloat(loc.longitude);
+            const marker = L.marker([lat, lng], {
+                icon: L.divIcon({
+                    className: 'vehicle-marker active-marker',
+                    html: '<i class="fa-solid fa-truck" style="color:#2563EB;font-size:22px;"></i>',
+                    iconSize: [32, 32],
+                    iconAnchor: [16, 16],
+                })
+            }).addTo(map);
+            let popup = '';
+            if (loc.driver_details) {
+                popup += `<b>${loc.driver_details.full_name}</b><br>`;
+            }
+            if (loc.trip_details) {
+                popup += `<span style='color:#2679DB'>${loc.trip_details.cargo_description||''}</span><br>`;
+            }
+            popup += `<span style='font-size:12px;color:#6B7280'>${loc.timestamp.replace('T',' ').slice(0,16)}</span>`;
+            marker.bindPopup(popup);
+            locationMarkers.push(marker);
+        });
+
+        // Центрируем карту по всем точкам
+        const allPoints = [
+            ...filteredTrips.flatMap(t => [
+                [parseFloat(t.start_latitude), parseFloat(t.start_longitude)],
+                [parseFloat(t.end_latitude), parseFloat(t.end_longitude)]
+            ]),
+            ...Object.values(latestByDriver).map(l => [parseFloat(l.latitude), parseFloat(l.longitude)])
+        ];
+        if (allPoints.length) {
+            map.fitBounds(allPoints, { padding: [40, 40] });
+        }
+    }
+
+    // --- 3. Инициализация ---
+    document.addEventListener('DOMContentLoaded', function() {
+        if (USER_ROLE === 'DRIVER') {
+            startDriverGeolocation();
+        }
+        // Загружаем и рендерим карту
+        loadTripsAndLocations().then(({trips, locations}) => {
+            renderMap(trips, locations);
+        });
+        // Периодически обновляем карту
+        setInterval(() => {
+            loadTripsAndLocations().then(({trips, locations}) => {
+                renderMap(trips, locations);
+            });
+        }, 30000);
+    });
 });
 </script>
 
@@ -784,4 +933,114 @@ document.addEventListener('DOMContentLoaded', function() {
         </a>
     </div>
 </nav>
+
+{% if request.user.is_authenticated and request.user.role in 'DIRECTOR SUPERADMIN ADMIN' or request.user.is_superuser %}
+<div class="w-full flex justify-end px-8 mt-4">
+    <button id="addTripBtn" class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+        <i class="fas fa-route mr-2"></i>Создать поездку
+    </button>
+</div>
+{% endif %}
+
+<!-- Модальное окно создания поездки -->
+<div id="tripModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50">
+    <div class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl bg-white rounded-xl shadow-lg">
+        <div class="flex justify-between items-center p-6 border-b">
+            <h3 class="text-lg font-semibold">Создать поездку</h3>
+            <button class="text-gray-500 hover:text-gray-700" onclick="closeTripModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <form id="tripForm" class="p-6 space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Транспорт</label>
+                    <select name="vehicle" id="tripVehicle" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Водитель</label>
+                    <select name="driver" id="tripDriver" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Координаты отправления (широта, долгота)</label>
+                    <div class="flex gap-2">
+                        <input type="number" step="0.000001" name="start_latitude" id="startLat" required placeholder="Широта" class="w-1/2 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <input type="number" step="0.000001" name="start_longitude" id="startLng" required placeholder="Долгота" class="w-1/2 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Координаты назначения (широта, долгота)</label>
+                    <div class="flex gap-2">
+                        <input type="number" step="0.000001" name="end_latitude" id="endLat" required placeholder="Широта" class="w-1/2 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <input type="number" step="0.000001" name="end_longitude" id="endLng" required placeholder="Долгота" class="w-1/2 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Описание груза</label>
+                    <textarea name="cargo_description" id="cargoDesc" rows="2" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Дата</label>
+                    <input type="date" name="date" id="tripDate" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                </div>
+            </div>
+            <div class="flex justify-end space-x-4 mt-6">
+                <button type="button" onclick="closeTripModal()" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">Отмена</button>
+                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Сохранить</button>
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+// === TRIP MODAL LOGIC ===
+const tripModal = document.getElementById('tripModal');
+const tripForm = document.getElementById('tripForm');
+const addTripBtn = document.getElementById('addTripBtn');
+function openTripModal() { tripModal.classList.remove('hidden'); }
+function closeTripModal() { tripModal.classList.add('hidden'); tripForm.reset(); }
+if (addTripBtn) addTripBtn.onclick = openTripModal;
+
+// Загрузка транспорта и водителей
+async function loadTripFormData() {
+    // Транспорт
+    const vehicleSelect = document.getElementById('tripVehicle');
+    const respV = await fetch('/api/v1/vehicles/');
+    const vehicles = (await respV.json()).results || [];
+    vehicleSelect.innerHTML = '<option value="">Выберите транспорт</option>' + vehicles.map(v => `<option value="${v.id}">${v.brand} ${v.model} (${v.number})</option>`).join('');
+    // Водители
+    const driverSelect = document.getElementById('tripDriver');
+    const respD = await fetch('/api/v1/users/?role=DRIVER');
+    const drivers = (await respD.json()).results || [];
+    driverSelect.innerHTML = '<option value="">Выберите водителя</option>' + drivers.map(d => `<option value="${d.id}">${d.first_name} ${d.last_name}</option>`).join('');
+}
+if (addTripBtn) addTripBtn.addEventListener('click', loadTripFormData);
+
+// Отправка формы
+if (tripForm) tripForm.onsubmit = async function(e) {
+    e.preventDefault();
+    const data = Object.fromEntries(new FormData(tripForm).entries());
+    try {
+        const resp = await fetch('/api/trips/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify(data)
+        });
+        if (resp.ok) {
+            closeTripModal();
+            // Обновить карту и маршруты
+            if (typeof loadTripsAndLocations === 'function') {
+                loadTripsAndLocations().then(({trips, locations}) => renderMap(trips, locations));
+            }
+        } else {
+            const err = await resp.json();
+            alert('Ошибка: ' + JSON.stringify(err));
+        }
+    } catch (err) {
+        alert('Ошибка: ' + err);
+    }
+};
+</script>
 {% endblock %} 
