@@ -29,9 +29,9 @@
                         <img src="{% static 'core/img/mobile/location.svg' %}" alt="Map" class="mobile-icon hidden align-middle">
                         <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Карта</div>
                     </a>
-                    <a href="{% url 'core:vehicles' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2">
-                        <img src="{% static 'core/img/truck.svg' %}" alt="Vehicles" class="w-5 h-5 desktop-icon align-middle">
-                        <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Vehicles" class="mobile-icon hidden align-middle">
+                    <a href="{% url 'core:trucks' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2">
+                        <img src="{% static 'core/img/truck.svg' %}" alt="Trucks" class="w-5 h-5 desktop-icon align-middle">
+                        <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Trucks" class="mobile-icon hidden align-middle">
                         <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Грузовики</div>
                     </a>
                     <a href="{% url 'core:employees' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2">
@@ -182,9 +182,9 @@
             </div>
             <span class="text-xs text-[9px] mt-1">Карта</span>
         </a>
-        <a href="{% url 'core:vehicles' %}" class="flex-1 flex flex-col items-center text-gray-600 hover:text-blue-600 relative mx-1">
+        <a href="{% url 'core:trucks' %}" class="flex-1 flex flex-col items-center text-gray-600 hover:text-blue-600 relative mx-1">
             <div class="icon-container w-8 h-8 flex items-center justify-center">
-                <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Vehicles" class="w-6 h-6">
+                <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Trucks" class="w-6 h-6">
             </div>
             <span class="text-xs text-[9px] mt-1">Грузовики</span>
         </a>
@@ -376,6 +376,13 @@
 .notification-card.document-expiry:hover {
     border-color: #ef4444;
     background: #fee2e2;
+}
+
+@media (max-width: 1100px) {
+    .fixed.bottom-0 {
+        padding-top: 10px !important;
+        height: 70px !important;
+    }
 }
 </style>
 

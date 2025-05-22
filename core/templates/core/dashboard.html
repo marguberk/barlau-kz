@@ -30,9 +30,9 @@
                     <img src="{% static 'core/img/mobile/location.svg' %}" alt="Map" class="mobile-icon hidden align-middle">
                     <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Карта</div>
                 </a>
-                <a href="{% url 'core:vehicles' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2">
-                    <img src="{% static 'core/img/truck.svg' %}" alt="Vehicles" class="w-5 h-5 desktop-icon align-middle">
-                    <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Vehicles" class="mobile-icon hidden align-middle">
+                <a href="{% url 'core:trucks' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2">
+                    <img src="{% static 'core/img/truck.svg' %}" alt="Trucks" class="w-5 h-5 desktop-icon align-middle">
+                    <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Trucks" class="mobile-icon hidden align-middle">
                     <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Грузовики</div>
                 </a>
                 <a href="{% url 'core:employees' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2">
@@ -103,7 +103,7 @@
                     <div class="self-stretch inline-flex justify-between items-center">
                         <div class="justify-start text-zinc-950 text-4xl font-semibold leading-10">{{ vehicles_count|default:"0" }}</div>
                         <div class="w-10 h-10 p-2 bg-blue-600 rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.10)] flex justify-center items-center gap-2 overflow-hidden" style="background: linear-gradient(135deg, #4287f5 0%, #2869db 100%);">
-                            <img src="{% static 'core/img/truck.svg' %}" alt="Vehicles" class="w-5 h-5 invert" style="filter: brightness(0) invert(1);">
+                            <img src="{% static 'core/img/truck.svg' %}" alt="Trucks" class="w-5 h-5 invert" style="filter: brightness(0) invert(1);">
                         </div>
                     </div>
                     <div class="self-stretch justify-start text-gray-500 text-base font-normal leading-normal">Машин в пути</div>
@@ -1188,8 +1188,8 @@
                     link.href = '/tasks/';
                 } else if (linkText.includes('карта') || linkText.includes('map')) {
                     link.href = '/map/';
-                } else if (linkText.includes('грузовики') || linkText.includes('vehicles')) {
-                    link.href = '/vehicles/';
+                } else if (linkText.includes('грузовики') || linkText.includes('trucks')) {
+                    link.href = '/trucks/';
                 } else if (linkText.includes('сотрудники') || linkText.includes('employees')) {
                     link.href = '/employees/';
                 }
@@ -1290,9 +1290,9 @@
             </div>
             <span class="text-xs text-[9px] mt-1">Карта</span>
         </a>
-        <a href="{% url 'core:vehicles' %}" class="flex-1 flex flex-col items-center text-gray-600 hover:text-blue-600 relative mx-1">
+        <a href="{% url 'core:trucks' %}" class="flex-1 flex flex-col items-center text-gray-600 hover:text-blue-600 relative mx-1">
             <div class="icon-container w-8 h-8 flex items-center justify-center">
-                <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Vehicles" class="w-6 h-6">
+                <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Trucks" class="w-6 h-6">
             </div>
             <span class="text-xs text-[9px] mt-1">Грузовики</span>
         </a>
