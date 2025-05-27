@@ -155,7 +155,8 @@ class TripSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'vehicle', 'vehicle_details', 'driver', 'driver_details',
             'start_latitude', 'start_longitude', 'end_latitude', 'end_longitude',
-            'cargo_description', 'date', 'created_at'
+            'cargo_description', 'date', 'created_at',
+            'start_address', 'end_address'
         ]
         read_only_fields = ['created_at']
 

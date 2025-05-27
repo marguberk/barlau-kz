@@ -28,7 +28,15 @@ SECRET_KEY = config('SECRET_KEY', default='your-secret-key-here')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=True, cast=bool)
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    'f999-176-110-126-5.ngrok-free.app',
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://f999-176-110-126-5.ngrok-free.app',
+]
 
 
 # Application definition
@@ -180,6 +188,18 @@ SIMPLE_JWT = {
 # CORS settings
 CORS_ALLOW_ALL_ORIGINS = True  # Only for development
 CORS_ALLOW_CREDENTIALS = True
+
+# Cache settings for real-time location tracking
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake',
+        'TIMEOUT': 300,  # 5 minutes default timeout
+        'OPTIONS': {
+            'MAX_ENTRIES': 1000,
+        }
+    }
+}
 
 # Firebase settings
 FIREBASE_CREDENTIALS = config('FIREBASE_CREDENTIALS', default='path/to/firebase-credentials.json')

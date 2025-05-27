@@ -34,7 +34,7 @@ from accounts.models import User
 from rest_framework.pagination import PageNumberPagination
 
 from logistics.models import Task, Vehicle
-from .models import Notification, Waybill
+from .models import Notification, Waybill, Trip
 from logistics.models import Expense
 from .serializers import NotificationSerializer, WaybillSerializer, UserSerializer, UserCreateSerializer, UserUpdateSerializer, UserPhotoSerializer
 from django.shortcuts import render, redirect
@@ -302,27 +302,26 @@ class HomeView(LoginRequiredMixin, TemplateView):
                     assigned_to=self.request.user,
                     status__in=['NEW', 'IN_PROGRESS']
                 ).count()
-                vehicles_count = Vehicle.objects.filter(
+                # Активные поездки - все поездки водителя
+                active_trips_count = Trip.objects.filter(
                     driver=self.request.user
                 ).count()
             elif self.request.user.role in ['DIRECTOR', 'SUPERADMIN']:
                 tasks_count = Task.objects.filter(
                     status__in=['NEW', 'IN_PROGRESS']
                 ).count()
-                vehicles_count = Vehicle.objects.filter(
-                    driver__isnull=False
-                ).count()
+                # Активные поездки - все существующие поездки
+                active_trips_count = Trip.objects.all().count()
             else:
                 tasks_count = Task.objects.filter(
                     created_by=self.request.user,
                     status__in=['NEW', 'IN_PROGRESS']
                 ).count()
-                vehicles_count = Vehicle.objects.filter(
-                    driver__isnull=False
-                ).count()
+                # Активные поездки - все существующие поездки
+                active_trips_count = Trip.objects.all().count()
 
             context['tasks_count'] = tasks_count
-            context['vehicles_count'] = vehicles_count
+            context['active_trips_count'] = active_trips_count
 
             # Получаем последние задачи
             if self.request.user.role == 'DRIVER':
@@ -335,6 +334,38 @@ class HomeView(LoginRequiredMixin, TemplateView):
             context['recent_tasks'] = tasks.select_related(
                 'assigned_to', 'vehicle'
             ).order_by('-created_at')[:5]
+
+            # Получаем активные поездки (поездки на сегодня) с транспортом
+            from logistics.models import Vehicle
+            today = timezone.now().date()
+            
+            if self.request.user.role == 'DRIVER':
+                # Для водителя - его поездки на сегодня
+                active_trips = Trip.objects.filter(
+                    driver=self.request.user,
+                    date=today
+                ).select_related('vehicle', 'driver')[:5]
+            else:
+                # Для остальных - все поездки на сегодня
+                active_trips = Trip.objects.filter(
+                    date=today
+                ).select_related('vehicle', 'driver')[:5]
+            
+            context['active_trips'] = active_trips
+            
+            # Также получаем активные транспортные средства для отображения
+            if self.request.user.role == 'DRIVER':
+                active_vehicles = Vehicle.objects.filter(
+                    driver=self.request.user,
+                    status='ACTIVE'
+                ).select_related('driver')
+            else:
+                active_vehicles = Vehicle.objects.filter(
+                    status='ACTIVE',
+                    driver__isnull=False
+                ).select_related('driver')[:5]  # Ограничиваем до 5 для дашборда
+            
+            context['active_vehicles'] = active_vehicles
 
             # Получаем количество непрочитанных уведомлений
             context['unread_notifications'] = Notification.objects.filter(
@@ -703,10 +734,9 @@ class TaskCreateView(LoginRequiredMixin, View):
             # --- Уведомления ---
             print('[DEBUG] Перед созданием уведомления о задаче', task.created_by, task)
             from core.models import Notification
-            if task.assigned_to:
+            # Уведомление только для исполнителя, если он назначен и это не создатель
+            if task.assigned_to and task.assigned_to != task.created_by:
                 Notification.create_task_notification(task.assigned_to, task)
-            if task.created_by and task.created_by != task.assigned_to:
-                Notification.create_task_notification(task.created_by, task)
             messages.success(request, 'Задача успешно создана')
             # Перенаправляем на страницу со всеми задачами
             return redirect('core:tasks')
@@ -1493,7 +1523,12 @@ class EmployeeCreateView(View):
 
         # Дополнительные поля из формы
         user.desired_salary = request.POST.get('desired_salary', '')
-        user.age = request.POST.get('age', '')
+        # Обработка числового поля age - если пустое, устанавливаем None
+        age_value = request.POST.get('age', '').strip()
+        try:
+            user.age = int(age_value) if age_value else None
+        except ValueError:
+            user.age = None
         user.location = request.POST.get('location', '')
         user.skills = request.POST.get('skills', '')
         user.experience = request.POST.get('experience', '')
@@ -1514,7 +1549,7 @@ class EmployeeCreateView(View):
 
         messages.success(
             request, f'Сотрудник {user.get_full_name()} успешно создан. Логин: {username}, пароль: {final_password}')
-        return redirect('core:employee_edit', pk=user.pk)
+        return redirect('core:employees')
 
 
 class EmployeeEditView(View):
@@ -1601,7 +1636,12 @@ class EmployeeEditView(View):
 
         # Дополнительные поля из формы
         employee.desired_salary = request.POST.get('desired_salary', '')
-        employee.age = request.POST.get('age', '')
+        # Обработка числового поля age - если пустое, устанавливаем None
+        age_value = request.POST.get('age', '').strip()
+        try:
+            employee.age = int(age_value) if age_value else None
+        except ValueError:
+            employee.age = None
         employee.location = request.POST.get('location', '')
         employee.skills = request.POST.get('skills', '')
         employee.experience = request.POST.get('experience', '')
@@ -1644,7 +1684,7 @@ class EmployeeEditView(View):
         messages.success(
             request, f'Данные сотрудника {
                 employee.get_full_name()} успешно обновлены')
-        return redirect('core:employee_edit', pk=employee.pk)
+        return redirect('core:employees')
 
 
 class VehiclesView(LoginRequiredMixin, TemplateView):

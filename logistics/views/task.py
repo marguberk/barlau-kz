@@ -67,12 +67,9 @@ class TaskViewSet(BaseModelViewSet):
     
     def perform_create(self, serializer):
         task = serializer.save(created_by=self.request.user)
-        # Уведомление для исполнителя
-        if task.assigned_to:
+        # Уведомление только для исполнителя, если он назначен и это не создатель
+        if task.assigned_to and task.assigned_to != task.created_by:
             Notification.create_task_notification(task.assigned_to, task)
-        # Уведомление для создателя, если это разные люди
-        if task.created_by and task.created_by != task.assigned_to:
-            Notification.create_task_notification(task.created_by, task)
     
     @action(detail=True, methods=['post'])
     def change_status(self, request, pk=None):

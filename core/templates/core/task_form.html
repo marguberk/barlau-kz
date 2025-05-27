@@ -56,21 +56,21 @@
                 <div class="flex justify-start items-start gap-2">
                     <a href="{% url 'core:notifications' %}" class="w-10 h-10 px-3 py-2 bg-white rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex justify-center items-center gap-1.5 relative">
                         <img src="{% static 'core/img/bell.svg' %}" alt="Notifications" class="w-5 h-5">
-                        <span id="notif-badge" class="hidden absolute -top-1 -right-1 w-3.5 h-3.5 bg-red-500 rounded-full border-2 border-white"></span>
+                        <span id="notif-badge" class="absolute -top-2 -right-2 bg-red-500 rounded-full border-2 border-white flex items-center justify-center font-bold shadow-lg transition-all duration-200" style="min-width: 1.4rem; min-height: 1.4rem; font-size: 0.85rem; color: #fff; padding: 0 0.3em; display: flex; align-items: center; justify-content: center;"></span>
                     </a>
                 </div>
                 <div class="flex justify-start items-center gap-1.5 relative">
                     {% if request.user.is_authenticated %}
                         <div class="relative group" id="user-menu">
-                            {% if request.user.photo %}
+                        {% if request.user.photo %}
                                 <img class="w-8 h-8 rounded-full object-cover cursor-pointer" src="{{ request.user.photo.url }}" id="user-avatar" />
-                            {% else %}
+                        {% else %}
                                 <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center cursor-pointer" id="user-avatar">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
-                                    </svg>
-                                </div>
-                            {% endif %}
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                        {% endif %}
                             <div class="hidden group-hover:block absolute right-0 mt-2 w-44 bg-white border border-gray-200 rounded-lg shadow-lg z-50" id="user-dropdown">
                                 <a href="{% url 'core:profile' %}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Профиль</a>
                                 <a href="{% url 'core:custom-logout' %}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Выйти</a>
@@ -245,7 +245,7 @@
             width: 100% !important;
             padding-left: 0 !important;
             padding-right: 0 !important;
-            padding-bottom: 70px !important;
+            padding-bottom: 120px !important;
         }
         
         /* Верхняя панель на всю ширину */

@@ -1,204 +1,472 @@
 {% extends "core/base.html" %}
 {% load core_extras %}
+{% load static %}
+
+{% block title %}Профиль сотрудника - {{ employee.get_full_name }}{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" crossorigin="anonymous" />
+{% endblock %}
 
 {% block content %}
-<div class="container mx-auto px-4 py-8">
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold text-gray-800">Профиль сотрудника</h1>
-        <div class="flex space-x-3">
-            <a href="{% url 'core:employee_edit' employee.pk %}" 
-               class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                <i class="fas fa-edit mr-2"></i>Редактировать
-            </a>
-            <a href="{% url 'core:employee-pdf' employee.pk %}" 
-               class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
-                <i class="fas fa-file-pdf mr-2"></i>Скачать PDF
-            </a>
-            <a href="{% url 'core:employees' %}" 
-               class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
-                <i class="fas fa-arrow-left mr-2"></i>Назад к списку
-            </a>
+    <!-- Боковое меню -->
+    <div class="w-64 h-screen bg-white border-r border-zinc-200 flex flex-col justify-start items-start fixed left-0 bottom-0 sidebar">
+        <div class="self-stretch px-5 py-6 relative flex flex-col justify-start items-start gap-2 sidebar-logo">
+            <div class="py-1 inline-flex justify-start items-center gap-2">
+                <img src="{% static 'core/img/logo.png' %}" alt="Barlau Logo" class="w-10 h-6">
+                <div class="text-center justify-start text-black text-2xl font-semibold leading-normal">Barlau.kz</div>
+            </div>
+        </div>
+        <div class="self-stretch flex-1 px-4 pt-2 pb-4 flex flex-col justify-start items-center gap-4 sidebar-menu">
+            <div class="self-stretch flex flex-col justify-start items-start gap-1">
+                <div class="self-stretch flex flex-col justify-start items-start">
+                    <a href="{% url 'core:home' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2">
+                        <img src="{% static 'core/img/home.svg' %}" alt="Home" class="w-5 h-5 desktop-icon">
+                        <img src="{% static 'core/img/mobile/home.svg' %}" alt="Home" class="mobile-icon hidden w-5 h-5">
+                        <div class="flex-1 text-gray-500 text-base font-medium leading-normal tracking-tight">Главная</div>
+                    </a>
+                    <a href="{% url 'core:tasks' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2">
+                        <img src="{% static 'core/img/check-square.svg' %}" alt="Tasks" class="w-5 h-5 desktop-icon align-middle">
+                        <img src="{% static 'core/img/mobile/check-square.svg' %}" alt="Tasks" class="mobile-icon hidden align-middle">
+                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Задачи</div>
+                    </a>
+                    <a href="{% url 'core:map' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2">
+                        <img src="{% static 'core/img/location.svg' %}?v={% now 'U' %}" alt="Map" class="w-5 h-5 desktop-icon align-middle" onerror="this.onerror=null; this.src='/static/core/img/location.svg'">
+                        <img src="{% static 'core/img/mobile/location.svg' %}" alt="Map" class="mobile-icon hidden align-middle">
+                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Карта</div>
+                    </a>
+                    <a href="{% url 'core:trucks' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2">
+                        <img src="{% static 'core/img/truck.svg' %}" alt="Trucks" class="w-5 h-5 desktop-icon align-middle">
+                        <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Trucks" class="mobile-icon hidden align-middle">
+                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Грузовики</div>
+                    </a>
+                    <a href="{% url 'core:employees' %}" class="self-stretch px-3 py-3.5 bg-gray-50 rounded-lg inline-flex items-center gap-2 relative">
+                        <div class="w-1 h-6 left-0 top-[calc(50%-12px)] absolute bg-blue-600 rounded-tr-lg rounded-br-lg"></div>
+                        <img src="{% static 'core/img/employee.svg' %}" alt="Employees" class="w-5 h-5 desktop-icon align-middle">
+                        <img src="{% static 'core/img/mobile/employee.svg' %}" alt="Employees" class="mobile-icon hidden align-middle">
+                        <div class="flex-1 justify-start text-blue-600 text-base font-medium leading-normal tracking-tight">Сотрудники</div>
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <!-- Левая колонка (информация и фото) -->
-        <div class="lg:col-span-1">
-            <div class="bg-white rounded-xl shadow-sm overflow-hidden">
-                <!-- Фото и основная информация -->
-                <div class="p-6 text-center">
-                    {% if employee.photo %}
-                    <img src="{{ employee.photo.url }}" alt="{{ employee.get_full_name }}" 
-                         class="w-32 h-32 rounded-full object-cover mx-auto mb-4">
+    <!-- Основной контент -->
+    <div class="ml-64 flex-1 min-h-screen bg-gray-50 relative main-content employee-container">
+        <!-- Верхняя панель -->
+        <div class="w-full h-20 px-8 py-5 bg-white flex justify-between items-center">
+            <div class="justify-start text-zinc-950 text-2xl font-semibold leading-loose">Профиль сотрудника</div>
+            <div class="flex justify-start items-center gap-3">
+                <div class="flex justify-start items-start gap-2">
+                    <a href="{% url 'core:notifications' %}" class="w-10 h-10 px-3 py-2 bg-white rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex justify-center items-center gap-1.5 relative">
+                        <img src="{% static 'core/img/bell.svg' %}" alt="Notifications" class="w-5 h-5">
+                        <span id="notif-badge" class="absolute -top-2 -right-2 bg-red-500 rounded-full border-2 border-white flex items-center justify-center font-bold shadow-lg transition-all duration-200" style="min-width: 1.4rem; min-height: 1.4rem; font-size: 0.85rem; color: #fff; padding: 0 0.3em; display: flex; align-items: center; justify-content: center;"></span>
+                    </a>
+                </div>
+                <div class="flex justify-start items-center gap-1.5 relative">
+                    {% if request.user.is_authenticated %}
+                        <div class="relative group" id="user-menu">
+                        {% if request.user.photo %}
+                                <img class="w-8 h-8 rounded-full object-cover cursor-pointer" src="{{ request.user.photo.url }}" id="user-avatar" />
+                        {% else %}
+                                <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center cursor-pointer" id="user-avatar">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                        {% endif %}
+                            <div class="hidden group-hover:block absolute right-0 mt-2 w-44 bg-white border border-gray-200 rounded-lg shadow-lg z-50" id="user-dropdown">
+                                <a href="{% url 'core:profile' %}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Профиль</a>
+                                <a href="{% url 'core:custom-logout' %}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Выйти</a>
+                            </div>
+                        </div>
                     {% else %}
-                    <div class="w-32 h-32 rounded-full bg-blue-100 flex items-center justify-center mx-auto mb-4">
-                        <span class="text-blue-600 text-4xl font-bold">
-                            {{ employee.first_name|first }}{{ employee.last_name|first }}
-                        </span>
-                    </div>
-                    {% endif %}
-                    
-                    <h2 class="text-xl font-bold text-gray-800 mb-1">{{ employee.get_full_name }}</h2>
-                    <p class="text-gray-600 mb-4">{{ employee.position }}</p>
-                    
-                    {% if employee.desired_salary %}
-                    <div class="inline-block px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium mb-4">
-                        Желаемая зарплата: {{ employee.desired_salary }}
-                    </div>
+                        <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
                     {% endif %}
                 </div>
-                
-                <!-- Контактная информация -->
-                <div class="border-t border-gray-100 p-6">
-                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Контактная информация</h3>
-                    
-                    <div class="space-y-3">
-                        {% if employee.email %}
-                        <div class="flex items-start">
-                            <div class="w-8 text-gray-400"><i class="fas fa-envelope"></i></div>
-                            <div>{{ employee.email }}</div>
-                        </div>
-                        {% endif %}
-                        
-                        {% if employee.phone %}
-                        <div class="flex items-start">
-                            <div class="w-8 text-gray-400"><i class="fas fa-phone"></i></div>
-                            <div>{{ employee.phone }}</div>
-                        </div>
-                        {% endif %}
-                        
-                        {% if employee.location %}
-                        <div class="flex items-start">
-                            <div class="w-8 text-gray-400"><i class="fas fa-map-marker-alt"></i></div>
-                            <div>{{ employee.location }}</div>
-                        </div>
-                        {% endif %}
-                        
-                        {% if employee.skype %}
-                        <div class="flex items-start">
-                            <div class="w-8 text-gray-400"><i class="fab fa-skype"></i></div>
-                            <div>{{ employee.skype }}</div>
-                        </div>
-                        {% endif %}
-                        
-                        {% if employee.linkedin %}
-                        <div class="flex items-start">
-                            <div class="w-8 text-gray-400"><i class="fab fa-linkedin"></i></div>
-                            <div><a href="{{ employee.linkedin }}" target="_blank" class="text-blue-600 hover:underline">Профиль LinkedIn</a></div>
-                        </div>
-                        {% endif %}
-                        
-                        {% if employee.portfolio_url %}
-                        <div class="flex items-start">
-                            <div class="w-8 text-gray-400"><i class="fas fa-globe"></i></div>
-                            <div><a href="{{ employee.portfolio_url }}" target="_blank" class="text-blue-600 hover:underline">Портфолио</a></div>
-                        </div>
-                        {% endif %}
-                    </div>
-                </div>
-                
-                <!-- Навыки -->
-                {% if employee.key_skills %}
-                <div class="border-t border-gray-100 p-6">
-                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Ключевые навыки</h3>
-                    <div class="flex flex-wrap gap-2">
-                        {% for skill in employee.key_skills|split_lines %}
-                        <span class="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm">{{ skill }}</span>
-                        {% endfor %}
-                    </div>
-                </div>
-                {% endif %}
-                
-                <!-- Языки -->
-                {% if employee.languages %}
-                <div class="border-t border-gray-100 p-6">
-                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Языки</h3>
-                    <div class="space-y-2">
-                        {% for language in employee.languages|split_lines %}
-                        <div>{{ language }}</div>
-                        {% endfor %}
-                    </div>
-                </div>
-                {% endif %}
-                
-                <!-- Хобби -->
-                {% if employee.hobbies %}
-                <div class="border-t border-gray-100 p-6">
-                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Хобби и интересы</h3>
-                    <div>{{ employee.hobbies|linebreaks }}</div>
-                </div>
-                {% endif %}
             </div>
         </div>
-        
-        <!-- Правая колонка (профессиональная информация) -->
-        <div class="lg:col-span-2">
-            <div class="bg-white rounded-xl shadow-sm overflow-hidden">
-                <!-- О себе -->
-                {% if employee.about_me %}
-                <div class="p-6">
-                    <h3 class="text-lg font-semibold text-gray-800 mb-4">О себе</h3>
-                    <div class="text-gray-700">{{ employee.about_me|linebreaks }}</div>
+
+        <!-- Контент профиля -->
+        <div class="w-full px-4 md:px-8 py-6 pb-32 lg:pb-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Левая колонка (информация и фото) -->
+                <div class="lg:col-span-1">
+                    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                        <!-- Фото и основная информация -->
+                        <div class="p-6 text-center">
+                            {% if employee.photo %}
+                            <img src="{{ employee.photo.url }}" alt="{{ employee.get_full_name }}" 
+                                 class="w-32 h-32 rounded-full object-cover mx-auto mb-4">
+                            {% else %}
+                            <div class="w-32 h-32 rounded-full bg-blue-100 flex items-center justify-center mx-auto mb-4">
+                                <span class="text-blue-600 text-4xl font-bold">
+                                    {{ employee.first_name|first }}{{ employee.last_name|first }}
+                                </span>
+                            </div>
+                            {% endif %}
+                            
+                            <h2 class="text-xl font-bold text-gray-800 mb-1">{{ employee.get_full_name }}</h2>
+                            <p class="text-gray-600 mb-4">{{ employee.position }}</p>
+                            
+                            {% if employee.desired_salary %}
+                            <div class="inline-block px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium mb-4">
+                                Желаемая зарплата: {{ employee.desired_salary }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Контактная информация -->
+                        <div class="border-t border-gray-100 p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">Контактная информация</h3>
+                            
+                            <div class="space-y-3">
+                                {% if employee.email %}
+                                <div class="flex items-start">
+                                    <div class="w-8 text-gray-400"><i class="fas fa-envelope"></i></div>
+                                    <div>{{ employee.email }}</div>
+                                </div>
+                                {% endif %}
+                                
+                                {% if employee.phone %}
+                                <div class="flex items-start">
+                                    <div class="w-8 text-gray-400"><i class="fas fa-phone"></i></div>
+                                    <div>{{ employee.phone }}</div>
+                                </div>
+                                {% endif %}
+                                
+                                {% if employee.location %}
+                                <div class="flex items-start">
+                                    <div class="w-8 text-gray-400"><i class="fas fa-map-marker-alt"></i></div>
+                                    <div>{{ employee.location }}</div>
+                                </div>
+                                {% endif %}
+                                
+                                {% if employee.skype %}
+                                <div class="flex items-start">
+                                    <div class="w-8 text-gray-400"><i class="fab fa-skype"></i></div>
+                                    <div>{{ employee.skype }}</div>
+                                </div>
+                                {% endif %}
+                                
+                                {% if employee.linkedin %}
+                                <div class="flex items-start">
+                                    <div class="w-8 text-gray-400"><i class="fab fa-linkedin"></i></div>
+                                    <div><a href="{{ employee.linkedin }}" target="_blank" class="text-blue-600 hover:underline">Профиль LinkedIn</a></div>
+                                </div>
+                                {% endif %}
+                                
+                                {% if employee.portfolio_url %}
+                                <div class="flex items-start">
+                                    <div class="w-8 text-gray-400"><i class="fas fa-globe"></i></div>
+                                    <div><a href="{{ employee.portfolio_url }}" target="_blank" class="text-blue-600 hover:underline">Портфолио</a></div>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Навыки -->
+                        {% if employee.key_skills %}
+                        <div class="border-t border-gray-100 p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">Ключевые навыки</h3>
+                            <div class="flex flex-wrap gap-2">
+                                {% for skill in employee.key_skills|split_lines %}
+                                <span class="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm">{{ skill }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Языки -->
+                        {% if employee.languages %}
+                        <div class="border-t border-gray-100 p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">Языки</h3>
+                            <div class="space-y-2">
+                                {% for language in employee.languages|split_lines %}
+                                <div>{{ language }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Хобби -->
+                        {% if employee.hobbies %}
+                        <div class="border-t border-gray-100 p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">Хобби и интересы</h3>
+                            <div>{{ employee.hobbies|linebreaks }}</div>
+                        </div>
+                        {% endif %}
+                    </div>
                 </div>
-                {% endif %}
                 
-                <!-- Опыт работы -->
-                {% if employee.experience %}
-                <div class="{% if employee.about_me %}border-t border-gray-100{% endif %} p-6">
-                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Опыт работы</h3>
-                    <div class="text-gray-700">{{ employee.experience|linebreaks }}</div>
+                <!-- Правая колонка (профессиональная информация) -->
+                <div class="lg:col-span-2">
+                    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                        <!-- О себе -->
+                        {% if employee.about_me %}
+                        <div class="p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">О себе</h3>
+                            <div class="text-gray-700">{{ employee.about_me|linebreaks }}</div>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Опыт работы -->
+                        {% if employee.experience %}
+                        <div class="{% if employee.about_me %}border-t border-gray-100{% endif %} p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">Опыт работы</h3>
+                            <div class="text-gray-700">{{ employee.experience|linebreaks }}</div>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Образование -->
+                        {% if employee.education %}
+                        <div class="border-t border-gray-100 p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">Образование</h3>
+                            <div class="text-gray-700">{{ employee.education|linebreaks }}</div>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Сертификаты -->
+                        {% if employee.certifications %}
+                        <div class="border-t border-gray-100 p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">Сертификаты</h3>
+                            <div class="text-gray-700">{{ employee.certifications|linebreaks }}</div>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Достижения -->
+                        {% if employee.achievements %}
+                        <div class="border-t border-gray-100 p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">Достижения</h3>
+                            <div class="text-gray-700">{{ employee.achievements|linebreaks }}</div>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Курсы -->
+                        {% if employee.courses %}
+                        <div class="border-t border-gray-100 p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">Курсы и тренинги</h3>
+                            <div class="text-gray-700">{{ employee.courses|linebreaks }}</div>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Публикации -->
+                        {% if employee.publications %}
+                        <div class="border-t border-gray-100 p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">Публикации</h3>
+                            <div class="text-gray-700">{{ employee.publications|linebreaks }}</div>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Рекомендации -->
+                        {% if employee.recommendations %}
+                        <div class="border-t border-gray-100 p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">Рекомендации</h3>
+                            <div class="text-gray-700">{{ employee.recommendations|linebreaks }}</div>
+                        </div>
+                        {% endif %}
+                        
+
+                        
+
+                    </div>
                 </div>
-                {% endif %}
-                
-                <!-- Образование -->
-                {% if employee.education %}
-                <div class="border-t border-gray-100 p-6">
-                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Образование</h3>
-                    <div class="text-gray-700">{{ employee.education|linebreaks }}</div>
-                </div>
-                {% endif %}
-                
-                <!-- Сертификаты -->
-                {% if employee.certifications %}
-                <div class="border-t border-gray-100 p-6">
-                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Сертификаты</h3>
-                    <div class="text-gray-700">{{ employee.certifications|linebreaks }}</div>
-                </div>
-                {% endif %}
-                
-                <!-- Достижения -->
-                {% if employee.achievements %}
-                <div class="border-t border-gray-100 p-6">
-                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Достижения</h3>
-                    <div class="text-gray-700">{{ employee.achievements|linebreaks }}</div>
-                </div>
-                {% endif %}
-                
-                <!-- Курсы -->
-                {% if employee.courses %}
-                <div class="border-t border-gray-100 p-6">
-                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Курсы и тренинги</h3>
-                    <div class="text-gray-700">{{ employee.courses|linebreaks }}</div>
-                </div>
-                {% endif %}
-                
-                <!-- Публикации -->
-                {% if employee.publications %}
-                <div class="border-t border-gray-100 p-6">
-                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Публикации</h3>
-                    <div class="text-gray-700">{{ employee.publications|linebreaks }}</div>
-                </div>
-                {% endif %}
-                
-                <!-- Рекомендации -->
-                {% if employee.recommendations %}
-                <div class="border-t border-gray-100 p-6">
-                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Рекомендации</h3>
-                    <div class="text-gray-700">{{ employee.recommendations|linebreaks }}</div>
-                </div>
-                {% endif %}
             </div>
         </div>
     </div>
-</div>
+
+    <!-- Плавающие кнопки действий -->
+    <a href="{% url 'core:employee_edit' employee.pk %}" class="employee-edit-button">
+        <i class="fas fa-edit mr-2"></i>Редактировать
+    </a>
+    
+    <a href="{% url 'core:employee-pdf' employee.pk %}" class="employee-pdf-button">
+        <i class="fas fa-file-pdf mr-2"></i>Скачать PDF
+    </a>
+
+    <!-- Нижнее мобильное меню -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 hidden lg:hidden">
+        <div class="flex justify-between items-center px-2">
+            <a href="{% url 'core:home' %}" class="flex-1 flex flex-col items-center text-gray-600 hover:text-blue-600 relative mx-1">
+                <div class="icon-container w-8 h-8 flex items-center justify-center">
+                    <img src="{% static 'core/img/mobile/home.svg' %}" alt="Home" class="w-6 h-6">
+                </div>
+                <span class="text-xs text-[9px] mt-1">Главная</span>
+            </a>
+            <a href="{% url 'core:tasks' %}" class="flex-1 flex flex-col items-center text-gray-600 hover:text-blue-600 relative mx-1">
+                <div class="icon-container w-8 h-8 flex items-center justify-center">
+                    <img src="{% static 'core/img/mobile/check-square.svg' %}" alt="Tasks" class="w-6 h-6">
+                </div>
+                <span class="text-xs text-[9px] mt-1">Задачи</span>
+            </a>
+            <a href="{% url 'core:map' %}" class="flex-1 flex flex-col items-center text-gray-600 hover:text-blue-600 relative mx-1">
+                <div class="icon-container w-8 h-8 flex items-center justify-center">
+                    <img src="{% static 'core/img/mobile/location.svg' %}" alt="Map" class="w-6 h-6">
+                </div>
+                <span class="text-xs text-[9px] mt-1">Карта</span>
+            </a>
+            <a href="{% url 'core:trucks' %}" class="flex-1 flex flex-col items-center text-gray-600 hover:text-blue-600 relative mx-1">
+                <div class="icon-container w-8 h-8 flex items-center justify-center">
+                    <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Trucks" class="w-6 h-6">
+                </div>
+                <span class="text-xs text-[9px] mt-1">Грузовики</span>
+            </a>
+            <a href="{% url 'core:employees' %}" class="flex-1 flex flex-col items-center text-blue-600 relative mx-1">
+                <div class="icon-container w-8 h-8 flex items-center justify-center">
+                    <img src="{% static 'core/img/mobile/employee.svg' %}" alt="Employees" class="w-6 h-6">
+                </div>
+                <span class="text-xs text-[9px] mt-1">Сотрудники</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Стили -->
+    <style>
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+        }
+
+        /* Контейнер для позиционирования кнопок */
+        .employee-container {
+            position: relative;
+        }
+
+        /* Стили для плавающих кнопок действий */
+        .employee-edit-button, .employee-pdf-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            min-width: 140px;
+            text-decoration: none;
+            position: fixed;
+            z-index: 50;
+        }
+
+        .employee-edit-button {
+            background: #2563eb;
+            color: white;
+            bottom: 24px;
+            right: 220px;
+        }
+
+        .employee-edit-button:hover {
+            background: #1d4ed8;
+            box-shadow: 0 4px 8px rgba(37, 99, 235, 0.3);
+            transform: translateY(-1px);
+            color: white;
+            text-decoration: none;
+        }
+
+        .employee-pdf-button {
+            background: #16a34a;
+            color: white;
+            bottom: 24px;
+            right: 24px;
+        }
+
+        .employee-pdf-button:hover {
+            background: #15803d;
+            box-shadow: 0 4px 8px rgba(22, 163, 74, 0.3);
+            transform: translateY(-1px);
+            color: white;
+            text-decoration: none;
+        }
+
+        /* Мобильная адаптация */
+        @media (max-width: 1024px) {
+            .sidebar {
+                display: none;
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            /* Изменяем padding-bottom для мобильной версии */
+            .w-full.px-4.md\:px-8.py-6.pb-32 {
+                padding-bottom: 4rem !important; /* 64px для мобильных */
+            }
+            
+            /* Мобильная адаптация кнопок */
+            .employee-edit-button, .employee-pdf-button {
+                width: calc(50% - 1.5rem);
+                max-width: none;
+                margin: 0;
+                padding: 16px 12px;
+                font-size: 14px;
+                position: fixed;
+                bottom: 90px;
+                z-index: 40;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+                min-width: auto;
+            }
+            
+            .employee-edit-button {
+                left: 1rem;
+                right: auto;
+            }
+            
+            .employee-pdf-button {
+                right: 1rem;
+                left: auto;
+            }
+            
+            /* Устанавливаем размер и фильтр для мобильных иконок */
+            .icon-container img {
+                width: 24px;
+                height: 24px;
+            }
+            
+            /* Серый фильтр для неактивных иконок */
+            nav.fixed.bottom-0 a.text-gray-600 .icon-container img {
+                filter: brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(142deg) brightness(96%) contrast(91%);
+            }
+            
+            /* Синий фильтр для активной иконки */
+            nav.fixed.bottom-0 a.text-blue-600 .icon-container img {
+                filter: brightness(0) saturate(100%) invert(32%) sepia(96%) saturate(7461%) hue-rotate(220deg) brightness(97%) contrast(98%);
+            }
+            
+            .fixed.bottom-0 {
+                padding-top: 10px !important;
+                height: 70px !important;
+            }
+        }
+    </style>
+
+    <script>
+        // Обработчик для мобильного меню пользователя
+        document.addEventListener('DOMContentLoaded', function() {
+            const userAvatar = document.getElementById('user-avatar');
+            const userDropdown = document.getElementById('user-dropdown');
+            
+            if (userAvatar && userDropdown) {
+                userAvatar.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    userDropdown.classList.toggle('hidden');
+                });
+                
+                document.addEventListener('click', function() {
+                    userDropdown.classList.add('hidden');
+                });
+            }
+        });
+    </script>
 {% endblock %} 

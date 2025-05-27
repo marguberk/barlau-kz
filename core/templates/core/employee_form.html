@@ -1,12 +1,94 @@
 {% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}{{ title }} | BARLAU.KZ{% endblock %}
 
 {% block content %}
-<div class="container mx-auto px-4 py-8">
-    <div class="mb-6">
-        <h1 class="text-2xl font-bold text-gray-800">{{ title }}</h1>
-        <p class="text-gray-600">Заполните информацию о сотруднике</p>
+<div class="w-full flex">
+    <!-- Боковая панель -->
+    <div class="w-64 h-screen bg-white border-r border-zinc-200 flex flex-col justify-start items-start fixed left-0 bottom-0 sidebar">
+        <div class="self-stretch px-5 py-6 relative flex flex-col justify-start items-start gap-2 sidebar-logo">
+            <div class="py-1 inline-flex justify-start items-center gap-2">
+                <img src="{% static 'core/img/logo.png' %}" alt="Barlau Logo" class="w-10 h-6">
+                <div class="text-center justify-start text-black text-2xl font-semibold leading-normal">Barlau.kz</div>
+            </div>
+        </div>
+        <div class="self-stretch flex-1 px-4 pt-2 pb-4 flex flex-col justify-start items-center gap-4 sidebar-menu">
+            <div class="self-stretch flex flex-col justify-start items-start gap-1">
+                <div class="self-stretch flex flex-col justify-start items-start">
+                    <a href="{% url 'core:home' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2 relative">
+                        <img src="{% static 'core/img/home.svg' %}" alt="Home" class="w-5 h-5 desktop-icon align-middle">
+                        <img src="{% static 'core/img/mobile/home.svg' %}" alt="Home" class="mobile-icon hidden align-middle">
+                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Главная</div>
+                    </a>
+                    <a href="{% url 'core:tasks' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2">
+                        <img src="{% static 'core/img/check-square.svg' %}" alt="Tasks" class="w-5 h-5 desktop-icon">
+                        <img src="{% static 'core/img/mobile/check-square.svg' %}" alt="Tasks" class="mobile-icon hidden w-5 h-5">
+                        <div class="flex-1 text-gray-500 text-base font-medium leading-normal tracking-tight">Задачи</div>
+                    </a>
+                    <a href="{% url 'core:map' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2">
+                        <img src="{% static 'core/img/location.svg' %}?v={% now 'U' %}" alt="Map" class="w-5 h-5 desktop-icon align-middle" onerror="this.onerror=null; this.src='/static/core/img/location.svg'">
+                        <img src="{% static 'core/img/mobile/location.svg' %}" alt="Map" class="mobile-icon hidden align-middle">
+                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Карта</div>
+                    </a>
+                    <a href="{% url 'core:trucks' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2">
+                        <img src="{% static 'core/img/truck.svg' %}" alt="Trucks" class="w-5 h-5 desktop-icon align-middle">
+                        <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Trucks" class="mobile-icon hidden align-middle">
+                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Грузовики</div>
+                    </a>
+                    <a href="{% url 'core:employees' %}" class="self-stretch px-3 py-3.5 bg-gray-50 rounded-lg inline-flex items-center gap-2 relative">
+                        <div class="w-1 h-6 left-0 top-[calc(50%-12px)] absolute bg-blue-600 rounded-tr-lg rounded-br-lg"></div>
+                        <img src="{% static 'core/img/employee.svg' %}" alt="Employees" class="w-5 h-5 desktop-icon align-middle">
+                        <img src="{% static 'core/img/mobile/employee.svg' %}" alt="Employees" class="mobile-icon hidden align-middle">
+                        <div class="flex-1 justify-start text-blue-600 text-base font-medium leading-normal tracking-tight">Сотрудники</div>
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
     
+    <!-- Основной контент -->
+    <div class="ml-64 flex-1 min-h-screen bg-white relative main-content">
+        <!-- Верхняя панель -->
+        <div class="w-full h-20 px-8 py-5 bg-white flex justify-between items-center border-b border-gray-200">
+            <div class="justify-start text-zinc-950 text-2xl font-semibold leading-loose">Редактирование</div>
+            <div class="flex justify-start items-center gap-3">
+                <div class="flex justify-start items-start gap-2">
+                    <a href="{% url 'core:notifications' %}" class="w-10 h-10 px-3 py-2 bg-white rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex justify-center items-center gap-1.5 relative">
+                        <img src="{% static 'core/img/bell.svg' %}" alt="Notifications" class="w-5 h-5">
+                        <span id="notif-badge" class="absolute -top-2 -right-2 bg-red-500 rounded-full border-2 border-white flex items-center justify-center font-bold shadow-lg transition-all duration-200" style="min-width: 1.4rem; min-height: 1.4rem; font-size: 0.85rem; color: #fff; padding: 0 0.3em; display: flex; align-items: center; justify-content: center;"></span>
+                    </a>
+                </div>
+                <div class="flex justify-start items-center gap-1.5 relative">
+                    {% if request.user.is_authenticated %}
+                        <div class="relative group" id="user-menu">
+                        {% if request.user.photo %}
+                                <img class="w-8 h-8 rounded-full object-cover cursor-pointer" src="{{ request.user.photo.url }}" id="user-avatar" />
+                        {% else %}
+                                <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center cursor-pointer" id="user-avatar">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                        {% endif %}
+                            <div class="hidden group-hover:block absolute right-0 mt-2 w-44 bg-white border border-gray-200 rounded-lg shadow-lg z-50" id="user-dropdown">
+                                <a href="{% url 'core:profile' %}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Профиль</a>
+                                <a href="{% url 'core:custom-logout' %}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Выйти</a>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Контент формы -->
+        <div class="w-full px-8 py-6">
     <div class="bg-white rounded-xl shadow-sm overflow-hidden">
         <div class="p-6">
             <form method="post" class="space-y-8" enctype="multipart/form-data">
@@ -241,6 +323,44 @@
         </div>
     </div>
 </div>
+    </div>
+</div>
+
+<!-- Нижнее мобильное меню - показываем только на мобильных устройствах -->
+<nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 hidden max-lg:block">
+    <div class="flex justify-center items-center px-2" style="padding-top: 10px !important;">
+        <a href="{% url 'core:home' %}" class="flex-1 flex flex-col items-center text-gray-600 hover:text-blue-600 relative mx-1">
+            <div class="icon-container w-8 h-8 flex items-center justify-center">
+                <img src="{% static 'core/img/mobile/home.svg' %}" alt="Home" class="w-6 h-6">
+            </div>
+            <span class="text-xs text-[9px] mt-1">Главная</span>
+        </a>
+        <a href="{% url 'core:tasks' %}" class="flex-1 flex flex-col items-center text-gray-600 hover:text-blue-600 relative mx-1">
+            <div class="icon-container w-8 h-8 flex items-center justify-center">
+                <img src="{% static 'core/img/mobile/check-square.svg' %}" alt="Tasks" class="w-6 h-6">
+            </div>
+            <span class="text-xs text-[9px] mt-1">Задачи</span>
+        </a>
+        <a href="{% url 'core:map' %}" class="flex-1 flex flex-col items-center text-gray-600 hover:text-blue-600 relative mx-1">
+            <div class="icon-container w-8 h-8 flex items-center justify-center">
+                <img src="{% static 'core/img/mobile/location.svg' %}" alt="Map" class="w-6 h-6">
+            </div>
+            <span class="text-xs text-[9px] mt-1">Карта</span>
+        </a>
+        <a href="{% url 'core:trucks' %}" class="flex-1 flex flex-col items-center text-gray-600 hover:text-blue-600 relative mx-1">
+            <div class="icon-container w-8 h-8 flex items-center justify-center">
+                <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Vehicles" class="w-6 h-6">
+            </div>
+            <span class="text-xs text-[9px] mt-1">Грузовики</span>
+        </a>
+        <a href="{% url 'core:employees' %}" class="flex-1 flex flex-col items-center text-blue-600 relative mx-1">
+            <div class="icon-container w-8 h-8 flex items-center justify-center">
+                <img src="{% static 'core/img/mobile/employee.svg' %}" alt="Employees" class="w-6 h-6">
+            </div>
+            <span class="text-xs text-[9px] mt-1">Сотрудники</span>
+        </a>
+    </div>
+</nav>
 {% endblock %}
 
 {% block extra_js %}
@@ -260,24 +380,14 @@
             
             // Проверка типа файла
             if (!file.type.match('image/jpeg') && !file.type.match('image/png') && !file.type.match('image/gif')) {
-                Swal.fire({
-                    title: 'Ошибка',
-                    text: 'Пожалуйста, выберите изображение в формате JPG, PNG или GIF',
-                    icon: 'error',
-                    confirmButtonText: 'ОК'
-                });
+                alert('Пожалуйста, выберите изображение в формате JPG, PNG или GIF');
                 photoUploadInput.value = '';
                 return;
             }
             
             // Проверка размера файла (5 МБ)
             if (file.size > 5 * 1024 * 1024) {
-                Swal.fire({
-                    title: 'Ошибка',
-                    text: 'Размер файла не должен превышать 5 МБ',
-                    icon: 'error',
-                    confirmButtonText: 'ОК'
-                });
+                alert('Размер файла не должен превышать 5 МБ');
                 photoUploadInput.value = '';
                 return;
             }
@@ -293,6 +403,34 @@
             };
             reader.readAsDataURL(file);
         });
+        
+        // Обработка dropdown меню пользователя
+        const avatar = document.getElementById('user-avatar');
+        const dropdown = document.getElementById('user-dropdown');
+        if (avatar && dropdown) {
+            avatar.addEventListener('click', function(e) {
+                e.stopPropagation();
+                dropdown.classList.toggle('hidden');
+            });
+            document.addEventListener('click', function() {
+                dropdown.classList.add('hidden');
+            });
+        }
     });
 </script>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+@media (max-width: 1100px) {
+    body nav.fixed.bottom-0 {
+        height: 70px !important;
+        padding-top: 10px !important;
+        box-shadow: none !important;
+        z-index: 999 !important;
+        background-color: #fff !important;
+        border-top: 1px solid #E5E7EB !important;
+    }
+}
+</style>
 {% endblock %} 

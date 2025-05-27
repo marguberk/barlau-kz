@@ -1,474 +1,527 @@
 {% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}Профиль пользователя{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" crossorigin="anonymous" />
+{% endblock %}
 
 {% block content %}
-<div class="container mx-auto px-4 py-8">
-    <div class="max-w-6xl mx-auto">
-        <!-- Основная информация - улучшенный дизайн -->
-        <div class="bg-white rounded-xl shadow-sm overflow-hidden mb-6">
-            <div class="bg-gradient-to-r from-blue-500 to-indigo-600 h-32"></div>
-            <div class="md:flex px-4 pb-6 -mt-16 relative">
-                <!-- Фото профиля с новым дизайном -->
-                <div class="md:w-1/3 flex flex-col items-center">
-                    <div class="w-32 h-32 rounded-full border-4 border-white shadow-lg overflow-hidden z-10 bg-white">
-                        {% if user.photo %}
-                            <img src="{{ user.photo.url }}" alt="Profile photo" class="w-full h-full object-cover">
+    <!-- Боковое меню -->
+    <div class="w-64 h-screen bg-white border-r border-zinc-200 flex flex-col justify-start items-start fixed left-0 bottom-0 sidebar">
+        <div class="self-stretch px-5 py-6 relative flex flex-col justify-start items-start gap-2 sidebar-logo">
+            <div class="py-1 inline-flex justify-start items-center gap-2">
+                <img src="{% static 'core/img/logo.png' %}" alt="Barlau Logo" class="w-10 h-6">
+                <div class="text-center justify-start text-black text-2xl font-semibold leading-normal">Barlau.kz</div>
+            </div>
+        </div>
+        <div class="self-stretch flex-1 px-4 pt-2 pb-4 flex flex-col justify-start items-center gap-4 sidebar-menu">
+            <div class="self-stretch flex flex-col justify-start items-start gap-1">
+                <div class="self-stretch flex flex-col justify-start items-start">
+                    <a href="{% url 'core:home' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2">
+                        <img src="{% static 'core/img/home.svg' %}" alt="Home" class="w-5 h-5 desktop-icon">
+                        <img src="{% static 'core/img/mobile/home.svg' %}" alt="Home" class="mobile-icon hidden w-5 h-5">
+                        <div class="flex-1 text-gray-500 text-base font-medium leading-normal tracking-tight">Главная</div>
+                    </a>
+                    <a href="{% url 'core:tasks' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2">
+                        <img src="{% static 'core/img/check-square.svg' %}" alt="Tasks" class="w-5 h-5 desktop-icon align-middle">
+                        <img src="{% static 'core/img/mobile/check-square.svg' %}" alt="Tasks" class="mobile-icon hidden align-middle">
+                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Задачи</div>
+                    </a>
+                    <a href="{% url 'core:map' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2">
+                        <img src="{% static 'core/img/location.svg' %}?v={% now 'U' %}" alt="Map" class="w-5 h-5 desktop-icon align-middle" onerror="this.onerror=null; this.src='/static/core/img/location.svg'">
+                        <img src="{% static 'core/img/mobile/location.svg' %}" alt="Map" class="mobile-icon hidden align-middle">
+                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Карта</div>
+                    </a>
+                    <a href="{% url 'core:trucks' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2">
+                        <img src="{% static 'core/img/truck.svg' %}" alt="Trucks" class="w-5 h-5 desktop-icon align-middle">
+                        <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Trucks" class="mobile-icon hidden align-middle">
+                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Грузовики</div>
+                    </a>
+                    <a href="{% url 'core:employees' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2">
+                        <img src="{% static 'core/img/employee.svg' %}" alt="Employees" class="w-5 h-5 desktop-icon align-middle">
+                        <img src="{% static 'core/img/mobile/employee.svg' %}" alt="Employees" class="mobile-icon hidden align-middle">
+                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Сотрудники</div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Основной контент -->
+    <div class="ml-64 flex-1 min-h-screen bg-gray-50 relative main-content">
+        <!-- Верхняя панель -->
+        <div class="w-full h-20 px-8 py-5 bg-white flex justify-between items-center">
+            <div class="justify-start text-zinc-950 text-2xl font-semibold leading-loose">Профиль пользователя</div>
+            <div class="flex justify-start items-center gap-3">
+                <div class="flex justify-start items-start gap-2">
+                    <a href="{% url 'core:notifications' %}" class="w-10 h-10 px-3 py-2 bg-white rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex justify-center items-center gap-1.5 relative">
+                        <img src="{% static 'core/img/bell.svg' %}" alt="Notifications" class="w-5 h-5">
+                        <span id="notif-badge" class="absolute -top-2 -right-2 bg-red-500 rounded-full border-2 border-white flex items-center justify-center font-bold shadow-lg transition-all duration-200" style="min-width: 1.4rem; min-height: 1.4rem; font-size: 0.85rem; color: #fff; padding: 0 0.3em; display: flex; align-items: center; justify-content: center;"></span>
+                    </a>
+                </div>
+                <div class="flex justify-start items-center gap-1.5 relative">
+                    {% if request.user.is_authenticated %}
+                        <div class="relative group" id="user-menu">
+                        {% if request.user.photo %}
+                                <img class="w-8 h-8 rounded-full object-cover cursor-pointer" src="{{ request.user.photo.url }}" id="user-avatar" />
                         {% else %}
-                            <div class="w-full h-full bg-blue-100 flex items-center justify-center">
-                                <i class="fas fa-user text-blue-600 text-4xl"></i>
+                                <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center cursor-pointer" id="user-avatar">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                                </svg>
                             </div>
                         {% endif %}
+                            <div class="hidden group-hover:block absolute right-0 mt-2 w-44 bg-white border border-gray-200 rounded-lg shadow-lg z-50" id="user-dropdown">
+                                <a href="{% url 'core:profile' %}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Профиль</a>
+                                <a href="{% url 'core:custom-logout' %}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Выйти</a>
+                            </div>
                     </div>
-                    <h1 class="text-2xl font-bold text-gray-800 mt-4 text-center">{{ user.get_full_name }}</h1>
-                    <div class="inline-flex items-center bg-blue-100 text-blue-800 rounded-full px-3 py-1 text-sm font-medium mt-2">
-                        <i class="fas fa-id-badge mr-2"></i>
-                        {{ user.get_role_display }}
+                    {% else %}
+                        <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                            </svg>
                     </div>
-                    {% if user.position %}
-                        <p class="text-sm text-gray-500 mt-1 text-center">{{ user.position }}</p>
                     {% endif %}
-                    
-                    <!-- Кнопка редактирования профиля - улучшенный стиль -->
-                    <div class="mt-4">
-                        <a href="{% url 'core:profile-edit' %}" class="inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all shadow-sm">
-                            <i class="fas fa-edit mr-2"></i>Редактировать профиль
-                        </a>
+                </div>
                     </div>
                 </div>
                 
-                <!-- Контактная информация - улучшенный дизайн -->
-                <div class="md:w-2/3 md:pl-8 mt-8 md:mt-2">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="bg-gray-50 p-4 rounded-lg">
-                            <h2 class="text-lg font-semibold text-gray-800 mb-4 border-b border-gray-200 pb-2">Контактная информация</h2>
-                            <div class="space-y-4">
-                                <div class="flex items-center text-gray-600">
-                                    <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-3 flex-shrink-0">
-                                        <i class="fas fa-envelope text-blue-600"></i>
-                                    </div>
+        <!-- Контент профиля -->
+        <div class="w-full px-4 md:px-8 py-6 pb-32 lg:pb-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Левая колонка (информация и фото) -->
+                <div class="lg:col-span-1">
+                    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                        <!-- Фото и основная информация -->
+                        <div class="p-6 text-center">
+                            {% if user.photo %}
+                            <img src="{{ user.photo.url }}" alt="{{ user.get_full_name }}" 
+                                 class="w-32 h-32 rounded-full object-cover mx-auto mb-4">
+                            {% else %}
+                            <div class="w-32 h-32 rounded-full bg-blue-100 flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-user text-blue-600 text-4xl"></i>
+                            </div>
+                            {% endif %}
+                            
+                            <h2 class="text-xl font-bold text-gray-800 mb-1">{{ user.get_full_name }}</h2>
+                            <p class="text-gray-600 mb-2">{{ user.get_role_display }}</p>
+                            {% if user.position %}
+                            <p class="text-gray-500 mb-4">{{ user.position }}</p>
+                            {% endif %}
+                            
+                            <div class="inline-block px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium mb-4">
+                                {% if user.is_active %}
+                                    <i class="fas fa-check-circle mr-1"></i>Активен
+                                {% else %}
+                                    <i class="fas fa-times-circle mr-1"></i>Неактивен
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Контактная информация -->
+                        <div class="border-t border-gray-100 p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">Контактная информация</h3>
+                            
+                            <div class="space-y-3">
+                                {% if user.email %}
+                                <div class="flex items-start">
+                                    <div class="w-8 text-gray-400"><i class="fas fa-envelope"></i></div>
+                                    <div>{{ user.email }}</div>
+                                </div>
+                                {% endif %}
+                                
+                                {% if user.phone %}
+                                <div class="flex items-start">
+                                    <div class="w-8 text-gray-400"><i class="fas fa-phone"></i></div>
+                                    <div>{{ user.phone }}</div>
+                                </div>
+                                {% endif %}
+                                
+                                <div class="flex items-start">
+                                    <div class="w-8 text-gray-400"><i class="fas fa-calendar"></i></div>
                                     <div>
-                                        <p class="text-xs text-gray-500">Email</p>
-                                        <p>{{ user.email }}</p>
+                                        <div class="text-xs text-gray-500">Дата регистрации</div>
+                                        <div>{{ user.date_joined|date:"d.m.Y" }}</div>
                                     </div>
                                 </div>
-                                <div class="flex items-center text-gray-600">
-                                    <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center mr-3 flex-shrink-0">
-                                        <i class="fas fa-phone text-green-600"></i>
-                                    </div>
+                                
+                                {% if user.last_login %}
+                                <div class="flex items-start">
+                                    <div class="w-8 text-gray-400"><i class="fas fa-clock"></i></div>
                                     <div>
-                                        <p class="text-xs text-gray-500">Телефон</p>
-                                        <p>{{ user.phone }}</p>
+                                        <div class="text-xs text-gray-500">Последний вход</div>
+                                        <div>{{ user.last_login|date:"d.m.Y H:i" }}</div>
                                     </div>
                                 </div>
-                                <div class="flex items-center text-gray-600">
-                                    <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center mr-3 flex-shrink-0">
-                                        <i class="fas fa-calendar text-purple-600"></i>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Правая колонка (статистика) -->
+                <div class="lg:col-span-2">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <!-- Задачи -->
+                        <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+                            <div class="p-6">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center">
+                                            <i class="fas fa-tasks text-blue-600 text-xl"></i>
+                                        </div>
+                                        <div>
+                                            <h3 class="text-lg font-semibold text-gray-900">Задачи</h3>
+                                            <p class="text-sm text-gray-500">Управление задачами</p>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <p class="text-xs text-gray-500">Дата регистрации</p>
-                                        <p>{{ user.date_joined|date:"d.m.Y" }}</p>
+                                    <div class="text-right">
+                                        <div class="text-3xl font-bold text-gray-900">{{ tasks_count }}</div>
+                                        <div class="text-sm text-gray-500">всего</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="space-y-3">
+                                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                        <div class="flex items-center space-x-2">
+                                            <div class="w-2 h-2 rounded-full bg-yellow-400"></div>
+                                            <span class="text-sm font-medium text-gray-700">Новые</span>
+                                        </div>
+                                        <span class="text-sm font-bold text-gray-900">{{ new_tasks_count }}</span>
+                                    </div>
+                                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                        <div class="flex items-center space-x-2">
+                                            <div class="w-2 h-2 rounded-full bg-blue-500"></div>
+                                            <span class="text-sm font-medium text-gray-700">В работе</span>
+                                        </div>
+                                        <span class="text-sm font-bold text-gray-900">{{ in_progress_tasks_count }}</span>
+                                    </div>
+                                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                        <div class="flex items-center space-x-2">
+                                            <div class="w-2 h-2 rounded-full bg-green-500"></div>
+                                            <span class="text-sm font-medium text-gray-700">Завершенные</span>
+                                        </div>
+                                        <span class="text-sm font-bold text-gray-900">{{ completed_tasks_count }}</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         
-                        <div class="bg-gray-50 p-4 rounded-lg">
-                            <h2 class="text-lg font-semibold text-gray-800 mb-4 border-b border-gray-200 pb-2">Статус аккаунта</h2>
-                            <div class="space-y-4">
-                                <div class="flex items-center">
-                                    <div class="w-10 h-10 rounded-full 
-                                        {% if user.is_active %}
-                                            bg-green-100 flex items-center justify-center mr-3 flex-shrink-0
-                                        {% else %}
-                                            bg-red-100 flex items-center justify-center mr-3 flex-shrink-0
-                                        {% endif %}">
-                                        <i class="fas fa-user-check 
-                                            {% if user.is_active %}
-                                                text-green-600
-                                            {% else %}
-                                                text-red-600
-                                            {% endif %}"></i>
+                        <!-- Уведомления -->
+                        <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+                            <div class="p-6">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-12 h-12 rounded-xl bg-yellow-50 flex items-center justify-center">
+                                            <i class="fas fa-bell text-yellow-600 text-xl"></i>
+                                        </div>
+                                        <div>
+                                            <h3 class="text-lg font-semibold text-gray-900">Уведомления</h3>
+                                            <p class="text-sm text-gray-500">Центр уведомлений</p>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <p class="text-xs text-gray-500">Статус</p>
-                                        <span class="inline-flex rounded-full px-3 py-1 text-sm font-semibold 
-                                            {% if user.is_active %}
-                                                bg-green-100 text-green-800
-                                            {% else %}
-                                                bg-red-100 text-red-800
-                                            {% endif %}">
-                                            {{ user.is_active|yesno:"Активен,Неактивен" }}
-                                        </span>
+                                    <div class="text-right">
+                                        <div class="text-3xl font-bold text-gray-900">{{ notifications_count }}</div>
+                                        <div class="text-sm text-gray-500">всего</div>
                                     </div>
                                 </div>
-                                <div class="flex items-center text-gray-600">
-                                    <div class="w-10 h-10 rounded-full bg-yellow-100 flex items-center justify-center mr-3 flex-shrink-0">
-                                        <i class="fas fa-clock text-yellow-600"></i>
+                                
+                                <div class="space-y-3">
+                                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                        <div class="flex items-center space-x-2">
+                                            <div class="w-2 h-2 rounded-full bg-blue-500"></div>
+                                            <span class="text-sm font-medium text-gray-700">Непрочитанные</span>
+                                        </div>
+                                        <span class="text-sm font-bold text-gray-900">{{ unread_notifications_count }}</span>
                                     </div>
-                                    <div>
-                                        <p class="text-xs text-gray-500">Последний вход</p>
-                                        <p>{{ user.last_login|date:"d.m.Y H:i"|default:"Никогда" }}</p>
+                                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                        <div class="flex items-center space-x-2">
+                                            <div class="w-2 h-2 rounded-full bg-yellow-500"></div>
+                                            <span class="text-sm font-medium text-gray-700">За сегодня</span>
+                                        </div>
+                                        <span class="text-sm font-bold text-gray-900">{{ today_notifications_count }}</span>
                                     </div>
-                                </div>
-                            </div>
+                                    <div class="mt-4 pt-3 border-t border-gray-200">
+                                        <a href="{% url 'core:notifications' %}" class="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium text-sm transition-colors">
+                                            <span>Все уведомления</span>
+                                            <i class="fas fa-arrow-right ml-2 text-xs"></i>
+                                        </a>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Статистика и активность - улучшенный дизайн с карточками -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-            <!-- Задачи -->
-            <div class="bg-white rounded-xl shadow-sm overflow-hidden">
-                <div class="bg-gradient-to-r from-blue-400 to-blue-500 px-6 py-4">
-                    <div class="flex justify-between items-center">
-                        <h2 class="text-lg font-semibold text-white">Задачи</h2>
-                        <div class="w-12 h-12 rounded-full bg-white bg-opacity-30 flex items-center justify-center">
-                            <i class="fas fa-tasks text-white text-xl"></i>
+                    <!-- Дополнительные карточки для разных ролей -->
+                    {% if user.role == 'DRIVER' %}
+                    <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden mb-6">
+                        <div class="p-6">
+                            <div class="flex items-center justify-between mb-6">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-12 h-12 rounded-xl bg-green-50 flex items-center justify-center">
+                                        <i class="fas fa-file-alt text-green-600 text-xl"></i>
                         </div>
-                    </div>
-                    <div class="mt-2">
-                        <span class="text-3xl font-bold text-white">{{ tasks_count }}</span>
-                        <span class="text-blue-100 ml-1">всего</span>
+                                    <div>
+                                        <h3 class="text-lg font-semibold text-gray-900">Путевые листы</h3>
+                                        <p class="text-sm text-gray-500">Документооборот</p>
                     </div>
                 </div>
-                <div class="p-4">
-                    <div class="space-y-3">
-                        <div class="flex justify-between text-sm items-center">
-                            <span class="text-gray-600 flex items-center">
-                                <span class="w-3 h-3 rounded-full bg-yellow-400 mr-2"></span>
-                                Новые
-                            </span>
-                            <span class="font-medium">{{ new_tasks_count }}</span>
-                        </div>
-                        <div class="flex justify-between text-sm items-center">
-                            <span class="text-gray-600 flex items-center">
-                                <span class="w-3 h-3 rounded-full bg-blue-400 mr-2"></span>
-                                В работе
-                            </span>
-                            <span class="font-medium">{{ in_progress_tasks_count }}</span>
-                        </div>
-                        <div class="flex justify-between text-sm items-center">
-                            <span class="text-gray-600 flex items-center">
-                                <span class="w-3 h-3 rounded-full bg-green-400 mr-2"></span>
-                                Завершенные
-                            </span>
-                            <span class="font-medium">{{ completed_tasks_count }}</span>
-                        </div>
-                    </div>
+                                <div class="text-right">
+                                    <div class="text-3xl font-bold text-gray-900">{{ waybills_count }}</div>
+                                    <div class="text-sm text-gray-500">всего</div>
                 </div>
             </div>
 
-            <!-- Путевые листы (для водителей) -->
-            {% if user.role == 'DRIVER' %}
-            <div class="bg-white rounded-xl shadow-sm overflow-hidden">
-                <div class="bg-gradient-to-r from-green-400 to-green-500 px-6 py-4">
-                    <div class="flex justify-between items-center">
-                        <h2 class="text-lg font-semibold text-white">Путевые листы</h2>
-                        <div class="w-12 h-12 rounded-full bg-white bg-opacity-30 flex items-center justify-center">
-                            <i class="fas fa-file-alt text-white text-xl"></i>
+                            <div class="grid grid-cols-3 gap-4">
+                                <div class="text-center p-4 bg-gray-50 rounded-xl">
+                                    <div class="text-2xl font-bold text-gray-900 mb-1">{{ today_waybills_count }}</div>
+                                    <div class="text-sm text-gray-500">За сегодня</div>
                         </div>
+                                <div class="text-center p-4 bg-gray-50 rounded-xl">
+                                    <div class="text-2xl font-bold text-gray-900 mb-1">{{ week_waybills_count }}</div>
+                                    <div class="text-sm text-gray-500">За неделю</div>
                     </div>
-                    <div class="mt-2">
-                        <span class="text-3xl font-bold text-white">{{ waybills_count }}</span>
-                        <span class="text-green-100 ml-1">всего</span>
-                    </div>
-                </div>
-                <div class="p-4">
-                    <div class="space-y-3">
-                        <div class="flex justify-between text-sm items-center">
-                            <span class="text-gray-600 flex items-center">
-                                <span class="w-3 h-3 rounded-full bg-green-300 mr-2"></span>
-                                За сегодня
-                            </span>
-                            <span class="font-medium">{{ today_waybills_count }}</span>
-                        </div>
-                        <div class="flex justify-between text-sm items-center">
-                            <span class="text-gray-600 flex items-center">
-                                <span class="w-3 h-3 rounded-full bg-green-400 mr-2"></span>
-                                За неделю
-                            </span>
-                            <span class="font-medium">{{ week_waybills_count }}</span>
-                        </div>
-                        <div class="flex justify-between text-sm items-center">
-                            <span class="text-gray-600 flex items-center">
-                                <span class="w-3 h-3 rounded-full bg-green-500 mr-2"></span>
-                                За месяц
-                            </span>
-                            <span class="font-medium">{{ month_waybills_count }}</span>
+                                <div class="text-center p-4 bg-gray-50 rounded-xl">
+                                    <div class="text-2xl font-bold text-gray-900 mb-1">{{ month_waybills_count }}</div>
+                                    <div class="text-sm text-gray-500">За месяц</div>
                         </div>
                     </div>
                 </div>
             </div>
             {% endif %}
 
-            <!-- Расходы (для бухгалтеров и снабженцев) -->
             {% if user.role == 'ACCOUNTANT' or user.role == 'SUPPLIER' %}
-            <div class="bg-white rounded-xl shadow-sm overflow-hidden">
-                <div class="bg-gradient-to-r from-purple-400 to-purple-500 px-6 py-4">
-                    <div class="flex justify-between items-center">
-                        <h2 class="text-lg font-semibold text-white">Расходы</h2>
-                        <div class="w-12 h-12 rounded-full bg-white bg-opacity-30 flex items-center justify-center">
-                            <i class="fas fa-receipt text-white text-xl"></i>
+                    <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden mb-6">
+                        <div class="p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-12 h-12 rounded-xl bg-purple-50 flex items-center justify-center">
+                                        <i class="fas fa-receipt text-purple-600 text-xl"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-lg font-semibold text-gray-900">Расходы</h3>
+                                        <p class="text-sm text-gray-500">Финансовый учет</p>
                         </div>
                     </div>
-                    <div class="mt-2">
-                        <span class="text-3xl font-bold text-white">{{ expenses_count }}</span>
-                        <span class="text-purple-100 ml-1">всего</span>
+                                <div class="text-right">
+                                    <div class="text-3xl font-bold text-gray-900">{{ expenses_count }}</div>
+                                    <div class="text-sm text-gray-500">всего</div>
                     </div>
                 </div>
-                <div class="p-4">
+                            
                     <div class="space-y-3">
-                        <div class="flex justify-between text-sm items-center">
-                            <span class="text-gray-600 flex items-center">
-                                <span class="w-3 h-3 rounded-full bg-yellow-400 mr-2"></span>
-                                На проверке
-                            </span>
-                            <span class="font-medium">{{ pending_expenses_count }}</span>
+                                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                    <div class="flex items-center space-x-2">
+                                        <div class="w-2 h-2 rounded-full bg-yellow-500"></div>
+                                        <span class="text-sm font-medium text-gray-700">На проверке</span>
                         </div>
-                        <div class="flex justify-between text-sm items-center">
-                            <span class="text-gray-600 flex items-center">
-                                <span class="w-3 h-3 rounded-full bg-green-400 mr-2"></span>
-                                Подтверждено
-                            </span>
-                            <span class="font-medium">{{ approved_expenses_count }}</span>
+                                    <span class="text-sm font-bold text-gray-900">{{ pending_expenses_count }}</span>
                         </div>
-                        <div class="flex justify-between text-sm items-center">
-                            <span class="text-gray-600 flex items-center">
-                                <span class="w-3 h-3 rounded-full bg-red-400 mr-2"></span>
-                                Отклонено
-                            </span>
-                            <span class="font-medium">{{ rejected_expenses_count }}</span>
+                                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                    <div class="flex items-center space-x-2">
+                                        <div class="w-2 h-2 rounded-full bg-green-500"></div>
+                                        <span class="text-sm font-medium text-gray-700">Подтверждено</span>
                         </div>
+                                    <span class="text-sm font-bold text-gray-900">{{ approved_expenses_count }}</span>
+                    </div>
+                                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                    <div class="flex items-center space-x-2">
+                                        <div class="w-2 h-2 rounded-full bg-red-500"></div>
+                                        <span class="text-sm font-medium text-gray-700">Отклонено</span>
+                </div>
+                                    <span class="text-sm font-bold text-gray-900">{{ rejected_expenses_count }}</span>
                     </div>
                 </div>
-            </div>
-            {% endif %}
-
-            <!-- Уведомления -->
-            <div class="bg-white rounded-xl shadow-sm overflow-hidden">
-                <div class="bg-gradient-to-r from-yellow-400 to-yellow-500 px-6 py-4">
-                    <div class="flex justify-between items-center">
-                        <h2 class="text-lg font-semibold text-white">Уведомления</h2>
-                        <div class="w-12 h-12 rounded-full bg-white bg-opacity-30 flex items-center justify-center">
-                            <i class="fas fa-bell text-white text-xl"></i>
                         </div>
                     </div>
-                    <div class="mt-2">
-                        <span class="text-3xl font-bold text-white">{{ notifications_count }}</span>
-                        <span class="text-yellow-100 ml-1">всего</span>
-                    </div>
+                    {% endif %}
                 </div>
-                <div class="p-4">
-                    <div class="space-y-3">
-                        <div class="flex justify-between text-sm items-center">
-                            <span class="text-gray-600 flex items-center">
-                                <span class="w-3 h-3 rounded-full bg-blue-400 mr-2"></span>
-                                Непрочитанные
-                            </span>
-                            <span class="font-medium">{{ unread_notifications_count }}</span>
-                        </div>
-                        <div class="flex justify-between text-sm items-center">
-                            <span class="text-gray-600 flex items-center">
-                                <span class="w-3 h-3 rounded-full bg-yellow-400 mr-2"></span>
-                                За сегодня
-                            </span>
-                            <span class="font-medium">{{ today_notifications_count }}</span>
-                        </div>
-                        <div class="flex justify-between text-sm">
-                            <a href="{% url 'core:notifications' %}" class="text-blue-600 hover:text-blue-800 flex items-center">
-                                <i class="fas fa-external-link-alt mr-1"></i>
-                                Все уведомления
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Последние действия - улучшенный дизайн с временной линией -->
-        <div class="bg-white rounded-xl shadow-sm p-6">
-            <h2 class="text-lg font-semibold text-gray-800 mb-6 border-b border-gray-200 pb-2">Последние действия</h2>
-            <div class="space-y-6 relative">
-                <!-- Вертикальная линия -->
-                <div class="absolute top-0 bottom-0 left-4 w-0.5 bg-gray-200"></div>
-                
-                {% for action in recent_actions %}
-                <div class="flex items-start space-x-4 relative">
-                    <div class="absolute left-4 w-0.5 bg-gray-200 h-full"></div>
-                    <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 z-10 relative">
-                        <i class="fas fa-{{ action.icon }} text-blue-600"></i>
-                    </div>
-                    <div class="flex-1 bg-gray-50 rounded-lg p-4">
-                        <p class="text-gray-800">{{ action.description }}</p>
-                        <p class="text-sm text-gray-500 mt-1">{{ action.timestamp|date:"d.m.Y H:i" }}</p>
-                    </div>
-                </div>
-                {% empty %}
-                <div class="flex items-center justify-center py-8 text-gray-500">
-                    <i class="fas fa-info-circle mr-2"></i>
-                    <p>Нет последних действий</p>
-                </div>
-                {% endfor %}
             </div>
         </div>
     </div>
-</div>
 
-<!-- Модальное окно редактирования профиля -->
-<div id="editProfileModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 overflow-y-auto">
-    <div class="relative min-h-screen flex items-center justify-center p-4">
-        <div class="w-full max-w-md bg-white rounded-xl shadow-lg">
-            <div class="flex justify-between items-center p-4 border-b">
-                <h3 class="text-lg font-semibold">Редактировать профиль</h3>
-                <button class="closeModal text-gray-500 hover:text-gray-700">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <form id="editProfileForm" class="p-4 space-y-4">
-                <!-- Фото -->
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Фото</label>
-                    <div class="flex items-center space-x-4">
-                        <div id="photoPreview" class="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center">
-                            {% if user.photo %}
-                                <img src="{{ user.photo.url }}" class="w-20 h-20 rounded-full object-cover">
-                            {% else %}
-                                <i class="fas fa-user text-gray-400 text-2xl"></i>
-                            {% endif %}
-                        </div>
-                        <div class="flex-1">
-                            <input type="file" name="photo" id="photoInput" accept="image/*" class="hidden">
-                            <button type="button" onclick="document.getElementById('photoInput').click()"
-                                    class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                                <i class="fas fa-camera mr-2"></i>Изменить фото
-                            </button>
-                        </div>
-                    </div>
+    <!-- Плавающая кнопка редактирования -->
+    <a href="{% url 'core:profile-edit' %}" class="profile-edit-button">
+        <i class="fas fa-edit mr-2"></i>Редактировать профиль
+    </a>
+
+    <!-- Нижнее мобильное меню -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 lg:hidden z-50">
+        <div class="flex justify-between items-center px-2">
+            <a href="{% url 'core:home' %}" class="flex-1 flex flex-col items-center text-gray-600 hover:text-blue-600 relative mx-1">
+                <div class="icon-container w-8 h-8 flex items-center justify-center">
+                    <img src="{% static 'core/img/mobile/home.svg' %}" alt="Home" class="w-6 h-6">
                 </div>
-
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Имя</label>
-                        <input type="text" name="first_name" value="{{ user.first_name }}" required
-                               class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Фамилия</label>
-                        <input type="text" name="last_name" value="{{ user.last_name }}" required
-                               class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                    </div>
+                <span class="text-xs text-[9px] mt-1">Главная</span>
+            </a>
+            <a href="{% url 'core:tasks' %}" class="flex-1 flex flex-col items-center text-gray-600 hover:text-blue-600 relative mx-1">
+                <div class="icon-container w-8 h-8 flex items-center justify-center">
+                    <img src="{% static 'core/img/mobile/check-square.svg' %}" alt="Tasks" class="w-6 h-6">
                 </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                    <input type="email" name="email" value="{{ user.email }}" required
-                           class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                <span class="text-xs text-[9px] mt-1">Задачи</span>
+            </a>
+            <a href="{% url 'core:map' %}" class="flex-1 flex flex-col items-center text-gray-600 hover:text-blue-600 relative mx-1">
+                <div class="icon-container w-8 h-8 flex items-center justify-center">
+                    <img src="{% static 'core/img/mobile/location.svg' %}" alt="Map" class="w-6 h-6">
                 </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Телефон</label>
-                    <input type="tel" name="phone" value="{{ user.phone }}" required
-                           class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                <span class="text-xs text-[9px] mt-1">Карта</span>
+            </a>
+            <a href="{% url 'core:trucks' %}" class="flex-1 flex flex-col items-center text-gray-600 hover:text-blue-600 relative mx-1">
+                <div class="icon-container w-8 h-8 flex items-center justify-center">
+                    <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Trucks" class="w-6 h-6">
                 </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Должность</label>
-                    <input type="text" name="position" value="{{ user.position }}"
-                           class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                <span class="text-xs text-[9px] mt-1">Грузовики</span>
+            </a>
+            <a href="{% url 'core:employees' %}" class="flex-1 flex flex-col items-center text-gray-600 hover:text-blue-600 relative mx-1">
+                <div class="icon-container w-8 h-8 flex items-center justify-center">
+                    <img src="{% static 'core/img/mobile/employee.svg' %}" alt="Employees" class="w-6 h-6">
                 </div>
-
-                <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700">
-                    Сохранить изменения
-                </button>
-            </form>
+                <span class="text-xs text-[9px] mt-1">Сотрудники</span>
+            </a>
         </div>
-    </div>
-</div>
-{% endblock %}
+    </nav>
 
-{% block extra_scripts %}
-<script>
-    const editProfileModal = document.getElementById('editProfileModal');
-    const editProfileForm = document.getElementById('editProfileForm');
-    const photoInput = document.getElementById('photoInput');
-    const photoPreview = document.getElementById('photoPreview');
-    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-
-    // Открытие модального окна
-    document.getElementById('editProfileBtn')?.addEventListener('click', () => {
-        editProfileModal.classList.remove('hidden');
-    });
-
-    // Закрытие модального окна
-    document.querySelectorAll('.closeModal').forEach(button => {
-        button.addEventListener('click', () => {
-            editProfileModal.classList.add('hidden');
-        });
-    });
-
-    // Предпросмотр фото
-    photoInput.addEventListener('change', function(e) {
-        if (this.files && this.files[0]) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                photoPreview.innerHTML = `<img src="${e.target.result}" class="w-20 h-20 rounded-full object-cover">`;
+    <!-- Стили -->
+    <style>
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
             }
-            reader.readAsDataURL(this.files[0]);
+            .main-content {
+                margin-left: 0;
+            }
         }
-    });
 
-    // Сохранение изменений
-    editProfileForm.addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        try {
-            const formData = new FormData(this);
+        /* Стили для плавающей кнопки редактирования */
+        .profile-edit-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 24px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            min-width: 180px;
+            text-decoration: none;
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 50;
+        }
+
+        .profile-edit-button:hover {
+            background: #1d4ed8;
+            box-shadow: 0 4px 8px rgba(37, 99, 235, 0.3);
+            transform: translateY(-1px);
+            color: white;
+            text-decoration: none;
+        }
+
+        /* Мобильная адаптация */
+        @media (max-width: 1024px) {
+            .sidebar {
+                display: none;
+            }
             
-            // Сначала обновляем основные данные
-            const response = await fetch('/api/users/me/', {
-                method: 'PATCH',
-                headers: {
-                    'X-CSRFToken': csrfToken,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    first_name: formData.get('first_name'),
-                    last_name: formData.get('last_name'),
-                    email: formData.get('email'),
-                    phone: formData.get('phone'),
-                    position: formData.get('position')
-                })
-            });
-
-            if (!response.ok) {
-                throw new Error('Ошибка при обновлении профиля');
+            .main-content {
+                margin-left: 0;
             }
+            
+            /* Изменяем padding-bottom для мобильной версии */
+            .w-full.px-4.md\:px-8.py-6.pb-32 {
+                padding-bottom: 4rem !important;
+            }
+            
+            /* Мобильная адаптация кнопки */
+            .profile-edit-button {
+                width: calc(100% - 2rem);
+                max-width: none;
+                margin: 0;
+                padding: 16px 24px;
+                font-size: 18px;
+                position: fixed;
+                bottom: 90px;
+                left: 1rem;
+                right: 1rem;
+                z-index: 40;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+                min-width: auto;
+            }
+            
+            /* Устанавливаем размер и фильтр для мобильных иконок */
+            .icon-container img {
+                width: 24px;
+                height: 24px;
+            }
+            
+            /* Серый фильтр для неактивных иконок */
+            nav.fixed.bottom-0 a.text-gray-600 .icon-container img {
+                filter: brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(142deg) brightness(96%) contrast(91%);
+            }
+            
+            /* Синий фильтр для активной иконки */
+            nav.fixed.bottom-0 a.text-blue-600 .icon-container img {
+                filter: brightness(0) saturate(100%) invert(32%) sepia(96%) saturate(7461%) hue-rotate(220deg) brightness(97%) contrast(98%);
+        }
+            
+            .fixed.bottom-0 {
+                height: 70px !important;
+                padding-top: 10px !important;
+                box-shadow: none !important;
+                z-index: 999 !important;
+                background-color: #fff !important;
+                border-top: 1px solid #E5E7EB !important;
+            }
+            
+            /* Дополнительные отступы для мобильной версии */
+            .main-content {
+                padding-bottom: 90px;
+            }
+        }
+        
+        @media (max-width: 1100px) {
+            body nav.fixed.bottom-0 {
+                height: 70px !important;
+                padding-top: 10px !important;
+                box-shadow: none !important;
+                z-index: 999 !important;
+                background-color: #fff !important;
+                border-top: 1px solid #E5E7EB !important;
+            }
+        }
+        
+        /* Исправляем отображение карточек поездок */
+        @media (max-width: 1024px) {
+            .main-content {
+                padding-bottom: 90px;
+            }
+        }
+    </style>
 
-            // Если есть новое фото, загружаем его отдельным запросом
-            if (photoInput.files.length > 0) {
-                const photoData = new FormData();
-                photoData.append('photo', photoInput.files[0]);
+    <script>
+        // Обработчик для мобильного меню пользователя
+        document.addEventListener('DOMContentLoaded', function() {
+            const userAvatar = document.getElementById('user-avatar');
+            const userDropdown = document.getElementById('user-dropdown');
 
-                const photoResponse = await fetch('/api/users/me/photo/', {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRFToken': csrfToken
-                    },
-                    body: photoData
+            if (userAvatar && userDropdown) {
+                userAvatar.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    userDropdown.classList.toggle('hidden');
                 });
-
-                if (!photoResponse.ok) {
-                    throw new Error('Ошибка при загрузке фото');
-                }
-            }
-
-            // Закрываем модальное окно и обновляем страницу
-            editProfileModal.classList.add('hidden');
-            window.location.reload();
-        } catch (error) {
-            console.error('Ошибка:', error);
-            alert('Не удалось обновить профиль: ' + error.message);
+                
+                document.addEventListener('click', function() {
+                    userDropdown.classList.add('hidden');
+                });
         }
     });
 </script>

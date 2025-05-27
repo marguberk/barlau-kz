@@ -77,6 +77,7 @@ urlpatterns = [
     path('api/users/me/photo/', upload_profile_photo, name='api-profile-photo-upload'),
     path('api/users/me/stats/', get_profile_stats, name='api-profile-stats'),
     path('api/trips/', trips_api, name='api-trips'),
+    path('api/trips/<int:pk>/', trips_api, name='api-trips-detail'),
     path('api/driver_locations/', driver_locations_api, name='api-driver-locations'),
     
     # Employees

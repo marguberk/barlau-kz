@@ -52,7 +52,7 @@
                 <div class="flex justify-start items-start gap-2 relative">
                     <a href="{% url 'core:notifications' %}" class="w-10 h-10 px-3 py-2 bg-white rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex justify-center items-center gap-1.5 relative">
                         <img src="{% static 'core/img/bell.svg' %}" alt="Notifications" class="w-5 h-5">
-                        <span id="notif-badge" class="hidden absolute -top-1 -right-1 w-3.5 h-3.5 bg-red-500 rounded-full border-2 border-white"></span>
+                        <span id="notif-badge" class="absolute -top-2 -right-2 bg-red-500 rounded-full border-2 border-white flex items-center justify-center font-bold shadow-lg transition-all duration-200" style="min-width: 1.4rem; min-height: 1.4rem; font-size: 0.85rem; color: #fff; padding: 0 0.3em; display: flex; align-items: center; justify-content: center;"></span>
                     </a>
                 </div>
                 <div class="flex justify-start items-center gap-1.5 relative">
@@ -83,81 +83,81 @@
             </div>
         </div>
         <!-- Контент уведомлений -->
-        <div class="container mx-auto px-4 py-8">
-            <div class="max-w-3xl mx-auto">
-                <!-- CSRF Token для AJAX-запросов -->
-                {% csrf_token %}
-                
-                <!-- Заголовок -->
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-3xl mx-auto">
+        <!-- CSRF Token для AJAX-запросов -->
+        {% csrf_token %}
+        
+        <!-- Заголовок -->
                 <div class="flex justify-end items-center mb-6 gap-4">
-                    <button id="markAllReadBtn" class="text-blue-600 hover:text-blue-800 text-sm">
-                        <i class="fas fa-check-double mr-1"></i>
-                        Отметить все как прочитанные
-                    </button>
+            <button id="markAllReadBtn" class="text-blue-600 hover:text-blue-800 text-sm">
+                <i class="fas fa-check-double mr-1"></i>
+                Отметить все как прочитанные
+            </button>
                     <button id="deleteAllNotifBtn" class="text-red-600 hover:text-red-800 text-sm flex items-center gap-1">
                         <i class="fas fa-trash-alt"></i>
                         Удалить все
                     </button>
-                </div>
+        </div>
 
-                <!-- Фильтры -->
-                <div class="bg-white rounded-xl shadow-sm p-4 mb-6">
-                    <div class="flex flex-wrap gap-4">
-                        <button class="filter-btn px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-                                data-filter="all">
-                            Все
-                        </button>
-                        <button class="filter-btn px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-                                data-filter="unread">
-                            Непрочитанные
-                        </button>
-                        <button class="filter-btn px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-                                data-filter="TASK">
-                            Задачи
-                        </button>
-                        <button class="filter-btn px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-                                data-filter="WAYBILL">
-                            КАТы
-                        </button>
-                        <button class="filter-btn px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-                                data-filter="EXPENSE">
-                            Расходы
-                        </button>
-                        <button class="filter-btn px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-                                data-filter="SYSTEM">
-                            Системные
-                        </button>
+        <!-- Фильтры -->
+        <div class="bg-white rounded-xl shadow-sm p-4 mb-6">
+            <div class="flex flex-wrap gap-4">
+                <button class="filter-btn px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                        data-filter="all">
+                    Все
+                </button>
+                <button class="filter-btn px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                        data-filter="unread">
+                    Непрочитанные
+                </button>
+                <button class="filter-btn px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                        data-filter="TASK">
+                    Задачи
+                </button>
+                <button class="filter-btn px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                        data-filter="WAYBILL">
+                    КАТы
+                </button>
+                <button class="filter-btn px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                        data-filter="EXPENSE">
+                    Расходы
+                </button>
+                <button class="filter-btn px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                        data-filter="SYSTEM">
+                    Системные
+                </button>
                         <button class="filter-btn px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                                 data-filter="DOCUMENT">
                             Документы
                         </button>
-                    </div>
-                </div>
-
-                <!-- Список уведомлений -->
-                <div id="notificationsList" class="space-y-4">
-                    <!-- Уведомления будут добавлены через JavaScript -->
-                </div>
-
-                <!-- Загрузка -->
-                <div id="loadingIndicator" class="hidden">
-                    <div class="flex justify-center items-center py-8">
-                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                    </div>
-                </div>
-
-                <!-- Нет уведомлений -->
-                <div id="emptyState" class="hidden">
-                    <div class="text-center py-12">
-                        <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <i class="fas fa-bell text-gray-400 text-2xl"></i>
-                        </div>
-                        <h3 class="text-lg font-medium text-gray-800 mb-2">Нет уведомлений</h3>
-                        <p class="text-gray-600">У вас пока нет уведомлений</p>
-                    </div>
-                </div>
             </div>
         </div>
+
+        <!-- Список уведомлений -->
+        <div id="notificationsList" class="space-y-4">
+            <!-- Уведомления будут добавлены через JavaScript -->
+        </div>
+
+        <!-- Загрузка -->
+        <div id="loadingIndicator" class="hidden">
+            <div class="flex justify-center items-center py-8">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            </div>
+        </div>
+
+        <!-- Нет уведомлений -->
+        <div id="emptyState" class="hidden">
+            <div class="text-center py-12">
+                <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-bell text-gray-400 text-2xl"></i>
+                </div>
+                <h3 class="text-lg font-medium text-gray-800 mb-2">Нет уведомлений</h3>
+                <p class="text-gray-600">У вас пока нет уведомлений</p>
+            </div>
+        </div>
+    </div>
+</div>
     </div>
 </div>
 
@@ -382,6 +382,10 @@
     .fixed.bottom-0 {
         padding-top: 10px !important;
         height: 70px !important;
+    }
+    
+    .main-content {
+        padding-bottom: 120px !important;
     }
 }
 </style>

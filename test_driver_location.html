@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Driver Location</title>
+</head>
+<body>
+    <h1>Test Driver Location Sending</h1>
+    <button id="sendLocation">Send Test Location</button>
+    <div id="result"></div>
+
+    <script>
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        document.getElementById('sendLocation').onclick = function() {
+            console.log('Sending test location...');
+            
+            fetch('/api/driver_locations/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({ 
+                    latitude: 43.248949, 
+                    longitude: 76.899709 
+                })
+            }).then(response => {
+                console.log('Response status:', response.status);
+                return response.json();
+            }).then(data => {
+                console.log('Response data:', data);
+                document.getElementById('result').innerHTML = 
+                    '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+            }).catch(error => {
+                console.error('Error:', error);
+                document.getElementById('result').innerHTML = 
+                    '<pre style="color: red;">Error: ' + error + '</pre>';
+            });
+        };
+    </script>
+</body>
+</html> 
