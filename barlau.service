@@ -1,0 +1,26 @@
+[Unit]
+Description=Barlau.kz Django Application
+After=network.target mysql.service
+Requires=mysql.service
+
+[Service]
+Type=exec
+User=barlau
+Group=barlau
+WorkingDirectory=/var/www/barlau
+Environment=PATH=/var/www/barlau/venv/bin
+Environment=DJANGO_SETTINGS_MODULE=barlau.settings_production
+ExecStart=/var/www/barlau/venv/bin/gunicorn --config /var/www/barlau/gunicorn_config.py barlau.wsgi:application
+ExecReload=/bin/kill -s HUP $MAINPID
+Restart=always
+RestartSec=3
+KillMode=mixed
+TimeoutStopSec=5
+PrivateTmp=true
+
+# Create runtime directory
+RuntimeDirectory=barlau
+RuntimeDirectoryMode=755
+
+[Install]
+WantedBy=multi-user.target 
