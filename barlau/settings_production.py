@@ -1,5 +1,5 @@
 """
-Production settings for barlau project on Plesk hosting
+Production settings for barlau project on VPS hosting
 """
 
 from .settings import *
@@ -11,15 +11,14 @@ DEBUG = False
 ALLOWED_HOSTS = [
     'barlau.org',
     'www.barlau.org',
-    'barlau.kz',
-    'www.barlau.kz',
+    '85.202.192.33',  # IP адрес VPS
 ]
 
 CSRF_TRUSTED_ORIGINS = [
     'https://barlau.org',
     'https://www.barlau.org',
-    'https://barlau.kz',
-    'https://www.barlau.kz',
+    'http://85.202.192.33',  # Для тестирования по IP
+    'https://85.202.192.33',
 ]
 
 # Database for production (MySQL)
@@ -51,9 +50,9 @@ SECURE_SSL_REDIRECT = True
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 
-# Static and media files for production
-STATIC_ROOT = '/var/www/vhosts/barlau.org/httpdocs/static/'
-MEDIA_ROOT = '/var/www/vhosts/barlau.org/httpdocs/media/'
+# Static and media files for VPS
+STATIC_ROOT = '/var/www/barlau/static/'
+MEDIA_ROOT = '/var/www/barlau/media/'
 
 # Logging configuration
 LOGGING = {
@@ -69,7 +68,7 @@ LOGGING = {
         'file': {
             'level': 'INFO',
             'class': 'logging.FileHandler',
-            'filename': '/var/www/vhosts/barlau.org/logs/django.log',
+            'filename': '/var/log/barlau/django.log',
             'formatter': 'verbose',
         },
         'console': {
@@ -105,8 +104,6 @@ CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOWED_ORIGINS = [
     "https://barlau.org",
     "https://www.barlau.org",
-    "https://barlau.kz",
-    "https://www.barlau.kz",
 ]
 
 # Cache settings for production (using database cache)
