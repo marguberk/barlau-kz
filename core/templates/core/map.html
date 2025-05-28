@@ -750,7 +750,6 @@
                 <img src="{% static 'core/img/mobile/location.svg' %}" alt="Map" class="w-6 h-6">
             </div>
             <span class="text-xs text-[9px] mt-1 text-center whitespace-nowrap">Карта</span>
-            <div class="absolute -bottom-2 left-0 right-0 h-0.5 bg-blue-600 rounded-full"></div>
         </a>
         <a href="{% url 'core:trucks' %}" class="flex-1 flex flex-col items-center text-gray-600 relative mx-1">
             <div class="icon-container w-8 h-8 flex items-center justify-center">
@@ -780,11 +779,11 @@ function getCookie(name) {
             if (cookie.substring(0, name.length + 1) === (name + '=')) {
                 cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
                 break;
-        }
+            }
         }
     }
     return cookieValue;
-    }
+}
     
 // --- Leaflet карта ---
 let map, startMarker, endMarker, routeLine;
@@ -1484,7 +1483,6 @@ async function loadDriverLocations() {
                 <img src="{% static 'core/img/mobile/location.svg' %}" alt="Map" class="w-6 h-6">
             </div>
             <span class="text-xs text-[9px] mt-1 text-center whitespace-nowrap">Карта</span>
-            <div class="absolute -bottom-2 left-0 right-0 h-0.5 bg-blue-600 rounded-full"></div>
         </a>
         <a href="{% url 'core:trucks' %}" class="flex-1 flex flex-col items-center text-gray-600 relative mx-1">
             <div class="icon-container w-8 h-8 flex items-center justify-center">
