@@ -7,6 +7,7 @@ from ..serializers import TaskSerializer
 from .base import BaseModelViewSet
 from django.conf import settings
 from core.models import Notification
+from django.db.models import Q
 
 class TaskFilter(filters.FilterSet):
     min_due_date = filters.DateTimeFilter(field_name="due_date", lookup_expr='gte')
@@ -61,9 +62,20 @@ class TaskViewSet(BaseModelViewSet):
             # Для неавторизованных пользователей в режиме отладки возвращаем все задачи
             return queryset
         
+        # Фильтрация по ролям:
+        # - Водители видят только свои задачи
+        # - Директора, Админы и Суперадмины видят все задачи
+        # - Остальные роли видят задачи, которые создали или которые им назначены
         if user.role == 'DRIVER':
             return queryset.filter(assigned_to=user)
-        return queryset
+        elif user.role in ['DIRECTOR', 'ADMIN', 'SUPERADMIN']:
+            # Показываем все задачи без фильтрации
+            return queryset
+        else:
+            # Для остальных ролей - задачи которые создали или им назначены
+            return queryset.filter(
+                Q(created_by=user) | Q(assigned_to=user)
+            )
     
     def perform_create(self, serializer):
         task = serializer.save(created_by=self.request.user)

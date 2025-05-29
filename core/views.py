@@ -331,7 +331,7 @@ class HomeView(LoginRequiredMixin, TemplateView):
                 tasks = Task.objects.filter(
                     assigned_to=self.request.user
                 ).exclude(status='COMPLETED')
-            elif self.request.user.role in ['DIRECTOR', 'SUPERADMIN']:
+            elif self.request.user.role in ['DIRECTOR', 'ADMIN', 'SUPERADMIN']:
                 tasks = Task.objects.exclude(status='COMPLETED')
             else:
                 tasks = Task.objects.filter(
@@ -659,9 +659,21 @@ class TasksView(LoginRequiredMixin, TemplateView):
         tasks = Task.objects.all().select_related(
             'assigned_to', 'vehicle', 'created_by')
 
-        # Если пользователь водитель, показываем только его задачи
+        # Фильтрация по ролям:
+        # - Водители видят только свои задачи
+        # - Директора, Админы и Суперадмины видят все задачи
+        # - Остальные роли видят задачи, которые создали или которые им назначены
         if self.request.user.role == 'DRIVER':
             tasks = tasks.filter(assigned_to=self.request.user)
+        elif self.request.user.role in ['DIRECTOR', 'ADMIN', 'SUPERADMIN']:
+            # Показываем все задачи без фильтрации
+            pass
+        else:
+            # Для остальных ролей - задачи которые создали или им назначены
+            tasks = tasks.filter(
+                models.Q(created_by=self.request.user) | 
+                models.Q(assigned_to=self.request.user)
+            )
 
         context['initial_tasks'] = tasks
         return context

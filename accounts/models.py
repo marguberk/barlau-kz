@@ -19,6 +19,7 @@ class User(AbstractUser):
         DRIVER = 'DRIVER', _('Водитель')
         SUPPLIER = 'SUPPLIER', _('Снабженец')
         TECH = 'TECH', _('Техотдел')
+        ADMIN = 'ADMIN', _('Администратор')
         SUPERADMIN = 'SUPERADMIN', _('Суперадмин')
 
     phone_regex = RegexValidator(
