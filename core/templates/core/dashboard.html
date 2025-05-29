@@ -270,69 +270,71 @@
                         <img src="{% static 'core/img/plus.svg' %}" alt="Add Task" class="w-4 h-4">
                     </a>
                 </div>
-                <div class="self-stretch px-5 py-4 flex flex-col justify-start items-start gap-3">
+                <div class="self-stretch px-5 py-4">
                     {% if request.user.is_authenticated %}
                         {% if recent_tasks %}
-                            {% for task in recent_tasks|slice:":3" %}
-                                <div class="self-stretch p-3.5 bg-white rounded-xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex justify-start items-start gap-3 overflow-hidden task-item">
-                                    <div class="pt-1 flex justify-center items-center gap-2">
-                                        <div class="task-checkbox-container">
-                                            {% if task.status == 'COMPLETED' %}
-                                                <button onclick="toggleTaskStatus('{{ task.id }}', 'NEW')" class="cursor-pointer">
-                                                    <div class="w-5 h-5 rounded-full flex items-center justify-center border-2 border-gray-300 bg-white" style="background-color: #267BD9 !important; border-color: #267BD9 !important;">
-                                                        <svg class="w-3 h-3" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24">
-                                                            <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/>
-                                                        </svg>
-                                                    </div>
-                                                </button>
-                                            {% else %}
-                                                <button onclick="toggleTaskStatus('{{ task.id }}', 'COMPLETED')" class="cursor-pointer">
-                                                    <div class="w-5 h-5 rounded-full flex items-center justify-center border-2 border-gray-300 bg-white">
-                                                    </div>
-                                                </button>
-                                            {% endif %}
+                            <div class="flex flex-col gap-3">
+                                {% for task in recent_tasks %}
+                                    <div class="p-4 bg-white rounded-xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex justify-start items-start gap-3 overflow-hidden task-item">
+                                        <div class="pt-1 flex justify-center items-center gap-2">
+                                            <div class="task-checkbox-container">
+                                                {% if task.status == 'COMPLETED' %}
+                                                    <button onclick="toggleTaskStatus('{{ task.id }}', 'NEW')" class="cursor-pointer">
+                                                        <div class="w-5 h-5 rounded-full flex items-center justify-center border-2 border-gray-300 bg-white" style="background-color: #267BD9 !important; border-color: #267BD9 !important;">
+                                                            <svg class="w-3 h-3" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24">
+                                                                <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/>
+                                                            </svg>
+                                                        </div>
+                                                    </button>
+                                                {% else %}
+                                                    <button onclick="toggleTaskStatus('{{ task.id }}', 'COMPLETED')" class="cursor-pointer">
+                                                        <div class="w-5 h-5 rounded-full flex items-center justify-center border-2 border-gray-300 bg-white">
+                                                        </div>
+                                                    </button>
+                                                {% endif %}
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="flex-1 flex flex-col justify-start items-start gap-2.5">
-                                        <div class="self-stretch flex flex-col justify-start items-start gap-0.5">
-                                            <div class="self-stretch justify-start text-zinc-950 text-sm font-medium leading-tight tracking-tight{% if task.status == 'COMPLETED' %} line-through text-slate-500{% endif %}">{{ task.title }}</div>
-                                            <div class="self-stretch justify-start text-gray-500 text-sm font-normal leading-tight tracking-tight{% if task.status == 'COMPLETED' %} text-slate-500{% endif %}">{{ task.description|truncatechars:60 }}</div>
-                                        </div>
-                                        <div class="self-stretch flex justify-between items-center">
-                                            <div class="self-stretch flex justify-start items-center gap-1.5">
-                                                <img src="{% static 'core/img/clock.svg' %}" alt="Date" class="w-4 h-4">
-                                                <div class="justify-start text-gray-500 text-sm font-normal leading-tight tracking-tight{% if task.status == 'COMPLETED' %} text-slate-500{% endif %}">
-                                                    {% if task.due_date %}
-                                                        {{ task.due_date|date:"d M Y" }}
+                                        <div class="flex-1 flex flex-col justify-start items-start gap-2.5">
+                                            <div class="self-stretch flex flex-col justify-start items-start gap-0.5">
+                                                <div class="self-stretch justify-start text-zinc-950 text-sm font-medium leading-tight tracking-tight{% if task.status == 'COMPLETED' %} line-through text-slate-500{% endif %}">{{ task.title }}</div>
+                                                <div class="self-stretch justify-start text-gray-500 text-sm font-normal leading-tight tracking-tight{% if task.status == 'COMPLETED' %} text-slate-500{% endif %}">{{ task.description|truncatechars:100 }}</div>
+                                            </div>
+                                            <div class="self-stretch flex justify-between items-center">
+                                                <div class="flex justify-start items-center gap-1.5">
+                                                    <img src="{% static 'core/img/clock.svg' %}" alt="Date" class="w-4 h-4">
+                                                    <div class="justify-start text-gray-500 text-sm font-normal leading-tight tracking-tight{% if task.status == 'COMPLETED' %} text-slate-500{% endif %}">
+                                                        {% if task.due_date %}
+                                                            {{ task.due_date|date:"d M Y" }}
+                                                        {% else %}
+                                                            Без срока
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                                <div class="flex justify-start items-center gap-1">
+                                                    {% if task.priority == 'HIGH' %}
+                                                        <div class="px-1.5 py-px bg-red-50 rounded flex justify-center items-center gap-1">
+                                                            <div class="text-right justify-center text-red-600 text-xs font-medium leading-none tracking-tight">Срочно</div>
+                                                        </div>
+                                                    {% elif task.priority == 'MEDIUM' %}
+                                                        <div class="px-1.5 py-px bg-orange-50 rounded flex justify-center items-center gap-1">
+                                                            <div class="text-right justify-center text-orange-500 text-xs font-medium leading-none tracking-tight">Средний</div>
+                                                        </div>
                                                     {% else %}
-                                                        Без срока
+                                                        <div class="px-1.5 py-px bg-indigo-50 rounded flex justify-center items-center gap-1">
+                                                            <div class="text-right justify-center text-blue-600 text-xs font-medium leading-none tracking-tight">Обычный</div>
+                                                        </div>
+                                                    {% endif %}
+                                                    {% if task.assigned_to %}
+                                                        <div class="px-1.5 py-px bg-sky-50 rounded flex justify-center items-center gap-1">
+                                                            <div class="text-right justify-center text-sky-400 text-xs font-medium leading-none tracking-tight">{{ task.assigned_to.get_short_name }}</div>
+                                                        </div>
                                                     {% endif %}
                                                 </div>
                                             </div>
-                                            <div class="flex justify-start items-center gap-1">
-                                                {% if task.priority == 'HIGH' %}
-                                                    <div class="px-1.5 py-px bg-red-50 rounded flex justify-center items-center gap-1">
-                                                        <div class="text-right justify-center text-red-600 text-xs font-medium leading-none tracking-tight">Срочно</div>
-                                                    </div>
-                                                {% elif task.priority == 'MEDIUM' %}
-                                                    <div class="px-1.5 py-px bg-orange-50 rounded flex justify-center items-center gap-1">
-                                                        <div class="text-right justify-center text-orange-500 text-xs font-medium leading-none tracking-tight">Средний</div>
-                                                    </div>
-                                                {% else %}
-                                                    <div class="px-1.5 py-px bg-indigo-50 rounded flex justify-center items-center gap-1">
-                                                        <div class="text-right justify-center text-blue-600 text-xs font-medium leading-none tracking-tight">Обычный</div>
-                                                    </div>
-                                                {% endif %}
-                                                {% if task.assigned_to %}
-                                                    <div class="px-1.5 py-px bg-sky-50 rounded flex justify-center items-center gap-1">
-                                                        <div class="text-right justify-center text-sky-400 text-xs font-medium leading-none tracking-tight">{{ task.assigned_to.get_short_name }}</div>
-                                                    </div>
-                                                {% endif %}
-                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            {% endfor %}
+                                {% endfor %}
+                            </div>
                         {% else %}
                             <div class="self-stretch p-4 text-center text-gray-500">
                                 Нет активных задач
@@ -361,59 +363,62 @@
                 <div class="self-stretch px-5 py-4">
                     {% if request.user.is_authenticated %}
                         {% if recent_tasks %}
-                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <div class="flex flex-col gap-3">
                                 {% for task in recent_tasks %}
-                                    <div class="p-4 bg-white rounded-xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex flex-col justify-start items-start gap-3 overflow-hidden task-item">
-                                        <div class="w-full flex justify-start items-start gap-3">
-                                            <div class="pt-1 flex justify-center items-center gap-2">
-                                                <div class="task-checkbox-container">
-                                                    {% if task.status == 'COMPLETED' %}
-                                                        <button onclick="toggleTaskStatus('{{ task.id }}', 'NEW')" class="cursor-pointer">
-                                                            <div class="w-5 h-5 rounded-full flex items-center justify-center border-2 border-gray-300 bg-white" style="background-color: #267BD9 !important; border-color: #267BD9 !important;">
-                                                                <svg class="w-3 h-3" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24">
-                                                                    <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/>
-                                                                </svg>
-                                                            </div>
-                                                        </button>
-                                                    {% else %}
-                                                        <button onclick="toggleTaskStatus('{{ task.id }}', 'COMPLETED')" class="cursor-pointer">
-                                                            <div class="w-5 h-5 rounded-full flex items-center justify-center border-2 border-gray-300 bg-white">
-                                                            </div>
-                                                        </button>
-                                                    {% endif %}
-                                                </div>
-                                            </div>
-                                            <div class="flex-1 flex flex-col justify-start items-start gap-2">
-                                                <div class="w-full flex flex-col justify-start items-start gap-1">
-                                                    <div class="w-full justify-start text-zinc-950 text-sm font-medium leading-tight tracking-tight{% if task.status == 'COMPLETED' %} line-through text-slate-500{% endif %}">{{ task.title }}</div>
-                                                    <div class="w-full justify-start text-gray-500 text-sm font-normal leading-tight tracking-tight{% if task.status == 'COMPLETED' %} text-slate-500{% endif %}">{{ task.description|truncatechars:100 }}</div>
-                                                </div>
-                                                <div class="w-full flex justify-between items-center">
-                                                    <div class="flex justify-start items-center gap-1.5">
-                                                        <img src="{% static 'core/img/clock.svg' %}" alt="Date" class="w-4 h-4">
-                                                        <div class="justify-start text-gray-500 text-sm font-normal leading-tight tracking-tight{% if task.status == 'COMPLETED' %} text-slate-500{% endif %}">
-                                                            {% if task.due_date %}
-                                                                {{ task.due_date|date:"d M Y" }}
-                                                            {% else %}
-                                                                Без срока
-                                                            {% endif %}
+                                    <div class="p-4 bg-white rounded-xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex justify-start items-start gap-3 overflow-hidden task-item">
+                                        <div class="pt-1 flex justify-center items-center gap-2">
+                                            <div class="task-checkbox-container">
+                                                {% if task.status == 'COMPLETED' %}
+                                                    <button onclick="toggleTaskStatus('{{ task.id }}', 'NEW')" class="cursor-pointer">
+                                                        <div class="w-5 h-5 rounded-full flex items-center justify-center border-2 border-gray-300 bg-white" style="background-color: #267BD9 !important; border-color: #267BD9 !important;">
+                                                            <svg class="w-3 h-3" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24">
+                                                                <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/>
+                                                            </svg>
                                                         </div>
-                                                    </div>
-                                                    <div class="flex justify-start items-center gap-1 flex-wrap">
-                                                        {% if task.priority == 'HIGH' %}
-                                                            <div class="px-1.5 py-px bg-red-50 rounded flex justify-center items-center gap-1">
-                                                                <div class="text-right justify-center text-red-600 text-xs font-medium leading-none tracking-tight">Срочно</div>
-                                                            </div>
-                                                        {% elif task.priority == 'MEDIUM' %}
-                                                            <div class="px-1.5 py-px bg-orange-50 rounded flex justify-center items-center gap-1">
-                                                                <div class="text-right justify-center text-orange-500 text-xs font-medium leading-none tracking-tight">Средний</div>
-                                                            </div>
+                                                    </button>
+                                                {% else %}
+                                                    <button onclick="toggleTaskStatus('{{ task.id }}', 'COMPLETED')" class="cursor-pointer">
+                                                        <div class="w-5 h-5 rounded-full flex items-center justify-center border-2 border-gray-300 bg-white">
+                                                        </div>
+                                                    </button>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        <div class="flex-1 flex flex-col justify-start items-start gap-2.5">
+                                            <div class="self-stretch flex flex-col justify-start items-start gap-0.5">
+                                                <div class="self-stretch justify-start text-zinc-950 text-sm font-medium leading-tight tracking-tight{% if task.status == 'COMPLETED' %} line-through text-slate-500{% endif %}">{{ task.title }}</div>
+                                                <div class="self-stretch justify-start text-gray-500 text-sm font-normal leading-tight tracking-tight{% if task.status == 'COMPLETED' %} text-slate-500{% endif %}">{{ task.description|truncatechars:100 }}</div>
+                                            </div>
+                                            <div class="self-stretch flex justify-between items-center">
+                                                <div class="flex justify-start items-center gap-1.5">
+                                                    <img src="{% static 'core/img/clock.svg' %}" alt="Date" class="w-4 h-4">
+                                                    <div class="justify-start text-gray-500 text-sm font-normal leading-tight tracking-tight{% if task.status == 'COMPLETED' %} text-slate-500{% endif %}">
+                                                        {% if task.due_date %}
+                                                            {{ task.due_date|date:"d M Y" }}
                                                         {% else %}
-                                                            <div class="px-1.5 py-px bg-indigo-50 rounded flex justify-center items-center gap-1">
-                                                                <div class="text-right justify-center text-blue-600 text-xs font-medium leading-none tracking-tight">Обычный</div>
-                                                            </div>
+                                                            Без срока
                                                         {% endif %}
                                                     </div>
+                                                </div>
+                                                <div class="flex justify-start items-center gap-1">
+                                                    {% if task.priority == 'HIGH' %}
+                                                        <div class="px-1.5 py-px bg-red-50 rounded flex justify-center items-center gap-1">
+                                                            <div class="text-right justify-center text-red-600 text-xs font-medium leading-none tracking-tight">Срочно</div>
+                                                        </div>
+                                                    {% elif task.priority == 'MEDIUM' %}
+                                                        <div class="px-1.5 py-px bg-orange-50 rounded flex justify-center items-center gap-1">
+                                                            <div class="text-right justify-center text-orange-500 text-xs font-medium leading-none tracking-tight">Средний</div>
+                                                        </div>
+                                                    {% else %}
+                                                        <div class="px-1.5 py-px bg-indigo-50 rounded flex justify-center items-center gap-1">
+                                                            <div class="text-right justify-center text-blue-600 text-xs font-medium leading-none tracking-tight">Обычный</div>
+                                                        </div>
+                                                    {% endif %}
+                                                    {% if task.assigned_to %}
+                                                        <div class="px-1.5 py-px bg-sky-50 rounded flex justify-center items-center gap-1">
+                                                            <div class="text-right justify-center text-sky-400 text-xs font-medium leading-none tracking-tight">{{ task.assigned_to.get_short_name }}</div>
+                                                        </div>
+                                                    {% endif %}
                                                 </div>
                                             </div>
                                         </div>
