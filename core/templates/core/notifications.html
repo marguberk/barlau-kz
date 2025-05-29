@@ -51,7 +51,7 @@
             <div class="flex justify-start items-center gap-3">
                 <div class="flex justify-start items-start gap-2 relative">
                     <a href="{% url 'core:notifications' %}" class="w-10 h-10 px-3 py-2 bg-white rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex justify-center items-center gap-1.5 relative">
-                        <img src="{% static 'core/img/bell.svg' %}" alt="Notifications" class="w-5 h-5">
+                        <img src="{% static 'core/img/bell-05.svg' %}" alt="Notifications" class="w-5 h-5 notification-bell">
                         <span id="notif-badge" class="absolute -top-2 -right-2 bg-red-500 rounded-full border-2 border-white flex items-center justify-center font-bold shadow-lg transition-all duration-200" style="min-width: 1.4rem; min-height: 1.4rem; font-size: 0.85rem; color: #fff; padding: 0 0.3em; display: none; align-items: center; justify-content: center;"></span>
                     </a>
                 </div>
@@ -82,82 +82,51 @@
                 </div>
             </div>
         </div>
-        <!-- Контент уведомлений -->
-<div class="container mx-auto px-4 py-8">
-    <div class="max-w-3xl mx-auto">
-        <!-- CSRF Token для AJAX-запросов -->
-        {% csrf_token %}
         
-        <!-- Заголовок -->
-                <div class="flex justify-end items-center mb-6 gap-4">
-            <button id="markAllReadBtn" class="text-blue-600 hover:text-blue-800 text-sm">
-                <i class="fas fa-check-double mr-1"></i>
-                Отметить все как прочитанные
-            </button>
-                    <button id="deleteAllNotifBtn" class="text-red-600 hover:text-red-800 text-sm flex items-center gap-1">
-                        <i class="fas fa-trash-alt"></i>
-                        Удалить все
-                    </button>
-        </div>
-
-        <!-- Фильтры -->
-        <div class="bg-white rounded-xl shadow-sm p-4 mb-6">
-            <div class="flex flex-wrap gap-4">
-                <button class="filter-btn px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-                        data-filter="all">
-                    Все
+        <!-- Контент уведомлений -->
+        <div class="w-full px-8 py-6">
+            <!-- CSRF Token для AJAX-запросов -->
+            {% csrf_token %}
+            
+            <!-- Кнопки управления -->
+            <div class="flex justify-end items-center mb-6 gap-4">
+                <button id="markAllReadBtn" class="text-blue-600 hover:text-blue-800 text-sm flex items-center gap-1">
+                    <div class="notification-action-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <span class="mark-all-text">Отметить все как прочитанные</span>
                 </button>
-                <button class="filter-btn px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-                        data-filter="unread">
-                    Непрочитанные
-                </button>
-                <button class="filter-btn px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-                        data-filter="TASK">
-                    Задачи
-                </button>
-                <button class="filter-btn px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-                        data-filter="WAYBILL">
-                    КАТы
-                </button>
-                <button class="filter-btn px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-                        data-filter="EXPENSE">
-                    Расходы
-                </button>
-                <button class="filter-btn px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-                        data-filter="SYSTEM">
-                    Системные
-                </button>
-                        <button class="filter-btn px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-                                data-filter="DOCUMENT">
-                            Документы
-                        </button>
             </div>
-        </div>
 
-        <!-- Список уведомлений -->
-        <div id="notificationsList" class="space-y-4">
-            <!-- Уведомления будут добавлены через JavaScript -->
-        </div>
-
-        <!-- Загрузка -->
-        <div id="loadingIndicator" class="hidden">
-            <div class="flex justify-center items-center py-8">
-                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <!-- Список уведомлений -->
+            <div id="notificationsList" class="space-y-2">
+                <!-- Уведомления будут добавлены через JavaScript -->
             </div>
-        </div>
 
-        <!-- Нет уведомлений -->
-        <div id="emptyState" class="hidden">
-            <div class="text-center py-12">
-                <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i class="fas fa-bell text-gray-400 text-2xl"></i>
+            <!-- Загрузка -->
+            <div id="loadingIndicator" class="hidden">
+                <div class="flex justify-center items-center py-8">
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
                 </div>
-                <h3 class="text-lg font-medium text-gray-800 mb-2">Нет уведомлений</h3>
-                <p class="text-gray-600">У вас пока нет уведомлений</p>
+            </div>
+
+            <!-- Нет уведомлений -->
+            <div id="emptyState" class="hidden">
+                <div class="text-center py-12">
+                    <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <div class="empty-state-icon">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M10 2H14M10 21.2361C10.5308 21.7111 11.2316 22 12 22C12.7684 22 13.4692 21.7111 14 21.2361M5.08493 18.5C4.27945 18.5 3.75557 17.7407 4.11579 17.0954L5.43842 14.7258C6.19069 13.3781 6.58234 11.892 6.58234 10.3852V9.76471C6.58234 8.11791 7.49804 6.6627 8.89823 5.78534C8.96478 5.74364 9.03243 5.70324 9.10113 5.6642C9.93938 5.1877 10.9337 4.91176 12 4.91176C13.0663 4.91176 14.0606 5.1877 14.8989 5.6642C14.9676 5.70324 15.0352 5.74364 15.1018 5.78534C16.502 6.6627 17.4177 8.11791 17.4177 9.76471V10.3852C17.4177 11.892 17.8093 13.3781 18.5616 14.7258L19.8842 17.0954C20.2444 17.7407 19.7205 18.5 18.9151 18.5H15H9H5.08493Z" stroke="#9ca3af" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <h3 class="text-lg font-medium text-gray-800 mb-2">Нет уведомлений</h3>
+                    <p class="text-gray-600">У вас пока нет уведомлений</p>
+                </div>
             </div>
         </div>
-    </div>
-</div>
     </div>
 </div>
 
@@ -198,140 +167,202 @@
 </nav>
 
 <style>
-/* Карточки уведомлений без градиентов и сиреневого */
+/* Карточки уведомлений в стиле задач - на всю ширину */
 .notification-card {
-    background: #fff;
-    border-radius: 1rem;
-    box-shadow: 0 4px 16px 0 rgba(37, 99, 235, 0.07), 0 1.5px 4px 0 rgba(13,13,18,0.06);
-    border: 1.5px solid #e0e7ef;
-    padding: 1.25rem 1.5rem;
     display: flex;
-    align-items: flex-start;
-    gap: 1.25rem;
-    transition: box-shadow 0.2s, border 0.2s, background 0.2s;
+    align-items: center;
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0px 2px 4px -1px rgba(13,13,18,0.06);
+    outline: 1px solid rgb(229 231 235);
+    outline-offset: -1px;
+    padding: 0.75rem 1.25rem;
+    min-height: 56px;
+    transition: box-shadow 0.15s, background 0.15s, outline-color 0.15s;
     position: relative;
     animation: fadeInUp 0.5s;
+    gap: 1rem;
 }
+
 .notification-card.unread {
-    border-left: 5px solid #2563eb;
-    background: #f8fafc;
-    box-shadow: 0 8px 24px 0 rgba(37, 99, 235, 0.13), 0 2px 8px 0 rgba(13,13,18,0.08);
+    border-left: 4px solid #2563eb;
+    outline-color: #2563eb;
 }
+
 .notification-card:hover {
-    box-shadow: 0 8px 32px 0 rgba(37, 99, 235, 0.18), 0 4px 16px 0 rgba(13,13,18,0.10);
-    border-color: #2563eb;
-    background: #f3f6fa;
+    box-shadow: 0px 4px 8px -2px rgba(13,13,18,0.10);
+    background: #f9fafb;
+    outline-color: rgb(209 213 219);
 }
+
 @keyframes fadeInUp {
     from { opacity: 0; transform: translateY(24px); }
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* Иконка уведомления без сиреневого */
+/* Иконка уведомления */
 .notification-icon {
-    min-width: 3rem;
-    min-height: 3rem;
+    min-width: 2.5rem;
+    min-height: 2.5rem;
     border-radius: 50%;
     background: #f1f5f9;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 2px 8px 0 rgba(37, 99, 235, 0.10);
-    font-size: 1.5rem;
-    margin-right: 0.5rem;
-    transition: background 0.2s;
+    flex-shrink: 0;
 }
+
 .notification-card.unread .notification-icon {
     background: #e0e7ff;
 }
 
-/* Цветные иконки внутри notification-icon */
-.notification-icon .fa-tasks { color: #2563eb; }
-.notification-icon .fa-file-alt { color: #22c55e; }
-.notification-icon .fa-receipt { color: #f59e42; }
-.notification-icon .fa-cog { color: #64748b; }
-.notification-icon .fa-bell { color: #64748b; }
+.notification-icon svg {
+    width: 20px;
+    height: 20px;
+}
 
+/* Контент уведомления - горизонтальный layout */
 .notification-content {
     flex: 1;
     display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
+    align-items: center;
+    gap: 1rem;
+    min-width: 0;
 }
+
+/* Основная информация */
+.notification-main {
+    flex: 1;
+    min-width: 0;
+}
+
 .notification-title {
-    font-size: 1.1rem;
+    font-size: 0.95rem;
     font-weight: 600;
     color: #1e293b;
+    line-height: 1.2;
     margin-bottom: 0.1rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
+
 .notification-message {
     color: #64748b;
-    font-size: 1rem;
-    margin-bottom: 0.2rem;
+    font-size: 0.85rem;
+    line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
+
+/* Мета информация - дата и ссылка */
+.notification-meta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-shrink: 0;
+}
+
+.notification-date {
+    color: #94a3b8;
+    font-size: 0.8rem;
+    font-weight: 500;
+    white-space: nowrap;
+    min-width: 90px;
+}
+
 .notification-link {
     color: #2563eb;
     font-weight: 500;
-    font-size: 0.95rem;
-    margin-top: 0.2rem;
+    font-size: 0.8rem;
     transition: color 0.2s;
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+    text-decoration: none;
 }
+
 .notification-link:hover {
     color: #1d4ed8;
     text-decoration: underline;
 }
-.notification-date {
-    color: #94a3b8;
-    font-size: 0.95rem;
-    margin-top: 0.2rem;
-    font-weight: 500;
-}
+
+/* Действия */
 .notification-actions {
     display: flex;
-    flex-direction: column;
-    align-items: flex-end;
+    align-items: center;
     gap: 0.5rem;
-    min-width: 70px;
+    flex-shrink: 0;
 }
+
 .notification-actions button {
     background: #f1f5f9;
     color: #2563eb;
     border: none;
     border-radius: 0.5rem;
     padding: 0.3rem 0.7rem;
-    font-size: 0.95rem;
+    font-size: 0.8rem;
     font-weight: 500;
     cursor: pointer;
     transition: background 0.2s, color 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    white-space: nowrap;
 }
+
 .notification-actions button:hover {
     background: #2563eb;
     color: #fff;
 }
 
-/* Фильтры и кнопки */
-.filter-btn {
-    background: #f1f5f9;
-    color: #2563eb;
-    border: none;
-    border-radius: 0.7rem;
-    padding: 0.6rem 1.2rem;
-    font-size: 1rem;
-    font-weight: 500;
-    margin-bottom: 0.2rem;
-    transition: background 0.2s, color 0.2s;
-    box-shadow: 0 1px 2px 0 rgba(37, 99, 235, 0.04);
-}
-.filter-btn.bg-blue-600 {
-    background: linear-gradient(135deg, #2563eb 0%, #38bdf8 100%);
-    color: #fff;
-    box-shadow: 0 2px 8px 0 rgba(37, 99, 235, 0.10);
-}
-.filter-btn:hover {
-    background: #2563eb;
-    color: #fff;
+/* Иконки для кнопок действий */
+.notification-action-icon {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
 }
 
+.notification-action-icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+/* Иконка пустого состояния */
+.empty-state-icon {
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+}
+
+.empty-state-icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+/* Иконки в карточках уведомлений */
+.notif-check-icon svg path {
+    stroke: #16a34a;
+}
+
+.notif-chevron-icon {
+    width: 12px;
+    height: 12px;
+    margin-left: 4px;
+    flex-shrink: 0;
+}
+
+.notif-chevron-icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+.notif-chevron-icon svg path {
+    stroke: #2563eb;
+}
+
+/* Кнопки управления */
 #markAllReadBtn {
     background: #f1f5f9;
     color: #2563eb;
@@ -343,39 +374,178 @@
     border: none;
     box-shadow: 0 1px 2px 0 rgba(37, 99, 235, 0.04);
 }
+
 #markAllReadBtn:hover {
     background: #2563eb;
     color: #fff;
 }
 
 /* Адаптивность */
-@media (max-width: 900px) {
-    .notification-card {
+@media (max-width: 1200px) {
+    .notification-content {
         flex-direction: column;
-        gap: 0.7rem;
-        padding: 1rem 1rem;
+        align-items: flex-start;
+        gap: 0.3rem;
     }
-    .notification-actions {
-        flex-direction: row;
-        gap: 0.7rem;
-        min-width: 0;
+    
+    .notification-meta {
+        align-self: stretch;
+        justify-content: space-between;
+    }
+    
+    .notification-title,
+    .notification-message {
+        white-space: normal;
+        text-overflow: initial;
+        overflow: visible;
     }
 }
 
-.notification-card.document-expiry {
-    border-left: 5px solid #f87171;
-    background: #fef2f2;
-    transition: border-color 0.2s, background 0.2s;
+@media (max-width: 900px) {
+    /* Компактный дизайн карточек для мобильных */
+    .notification-card {
+        padding: 1rem;
+        min-height: 48px;
+        gap: 0.75rem;
+        border-radius: 12px;
+    }
+    
+    /* Горизонтальный layout на мобильных */
+    .notification-content {
+        width: 100%;
+        flex-direction: row;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    
+    .notification-main {
+        flex: 1;
+        min-width: 0;
+    }
+    
+    .notification-title {
+        font-size: 0.9rem;
+        margin-bottom: 0.05rem;
+        line-height: 1.3;
+    }
+    
+    .notification-message {
+        font-size: 0.8rem;
+        line-height: 1.2;
+    }
+    
+    /* Мета информация компактно */
+    .notification-meta {
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 0.25rem;
+        min-width: 80px;
+    }
+    
+    .notification-date {
+        font-size: 0.75rem;
+        min-width: auto;
+        text-align: right;
+    }
+    
+    .notification-link {
+        font-size: 0.75rem;
+    }
+    
+    /* Компактные действия */
+    .notification-actions {
+        align-self: flex-start;
+        flex-shrink: 0;
+    }
+    
+    .notification-actions button {
+        font-size: 0.7rem;
+        padding: 0.2rem 0.45rem;
+        border-radius: 0.4rem;
+    }
+    
+    /* Компактная иконка */
+    .notification-icon {
+        min-width: 2rem;
+        min-height: 2rem;
+    }
+    
+    .notification-icon svg {
+        width: 18px;
+        height: 18px;
+    }
+    
+    /* Адаптивная кнопка управления */
+    .flex.justify-end.items-center.mb-6 {
+        justify-content: center;
+        margin-bottom: 1rem;
+        padding: 0 1rem;
+    }
+    
+    #markAllReadBtn {
+        font-size: 0.9rem;
+        padding: 0.7rem 1.2rem;
+        gap: 0.4rem;
+        border-radius: 10px;
+        font-weight: 600;
+    }
+    
+    .mark-all-text {
+        white-space: nowrap;
+    }
 }
-.notification-card.document-expiry .notification-icon {
-    background: #fef2f2;
-}
-.notification-card.document-expiry .notification-icon .fa-clock {
-    color: #f87171;
-}
-.notification-card.document-expiry:hover {
-    border-color: #ef4444;
-    background: #fee2e2;
+
+/* Очень маленькие экраны */
+@media (max-width: 480px) {
+    .w-full.px-8.py-6 {
+        padding: 1rem 1rem 1.5rem 1rem;
+    }
+    
+    .notification-card {
+        padding: 0.9rem;
+        min-height: 44px;
+        gap: 0.6rem;
+        border-radius: 10px;
+    }
+    
+    .notification-icon {
+        min-width: 1.75rem;
+        min-height: 1.75rem;
+    }
+    
+    .notification-icon svg {
+        width: 16px;
+        height: 16px;
+    }
+    
+    .notification-title {
+        font-size: 0.85rem;
+    }
+    
+    .notification-message {
+        font-size: 0.75rem;
+    }
+    
+    .notification-date {
+        font-size: 0.7rem;
+    }
+    
+    .notification-link {
+        font-size: 0.7rem;
+    }
+    
+    #markAllReadBtn {
+        font-size: 0.9rem;
+        padding: 0.7rem 1.2rem;
+        gap: 0.4rem;
+        border-radius: 10px;
+        font-weight: 600;
+    }
+    
+    .notification-action-icon {
+        width: 14px;
+        height: 14px;
+    }
 }
 
 @media (max-width: 1100px) {
@@ -388,29 +558,52 @@
         padding-bottom: 120px !important;
     }
 }
+
+/* Иконка уведомлений в верхней панели */
+.notification-bell {
+    filter: brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(142deg) brightness(96%) contrast(91%);
+}
+
+/* Скрыть атрибуцию Leaflet */
+.leaflet-control-attribution { display: none !important; }
+
+/* Быстрая анимация появления страницы */
+.main-content {
+    animation: pageFadeIn 0.3s ease-out;
+}
+
+@keyframes pageFadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* Анимация появления карточек уведомлений */
+.notification-card {
+    animation: notificationCardFadeIn 0.2s ease-out;
+}
+
+@keyframes notificationCardFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
 </style>
 
 <script>
-    let currentFilter = 'all';
     let notifications = [];
     const notificationsList = document.getElementById('notificationsList');
     const loadingIndicator = document.getElementById('loadingIndicator');
     const emptyState = document.getElementById('emptyState');
-    const filterButtons = document.querySelectorAll('.filter-btn');
     const markAllReadBtn = document.getElementById('markAllReadBtn');
-
-    // Стили для кнопок фильтра
-    function updateFilterButtons() {
-        filterButtons.forEach(btn => {
-            if (btn.dataset.filter === currentFilter) {
-                btn.classList.add('bg-blue-600', 'text-white');
-                btn.classList.remove('bg-gray-100', 'text-gray-600', 'hover:bg-gray-200');
-            } else {
-                btn.classList.remove('bg-blue-600', 'text-white');
-                btn.classList.add('bg-gray-100', 'text-gray-600', 'hover:bg-gray-200');
-            }
-        });
-    }
 
     // Загрузка уведомлений
     async function loadNotifications(page = 1) {
@@ -419,11 +612,6 @@
         emptyState.classList.add('hidden');
 
         let url = `/api/notifications/?page=${page}`;
-        if (currentFilter === 'unread') {
-            url += '&unread=true';
-        } else if (currentFilter !== 'all') {
-            url += `&type=${currentFilter}`;
-        }
 
         try {
             const response = await fetch(url, { credentials: 'same-origin' });
@@ -445,52 +633,66 @@
     // Отрисовка уведомлений
     function renderNotifications() {
         let allNotifications = Array.isArray(notifications) ? notifications : notifications.results || [];
-        let filteredNotifications = allNotifications;
-        if (currentFilter === 'unread') {
-            filteredNotifications = filteredNotifications.filter(n => !n.read);
-        } else if (currentFilter !== 'all') {
-            filteredNotifications = filteredNotifications.filter(n => n.type === currentFilter);
-        }
-        if (filteredNotifications.length === 0) {
+        
+        if (allNotifications.length === 0) {
             notificationsList.classList.add('hidden');
             emptyState.classList.remove('hidden');
             return;
         }
+        
         notificationsList.classList.remove('hidden');
         emptyState.classList.add('hidden');
-        notificationsList.innerHTML = filteredNotifications.map(notification => {
+        
+        notificationsList.innerHTML = allNotifications.map(notification => {
             let cardClass = 'notification-card';
-            let icon = getNotificationIcon(notification.type);
-            if (notification.type === 'DOCUMENT') {
-                cardClass += ' document-expiry';
-                icon = 'clock';
+            let iconSvg = getNotificationIconSvg(notification.type, notification.title, notification.message);
+            
+            if (!notification.read) {
+                cardClass += ' unread';
             }
+            
             return `
-                <div class="${cardClass}${notification.read ? '' : ' unread'}">
-                    <div class="notification-icon"><i class="fas fa-${icon}"></i></div>
+                <div class="${cardClass}">
+                    <div class="notification-icon">${iconSvg}</div>
                     <div class="notification-content">
-                        <div class="notification-title">${notification.title}</div>
-                        <div class="notification-message">${notification.message}</div>
-                        ${notification.link ? `<a href="${notification.link}" class="notification-link">Подробнее <i class="fas fa-chevron-right ml-1"></i></a>` : ''}
-                        <div class="notification-date">${notification.created_at_display}</div>
+                        <div class="notification-main">
+                            <div class="notification-title">${notification.title}</div>
+                            <div class="notification-message">${notification.message}</div>
+                        </div>
+                        <div class="notification-meta">
+                            <div class="notification-date">${notification.created_at_display}</div>
+                            ${notification.link ? `<a href="${notification.link}" class="notification-link">Подробнее <div class="notif-chevron-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 18L15 12L9 6" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div></a>` : ''}
+                        </div>
                     </div>
                     <div class="notification-actions">
-                        ${!notification.read ? `<button onclick="markAsRead('${notification.id}')"><i class="fas fa-check mr-1"></i>Прочитано</button>` : ''}
+                        ${!notification.read ? `<button onclick="markAsRead('${notification.id}')"><div class="notif-check-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>Прочитано</button>` : ''}
                     </div>
                 </div>
             `;
         }).join('');
     }
 
-    // Получение иконки для типа уведомления
-    function getNotificationIcon(type) {
+    // Получение SVG иконки для типа уведомления
+    function getNotificationIconSvg(type, title = '', message = '') {
+        // Проверяем по содержимому сообщения для уведомлений о транспорте
+        if (type === 'SYSTEM' && (title.includes('транспорт') || message.includes('транспорт') || title.includes('Транспорт') || message.includes('Транспорт'))) {
+            return '<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.35746 15.2241H3.91814C2.85878 15.2241 2 14.3653 2 13.3059V5.0314C2 3.97197 2.85878 3.11316 3.91814 3.11316H10.3973C11.4567 3.11316 12.3155 3.97197 12.3155 5.0314V15.2241H7.79807M16.3211 9.21706H12.3155V4.98346H12.8324C13.174 4.98343 13.5094 5.0746 13.804 5.24755C14.0986 5.4205 14.3417 5.66895 14.5081 5.96726L16.3211 9.21706Z" stroke="#64748b" stroke-width="2" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/><path d="M6.07814 16.8869C7.00585 16.8869 7.7579 16.1352 7.7579 15.2079C7.7579 14.2806 7.00585 13.5289 6.07814 13.5289C5.15043 13.5289 4.39838 14.2806 4.39838 15.2079C4.39838 16.1352 5.15043 16.8869 6.07814 16.8869Z" stroke="#64748b" stroke-width="2" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/><path d="M13.9953 16.8869C14.923 16.8869 15.675 16.1352 15.675 15.2079C15.675 14.2806 14.923 13.5289 13.9953 13.5289C13.0675 13.5289 12.3155 14.2806 12.3155 15.2079C12.3155 16.1352 13.0675 16.8869 13.9953 16.8869Z" stroke="#64748b" stroke-width="2" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/><path d="M15.7703 15.2241H16.6921C17.2362 15.2241 17.7031 14.8939 17.9035 14.423M18 10.9591C17.9111 9.98232 17.0898 9.2171 16.0899 9.2171H12.3155V15.2242" stroke="#64748b" stroke-width="2" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+        }
+        
         switch (type) {
-            case 'TASK': return 'tasks';
-            case 'WAYBILL': return 'file-alt';
-            case 'EXPENSE': return 'receipt';
-            case 'SYSTEM': return 'cog';
-            case 'DOCUMENT': return 'file-exclamation';
-            default: return 'bell';
+            case 'TASK': 
+                return '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8.5 12.5L10.5 14.5L15.5 9.5M7.2 20H16.8C17.9201 20 18.4802 20 18.908 19.782C19.2843 19.5903 19.5903 19.2843 19.782 18.908C20 18.4802 20 17.9201 20 16.8V7.2C20 6.0799 20 5.51984 19.782 5.09202C19.5903 4.71569 19.2843 4.40973 18.908 4.21799C18.4802 4 17.9201 4 16.8 4H7.2C6.0799 4 5.51984 4 5.09202 4.21799C4.71569 4.40973 4.40973 4.71569 4.21799 5.09202C4 5.51984 4 6.0799 4 7.2V16.8C4 17.9201 4 18.4802 4.21799 18.908C4.40973 19.2843 4.71569 19.5903 5.09202 19.782C5.51984 20 6.0799 20 7.2 20Z" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+            case 'WAYBILL': 
+            case 'TRANSPORT':
+                return '<svg width="24" height="24" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.35746 15.2241H3.91814C2.85878 15.2241 2 14.3653 2 13.3059V5.0314C2 3.97197 2.85878 3.11316 3.91814 3.11316H10.3973C11.4567 3.11316 12.3155 3.97197 12.3155 5.0314V15.2241H7.79807M16.3211 9.21706H12.3155V4.98346H12.8324C13.174 4.98343 13.5094 5.0746 13.804 5.24755C14.0986 5.4205 14.3417 5.66895 14.5081 5.96726L16.3211 9.21706Z" stroke="#16a34a" stroke-width="2" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/><path d="M6.07814 16.8869C7.00585 16.8869 7.7579 16.1352 7.7579 15.2079C7.7579 14.2806 7.00585 13.5289 6.07814 13.5289C5.15043 13.5289 4.39838 14.2806 4.39838 15.2079C4.39838 16.1352 5.15043 16.8869 6.07814 16.8869Z" stroke="#16a34a" stroke-width="2" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/><path d="M13.9953 16.8869C14.923 16.8869 15.675 16.1352 15.675 15.2079C15.675 14.2806 14.923 13.5289 13.9953 13.5289C13.0675 13.5289 12.3155 14.2806 12.3155 15.2079C12.3155 16.1352 13.0675 16.8869 13.9953 16.8869Z" stroke="#16a34a" stroke-width="2" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/><path d="M15.7703 15.2241H16.6921C17.2362 15.2241 17.7031 14.8939 17.9035 14.423M18 10.9591C17.9111 9.98232 17.0898 9.2171 16.0899 9.2171H12.3155V15.2242" stroke="#16a34a" stroke-width="2" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+            case 'EXPENSE': 
+                return '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 12L11 14L15 10M2.5 8.5L9.66667 17L21.5 5" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+            case 'SYSTEM': 
+                return '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="#64748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M19.4 15A1.65 1.65 0 0 0 20.25 13.38L20.36 13.38A2.15 2.15 0 0 0 22 11.23V10.77A2.15 2.15 0 0 0 20.36 8.62L20.25 8.62A1.65 1.65 0 0 0 19.4 7L19.4 7A1.65 1.65 0 0 0 17.75 5.38L17.62 5.27A2.15 2.15 0 0 0 15.47 3.62H14.53A2.15 2.15 0 0 0 12.38 5.27L12.27 5.38A1.65 1.65 0 0 0 10.62 7V7A1.65 1.65 0 0 0 9 8.62L8.89 8.62A2.15 2.15 0 0 0 7.24 10.77V11.23A2.15 2.15 0 0 0 8.89 13.38L9 13.38A1.65 1.65 0 0 0 10.62 15V15A1.65 1.65 0 0 0 12.27 16.62L12.38 16.73A2.15 2.15 0 0 0 14.53 18.38H15.47A2.15 2.15 0 0 0 17.62 16.73L17.75 16.62A1.65 1.65 0 0 0 19.4 15Z" stroke="#64748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+            case 'DOCUMENT': 
+                return '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 6V12L16 14M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" stroke="#f87171" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+            default: 
+                return '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10 2H14M10 21.2361C10.5308 21.7111 11.2316 22 12 22C12.7684 22 13.4692 21.7111 14 21.2361M5.08493 18.5C4.27945 18.5 3.75557 17.7407 4.11579 17.0954L5.43842 14.7258C6.19069 13.3781 6.58234 11.892 6.58234 10.3852V9.76471C6.58234 8.11791 7.49804 6.6627 8.89823 5.78534C8.96478 5.74364 9.03243 5.70324 9.10113 5.6642C9.93938 5.1877 10.9337 4.91176 12 4.91176C13.0663 4.91176 14.0606 5.1877 14.8989 5.6642C14.9676 5.70324 15.0352 5.74364 15.1018 5.78534C16.502 6.6627 17.4177 8.11791 17.4177 9.76471V10.3852C17.4177 11.892 17.8093 13.3781 18.5616 14.7258L19.8842 17.0954C20.2444 17.7407 19.7205 18.5 18.9151 18.5H15H9H5.08493Z" stroke="#64748b" stroke-width="2" stroke-linecap="round"/></svg>';
         }
     }
 
@@ -527,15 +729,6 @@
             alert('Не удалось отметить все уведомления как прочитанные');
         }
     }
-
-    // Фильтрация по кнопкам
-    filterButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-            currentFilter = btn.dataset.filter;
-            updateFilterButtons();
-            loadNotifications();
-        });
-    });
 
     markAllReadBtn.addEventListener('click', markAllAsRead);
 
@@ -574,24 +767,7 @@
     }
 
     // Инициализация
-    updateFilterButtons();
     loadNotifications();
-
-    // Цвет фона иконки по типу и прочитанности
-    function getNotificationBg(type, read) {
-        if (!read) {
-            switch (type) {
-                case 'TASK': return '#e0e7ff';
-                case 'WAYBILL': return '#e6f9ed';
-                case 'EXPENSE': return '#fff7e6';
-                case 'SYSTEM': return '#f1f5f9';
-                case 'DOCUMENT': return '#fff0f0';
-                default: return '#f1f5f9';
-            }
-        } else {
-            return '#f1f5f9';
-        }
-    }
 
     document.addEventListener('DOMContentLoaded', function() {
         const avatar = document.getElementById('user-avatar');
@@ -603,30 +779,6 @@
             });
             document.addEventListener('click', function() {
                 dropdown.classList.add('hidden');
-            });
-        }
-    });
-
-    document.addEventListener('DOMContentLoaded', function() {
-        const deleteBtn = document.getElementById('deleteAllNotifBtn');
-        if (deleteBtn) {
-            deleteBtn.addEventListener('click', function() {
-                if (!confirm('Удалить все уведомления?')) return;
-                fetch('/api/notifications/delete_all/', {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-                    },
-                    credentials: 'same-origin'
-                })
-                .then(r => r.json())
-                .then(data => {
-                    // Обновить список уведомлений и бейдж
-                    if (window.updateGlobalNotifBadge) window.updateGlobalNotifBadge();
-                    const notifList = document.getElementById('notificationsList');
-                    if (notifList) notifList.innerHTML = '';
-                    document.getElementById('emptyState').classList.remove('hidden');
-                });
             });
         }
     });

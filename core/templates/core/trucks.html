@@ -291,6 +291,41 @@
         border-top: 1px solid #E5E7EB !important;
     }
 }
+
+/* Стиль для статистики */
+.stat-number { font-size: 2rem; font-weight: bold; color: #2563eb; }
+.stat-label { color: #6b7280; }
+
+/* Быстрая анимация появления страницы */
+.main-content {
+    animation: pageFadeIn 0.3s ease-out;
+}
+
+@keyframes pageFadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* Анимация появления карточек грузовиков */
+.truck-image-container,
+.truck-text-content {
+    animation: truckCardFadeIn 0.2s ease-out;
+}
+
+@keyframes truckCardFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
 </style>
 
 <script>

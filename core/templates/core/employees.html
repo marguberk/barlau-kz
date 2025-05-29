@@ -87,27 +87,25 @@
             </div>
         </div>
 
-
-
         <!-- Список сотрудников -->
         <div class="w-full px-8 pt-8 pb-8">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {% for employee in employees %}
                 <!-- Карточка сотрудника -->
-                <div class="bg-white rounded-xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] border border-zinc-200 overflow-hidden flex flex-col h-full">
+                <div class="bg-white rounded-xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] border border-zinc-200 overflow-hidden flex flex-col h-full employee-card">
                     <div class="px-4 py-3 border-b border-zinc-200 flex justify-between items-start">
                         <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-full bg-neutral-300 overflow-hidden">
+                            <div class="w-8 h-8 rounded-full bg-neutral-300 overflow-hidden employee-avatar">
                                 {% if employee.photo %}
                                     <img src="{{ employee.photo.url }}" alt="{{ employee.get_full_name }}" class="w-full h-full object-cover">
                                 {% else %}
                                     <img src="{% static 'core/img/avatars/placeholder-ava.png' %}" alt="{{ employee.get_full_name }}" class="w-full h-full object-cover">
                                 {% endif %}
                             </div>
-                            <div class="font-semibold text-zinc-950">{{ employee.get_full_name }}</div>
+                            <div class="font-semibold text-zinc-950 employee-info h3">{{ employee.get_full_name }}</div>
                         </div>
                     </div>
-                    <div class="px-4 py-3 space-y-3 flex-grow">
+                    <div class="px-4 py-3 space-y-3 flex-grow employee-info">
                         <div class="flex items-center gap-2">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500">
                                 <path d="M20 7h-3a2 2 0 0 1-2-2V2"></path>
@@ -322,6 +320,41 @@
     /* Убираем отступ от верхней панели */
     main.mt-16 {
         margin-top: 0 !important;
+    }
+
+    .employee-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    .employee-avatar { width: 60px; height: 60px; object-fit: cover; }
+    .employee-info h3 { margin: 0; color: #1f2937; }
+    .employee-info p { margin: 4px 0; color: #6b7280; font-size: 0.9rem; }
+    
+    /* Быстрая анимация появления страницы */
+    .main-content {
+        animation: pageFadeIn 0.3s ease-out;
+    }
+    
+    @keyframes pageFadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+    
+    /* Анимация появления карточек сотрудников */
+    .employee-card {
+        animation: employeeCardFadeIn 0.2s ease-out;
+    }
+    
+    @keyframes employeeCardFadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 </style>
 {% endblock %}

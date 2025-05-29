@@ -5,6 +5,125 @@
 
 {% block extra_head %}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" crossorigin="anonymous" />
+<style>
+    .contact-icon {
+        width: 20px;
+        height: 20px;
+        flex-shrink: 0;
+        margin-top: 2px; /* Небольшой отступ для выравнивания с текстом */
+    }
+    .contact-icon svg {
+        width: 100%;
+        height: 100%;
+    }
+    .contact-icon svg path {
+        stroke: #9ca3af; /* text-gray-400 equivalent */
+    }
+    .profile-icon {
+        width: 20px;
+        height: 20px;
+        flex-shrink: 0;
+    }
+    .profile-icon svg {
+        width: 100%;
+        height: 100%;
+    }
+    .profile-icon.tasks svg path {
+        stroke: #2563eb; /* blue-600 для фона */
+    }
+    .profile-icon.notifications svg path {
+        stroke: #f59e0b; /* yellow-600 для фона */
+    }
+    .large-profile-icon {
+        width: 48px;
+        height: 48px;
+        flex-shrink: 0;
+    }
+    .large-profile-icon svg {
+        width: 100%;
+        height: 100%;
+    }
+    .large-profile-icon svg path {
+        stroke: #60a5fa; /* blue-400 для темного фона */
+    }
+    .status-icon {
+        width: 16px;
+        height: 16px;
+        margin-right: 4px;
+        flex-shrink: 0;
+    }
+    .status-icon svg {
+        width: 100%;
+        height: 100%;
+    }
+    .status-icon.active svg path {
+        stroke: #16a34a; /* green-600 */
+    }
+    .status-icon.inactive svg path {
+        stroke: #dc2626; /* red-600 */
+    }
+    .action-icon {
+        width: 16px;
+        height: 16px;
+        margin-right: 8px;
+        flex-shrink: 0;
+    }
+    .action-icon svg {
+        width: 100%;
+        height: 100%;
+    }
+    .action-icon svg path {
+        stroke: white;
+    }
+    .arrow-icon {
+        width: 16px;
+        height: 16px;
+        margin-left: 8px;
+        flex-shrink: 0;
+    }
+    .arrow-icon svg {
+        width: 100%;
+        height: 100%;
+    }
+    .arrow-icon svg path {
+        stroke: #2563eb; /* blue-600 */
+    }
+    /* Иконка уведомлений в верхней панели - серый цвет как на других страницах */
+    .notification-bell {
+        filter: brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(142deg) brightness(96%) contrast(91%);
+    }
+    
+    /* Быстрая анимация появления страницы */
+    .main-content {
+        animation: pageFadeIn 0.3s ease-out;
+    }
+    
+    @keyframes pageFadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+    
+    /* Анимация появления секций профиля */
+    .profile-section,
+    .grid > div {
+        animation: profileSectionFadeIn 0.2s ease-out;
+    }
+    
+    @keyframes profileSectionFadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
 {% endblock %}
 
 {% block content %}
@@ -57,7 +176,7 @@
             <div class="flex justify-start items-center gap-3">
                 <div class="flex justify-start items-start gap-2">
                     <a href="{% url 'core:notifications' %}" class="w-10 h-10 px-3 py-2 bg-white rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex justify-center items-center gap-1.5 relative">
-                        <img src="{% static 'core/img/bell.svg' %}" alt="Notifications" class="w-5 h-5">
+                        <img src="{% static 'core/img/bell-05.svg' %}" alt="Notifications" class="w-5 h-5 notification-bell">
                         <span id="notif-badge" class="absolute -top-2 -right-2 bg-red-500 rounded-full border-2 border-white flex items-center justify-center font-bold shadow-lg transition-all duration-200" style="min-width: 1.4rem; min-height: 1.4rem; font-size: 0.85rem; color: #fff; padding: 0 0.3em; display: none; align-items: center; justify-content: center;"></span>
                     </a>
                 </div>
@@ -68,9 +187,11 @@
                                 <img class="w-8 h-8 rounded-full object-cover cursor-pointer" src="{{ request.user.photo.url }}" id="user-avatar" />
                         {% else %}
                                 <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center cursor-pointer" id="user-avatar">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
-                                </svg>
+                                <div class="large-profile-icon">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M20 21C20 19.6044 20 18.9067 19.8278 18.3389C19.44 17.0605 18.4395 16.06 17.1611 15.6722C16.5933 15.5 15.8956 15.5 14.5 15.5H9.5C8.10444 15.5 7.40665 15.5 6.83886 15.6722C5.56045 16.06 4.56004 17.0605 4.17224 18.3389C4 18.9067 4 19.6044 4 21M16.5 7.5C16.5 10.5376 14.0376 13 11 13C7.96243 13 5.5 10.5376 5.5 7.5C5.5 4.46243 7.96243 2 11 2C14.0376 2 16.5 4.46243 16.5 7.5Z" stroke="#60a5fa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
                             </div>
                         {% endif %}
                             <div class="hidden group-hover:block absolute right-0 mt-2 w-44 bg-white border border-gray-200 rounded-lg shadow-lg z-50" id="user-dropdown">
@@ -80,9 +201,11 @@
                     </div>
                     {% else %}
                         <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
-                            </svg>
+                            <div class="large-profile-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M20 21C20 19.6044 20 18.9067 19.8278 18.3389C19.44 17.0605 18.4395 16.06 17.1611 15.6722C16.5933 15.5 15.8956 15.5 14.5 15.5H9.5C8.10444 15.5 7.40665 15.5 6.83886 15.6722C5.56045 16.06 4.56004 17.0605 4.17224 18.3389C4 18.9067 4 19.6044 4 21M16.5 7.5C16.5 10.5376 14.0376 13 11 13C7.96243 13 5.5 10.5376 5.5 7.5C5.5 4.46243 7.96243 2 11 2C14.0376 2 16.5 4.46243 16.5 7.5Z" stroke="#60a5fa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </div>
                     </div>
                     {% endif %}
                 </div>
@@ -102,7 +225,11 @@
                                  class="w-32 h-32 rounded-full object-cover mx-auto mb-4">
                             {% else %}
                             <div class="w-32 h-32 rounded-full bg-blue-100 flex items-center justify-center mx-auto mb-4">
-                                <i class="fas fa-user text-blue-600 text-4xl"></i>
+                                <div class="large-profile-icon">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M20 21C20 19.6044 20 18.9067 19.8278 18.3389C19.44 17.0605 18.4395 16.06 17.1611 15.6722C16.5933 15.5 15.8956 15.5 14.5 15.5H9.5C8.10444 15.5 7.40665 15.5 6.83886 15.6722C5.56045 16.06 4.56004 17.0605 4.17224 18.3389C4 18.9067 4 19.6044 4 21M16.5 7.5C16.5 10.5376 14.0376 13 11 13C7.96243 13 5.5 10.5376 5.5 7.5C5.5 4.46243 7.96243 2 11 2C14.0376 2 16.5 4.46243 16.5 7.5Z" stroke="#60a5fa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
                             </div>
                             {% endif %}
                             
@@ -114,9 +241,17 @@
                             
                             <div class="inline-block px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium mb-4">
                                 {% if user.is_active %}
-                                    <i class="fas fa-check-circle mr-1"></i>Активен
+                                    <div class="status-icon active inline-block">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M6 12L10 16L18 8" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    </div>Активен
                                 {% else %}
-                                    <i class="fas fa-times-circle mr-1"></i>Неактивен
+                                    <div class="status-icon inactive inline-block">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M15 9L9 15M9 9L15 15M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    </div>Неактивен
                                 {% endif %}
                             </div>
                         </div>
@@ -128,20 +263,32 @@
                             <div class="space-y-3">
                                 {% if user.email %}
                                 <div class="flex items-start">
-                                    <div class="w-8 text-gray-400"><i class="fas fa-envelope"></i></div>
+                                    <div class="contact-icon mr-3">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M6 8L10.2111 10.1056C11.3373 10.6686 12.6627 10.6686 13.7889 10.1056L18 8M6 19H18C19.6569 19 21 17.6569 21 16V8C21 6.34315 19.6569 5 18 5H6C4.34315 5 3 6.34315 3 8V16C3 17.6569 4.34315 19 6 19Z" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    </div>
                                     <div>{{ user.email }}</div>
                                 </div>
                                 {% endif %}
                                 
                                 {% if user.phone %}
                                 <div class="flex items-start">
-                                    <div class="w-8 text-gray-400"><i class="fas fa-phone"></i></div>
+                                    <div class="contact-icon mr-3">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M11.7925 14.742L9.25195 12.2057C8.43422 11.3893 8.43422 10.0657 9.25195 9.24935C9.98275 8.51977 10.071 7.36701 9.45987 6.53498L7.37385 3.69514C6.75631 2.85444 5.53346 2.76108 4.79506 3.49826C3.67086 4.62058 2.91814 6.10588 3.00713 7.6906C3.44184 15.4326 9.49836 20.6079 16.3476 20.993C17.9183 21.0813 19.3811 20.3229 20.4935 19.2123C21.2429 18.4642 21.148 17.2252 20.2933 16.5995L17.4726 14.5344C16.6392 13.9242 15.4845 14.0124 14.7537 14.742C13.936 15.5583 12.6102 15.5583 11.7925 14.742Z" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    </div>
                                     <div>{{ user.phone }}</div>
                                 </div>
                                 {% endif %}
                                 
                                 <div class="flex items-start">
-                                    <div class="w-8 text-gray-400"><i class="fas fa-calendar"></i></div>
+                                    <div class="contact-icon mr-3">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M8 3H6C4.34315 3 3 4.34315 3 6V9M8 3V2M8 3H16M8 3V4M16 3H18C19.6569 3 21 4.34315 21 6V9M16 3V2M16 3V4M3 9V19C3 20.6569 4.34315 22 6 22H18C19.6569 22 21 20.6569 21 19V9M3 9H21" stroke="#9ca3af" stroke-width="2" stroke-linecap="round"/>
+                                        </svg>
+                                    </div>
                                     <div>
                                         <div class="text-xs text-gray-500">Дата регистрации</div>
                                         <div>{{ user.date_joined|date:"d.m.Y" }}</div>
@@ -150,7 +297,11 @@
                                 
                                 {% if user.last_login %}
                                 <div class="flex items-start">
-                                    <div class="w-8 text-gray-400"><i class="fas fa-clock"></i></div>
+                                    <div class="contact-icon mr-3">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M12 6V12L16 14M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    </div>
                                     <div>
                                         <div class="text-xs text-gray-500">Последний вход</div>
                                         <div>{{ user.last_login|date:"d.m.Y H:i" }}</div>
@@ -171,7 +322,11 @@
                                 <div class="flex items-center justify-between mb-4">
                                     <div class="flex items-center space-x-3">
                                         <div class="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center">
-                                            <i class="fas fa-tasks text-blue-600 text-xl"></i>
+                                            <div class="profile-icon tasks">
+                                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M7.5 12.5L10.5 15.5L16.5 9.5M18 3H6C4.34315 3 3 4.34315 3 6V18C3 19.6569 4.34315 21 6 21H18C19.6569 21 21 19.6569 21 18V6C21 4.34315 19.6569 3 18 3Z" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                </svg>
+                                            </div>
                                         </div>
                                         <div>
                                             <h3 class="text-lg font-semibold text-gray-900">Задачи</h3>
@@ -216,7 +371,11 @@
                                 <div class="flex items-center justify-between mb-4">
                                     <div class="flex items-center space-x-3">
                                         <div class="w-12 h-12 rounded-xl bg-yellow-50 flex items-center justify-center">
-                                            <i class="fas fa-bell text-yellow-600 text-xl"></i>
+                                            <div class="profile-icon notifications">
+                                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M10 2H14M10 21.2361C10.5308 21.7111 11.2316 22 12 22C12.7684 22 13.4692 21.7111 14 21.2361M5.08493 18.5C4.27945 18.5 3.75557 17.7407 4.11579 17.0954L5.43842 14.7258C6.19069 13.3781 6.58234 11.892 6.58234 10.3852V9.76471C6.58234 8.11791 7.49804 6.6627 8.89823 5.78534C8.96478 5.74364 9.03243 5.70324 9.10113 5.6642C9.93938 5.1877 10.9337 4.91176 12 4.91176C13.0663 4.91176 14.0606 5.1877 14.8989 5.6642C14.9676 5.70324 15.0352 5.74364 15.1018 5.78534C16.502 6.6627 17.4177 8.11791 17.4177 9.76471V10.3852C17.4177 11.892 17.8093 13.3781 18.5616 14.7258L19.8842 17.0954C20.2444 17.7407 19.7205 18.5 18.9151 18.5H15H9H5.08493Z" stroke="#f59e0b" stroke-width="2" stroke-linecap="round"/>
+                                                </svg>
+                                            </div>
                                         </div>
                                         <div>
                                             <h3 class="text-lg font-semibold text-gray-900">Уведомления</h3>
@@ -247,8 +406,15 @@
                                     <div class="mt-4 pt-3 border-t border-gray-200">
                                         <a href="{% url 'core:notifications' %}" class="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium text-sm transition-colors">
                                             <span>Все уведомления</span>
-                                            <i class="fas fa-arrow-right ml-2 text-xs"></i>
+                                            <div class="arrow-icon">
+                                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                </svg>
+                                            </div>
                                         </a>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -262,36 +428,40 @@
                             <div class="flex items-center justify-between mb-6">
                                 <div class="flex items-center space-x-3">
                                     <div class="w-12 h-12 rounded-xl bg-green-50 flex items-center justify-center">
-                                        <i class="fas fa-file-alt text-green-600 text-xl"></i>
-                        </div>
+                                        <div class="profile-icon">
+                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M20 8.25V18C20 19.6569 18.6569 21 17 21H4C2.34315 21 1 19.6569 1 18V6C1 4.34315 2.34315 3 4 3H8.25L10.25 6H17C18.6569 6 20 7.34315 20 9V8.25Z" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                        </div>
+                                    </div>
                                     <div>
                                         <h3 class="text-lg font-semibold text-gray-900">Путевые листы</h3>
                                         <p class="text-sm text-gray-500">Документооборот</p>
-                    </div>
-                </div>
+                                    </div>
+                                </div>
                                 <div class="text-right">
                                     <div class="text-3xl font-bold text-gray-900">{{ waybills_count }}</div>
                                     <div class="text-sm text-gray-500">всего</div>
-                </div>
-            </div>
+                                </div>
+                            </div>
 
                             <div class="grid grid-cols-3 gap-4">
                                 <div class="text-center p-4 bg-gray-50 rounded-xl">
                                     <div class="text-2xl font-bold text-gray-900 mb-1">{{ today_waybills_count }}</div>
                                     <div class="text-sm text-gray-500">За сегодня</div>
-                        </div>
+                                </div>
                                 <div class="text-center p-4 bg-gray-50 rounded-xl">
                                     <div class="text-2xl font-bold text-gray-900 mb-1">{{ week_waybills_count }}</div>
                                     <div class="text-sm text-gray-500">За неделю</div>
-                    </div>
+                                </div>
                                 <div class="text-center p-4 bg-gray-50 rounded-xl">
                                     <div class="text-2xl font-bold text-gray-900 mb-1">{{ month_waybills_count }}</div>
                                     <div class="text-sm text-gray-500">За месяц</div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </div>
-            {% endif %}
+                    {% endif %}
 
             {% if user.role == 'ACCOUNTANT' or user.role == 'SUPPLIER' %}
                     <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden mb-6">
@@ -299,42 +469,47 @@
                             <div class="flex items-center justify-between mb-4">
                                 <div class="flex items-center space-x-3">
                                     <div class="w-12 h-12 rounded-xl bg-purple-50 flex items-center justify-center">
-                                        <i class="fas fa-receipt text-purple-600 text-xl"></i>
+                                        <div class="profile-icon">
+                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M9 17H15L13 12L15 7H9L7 12L9 17Z" stroke="#7c3aed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                <path d="M20 4H4C2.89543 4 2 4.89543 2 6V18C2 19.1046 2.89543 20 4 20H20C21.1046 20 22 19.1046 22 18V6C22 4.89543 21.1046 4 20 4Z" stroke="#7c3aed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                        </div>
                                     </div>
                                     <div>
                                         <h3 class="text-lg font-semibold text-gray-900">Расходы</h3>
                                         <p class="text-sm text-gray-500">Финансовый учет</p>
-                        </div>
-                    </div>
+                                    </div>
+                                </div>
                                 <div class="text-right">
                                     <div class="text-3xl font-bold text-gray-900">{{ expenses_count }}</div>
                                     <div class="text-sm text-gray-500">всего</div>
-                    </div>
-                </div>
+                                </div>
+                            </div>
                             
-                    <div class="space-y-3">
+                            <div class="space-y-3">
                                 <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                                     <div class="flex items-center space-x-2">
                                         <div class="w-2 h-2 rounded-full bg-yellow-500"></div>
                                         <span class="text-sm font-medium text-gray-700">На проверке</span>
-                        </div>
+                                    </div>
                                     <span class="text-sm font-bold text-gray-900">{{ pending_expenses_count }}</span>
-                        </div>
+                                </div>
                                 <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                                     <div class="flex items-center space-x-2">
                                         <div class="w-2 h-2 rounded-full bg-green-500"></div>
                                         <span class="text-sm font-medium text-gray-700">Подтверждено</span>
-                        </div>
+                                    </div>
                                     <span class="text-sm font-bold text-gray-900">{{ approved_expenses_count }}</span>
-                    </div>
+                                </div>
                                 <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                                     <div class="flex items-center space-x-2">
                                         <div class="w-2 h-2 rounded-full bg-red-500"></div>
                                         <span class="text-sm font-medium text-gray-700">Отклонено</span>
-                </div>
+                                    </div>
                                     <span class="text-sm font-bold text-gray-900">{{ rejected_expenses_count }}</span>
-                    </div>
-                </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     {% endif %}
@@ -345,7 +520,12 @@
 
     <!-- Плавающая кнопка редактирования -->
     <a href="{% url 'core:profile-edit' %}" class="profile-edit-button">
-        <i class="fas fa-edit mr-2"></i>Редактировать профиль
+        <div class="action-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10.2055 19.5733C9.86497 19.9139 9.42656 20.1395 8.95154 20.2186L4.34563 20.9863C3.56372 21.1166 2.88583 20.4387 3.01615 19.6568L3.7838 15.0509C3.86297 14.5759 4.08859 14.1375 4.42911 13.797M10.2055 19.5733L18.7258 11.053L12.9494 5.27665M10.2055 19.5733L4.42911 13.797M4.42911 13.797L12.9494 5.27665M12.9494 5.27665L14.6119 3.61413C15.4308 2.79529 16.7584 2.79529 17.5772 3.61413L20.3859 6.42279C21.2057 7.24258 21.2046 8.57207 20.3834 9.39051L18.7258 11.0427M21 20.9863H15" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </div>
+        Редактировать профиль
     </a>
 
     <!-- Нижнее мобильное меню -->

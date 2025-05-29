@@ -11,6 +11,39 @@
         body {
             font-family: 'Inter Tight', sans-serif;
         }
+        /* Скрыть атрибуцию */
+        .leaflet-control-attribution { display: none !important; }
+        
+        /* Быстрая анимация появления страницы */
+        .main-content {
+            animation: pageFadeIn 0.3s ease-out;
+        }
+        
+        @keyframes pageFadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        
+        /* Анимация появления карточек */
+        .stats-cards > div,
+        .content-cards > div {
+            animation: cardFadeIn 0.2s ease-out;
+        }
+        
+        @keyframes cardFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     </style>
 </head>
 <body class="bg-gray-50">

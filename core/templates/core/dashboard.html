@@ -477,7 +477,7 @@
         margin-bottom: 8px;
         display: flex;
         flex-direction: column;
-        gap: 10px;
+        gap: 12px;
     }
     .trip-card {
         position: relative;
@@ -500,12 +500,12 @@
         box-shadow: 0 4px 16px rgba(37,99,235,0.10);
     }
     .trip-card-info {
-        flex: 1 1 0%;
+        flex: 1;
         min-width: 150px;
         display: flex;
         flex-direction: column;
         justify-content: center;
-        gap: 2px;
+        gap: 4px;
         z-index: 1;
     }
     .trip-card-brand {
@@ -770,12 +770,10 @@
             min-height: auto !important;
         }
         
-
-        
         /* Стили для списка поездок */
         .trip-list {
-            padding: 4px !important;
-            gap: 4px !important;
+            padding: 8px !important;
+            gap: 12px !important;
             background: #fff !important;
         }
         
@@ -800,6 +798,11 @@
         .trip-card:hover {
             border-color: #2563eb !important;
             box-shadow: 0 4px 16px rgba(37,99,235,0.10) !important;
+        }
+        
+        .trip-card-selected {
+            border: 2px solid #2563eb !important;
+            box-shadow: 0 2px 12px #2563eb22 !important;
         }
         
         .trip-card-info {
@@ -1082,6 +1085,88 @@
     /* Убираем отступ от верхней панели */
     main.mt-16 {
         margin-top: 0 !important;
+    }
+
+    /* Серый фильтр для неактивных иконок */
+    nav.fixed.bottom-0 a.text-gray-600 .icon-container img {
+        filter: brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(142deg) brightness(96%) contrast(91%) !important;
+    }
+    
+    /* Синий фильтр для активной иконки */
+    nav.fixed.bottom-0 a.text-blue-600 .icon-container img {
+        filter: brightness(0) saturate(100%) invert(32%) sepia(96%) saturate(7461%) hue-rotate(220deg) brightness(97%) contrast(98%) !important;
+    }
+    
+    /* Hover эффекты для мобильного меню */
+    nav.fixed.bottom-0 a.text-gray-600:hover .icon-container img {
+        filter: brightness(0) saturate(100%) invert(32%) sepia(96%) saturate(7461%) hue-rotate(220deg) brightness(97%) contrast(98%) !important;
+    }
+    
+    /* Убираем hover эффект для активной иконки (она уже синяя) */
+    nav.fixed.bottom-0 a.text-blue-600:hover .icon-container img {
+        filter: brightness(0) saturate(100%) invert(32%) sepia(96%) saturate(7461%) hue-rotate(220deg) brightness(97%) contrast(98%) !important;
+    }
+    
+    /* Быстрая анимация появления страницы */
+    .main-content {
+        animation: pageFadeIn 0.3s ease-out;
+    }
+    
+    @keyframes pageFadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+    
+    /* Анимация появления карточек поездок */
+    .trip-card {
+        animation: tripCardFadeIn 0.2s ease-out;
+    }
+    
+    @keyframes tripCardFadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    /* Анимация появления карточек статистики */
+    .stats-cards > div {
+        animation: statCardFadeIn 0.4s ease-out;
+    }
+    
+    @keyframes statCardFadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(15px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    /* Анимация появления блоков финансов и задач */
+    .finance-tasks > div {
+        animation: sectionFadeIn 0.5s ease-out;
+    }
+    
+    @keyframes sectionFadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 </style>
 
@@ -1524,8 +1609,8 @@
                     const coords = geojson.features[0].geometry.coordinates.map(c => [c[1], c[0]]);
                     const polyline = L.polyline(coords, {
                         color: '#2563eb',
-                        weight: 8,
-                        opacity: 0.95,
+                        weight: 6,
+                        opacity: 0.9,
                         smoothFactor: 1.5,
                         lineCap: 'round',
                         lineJoin: 'round'
@@ -1535,15 +1620,15 @@
                     // Маркеры начала и конца
                     const startIcon = L.divIcon({
                         className: '',
-                        html: `<div style="box-shadow:0 0 8px 2px #34d39922; border-radius:50%; width:32px; height:32px; background:#34d399; display:flex; align-items:center; justify-content:center; border:2px solid #fff;"><div style='width:14px;height:14px;border-radius:50%;background:#fff;'></div></div>`,
-                        iconSize: [32,32],
-                        iconAnchor: [16,16]
+                        html: `<div style="box-shadow:0 0 6px 1px #2563eb33; border-radius:50%; width:20px; height:20px; background:#2563eb; display:flex; align-items:center; justify-content:center; border:2px solid #fff;"><div style='width:8px;height:8px;border-radius:50%;background:#fff;'></div></div>`,
+                        iconSize: [20,20],
+                        iconAnchor: [10,10]
                     });
                     const endIcon = L.divIcon({
                         className: '',
-                        html: `<div style="box-shadow:0 0 8px 2px #ef444422; border-radius:50%; width:32px; height:32px; background:#ef4444; display:flex; align-items:center; justify-content:center; border:2px solid #fff;"><div style='width:14px;height:14px;border-radius:50%;background:#fff;'></div></div>`,
-                        iconSize: [32,32],
-                        iconAnchor: [16,16]
+                        html: `<div style="box-shadow:0 0 6px 1px #34d39933; border-radius:50%; width:20px; height:20px; background:#34d399; display:flex; align-items:center; justify-content:center; border:2px solid #fff;"><div style='width:8px;height:8px;border-radius:50%;background:#fff;'></div></div>`,
+                        iconSize: [20,20],
+                        iconAnchor: [10,10]
                     });
                     
                     const startMarker = L.marker(start, {icon: startIcon}).addTo(dashboardMap);
@@ -1605,7 +1690,8 @@
         });
         
         if (selectedIdx === null || trips.length === 0) {
-            showDashboardTripInfoPopup(null);
+            // Убираем показ popup карточки
+            // showDashboardTripInfoPopup(null);
         }
     }
 
@@ -1614,7 +1700,8 @@
         dashboardSelectedTripIdx = idx;
         renderDashboardTripListWithSelection(dashboardAllTripsCache, idx);
         renderDashboardTripRoutes([dashboardAllTripsCache[idx]]);
-        showDashboardTripInfoPopup(dashboardAllTripsCache[idx]);
+        // Убираем показ popup карточки
+        // showDashboardTripInfoPopup(dashboardAllTripsCache[idx]);
     }
 
     // Загрузка поездок
@@ -1686,7 +1773,8 @@
         }).then(resp => {
             if (resp.ok) {
                 loadDashboardTrips();
-                showDashboardTripInfoPopup(null);
+                // Убираем показ popup карточки
+                // showDashboardTripInfoPopup(null);
             } else {
                 alert('Ошибка при удалении');
             }
@@ -1918,25 +2006,25 @@
             </div>
             <span class="text-xs text-[9px] mt-1 text-center whitespace-nowrap">Главная</span>
         </a>
-        <a href="{% url 'core:tasks' %}" class="flex-1 flex flex-col items-center text-gray-600 relative mx-1">
+        <a href="{% url 'core:tasks' %}" class="flex-1 flex flex-col items-center text-gray-600 hover:text-blue-600 relative mx-1">
             <div class="icon-container w-8 h-8 flex items-center justify-center">
                 <img src="{% static 'core/img/mobile/check-square.svg' %}" alt="Tasks" class="w-6 h-6">
             </div>
             <span class="text-xs text-[9px] mt-1 text-center whitespace-nowrap">Задачи</span>
         </a>
-        <a href="{% url 'core:map' %}" class="flex-1 flex flex-col items-center text-gray-600 relative mx-1">
+        <a href="{% url 'core:map' %}" class="flex-1 flex flex-col items-center text-gray-600 hover:text-blue-600 relative mx-1">
             <div class="icon-container w-8 h-8 flex items-center justify-center">
                 <img src="{% static 'core/img/mobile/location.svg' %}" alt="Map" class="w-6 h-6">
             </div>
             <span class="text-xs text-[9px] mt-1 text-center whitespace-nowrap">Карта</span>
         </a>
-        <a href="{% url 'core:trucks' %}" class="flex-1 flex flex-col items-center text-gray-600 relative mx-1">
+        <a href="{% url 'core:trucks' %}" class="flex-1 flex flex-col items-center text-gray-600 hover:text-blue-600 relative mx-1">
             <div class="icon-container w-8 h-8 flex items-center justify-center">
                 <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Trucks" class="w-6 h-6">
             </div>
             <span class="text-xs text-[9px] mt-1 text-center whitespace-nowrap">Грузовики</span>
         </a>
-        <a href="{% url 'core:employees' %}" class="flex-1 flex flex-col items-center text-gray-600 relative mx-1">
+        <a href="{% url 'core:employees' %}" class="flex-1 flex flex-col items-center text-gray-600 hover:text-blue-600 relative mx-1">
             <div class="icon-container w-8 h-8 flex items-center justify-center">
                 <img src="{% static 'core/img/mobile/employee.svg' %}" alt="Employees" class="w-6 h-6">
             </div>

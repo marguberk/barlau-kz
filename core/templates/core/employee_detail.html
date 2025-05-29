@@ -6,6 +6,45 @@
 
 {% block extra_head %}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" crossorigin="anonymous" />
+<style>
+    .contact-icon {
+        width: 20px;
+        height: 20px;
+        flex-shrink: 0;
+        margin-top: 2px; /* Небольшой отступ для выравнивания с текстом */
+    }
+    .contact-icon svg {
+        width: 100%;
+        height: 100%;
+    }
+    .contact-icon svg path {
+        stroke: #9ca3af; /* text-gray-400 equivalent */
+    }
+    .action-icon {
+        width: 16px;
+        height: 16px;
+        margin-right: 8px;
+        flex-shrink: 0;
+    }
+    .action-icon svg {
+        width: 100%;
+        height: 100%;
+    }
+    .action-icon svg path {
+        stroke: white;
+    }
+    
+    /* Стили карточек профиля как на дашборде */
+    .profile-card {
+        transition: box-shadow 0.15s, background 0.15s, outline-color 0.15s;
+    }
+    
+    .profile-card:hover {
+        box-shadow: 0px 4px 8px -2px rgba(13,13,18,0.10);
+        background: #f9fafb;
+        outline-color: rgb(209 213 219);
+    }
+</style>
 {% endblock %}
 
 {% block content %}
@@ -96,7 +135,7 @@
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <!-- Левая колонка (информация и фото) -->
                 <div class="lg:col-span-1">
-                    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                    <div class="bg-white rounded-2xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-gray-200 overflow-hidden profile-card">
                         <!-- Фото и основная информация -->
                         <div class="p-6 text-center">
                             {% if employee.photo %}
@@ -127,21 +166,33 @@
                             <div class="space-y-3">
                                 {% if employee.email %}
                                 <div class="flex items-start">
-                                    <div class="w-8 text-gray-400"><i class="fas fa-envelope"></i></div>
+                                    <div class="contact-icon mr-3">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M6 8L10.2111 10.1056C11.3373 10.6686 12.6627 10.6686 13.7889 10.1056L18 8M6 19H18C19.6569 19 21 17.6569 21 16V8C21 6.34315 19.6569 5 18 5H6C4.34315 5 3 6.34315 3 8V16C3 17.6569 4.34315 19 6 19Z" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    </div>
                                     <div>{{ employee.email }}</div>
                                 </div>
                                 {% endif %}
                                 
                                 {% if employee.phone %}
                                 <div class="flex items-start">
-                                    <div class="w-8 text-gray-400"><i class="fas fa-phone"></i></div>
+                                    <div class="contact-icon mr-3">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M11.7925 14.742L9.25195 12.2057C8.43422 11.3893 8.43422 10.0657 9.25195 9.24935C9.98275 8.51977 10.071 7.36701 9.45987 6.53498L7.37385 3.69514C6.75631 2.85444 5.53346 2.76108 4.79506 3.49826C3.67086 4.62058 2.91814 6.10588 3.00713 7.6906C3.44184 15.4326 9.49836 20.6079 16.3476 20.993C17.9183 21.0813 19.3811 20.3229 20.4935 19.2123C21.2429 18.4642 21.148 17.2252 20.2933 16.5995L17.4726 14.5344C16.6392 13.9242 15.4845 14.0124 14.7537 14.742C13.936 15.5583 12.6102 15.5583 11.7925 14.742Z" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    </div>
                                     <div>{{ employee.phone }}</div>
                                 </div>
                                 {% endif %}
                                 
                                 {% if employee.location %}
                                 <div class="flex items-start">
-                                    <div class="w-8 text-gray-400"><i class="fas fa-map-marker-alt"></i></div>
+                                    <div class="contact-icon mr-3">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M5 8.91995C5 12.6683 6.34786 14.6401 11.173 21.5716C11.5706 22.1428 12.4294 22.1428 12.827 21.5716C17.6521 14.6401 19 12.6683 19 8.91995C19 5.09817 15.866 2 12 2C8.13401 2 5 5.09817 5 8.91995Z" stroke="#9ca3af" stroke-width="2" stroke-linejoin="round"/>
+                                        </svg>
+                                    </div>
                                     <div>{{ employee.location }}</div>
                                 </div>
                                 {% endif %}
@@ -205,7 +256,7 @@
                 
                 <!-- Правая колонка (профессиональная информация) -->
                 <div class="lg:col-span-2">
-                    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                    <div class="bg-white rounded-2xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-gray-200 overflow-hidden profile-card">
                         <!-- О себе -->
                         {% if employee.about_me %}
                         <div class="p-6">
@@ -281,11 +332,21 @@
 
     <!-- Плавающие кнопки действий -->
     <a href="{% url 'core:employee_edit' employee.pk %}" class="employee-edit-button">
-        <i class="fas fa-edit mr-2"></i>Редактировать
+        <div class="action-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10.2055 19.5733C9.86497 19.9139 9.42656 20.1395 8.95154 20.2186L4.34563 20.9863C3.56372 21.1166 2.88583 20.4387 3.01615 19.6568L3.7838 15.0509C3.86297 14.5759 4.08859 14.1375 4.42911 13.797M10.2055 19.5733L18.7258 11.053L12.9494 5.27665M10.2055 19.5733L4.42911 13.797M4.42911 13.797L12.9494 5.27665M12.9494 5.27665L14.6119 3.61413C15.4308 2.79529 16.7584 2.79529 17.5772 3.61413L20.3859 6.42279C21.2057 7.24258 21.2046 8.57207 20.3834 9.39051L18.7258 11.0427M21 20.9863H15" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </div>
+        Редактировать
     </a>
     
     <a href="{% url 'core:employee-pdf' employee.pk %}" class="employee-pdf-button">
-        <i class="fas fa-file-pdf mr-2"></i>Скачать PDF
+        <div class="action-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 6V14M12 14L14.5 11.5M12 14L9.5 11.5M20 18H4" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </div>
+        Скачать PDF
     </a>
 
     <!-- Нижнее мобильное меню -->
@@ -363,7 +424,7 @@
             background: #2563eb;
             color: white;
             bottom: 24px;
-            right: 220px;
+            right: 200px; /* Увеличено расстояние с 180px до 200px для лучшего разделения */
         }
 
         .employee-edit-button:hover {
