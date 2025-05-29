@@ -90,7 +90,7 @@ def trips_api(request, pk=None):
     """Получить список поездок, создать новую или удалить"""
     user = request.user
     if request.method == 'GET':
-        if user.role in ['SUPERADMIN', 'ADMIN'] or user.is_superuser:
+        if user.role in ['SUPERADMIN', 'DIRECTOR', 'ADMIN'] or user.is_superuser:
             trips = Trip.objects.all().order_by('-date')
         else:
             trips = Trip.objects.filter(driver=user).order_by('-date')
