@@ -70,7 +70,7 @@
                         <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Задачи</div>
                     </a>
                     <a href="{% url 'core:map' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2">
-                        <img src="{% static 'core/img/location.svg' %}?v={% now 'U' %}" alt="Map" class="w-5 h-5 desktop-icon align-middle" onerror="this.onerror=null; this.src='/static/core/img/location.svg'">
+                        <img src="{% static 'core/img/location.svg' %}" alt="Map" class="w-5 h-5 desktop-icon align-middle" onerror="this.onerror=null; this.src='/static/core/img/location.svg'">
                         <img src="{% static 'core/img/mobile/location.svg' %}" alt="Map" class="mobile-icon hidden align-middle">
                         <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Карта</div>
                     </a>
@@ -191,6 +191,7 @@
                                     <div class="contact-icon mr-3">
                                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <path d="M5 8.91995C5 12.6683 6.34786 14.6401 11.173 21.5716C11.5706 22.1428 12.4294 22.1428 12.827 21.5716C17.6521 14.6401 19 12.6683 19 8.91995C19 5.09817 15.866 2 12 2C8.13401 2 5 5.09817 5 8.91995Z" stroke="#9ca3af" stroke-width="2" stroke-linejoin="round"/>
+                                            <path d="M13 9C13 8.44772 12.5523 8 12 8C11.4477 8 11 8.44772 11 9C11 9.55228 11.4477 10 12 10C12.5523 10 13 9.55228 13 9ZM15 9C15 10.6569 13.6569 12 12 12C10.3431 12 9 10.6569 9 9C9 7.34315 10.3431 6 12 6C13.6569 6 15 7.34315 15 9Z" fill="#9ca3af"/>
                                         </svg>
                                     </div>
                                     <div>{{ employee.location }}</div>
@@ -224,9 +225,9 @@
                         {% if employee.key_skills %}
                         <div class="border-t border-gray-100 p-6">
                             <h3 class="text-lg font-semibold text-gray-800 mb-4">Ключевые навыки</h3>
-                            <div class="flex flex-wrap gap-2">
+                            <div class="text-gray-700">
                                 {% for skill in employee.key_skills|split_lines %}
-                                <span class="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm">{{ skill }}</span>
+                                    {{ skill }}{% if not forloop.last %}, {% endif %}
                                 {% endfor %}
                             </div>
                         </div>
