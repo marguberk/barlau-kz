@@ -12,6 +12,10 @@ from .serializers import UserUpdateSerializer, UserPhotoSerializer, TripSerializ
 from .models import Notification, Waybill, Trip, DriverLocation
 from logistics.models import Task, Expense, Vehicle
 from rest_framework import status
+from django.contrib.auth import get_user_model
+from django.db.models import Q
+
+User = get_user_model()
 
 class CsrfExemptSessionAuthentication(SessionAuthentication):
     def enforce_csrf(self, request):
@@ -191,3 +195,160 @@ def driver_locations_api(request):
             else:
                 print(f"[DEBUG] Serializer errors: {serializer.errors}")
             return Response(serializer.errors, status=400) 
+
+@csrf_exempt
+@api_view(['POST'])
+@authentication_classes([CsrfExemptSessionAuthentication])
+@permission_classes([IsAuthenticated])
+def update_driver_location(request):
+    """Обновление геопозиции водителя (оптимизированная версия)"""
+    user = request.user
+    
+    # Проверяем, что пользователь - водитель
+    if user.role != 'DRIVER':
+        return Response({
+            'detail': f'Только водители могут отправлять локации. Ваша роль: {user.role}'
+        }, status=status.HTTP_403_FORBIDDEN)
+    
+    latitude = request.data.get('latitude')
+    longitude = request.data.get('longitude')
+    
+    if not latitude or not longitude:
+        return Response({
+            'detail': 'Широта и долгота обязательны'
+        }, status=status.HTTP_400_BAD_REQUEST)
+    
+    try:
+        # Обновляем текущую позицию пользователя
+        with transaction.atomic():
+            user.current_latitude = latitude
+            user.current_longitude = longitude
+            user.last_location_update = timezone.now()
+            user.save(update_fields=['current_latitude', 'current_longitude', 'last_location_update'])
+            
+            # Создаем запись в истории геолокаций
+            DriverLocation.objects.create(
+                driver=user,
+                latitude=latitude,
+                longitude=longitude
+            )
+            
+            # Очищаем кэш для мгновенного обновления на карте
+            cache_key = f'driver_locations_*'
+            cache.clear()
+        
+        return Response({
+            'success': True,
+            'message': 'Геопозиция обновлена',
+            'latitude': str(user.current_latitude),
+            'longitude': str(user.current_longitude),
+            'timestamp': user.last_location_update.isoformat()
+        }, status=status.HTTP_200_OK)
+        
+    except Exception as e:
+        return Response({
+            'detail': f'Ошибка обновления геопозиции: {str(e)}'
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_active_drivers(request):
+    """Получить активных водителей с их текущими позициями"""
+    user = request.user
+    
+    # Только админы, директора и диспетчеры могут видеть позиции всех водителей
+    if user.role not in ['DIRECTOR', 'SUPERADMIN', 'DISPATCHER'] and not user.is_superuser:
+        return Response({
+            'detail': 'Недостаточно прав для просмотра позиций водителей'
+        }, status=status.HTTP_403_FORBIDDEN)
+    
+    # Кэшируем результат на 10 секунд
+    cache_key = 'active_drivers_locations'
+    cached_data = cache.get(cache_key)
+    
+    if cached_data is not None:
+        return Response(cached_data)
+    
+    # Получаем водителей, обновлявших позицию в последние 30 минут
+    thirty_minutes_ago = timezone.now() - timedelta(minutes=30)
+    
+    active_drivers = User.objects.filter(
+        role='DRIVER',
+        is_active=True,
+        last_location_update__gte=thirty_minutes_ago,
+        current_latitude__isnull=False,
+        current_longitude__isnull=False
+    ).values(
+        'id', 'username', 'first_name', 'last_name', 
+        'current_latitude', 'current_longitude', 'last_location_update'
+    )
+    
+    drivers_data = []
+    for driver in active_drivers:
+        drivers_data.append({
+            'id': driver['id'],
+            'name': f"{driver['first_name']} {driver['last_name']}".strip() or driver['username'],
+            'latitude': float(driver['current_latitude']) if driver['current_latitude'] else None,
+            'longitude': float(driver['current_longitude']) if driver['current_longitude'] else None,
+            'last_update': driver['last_location_update'].isoformat() if driver['last_location_update'] else None,
+            'is_online': True
+        })
+    
+    # Кэшируем на 10 секунд
+    cache.set(cache_key, drivers_data, 10)
+    
+    return Response(drivers_data)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def toggle_driver_tracking(request):
+    """Включить/выключить отслеживание геопозиции для водителя"""
+    user = request.user
+    
+    if user.role != 'DRIVER':
+        return Response({
+            'detail': 'Только водители могут управлять отслеживанием'
+        }, status=status.HTTP_403_FORBIDDEN)
+    
+    enabled = request.data.get('enabled', False)
+    
+    if enabled:
+        # Включаем отслеживание - сохраняем первоначальную позицию
+        latitude = request.data.get('latitude')
+        longitude = request.data.get('longitude')
+        
+        if latitude and longitude:
+            user.current_latitude = latitude
+            user.current_longitude = longitude
+            user.last_location_update = timezone.now()
+            user.save(update_fields=['current_latitude', 'current_longitude', 'last_location_update'])
+            
+            # Создаем запись в истории
+            DriverLocation.objects.create(
+                driver=user,
+                latitude=latitude,
+                longitude=longitude
+            )
+            
+            return Response({
+                'tracking_enabled': True,
+                'message': 'Отслеживание геопозиции включено'
+            })
+        else:
+            return Response({
+                'detail': 'Не удалось получить координаты'
+            }, status=status.HTTP_400_BAD_REQUEST)
+    else:
+        # Выключаем отслеживание - обнуляем позицию
+        user.current_latitude = None
+        user.current_longitude = None
+        user.last_location_update = None
+        user.save(update_fields=['current_latitude', 'current_longitude', 'last_location_update'])
+        
+        # Очищаем кэш
+        cache.clear()
+        
+        return Response({
+            'tracking_enabled': False,
+            'message': 'Отслеживание геопозиции выключено'
+        }) 

@@ -733,7 +733,7 @@ async function changeTaskStatus(taskId, newStatus) {
     try {
         const response = await fetch(`/api/tasks/${taskId}/change_status/`, {
             method: 'POST',
-                headers: {
+            headers: {
                 'Content-Type': 'application/json',
                 'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
             },
@@ -744,10 +744,10 @@ async function changeTaskStatus(taskId, newStatus) {
             closeModal();
             loadTasks(); // Перезагружаем задачи
             showNotification('Статус задачи успешно изменен', 'success');
-            } else {
+        } else {
             alert('Ошибка при изменении статуса задачи');
-            }
-        } catch (error) {
+        }
+    } catch (error) {
         console.error('Ошибка:', error);
         alert('Ошибка при изменении статуса задачи');
     }

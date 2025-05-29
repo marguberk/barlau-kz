@@ -452,6 +452,60 @@
             
             <!-- Активные поездки с картой -->
         </div>
+
+        {% if user.role == 'DRIVER' %}
+        <!-- Геопозиционирование для водителей -->
+        <div class="w-full px-8 py-4">
+            <div class="bg-white rounded-2xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 p-6">
+                <div class="flex flex-col gap-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 p-2 bg-green-600 rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.10)] flex justify-center items-center gap-2 overflow-hidden" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-900">Геопозиционирование</h3>
+                                <p class="text-sm text-gray-500">Позволяет руководству отслеживать ваше местоположение</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <div id="location-status" class="flex items-center gap-2">
+                                <div id="location-indicator" class="w-3 h-3 bg-gray-400 rounded-full"></div>
+                                <span id="location-status-text" class="text-sm text-gray-600">Отключено</span>
+                            </div>
+                            <button id="toggle-tracking-btn" 
+                                    class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors">
+                                <svg id="location-icon" class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                </svg>
+                                <span id="toggle-tracking-text">Включить отслеживание</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="location-info" class="hidden bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <div class="flex items-start gap-3">
+                            <svg class="w-5 h-5 text-blue-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <div class="flex-1">
+                                <h4 class="text-sm font-medium text-blue-900">Отслеживание активно</h4>
+                                <p class="text-xs text-blue-700 mt-1">Ваше местоположение обновляется автоматически каждые 30 секунд. Приложение будет работать даже в фоновом режиме.</p>
+                                <div class="mt-2 text-xs text-blue-600">
+                                    <span>Последнее обновление: </span>
+                                    <span id="last-update-time">-</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
     </div>
 </div>
 
@@ -1216,827 +1270,355 @@
 <script>
     // Инициализация при загрузке страницы
     document.addEventListener('DOMContentLoaded', function() {
-        // Запускаем функцию исправления ссылок немедленно и с интервалом
-        fixAllLinks();
-        const fixInterval = setInterval(fixAllLinks, 300);
+        console.log('Dashboard загружен');
+        initMap();
         
-        // После 5 секунд останавливаем интервал
-        setTimeout(() => clearInterval(fixInterval), 5000);
+        // Выносим роль пользователя в JavaScript переменную
+        const userRole = '{{ user.role }}';
+        const isDriver = userRole === 'DRIVER';
         
-        // Выравниваем высоту карточек
-        equalizeCardHeights();
+        // Устанавливаем глобальные переменные для карты
+        window.currentUserRole = userRole;
         
-        // Принудительно корректируем цвета иконок, чтобы избежать фиолетового цвета
-        fixIconColors();
-        
-        // Через небольшую задержку выравниваем высоту блоков
-        setTimeout(() => {
-            equalizeFinanceTasksHeight();
-            equalizeCardHeights();
-        }, 300);
-        
-        // Обработка изменения размера окна с защитой от частых вызовов
-        let resizeTimeout;
-        window.addEventListener('resize', function() {
-            clearTimeout(resizeTimeout);
-            resizeTimeout = setTimeout(function() {
-                equalizeCardHeights();
-                adjustLayoutForTablet();
-            }, 250);
-        });
-        
-        // Обеспечиваем видимость мобильного меню на мобильных устройствах
-        if (window.innerWidth <= 1100) {
-            const mobileNav = document.querySelector('nav.fixed.bottom-0');
-            if (mobileNav) {
-                mobileNav.style.display = 'block';
-            }
+        // Загружаем данные в зависимости от роли
+        if (!isDriver) {
+            loadTrips();
+            loadDriverLocations();
         }
         
-        // Скрываем/показываем мобильное меню при прокрутке
-        adjustLayoutForTablet();
-        
-        // Вызываем функцию инициализации графика с небольшой задержкой
-        setTimeout(initFinancialChart, 500);
-    });
-    
-    // Функция для адаптации под планшеты и мобильную версию
-    function adjustLayoutForTablet() {
-        // Для планшетной и мобильной версии
-        if (window.innerWidth <= 1100) {
-            // Убираем боковую панель и настраиваем основной контент
-            document.querySelector('.main-content').style.marginLeft = '0';
-            document.querySelector('.sidebar').style.display = 'none';
-            
-            // Важно: НЕ скрываем верхнюю панель
-            // const topPanel = document.querySelector('.w-full.h-20.px-8.py-5.bg-white');
-            // if (topPanel) {
-            //     topPanel.style.display = 'none';
-            // }
-            
-            // Показываем нижнее мобильное меню
-            const mobileNav = document.querySelector('nav.fixed.bottom-0');
-            if (mobileNav) {
-                mobileNav.style.display = 'block';
-            }
-            
-            // Адаптируем карточки статистики
-            document.querySelectorAll('.stats-cards > div').forEach(card => {
-                card.style.width = '100%';
+        // Обработчики для создания поездок
+        const openTripFormBtn = document.getElementById('openTripFormBtn');
+        if (openTripFormBtn) {
+            openTripFormBtn.addEventListener('click', function() {
+                openTripForm();
+                loadTripFormData();
             });
-            document.querySelector('.stats-cards').style.flexDirection = 'column';
-            
-            // Адаптируем блоки финансов и задач
-            document.querySelectorAll('.finance-tasks > div').forEach(block => {
-                block.style.width = '100%';
-            });
-            document.querySelector('.finance-tasks').style.flexDirection = 'column';
-            
-
-        } else {
-            resetLayoutToDesktop();
         }
-    }
-    
-    // Функция для возврата к десктопному режиму
-    function resetLayoutToDesktop() {
-        document.querySelector('.main-content').style.marginLeft = '16rem';
-        document.querySelector('.sidebar').style.display = 'flex';
         
-        // Возвращаем двухколоночную структуру
-        document.querySelector('.stats-cards').style.flexDirection = 'row';
-        document.querySelectorAll('.stats-cards > div').forEach(card => {
-            card.style.width = '';
-        });
+        // Обработчик точек на карте для создания поездок
+        const startInput = document.getElementById('startAddress');
+        const endInput = document.getElementById('endAddress');
         
-        // Восстанавливаем структуру финансов и задач
-        document.querySelector('.finance-tasks').style.flexDirection = 'row';
-        document.querySelector('.finance-tasks > div:first-child').style.width = '66.666%';
-        document.querySelector('.finance-tasks > div:last-child').style.width = '33.333%';
-        
-
-        
-        // Скрываем мобильное меню
-        const mobileNav = document.querySelector('nav.fixed.bottom-0');
-        if (mobileNav) {
-            mobileNav.style.display = 'none';
+        if (startInput) {
+            startInput.addEventListener('focus', () => enableDashboardMapPointSelection('start'));
         }
-    }
-    
-    // Функция для выравнивания высоты карточек в ПК-версии
-    function equalizeCardHeights() {
-        // Выравниваем высоту блоков финансов и задач в ПК-версии
-        if (window.innerWidth > 1100) {
-            const financeBlock = document.querySelector('.finance-tasks > div:first-child');
-            const tasksBlock = document.querySelector('.finance-tasks > div:last-child');
-            
-            if (financeBlock && tasksBlock) {
-                // Сбрасываем высоту для правильного измерения
-                financeBlock.style.height = 'auto';
-                tasksBlock.style.height = 'auto';
-                
-                // Небольшая задержка для корректного рендеринга
-                setTimeout(() => {
-                    const financeHeight = financeBlock.offsetHeight;
-                    const tasksHeight = tasksBlock.offsetHeight;
-                    const maxHeight = Math.max(financeHeight, tasksHeight);
-                    
-                    financeBlock.style.height = `${maxHeight}px`;
-                    tasksBlock.style.height = `${maxHeight}px`;
-                }, 50);
-            }
+        
+        if (endInput) {
+            endInput.addEventListener('focus', () => enableDashboardMapPointSelection('end'));
         }
-    }
-    
-
-    
-    // Функция для изменения статуса задачи
-    function toggleTaskStatus(taskId, newStatus) {
-        // Получаем CSRF токен из cookie
-        const csrftoken = getCookie('csrftoken');
         
-        // Показываем индикатор загрузки или блокируем кнопку
-        const container = document.querySelector(`.task-checkbox-container button[onclick*="${taskId}"]`).parentNode;
-        const originalContent = container.innerHTML;
-        container.innerHTML = '<div class="w-4 h-4 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin"></div>';
-        
-        fetch(`/api/v1/tasks/${taskId}/change_status/`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': csrftoken
-            },
-            body: JSON.stringify({ status: newStatus })
-        })
-        .then(response => {
-            if (!response.ok) {
-                let errorMsg = 'Не удалось обновить статус задачи';
-                
-                // Особая обработка ошибки 403 Forbidden
-                if (response.status === 403) {
-                    errorMsg = 'У вас нет прав для изменения этой задачи';
-                }
-                
-                throw new Error(errorMsg);
-            }
-            return response.json();
-        })
-        .then(data => {
-            // Обновляем UI после успешного обновления
-            const taskItem = container.closest('.task-item');
-            const titleEl = taskItem.querySelector('div.text-zinc-950');
-            const descEl = taskItem.querySelector('div.text-gray-500');
-            const dateEl = taskItem.querySelector('div.justify-start.text-gray-500');
-            
-            if (newStatus === 'COMPLETED') {
-                // Меняем на выполненную
-                container.innerHTML = `<button onclick="toggleTaskStatus('${taskId}', 'NEW')" class="cursor-pointer">
-                    <div class="w-4 h-4 rounded-full bg-blue-600 flex justify-center items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-white" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-                        </svg>
-                    </div>
-                </button>`;
-                titleEl.classList.add('line-through', 'text-slate-500');
-                descEl.classList.add('text-slate-500');
-                dateEl.classList.add('text-slate-500');
-            } else {
-                // Меняем на новую
-                container.innerHTML = `<button onclick="toggleTaskStatus('${taskId}', 'COMPLETED')" class="cursor-pointer">
-                    <img src="{% static 'core/img/check-circle.svg' %}" alt="Not completed" class="w-4 h-4">
-                </button>`;
-                titleEl.classList.remove('line-through', 'text-slate-500');
-                descEl.classList.remove('text-slate-500');
-                dateEl.classList.remove('text-slate-500');
-            }
-        })
-        .catch(error => {
-            // Возвращаем оригинальное состояние в случае ошибки
-            container.innerHTML = originalContent;
-            
-            console.error('Ошибка при обновлении задачи:', error);
-            
-            // Показываем пользовательское сообщение об ошибке
-            const modal = document.createElement('div');
-            modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
-            modal.innerHTML = `
-                <div class="bg-white rounded-lg p-6 max-w-md mx-auto">
-                    <h3 class="text-lg font-medium mb-2">Подтвердите действие на ${window.location.hostname}</h3>
-                    <p class="text-gray-700 mb-6">${error.message}. Пожалуйста, попробуйте еще раз.</p>
-                    <div class="flex justify-end">
-                        <button class="px-4 py-2 bg-teal-700 text-white rounded-lg" onclick="this.closest('.fixed').remove()">ОК</button>
-                    </div>
-                </div>
-            `;
-            document.body.appendChild(modal);
-        });
-    }
-    
-    // Функция для получения CSRF токена из cookie
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
+        // Инициализация системы геопозиционирования для водителей
+        if (isDriver) {
+            initDriverLocationTracking();
         }
-        return cookieValue;
-    }
-    
-    // Функция для выравнивания высоты блоков финансов и задач в планшетной версии
-    function equalizeFinanceTasksHeight() {
-        const financeBlock = document.querySelector('.finance-tasks > div:first-child');
-        const tasksBlock = document.querySelector('.finance-tasks > div:last-child');
-        
-        if (financeBlock && tasksBlock && window.innerWidth > 1100) {
-            // Устанавливаем фиксированную высоту для обоих блоков
-            const fixedHeight = 400; // Абсолютно одинаковая высота для обоих блоков
-            
-            financeBlock.style.height = `${fixedHeight}px`;
-            tasksBlock.style.height = `${fixedHeight}px`;
-            
-            // Обеспечиваем прокрутку внутреннего содержимого
-            const financeContent = financeBlock.querySelector('.self-stretch.p-5.h-48');
-            const tasksContent = tasksBlock.querySelector('.self-stretch.px-5.py-4');
-            
-            if (financeContent) {
-                financeContent.style.height = 'auto';
-            }
-            
-            if (tasksContent) {
-                tasksContent.style.overflow = 'auto';
-                tasksContent.style.maxHeight = '320px';
-            }
-        }
-    }
-    
-    // Функция коррекции всех ссылок на странице
-    function fixAllLinks() {
-        const allLinks = document.querySelectorAll('a');
-        allLinks.forEach(link => {
-            // Исправление ссылок с неверным форматированием
-            if (link.href.includes('undefined') || link.href.includes('[object')) {
-                // Пытаемся исправить ссылку на основе текста
-                const linkText = link.textContent.trim().toLowerCase();
-                
-                if (linkText.includes('главная') || linkText.includes('dashboard')) {
-                    link.href = '/';
-                } else if (linkText.includes('задачи') || linkText.includes('tasks')) {
-                    link.href = '/tasks/';
-                } else if (linkText.includes('карта') || linkText.includes('map')) {
-                    link.href = '/map/';
-                } else if (linkText.includes('грузовики') || linkText.includes('trucks')) {
-                    link.href = '/trucks/';
-                } else if (linkText.includes('сотрудники') || linkText.includes('employees')) {
-                    link.href = '/employees/';
-                }
-            }
-        });
-    }
-    
-    // Исправление цветов иконок
-    function fixIconColors() {
-        // Корректировка цветов SVG-иконок
-        document.querySelectorAll('.svg-icon-green').forEach(icon => {
-            if (icon.tagName.toLowerCase() === 'img') {
-                icon.style.filter = 'invert(48%) sepia(79%) saturate(2476%) hue-rotate(86deg) brightness(90%) contrast(80%)';
-            }
-        });
-    }
-
-    function initFinancialChart() {
-        // Получаем все точки графика
-        const points = document.querySelectorAll('.graph-point');
-        const tooltip = document.getElementById('chart-tooltip');
-        
-        // Если нет точек или подсказки, завершаем выполнение
-        if (!points.length || !tooltip) return;
-        
-        // Добавляем обработчики для каждой точки
-        points.forEach(point => {
-            point.addEventListener('mouseenter', function(e) {
-                // Получаем данные из атрибутов
-                const date = this.getAttribute('data-date');
-                const value = this.getAttribute('data-value');
-                
-                // Заполняем подсказку
-                document.getElementById('tooltip-date').textContent = date;
-                document.getElementById('tooltip-value').textContent = value;
-                
-                // Позиционируем подсказку
-                const rect = this.getBoundingClientRect();
-                const chartRect = document.getElementById('financial-chart').getBoundingClientRect();
-                
-                tooltip.style.left = `${rect.left - tooltip.offsetWidth / 2}px`;
-                tooltip.style.top = `${rect.top - tooltip.offsetHeight - 10}px`;
-                
-                // Показываем подсказку
-                tooltip.classList.remove('hidden');
-                
-                // Увеличиваем размер точки
-                this.setAttribute('r', '4');
-            });
-            
-            point.addEventListener('mouseleave', function() {
-                // Скрываем подсказку
-                tooltip.classList.add('hidden');
-                
-                // Возвращаем исходный размер точки
-                this.setAttribute('r', '3');
-            });
-        });
-    }
-
-    // Вызываем функцию после загрузки страницы
-    document.addEventListener('DOMContentLoaded', function() {
-        // Запускаем инициализацию графика с небольшой задержкой
-        setTimeout(initFinancialChart, 500);
     });
 
-    const avatar = document.getElementById('user-avatar');
-    const dropdown = document.getElementById('user-dropdown');
-    if (avatar && dropdown) {
-        avatar.addEventListener('click', function(e) {
-            e.stopPropagation();
-            dropdown.classList.toggle('hidden');
-        });
-        document.addEventListener('click', function() {
-            dropdown.classList.add('hidden');
-        });
-    }
-
-    // === КАРТА И ПОЕЗДКИ ===
-    let dashboardMap = null;
-    let dashboardTripPolylines = [];
-    let dashboardSelectedTripIdx = null;
-    let dashboardAllTripsCache = [];
-    let dashboardStartMarker = null, dashboardEndMarker = null, dashboardRouteLineMarker = null;
-    let dashboardStartCoords = null, dashboardEndCoords = null;
-    const ORS_API_KEY = '5b3ce3597851110001cf624837a2d1abb30640ba92c5c16d57e75087';
-
-    // Инициализация карты дашборда
-    function initDashboardMap() {
-        if (dashboardMap) return;
-        dashboardMap = L.map('dashboardMapContainer', {
-            center: [43.2220, 76.8512],
-            zoom: 11,
-            zoomControl: true,
-            attributionControl: false
-        });
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-            attribution: ''
-        }).addTo(dashboardMap);
+    // Система геопозиционирования для водителей
+    const userRole = '{{ user.role }}';
+    const isDriver = userRole === 'DRIVER';
+    
+    if (isDriver) {
+        let trackingInterval = null;
+        let watchId = null;
+        let isTracking = false;
         
-        // Обработчик клика по карте для выбора точек
-        dashboardMap.on('click', function(e) {
-            if (window.dashboardMapPointSelection) {
-                if (window.dashboardMapPointSelection === 'start') {
-                    setDashboardStartCoords([e.latlng.lat, e.latlng.lng]);
-                    reverseGeocode(e.latlng.lat, e.latlng.lng, 'dashboardStartAddress');
-                } else if (window.dashboardMapPointSelection === 'end') {
-                    setDashboardEndCoords([e.latlng.lat, e.latlng.lng]);
-                    reverseGeocode(e.latlng.lat, e.latlng.lng, 'dashboardEndAddress');
-                }
-                window.dashboardMapPointSelection = null;
-            }
-        });
-    }
-
-    // Получение маршрута через OpenRouteService
-    async function fetchDashboardRouteORS(start, end) {
-        const url = 'https://api.openrouteservice.org/v2/directions/driving-car/geojson';
-        const body = {
-            coordinates: [
-                [start[1], start[0]], // ORS: [lng, lat]
-                [end[1], end[0]]
-            ]
-        };
-        try {
-            const resp = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Authorization': ORS_API_KEY,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(body)
-            });
-            if (!resp.ok) return null;
-            const data = await resp.json();
-            return data;
-        } catch (e) {
-            return null;
-        }
-    }
-
-    // Отображение маршрутов поездок
-    async function renderDashboardTripRoutes(trips) {
-        dashboardTripPolylines.forEach(l => dashboardMap.removeLayer(l));
-        dashboardTripPolylines = [];
-        
-        for (const trip of trips) {
-            if (trip.start_latitude && trip.end_latitude) {
-                const start = [parseFloat(trip.start_latitude), parseFloat(trip.start_longitude)];
-                const end = [parseFloat(trip.end_latitude), parseFloat(trip.end_longitude)];
-                
-                let geojson = null;
-                try {
-                    geojson = await fetchDashboardRouteORS(start, end);
-                } catch (e) { geojson = null; }
-                
-                if (geojson && geojson.features && geojson.features[0]) {
-                    const coords = geojson.features[0].geometry.coordinates.map(c => [c[1], c[0]]);
-                    const polyline = L.polyline(coords, {
-                        color: '#2563eb',
-                        weight: 6,
-                        opacity: 0.9,
-                        smoothFactor: 1.5,
-                        lineCap: 'round',
-                        lineJoin: 'round'
-                    }).addTo(dashboardMap);
-                    dashboardTripPolylines.push(polyline);
-                    
-                    // Маркеры начала и конца
-                    const startIcon = L.divIcon({
-                        className: '',
-                        html: `<div style="box-shadow:0 0 6px 1px #2563eb33; border-radius:50%; width:20px; height:20px; background:#2563eb; display:flex; align-items:center; justify-content:center; border:2px solid #fff;"><div style='width:8px;height:8px;border-radius:50%;background:#fff;'></div></div>`,
-                        iconSize: [20,20],
-                        iconAnchor: [10,10]
-                    });
-                    const endIcon = L.divIcon({
-                        className: '',
-                        html: `<div style="box-shadow:0 0 6px 1px #34d39933; border-radius:50%; width:20px; height:20px; background:#34d399; display:flex; align-items:center; justify-content:center; border:2px solid #fff;"><div style='width:8px;height:8px;border-radius:50%;background:#fff;'></div></div>`,
-                        iconSize: [20,20],
-                        iconAnchor: [10,10]
-                    });
-                    
-                    const startMarker = L.marker(start, {icon: startIcon}).addTo(dashboardMap);
-                    const endMarker = L.marker(end, {icon: endIcon}).addTo(dashboardMap);
-                    dashboardTripPolylines.push(startMarker, endMarker);
-                    
-                    // Подгоняем карту под маршрут
-                    dashboardMap.fitBounds([start, end], {padding: [40, 40]});
-                }
-            }
-        }
-    }
-
-    // Отображение списка поездок с выделением
-    function renderDashboardTripListWithSelection(trips, selectedIdx) {
-        const list = document.getElementById('dashboardTripList');
-        if (!list) return;
-        
-        if (!trips.length) {
-            list.innerHTML = '<div class="text-gray-400">Нет поездок</div>';
-            return;
-        }
-        
-        list.innerHTML = trips.map((trip, idx) => {
-            const brand = trip.vehicle_details ? trip.vehicle_details.brand + ' ' + trip.vehicle_details.model : '';
-            const number = trip.vehicle_details ? trip.vehicle_details.number : '';
-            let img = '';
-            if (trip.vehicle_details && trip.vehicle_details.main_photo_url) {
-                img = `<img src="${trip.vehicle_details.main_photo_url}" alt="Truck" />`;
-            } else {
-                img = `<svg width="90" height="40" viewBox="0 0 90 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="8" y="18" width="50" height="16" rx="4" fill="#e5e7eb"/><rect x="58" y="22" width="18" height="12" rx="3" fill="#e5e7eb"/><circle cx="20" cy="36" r="4" fill="#cbd5e1"/><circle cx="66" cy="34" r="4" fill="#cbd5e1"/></svg>`;
-            }
-            function shortAddr(addr) {
-                if (!addr) return '';
-                let parts = addr.split(',');
-                let city = parts[0].trim();
-                if (city.match(/\d/)) city = (parts[1]||'').trim();
-                return city;
-            }
-            let pointA = shortAddr(trip.start_address);
-            let pointB = shortAddr(trip.end_address);
-            let route = (pointA && pointB) ? `${pointA} — ${pointB}` : '';
-            return `
-            <div class="trip-card${selectedIdx===idx?' trip-card-selected':''}" data-idx="${idx}">
-              <div class="trip-card-info">
-                <div class="trip-card-brand">${brand}</div>
-                <div class="trip-card-number">${number}</div>
-                <div class="trip-card-desc">${route}</div>
-              </div>
-              <div class="trip-card-img">${img}</div>
-            </div>
-            `;
-        }).join('');
-        
-        document.querySelectorAll('#dashboardTripList .trip-card').forEach(card => {
-            card.onclick = function() {
-                selectDashboardTrip(parseInt(card.dataset.idx));
-            };
-        });
-        
-        if (selectedIdx === null || trips.length === 0) {
-            // Убираем показ popup карточки
-            // showDashboardTripInfoPopup(null);
-        }
-    }
-
-    // Выбор поездки
-    function selectDashboardTrip(idx) {
-        dashboardSelectedTripIdx = idx;
-        renderDashboardTripListWithSelection(dashboardAllTripsCache, idx);
-        renderDashboardTripRoutes([dashboardAllTripsCache[idx]]);
-        // Убираем показ popup карточки
-        // showDashboardTripInfoPopup(dashboardAllTripsCache[idx]);
-    }
-
-    // Загрузка поездок
-    async function loadDashboardTrips() {
-        try {
-            const resp = await fetch('/dashboard/api/trips/');
-            const trips = await resp.json();
-            dashboardAllTripsCache = trips;
-            if (dashboardSelectedTripIdx !== null && trips[dashboardSelectedTripIdx]) {
-                renderDashboardTripListWithSelection(trips, dashboardSelectedTripIdx);
-                renderDashboardTripRoutes([trips[dashboardSelectedTripIdx]]);
-            } else {
-                renderDashboardTripListWithSelection(trips, null);
-                renderDashboardTripRoutes([]);
-            }
-        } catch (e) {
-            console.error('Ошибка загрузки поездок:', e);
-        }
-    }
-
-    // Показ информации о поездке
-    function showDashboardTripInfoPopup(trip) {
-        const popup = document.getElementById('dashboardTripInfoPopup');
-        if (!popup) return;
-        
-        if (!trip) {
-            popup.style.display = 'none';
-            popup.innerHTML = '';
-            return;
-        }
-        const brand = trip.vehicle_details ? trip.vehicle_details.brand + ' ' + trip.vehicle_details.model : '';
-        const number = trip.vehicle_details ? trip.vehicle_details.number : '';
-        const driver = trip.driver_details ? (trip.driver_details.full_name || (trip.driver_details.first_name + ' ' + trip.driver_details.last_name)) : '';
-        function shortAddr(addr) {
-            if (!addr) return '';
-            let parts = addr.split(',');
-            let city = parts[0].trim();
-            if (city.match(/\d/)) city = (parts[1]||'').trim();
-            return city;
-        }
-        let pointA = shortAddr(trip.start_address);
-        let pointB = shortAddr(trip.end_address);
-        let route = (pointA && pointB) ? `${pointA} — ${pointB}` : '';
-        popup.innerHTML = `
-            <div class="trip-info-popup-content">
-                <div class="trip-info-popup-main">
-                    <div class="trip-info-popup-row1">
-                        <span class="trip-info-popup-number">${number}</span>
-                        <span class="trip-info-popup-brand">${brand}</span>
-                        <span class="trip-info-popup-route">${route}</span>
-                    </div>
-                    <div class="trip-info-popup-row2">
-                        <span class="trip-info-popup-driver"><i class='fa fa-user' style='margin-right:5px;'></i>${driver}</span>
-                        <span class="trip-info-popup-date"><i class='fa fa-calendar' style='margin-right:5px;'></i>${trip.date||''}</span>
-                    </div>
-                </div>
-                <button class="trip-info-popup-delete" onclick="deleteDashboardTrip(${trip.id})"><i class='fa fa-trash' style='margin-right:6px;'></i>Удалить</button>
-            </div>
-        `;
-        popup.style.display = 'block';
-    }
-
-    // Удаление поездки
-    function deleteDashboardTrip(tripId) {
-        if (!confirm('Удалить эту поездку?')) return;
-        fetch(`/dashboard/api/trips/${tripId}/`, {
-            method: 'DELETE',
-            headers: { 'X-CSRFToken': getCookie('csrftoken') }
-        }).then(resp => {
-            if (resp.ok) {
-                loadDashboardTrips();
-                // Убираем показ popup карточки
-                // showDashboardTripInfoPopup(null);
-            } else {
-                alert('Ошибка при удалении');
-            }
-        });
-    }
-
-    // === СОЗДАНИЕ ПОЕЗДКИ ===
-    function openDashboardTripForm() {
-        document.getElementById('dashboardTripFormModal').style.display = 'flex';
-        // Устанавливаем сегодняшнюю дату по умолчанию
-        const today = new Date().toISOString().split('T')[0];
-        document.getElementById('dashboardTripDate').value = today;
-    }
-
-    function closeDashboardTripForm() {
-        document.getElementById('dashboardTripFormModal').style.display = 'none';
-        document.getElementById('dashboardTripForm').reset();
-        if (dashboardStartMarker) dashboardMap.removeLayer(dashboardStartMarker); dashboardStartMarker = null; dashboardStartCoords = null;
-        if (dashboardEndMarker) dashboardMap.removeLayer(dashboardEndMarker); dashboardEndMarker = null; dashboardEndCoords = null;
-        if (dashboardRouteLineMarker) dashboardMap.removeLayer(dashboardRouteLineMarker); dashboardRouteLineMarker = null;
-    }
-
-    // Загрузка данных для формы
-    async function loadDashboardTripFormData() {
-        try {
-            const vehicleSelect = document.getElementById('dashboardTripVehicle');
-            const respV = await fetch('/api/v1/vehicles/');
-            const vehicles = (await respV.json()).results || [];
-            vehicleSelect.innerHTML = '<option value="">Выберите транспорт</option>' + vehicles.map(v => `<option value="${v.id}">${v.brand} ${v.model} (${v.number})</option>`).join('');
+        function initDriverLocationTracking() {
+            console.log('[GPS] Инициализация системы геопозиционирования');
             
-            const driverSelect = document.getElementById('dashboardTripDriver');
-            const respD = await fetch('/api/v1/users/?role=DRIVER');
-            const drivers = (await respD.json()).results || [];
-            driverSelect.innerHTML = '<option value="">Выберите водителя</option>' + drivers.map(d => `<option value="${d.id}">${d.first_name} ${d.last_name}</option>`).join('');
-        } catch (e) {
-            console.error('Ошибка загрузки данных формы:', e);
-        }
-    }
-
-    // Установка координат начальной точки
-    function setDashboardStartCoords(coords) {
-        dashboardStartCoords = coords;
-        if (dashboardStartMarker) dashboardMap.removeLayer(dashboardStartMarker);
-        dashboardStartMarker = L.marker(coords, {icon: L.divIcon({className:'',html:'<i class="fa-solid fa-circle" style="color:#34D399;font-size:22px;"></i>',iconSize:[22,22],iconAnchor:[11,11]})}).addTo(dashboardMap);
-        if (dashboardRouteLineMarker) dashboardMap.removeLayer(dashboardRouteLineMarker);
-        if (dashboardStartCoords && dashboardEndCoords) drawDashboardRoute();
-    }
-
-    // Установка координат конечной точки
-    function setDashboardEndCoords(coords) {
-        dashboardEndCoords = coords;
-        if (dashboardEndMarker) dashboardMap.removeLayer(dashboardEndMarker);
-        dashboardEndMarker = L.marker(coords, {icon: L.divIcon({className:'',html:'<i class="fa-solid fa-location-dot" style="color:#2679DB;font-size:22px;"></i>',iconSize:[22,22],iconAnchor:[11,11]})}).addTo(dashboardMap);
-        if (dashboardRouteLineMarker) dashboardMap.removeLayer(dashboardRouteLineMarker);
-        if (dashboardStartCoords && dashboardEndCoords) drawDashboardRoute();
-    }
-
-    // Рисование маршрута
-    function drawDashboardRoute() {
-        if (dashboardRouteLineMarker) dashboardMap.removeLayer(dashboardRouteLineMarker);
-        dashboardRouteLineMarker = L.polyline([dashboardStartCoords, dashboardEndCoords], {color:'#2679DB',weight:6,opacity:0.85,smoothFactor:1.2}).addTo(dashboardMap);
-        dashboardMap.fitBounds([dashboardStartCoords, dashboardEndCoords], {padding:[40,40]});
-    }
-
-    // Обратное геокодирование
-    async function reverseGeocode(lat, lng, inputId) {
-        try {
-            const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=ru`);
-            const data = await response.json();
-            if (data && data.display_name) {
-                document.getElementById(inputId).value = data.display_name;
-            }
-        } catch (e) {
-            console.error('Ошибка геокодирования:', e);
-        }
-    }
-
-    // Включение режима выбора точки на карте
-    function enableDashboardMapPointSelection(type) {
-        window.dashboardMapPointSelection = type;
-        dashboardMap.getContainer().style.cursor = 'crosshair';
-        setTimeout(() => {
-            if (window.dashboardMapPointSelection === type) {
-                dashboardMap.getContainer().style.cursor = '';
-                window.dashboardMapPointSelection = null;
-            }
-        }, 10000);
-    }
-
-    // Автокомплит адресов
-    function setupDashboardAutocomplete(inputId, listId, setCoords) {
-        const input = document.getElementById(inputId);
-        const list = document.getElementById(listId);
-        if (!input || !list) return;
-        
-        let timeout;
-        
-        input.addEventListener('input', function() {
-            clearTimeout(timeout);
-            const query = this.value;
-            if (query.length < 3) {
-                list.style.display = 'none';
+            const toggleBtn = document.getElementById('toggle-tracking-btn');
+            const statusIndicator = document.getElementById('location-indicator');
+            const statusText = document.getElementById('location-status-text');
+            const toggleText = document.getElementById('toggle-tracking-text');
+            const locationInfo = document.getElementById('location-info');
+            
+            if (!toggleBtn) return;
+            
+            // Проверяем поддержку геолокации
+            if (!navigator.geolocation) {
+                toggleBtn.disabled = true;
+                toggleText.textContent = 'Геолокация не поддерживается';
                 return;
             }
-            timeout = setTimeout(async () => {
-                try {
-                    const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&accept-language=ru`);
-                    const data = await response.json();
-                    if (data.length > 0) {
-                        list.innerHTML = data.map(item => 
-                            `<div class="autocomplete-item" data-lat="${item.lat}" data-lon="${item.lon}">${item.display_name}</div>`
-                        ).join('');
-                        list.style.display = 'block';
-                        
-                        list.querySelectorAll('.autocomplete-item').forEach(item => {
-                            item.addEventListener('click', function() {
-                                input.value = this.textContent;
-                                setCoords([parseFloat(this.dataset.lat), parseFloat(this.dataset.lon)]);
-                                list.style.display = 'none';
-                            });
-                        });
-                    } else {
-                        list.style.display = 'none';
-                    }
-                } catch (e) {
-                    console.error('Ошибка автокомплита:', e);
-                    list.style.display = 'none';
+            
+            // Обработчик кнопки включения/выключения
+            toggleBtn.addEventListener('click', function() {
+                if (isTracking) {
+                    stopLocationTracking();
+                } else {
+                    startLocationTracking();
                 }
-            }, 300);
-        });
-        
-        document.addEventListener('click', function(e) {
-            if (!input.contains(e.target) && !list.contains(e.target)) {
-                list.style.display = 'none';
-            }
-        });
-    }
-
-    // Отправка формы создания поездки
-    const round6 = x => x !== null && x !== undefined ? Number.parseFloat(x).toFixed(6) : null;
-    
-    // Инициализация карты и поездок при загрузке страницы
-    document.addEventListener('DOMContentLoaded', function() {
-        // Инициализируем карту и загружаем поездки
-        if (document.getElementById('dashboardMapContainer')) {
-            setTimeout(() => {
-                initDashboardMap();
-                loadDashboardTrips();
-            }, 500);
-        }
-        
-
-        
-        // Обработчик кнопки создания поездки
-        const openBtn = document.getElementById('dashboardOpenTripFormBtn');
-        if (openBtn) {
-            openBtn.addEventListener('click', function() {
-                openDashboardTripForm();
-                loadDashboardTripFormData();
             });
+            
+            // Проверяем состояние при загрузке страницы
+            checkTrackingStatus();
         }
         
-        // Обработчик формы создания поездки
-        const form = document.getElementById('dashboardTripForm');
-        if (form) {
-            form.onsubmit = async function(e) {
-                e.preventDefault();
-                const data = {
-                    vehicle: document.getElementById('dashboardTripVehicle').value,
-                    driver: document.getElementById('dashboardTripDriver').value,
-                    cargo_description: document.getElementById('dashboardCargoDesc').value,
-                    date: document.getElementById('dashboardTripDate').value,
-                    start_latitude: round6(dashboardStartCoords ? dashboardStartCoords[0] : null),
-                    start_longitude: round6(dashboardStartCoords ? dashboardStartCoords[1] : null),
-                    end_latitude: round6(dashboardEndCoords ? dashboardEndCoords[0] : null),
-                    end_longitude: round6(dashboardEndCoords ? dashboardEndCoords[1] : null),
-                    start_address: document.getElementById('dashboardStartAddress').value,
-                    end_address: document.getElementById('dashboardEndAddress').value,
-                };
-                if (!data.start_latitude || !data.end_latitude) {
-                    alert('Выберите адреса отправления и назначения (или отметьте на карте)');
-                    return;
-                }
-                try {
-                    const resp = await fetch('/dashboard/api/trips/', {
+        function startLocationTracking() {
+            console.log('[GPS] Включение отслеживания геопозиции');
+            
+            const toggleBtn = document.getElementById('toggle-tracking-btn');
+            const statusIndicator = document.getElementById('location-indicator');
+            const statusText = document.getElementById('location-status-text');
+            const toggleText = document.getElementById('toggle-tracking-text');
+            const locationInfo = document.getElementById('location-info');
+            
+            // Настройки геолокации для оптимальной точности
+            const options = {
+                enableHighAccuracy: true,
+                timeout: 30000,
+                maximumAge: 60000 // 1 минута кэша
+            };
+            
+            // Получаем первоначальную позицию
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    console.log('[GPS] Первоначальная позиция получена:', position.coords);
+                    
+                    const latitude = position.coords.latitude;
+                    const longitude = position.coords.longitude;
+                    
+                    // Отправляем запрос на включение отслеживания
+                    fetch('/api/drivers/tracking/toggle/', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                             'X-CSRFToken': getCookie('csrftoken')
                         },
-                        body: JSON.stringify(data)
+                        body: JSON.stringify({
+                            enabled: true,
+                            latitude: latitude,
+                            longitude: longitude
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.tracking_enabled) {
+                            isTracking = true;
+                            
+                            // Обновляем интерфейс
+                            statusIndicator.className = 'w-3 h-3 bg-green-500 rounded-full animate-pulse';
+                            statusText.textContent = 'Активно';
+                            toggleText.textContent = 'Отключить отслеживание';
+                            toggleBtn.className = 'inline-flex items-center px-4 py-2 border border-red-300 text-sm font-medium rounded-lg text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors';
+                            locationInfo.classList.remove('hidden');
+                            
+                            updateLastUpdateTime();
+                            
+                            // Запускаем периодические обновления
+                            startPeriodicUpdates(options);
+                            
+                            console.log('[GPS] Отслеживание включено успешно');
+                            showNotification('Отслеживание геопозиции включено', 'success');
+                        } else {
+                            throw new Error(data.detail || 'Ошибка включения отслеживания');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('[GPS] Ошибка включения отслеживания:', error);
+                        showNotification('Ошибка включения отслеживания: ' + error.message, 'error');
                     });
-                    if (resp.ok) {
-                        closeDashboardTripForm();
-                        loadDashboardTrips();
-                    } else {
-                        const err = await resp.json();
-                        alert('Ошибка: ' + JSON.stringify(err));
+                },
+                function(error) {
+                    console.error('[GPS] Ошибка получения позиции:', error);
+                    let errorMessage = 'Ошибка получения геопозиции';
+                    
+                    switch(error.code) {
+                        case error.PERMISSION_DENIED:
+                            errorMessage = 'Доступ к геолокации запрещен. Разрешите доступ в настройках браузера.';
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            errorMessage = 'Информация о местоположении недоступна';
+                            break;
+                        case error.TIMEOUT:
+                            errorMessage = 'Время ожидания получения позиции истекло';
+                            break;
                     }
-                } catch (err) {
-                    alert('Ошибка: ' + err);
+                    
+                    showNotification(errorMessage, 'error');
+                },
+                options
+            );
+        }
+        
+        function stopLocationTracking() {
+            console.log('[GPS] Отключение отслеживания геопозиции');
+            
+            const statusIndicator = document.getElementById('location-indicator');
+            const statusText = document.getElementById('location-status-text');
+            const toggleText = document.getElementById('toggle-tracking-text');
+            const toggleBtn = document.getElementById('toggle-tracking-btn');
+            const locationInfo = document.getElementById('location-info');
+            
+            // Останавливаем отслеживание
+            if (watchId !== null) {
+                navigator.geolocation.clearWatch(watchId);
+                watchId = null;
+            }
+            
+            if (trackingInterval) {
+                clearInterval(trackingInterval);
+                trackingInterval = null;
+            }
+            
+            // Отправляем запрос на отключение
+            fetch('/api/drivers/tracking/toggle/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    enabled: false
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                isTracking = false;
+                
+                // Обновляем интерфейс
+                statusIndicator.className = 'w-3 h-3 bg-gray-400 rounded-full';
+                statusText.textContent = 'Отключено';
+                toggleText.textContent = 'Включить отслеживание';
+                toggleBtn.className = 'inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors';
+                locationInfo.classList.add('hidden');
+                
+                console.log('[GPS] Отслеживание отключено успешно');
+                showNotification('Отслеживание геопозиции отключено', 'info');
+            })
+            .catch(error => {
+                console.error('[GPS] Ошибка отключения отслеживания:', error);
+                showNotification('Ошибка отключения отслеживания: ' + error.message, 'error');
+            });
+        }
+        
+        function startPeriodicUpdates(options) {
+            // Обновляем позицию каждые 30 секунд
+            trackingInterval = setInterval(function() {
+                if (!isTracking) return;
+                
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        const latitude = position.coords.latitude;
+                        const longitude = position.coords.longitude;
+                        
+                        console.log('[GPS] Обновление позиции:', latitude, longitude);
+                        
+                        // Отправляем обновленную позицию
+                        fetch('/api/drivers/location/update/', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRFToken': getCookie('csrftoken')
+                            },
+                            body: JSON.stringify({
+                            latitude: latitude,
+                            longitude: longitude
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            updateLastUpdateTime();
+                            console.log('[GPS] Позиция обновлена успешно');
+                        } else {
+                            console.error('[GPS] Ошибка обновления позиции:', data.detail);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('[GPS] Ошибка отправки позиции:', error);
+                    });
+                },
+                function(error) {
+                    console.error('[GPS] Ошибка получения позиции при обновлении:', error);
+                },
+                options
+            );
+        }, 30000); // 30 секунд
+        
+        // Дополнительно: высокочастотное отслеживание для движущихся объектов
+        if (navigator.geolocation.watchPosition) {
+            watchId = navigator.geolocation.watchPosition(
+                function(position) {
+                    // Отправляем только если координаты изменились значительно
+                    // (экономия батареи и трафика)
+                    const latitude = position.coords.latitude;
+                    const longitude = position.coords.longitude;
+                    
+                    // Здесь можно добавить логику проверки изменения позиции
+                    // и отправлять обновления только при значительном перемещении
+                },
+                function(error) {
+                    console.error('[GPS] Ошибка watchPosition:', error);
+                },
+                {
+                    ...options,
+                    maximumAge: 30000 // 30 секунд кэша для watchPosition
                 }
-            };
+            );
         }
-        
-        // Настройка автокомплита
-        setupDashboardAutocomplete('dashboardStartAddress', 'dashboardStartAutocomplete', setDashboardStartCoords);
-        setupDashboardAutocomplete('dashboardEndAddress', 'dashboardEndAutocomplete', setDashboardEndCoords);
-        
-        // Обработчики фокуса для выбора точек на карте
-        const startInput = document.getElementById('dashboardStartAddress');
-        const endInput = document.getElementById('dashboardEndAddress');
-        if (startInput) {
-            startInput.addEventListener('focus', () => enableDashboardMapPointSelection('start'));
+    }
+    
+    function updateLastUpdateTime() {
+        const lastUpdateElement = document.getElementById('last-update-time');
+        if (lastUpdateElement) {
+            const now = new Date();
+            lastUpdateElement.textContent = now.toLocaleTimeString('ru-RU', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
         }
-        if (endInput) {
-            endInput.addEventListener('focus', () => enableDashboardMapPointSelection('end'));
+    }
+    
+    function checkTrackingStatus() {
+        // Проверяем текущий статус отслеживания при загрузке страницы
+        // Можно добавить API call для проверки статуса на сервере
+    }
+    
+    // Обработка visibility change для работы в фоновом режиме
+    document.addEventListener('visibilitychange', function() {
+        if (document.hidden && isTracking) {
+            console.log('[GPS] Страница скрыта, отслеживание продолжается в фоновом режиме');
+        } else if (!document.hidden && isTracking) {
+            console.log('[GPS] Страница стала видимой, отслеживание активно');
         }
     });
+    
+    // Service Worker для работы в фоновом режиме
+    if ('serviceWorker' in navigator && isTracking) {
+        navigator.serviceWorker.register('/static/core/js/location-worker.js')
+            .then(function(registration) {
+                console.log('[GPS] Service Worker зарегистрирован успешно');
+            })
+            .catch(function(error) {
+                console.log('[GPS] Ошибка регистрации Service Worker:', error);
+            });
+    }
+    
+    function showNotification(message, type = 'info') {
+        // Создаем элемент уведомления
+        const notification = document.createElement('div');
+        notification.className = `fixed top-4 right-4 px-4 py-3 rounded-lg shadow-lg z-50 transition-all duration-300 ${
+            type === 'success' ? 'bg-green-500 text-white' : 
+            type === 'error' ? 'bg-red-500 text-white' : 
+            'bg-blue-500 text-white'
+        }`;
+        notification.textContent = message;
+        
+        document.body.appendChild(notification);
+        
+        // Автоматически убираем через 5 секунд
+        setTimeout(() => {
+            notification.style.opacity = '0';
+            notification.style.transform = 'translateX(100%)';
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    document.body.removeChild(notification);
+                }
+            }, 300);
+        }, 5000);
+    }
+    {% endif %}
 
 </script>
 
