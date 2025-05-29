@@ -323,17 +323,21 @@ class HomeView(LoginRequiredMixin, TemplateView):
             context['tasks_count'] = tasks_count
             context['active_trips_count'] = active_trips_count
 
-            # Получаем последние задачи
+            # Получаем последние задачи (только невыполненные)
             if self.request.user.role == 'DRIVER':
-                tasks = Task.objects.filter(assigned_to=self.request.user)
+                tasks = Task.objects.filter(
+                    assigned_to=self.request.user
+                ).exclude(status='COMPLETED')
             elif self.request.user.role in ['DIRECTOR', 'SUPERADMIN']:
-                tasks = Task.objects.all()
+                tasks = Task.objects.exclude(status='COMPLETED')
             else:
-                tasks = Task.objects.filter(created_by=self.request.user)
+                tasks = Task.objects.filter(
+                    created_by=self.request.user
+                ).exclude(status='COMPLETED')
 
             context['recent_tasks'] = tasks.select_related(
                 'assigned_to', 'vehicle'
-            ).order_by('-created_at')[:5]
+            ).order_by('-created_at')[:10]
 
             # Получаем активные поездки (поездки на сегодня) с транспортом
             from logistics.models import Vehicle
@@ -368,10 +372,12 @@ class HomeView(LoginRequiredMixin, TemplateView):
             context['active_vehicles'] = active_vehicles
 
             # Получаем количество непрочитанных уведомлений
-            context['unread_notifications'] = Notification.objects.filter(
+            notifications_count = Notification.objects.filter(
                 user=self.request.user,
                 read=False
             ).count()
+            context['unread_notifications'] = notifications_count
+            context['notifications_count'] = notifications_count
 
         # Основные разделы приложения
         context['main_sections'] = [
