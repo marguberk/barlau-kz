@@ -914,7 +914,7 @@
                     </div>
             
             <!-- Плавающая кнопка создания поездки -->
-            {% if request.user.is_authenticated and request.user.role in 'DIRECTOR SUPERADMIN ADMIN' or request.user.is_superuser %}
+            {% if request.user.is_authenticated and request.user.role in 'SUPERADMIN ADMIN' or request.user.is_superuser %}
             <button class="create-trip-button" id="openTripFormBtn">
                 <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"></path>
@@ -1458,7 +1458,7 @@ function renderTripList(trips) {
     
     // Проверяем права доступа для создания поездки
     const userRole = window.currentUserRole && window.currentUserRole.toUpperCase();
-    const canCreateTrips = ['DIRECTOR', 'SUPERADMIN', 'ADMIN'].includes(userRole) || window.currentUserId === 1;
+    const canCreateTrips = ['SUPERADMIN', 'ADMIN'].includes(userRole) || window.currentUserId === 1;
     
     if (!trips.length) {
         let content = '<div class="text-gray-400">Нет поездок</div>';
@@ -1552,7 +1552,7 @@ function renderTripListWithSelection(trips, selectedIdx) {
     
     // Проверяем права доступа для создания поездки
     const userRole = window.currentUserRole && window.currentUserRole.toUpperCase();
-    const canCreateTrips = ['DIRECTOR', 'SUPERADMIN', 'ADMIN'].includes(userRole) || window.currentUserId === 1;
+    const canCreateTrips = ['SUPERADMIN', 'ADMIN'].includes(userRole) || window.currentUserId === 1;
     
     let tripsHtml = trips.map((trip, idx) => {
         const brand = trip.vehicle_details ? trip.vehicle_details.brand + ' ' + trip.vehicle_details.model : '';

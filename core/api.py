@@ -90,13 +90,16 @@ def trips_api(request, pk=None):
     """Получить список поездок, создать новую или удалить"""
     user = request.user
     if request.method == 'GET':
-        if user.role in ['DIRECTOR', 'SUPERADMIN', 'ADMIN'] or user.is_superuser:
+        if user.role in ['SUPERADMIN', 'ADMIN'] or user.is_superuser:
             trips = Trip.objects.all().order_by('-date')
         else:
             trips = Trip.objects.filter(driver=user).order_by('-date')
         serializer = TripSerializer(trips, many=True)
         return Response(serializer.data)
     elif request.method == 'POST':
+        # Проверяем права на создание поездок
+        if not (user.role in ['SUPERADMIN', 'ADMIN'] or user.is_superuser):
+            return Response({'detail': 'У вас нет прав для создания поездок'}, status=status.HTTP_403_FORBIDDEN)
         serializer = TripSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -112,7 +115,7 @@ def trips_api(request, pk=None):
         except Trip.DoesNotExist:
             return Response({'detail': 'Поездка не найдена'}, status=404)
         # Только админ или водитель своей поездки
-        if not (user.is_superuser or user.role in ['DIRECTOR', 'SUPERADMIN', 'ADMIN'] or trip.driver == user):
+        if not (user.is_superuser or user.role in ['SUPERADMIN', 'ADMIN'] or trip.driver == user):
             return Response({'detail': 'Нет прав на удаление'}, status=403)
         trip.delete()
         return Response({'detail': 'Поездка удалена'})
@@ -134,7 +137,7 @@ def driver_locations_api(request):
             return Response(cached_data)
         
         # Оптимизированный запрос с select_related для уменьшения количества SQL запросов
-        if user.role in ['DIRECTOR', 'SUPERADMIN', 'ADMIN'] or user.is_superuser:
+        if user.role in ['SUPERADMIN', 'ADMIN'] or user.is_superuser:
             # Для админов - показываем только последние локации каждого водителя (последние 30 минут)
             thirty_minutes_ago = timezone.now() - timedelta(minutes=30)
             all_locations = DriverLocation.objects.select_related('driver').filter(

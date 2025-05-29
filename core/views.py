@@ -53,9 +53,12 @@ User = get_user_model()
 class IsDirectorOrSuperAdmin(permissions.BasePermission):
     def has_permission(self, request, view):
         if request.method in permissions.SAFE_METHODS:
-            return request.user.is_authenticated
-        return request.user.role in ['DIRECTOR',
-                                     'SUPERADMIN'] or request.user.is_superuser
+            # Директор может только просматривать
+            return request.user.is_authenticated and (
+                request.user.role in ['DIRECTOR', 'SUPERADMIN'] or request.user.is_superuser
+            )
+        # Только суперадмин может создавать/изменять/удалять
+        return request.user.role in ['SUPERADMIN'] or request.user.is_superuser
 
 
 class EmployeeViewSet(viewsets.ModelViewSet):
@@ -104,7 +107,7 @@ class EmployeeViewSet(viewsets.ModelViewSet):
     def archive(self, request, pk=None):
         """Архивировать или разархивировать сотрудника"""
         if not request.user.role in [
-                'DIRECTOR', 'SUPERADMIN'] and not request.user.is_superuser:
+                'SUPERADMIN'] and not request.user.is_superuser:
             return Response(
                 {"detail": "У вас нет прав для архивирования сотрудников"},
                 status=status.HTTP_403_FORBIDDEN
@@ -130,7 +133,7 @@ class EmployeeViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'])
     def change_role(self, request, pk=None):
         """Изменить роль пользователя"""
-        if not request.user.role in ['DIRECTOR', 'SUPERADMIN']:
+        if not request.user.role in ['SUPERADMIN']:
             return Response(
                 {"detail": "У вас нет прав для изменения ролей"},
                 status=status.HTTP_403_FORBIDDEN
@@ -1360,7 +1363,7 @@ class EmployeePhotoUploadView(LoginRequiredMixin, View):
 
     def post(self, request, pk):
         if not request.user.role in [
-                'DIRECTOR', 'SUPERADMIN'] and not request.user.is_superuser:
+                'SUPERADMIN'] and not request.user.is_superuser:
             return JsonResponse(
                 {'error': 'У вас нет прав для выполнения этого действия'}, status=403)
 
@@ -1397,7 +1400,7 @@ class EmployeeListView(LoginRequiredMixin, View):
     def get(self, request):
         # Проверяем права доступа
         if not request.user.role in [
-                'DIRECTOR', 'ACCOUNTANT', 'SUPERADMIN'] and not request.user.is_superuser:
+                'SUPERADMIN'] and not request.user.is_superuser:
             messages.error(
                 request, 'У вас нет прав для просмотра списка сотрудников')
             return redirect('core:home')
@@ -1434,7 +1437,7 @@ class EmployeeCreateView(View):
     def get(self, request):
         # Проверка прав доступа
         if not request.user.is_authenticated or request.user.role not in [
-                'DIRECTOR', 'SUPERADMIN'] and not request.user.is_superuser:
+                'SUPERADMIN'] and not request.user.is_superuser:
             messages.error(
                 request, 'У вас нет прав для добавления сотрудников')
             return redirect('core:index')
@@ -1452,7 +1455,7 @@ class EmployeeCreateView(View):
     def post(self, request):
         # Проверка прав доступа
         if not request.user.is_authenticated or request.user.role not in [
-                'DIRECTOR', 'SUPERADMIN'] and not request.user.is_superuser:
+                'SUPERADMIN'] and not request.user.is_superuser:
             messages.error(
                 request, 'У вас нет прав для добавления сотрудников')
             return redirect('core:index')
@@ -1564,7 +1567,7 @@ class EmployeeEditView(View):
     def get(self, request, pk):
         # Проверка прав доступа
         if not request.user.is_authenticated or request.user.role not in [
-                'DIRECTOR', 'SUPERADMIN'] and not request.user.is_superuser:
+                'SUPERADMIN'] and not request.user.is_superuser:
             messages.error(
                 request, 'У вас нет прав для редактирования сотрудников')
             return redirect('core:index')
@@ -1590,7 +1593,7 @@ class EmployeeEditView(View):
     def post(self, request, pk):
         # Проверка прав доступа
         if not request.user.is_authenticated or request.user.role not in [
-                'DIRECTOR', 'SUPERADMIN'] and not request.user.is_superuser:
+                'SUPERADMIN'] and not request.user.is_superuser:
             messages.error(
                 request, 'У вас нет прав для редактирования сотрудников')
             return redirect('core:index')
