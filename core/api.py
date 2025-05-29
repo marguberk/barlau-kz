@@ -129,12 +129,12 @@ def driver_locations_api(request):
     user = request.user
     
     if request.method == 'GET':
-        # Кэшируем результат на 2 секунды для уменьшения нагрузки
-        cache_key = f'driver_locations_{user.id}_{user.role}'
-        cached_data = cache.get(cache_key)
+        # Временно отключаем кеширование для избежания ошибок
+        # cache_key = f'driver_locations_{user.id}_{user.role}'
+        # cached_data = cache.get(cache_key)
         
-        if cached_data is not None:
-            return Response(cached_data)
+        # if cached_data is not None:
+        #     return Response(cached_data)
         
         # Оптимизированный запрос с select_related для уменьшения количества SQL запросов
         if user.role in ['SUPERADMIN', 'ADMIN'] or user.is_superuser:
@@ -161,8 +161,8 @@ def driver_locations_api(request):
         
         serializer = DriverLocationSerializer(locations, many=True)
         
-        # Кэшируем на 2 секунды
-        cache.set(cache_key, serializer.data, 2)
+        # Кэшируем на 2 секунды (временно отключено)
+        # cache.set(cache_key, serializer.data, 2)
         
         return Response(serializer.data)
         
@@ -186,8 +186,8 @@ def driver_locations_api(request):
             if serializer.is_valid():
                 location = serializer.save()
                 print(f"[DEBUG] Location saved successfully: {location.id}")
-                # Очищаем кэш для мгновенного обновления
-                cache.clear()  # Очищаем весь кэш для простоты
+                # Очищаем кэш для мгновенного обновления (временно отключено)
+                # cache.clear()  # Очищаем весь кэш для простоты
                 # Возвращаем созданную локацию с данными водителя
                 response_serializer = DriverLocationSerializer(location)
                 return Response(response_serializer.data, status=status.HTTP_201_CREATED)
