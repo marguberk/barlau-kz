@@ -15,8 +15,9 @@
         max-width: 100%;
         width: 100%;
         min-height: 400px;
-        height: 86vh;
-        max-height: 86vh;
+        height: auto;
+        max-height: none;
+        min-height: 820px;
         background: #f9fafb;
         border-radius: 16px;
         overflow: hidden;
@@ -24,10 +25,10 @@
         padding: 0;
         flex: 1 1 0%;
     }
-    .map-panel {
-        width: 38vw;
-        min-width: 280px;
-        max-width: 540px;
+    
+    .trips-panel-wrapper {
+        width: 50%;
+        min-width: 320px;
         background: #fff;
         border-right: 1px solid #e5e7eb;
         position: relative;
@@ -37,20 +38,23 @@
         align-items: stretch;
         height: 100%;
         min-height: 400px;
-        max-height: 86vh;
+        max-height: none;
         flex: 1 1 0%;
         padding: 0;
     }
-    #mapContainer {
-        width: 100%;
+    
+    .map-content-wrapper {
+        width: 50%;
+        display: flex;
+        flex-direction: column;
         height: 100%;
         min-height: 400px;
-        max-height: 86vh;
-        flex: 1 1 0%;
-        border-radius: 0;
-        z-index: 1;
-        padding: 0;
+        max-height: 87vh;
+        overflow-y: auto;
     }
+    
+    /* Дублирующийся CSS блок .map-panel удален - использован только основной блок выше без ограничений ширины */
+    
     .trips-panel {
         flex: 1 1 0%;
         background: #f9fafb;
@@ -86,17 +90,6 @@
         transition: box-shadow 0.18s, border-color 0.18s;
         cursor: pointer;
         overflow: hidden;
-        animation: tripCardFadeIn 0.2s ease-out;
-    }
-    @keyframes tripCardFadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(10px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
     }
     .trip-card:hover {
         border-color: #2563eb;
@@ -229,15 +222,25 @@
             max-height: none !important;
             min-height: 800px;
         }
-        .map-panel { width: 100vw; min-width: 0; max-width: none; height: 320px; }
-        #mapContainer { height: 320px !important; }
-        .trips-panel { 
-            padding: 16px 16px 120px 16px; 
-            min-height: 450px !important;
-            overflow-y: auto;
-        }
+        
         .trips-panel-wrapper {
+            width: 100%;
+            height: 40% !important;
+            min-height: 350px !important;
+            border-right: none;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .map-content-wrapper {
+            width: 100%;
+            height: 60% !important;
             min-height: 450px !important;
+        }
+        
+        .trips-panel { 
+            padding: 16px 16px 20px 16px; 
+            min-height: 300px !important;
+            overflow-y: auto;
         }
     }
     @media (max-width: 1100px) {
@@ -254,13 +257,6 @@
     @media (max-width: 600px) {
         .map-trips-layout {
             min-height: 820px;
-        }
-        .map-panel { 
-            height: 300px; 
-        }
-        
-        #mapContainer { 
-            height: 300px !important; 
         }
         .trips-panel { 
             min-height: 480px !important;
@@ -304,15 +300,6 @@
         height: auto;
         background: #f9fafb;
         overflow: hidden;
-        animation: pagePageFadeIn 0.3s ease-out;
-    }
-    @keyframes pagePageFadeIn {
-        from {
-            opacity: 0;
-        }
-        to {
-            opacity: 1;
-        }
     }
     /* Скрыть атрибуцию Leaflet/OpenStreetMap */
     .leaflet-control-attribution { display: none !important; }
@@ -797,21 +784,195 @@
             align-self: stretch;
             flex-direction: row;
             justify-content: space-between;
-            gap: 8px;
+            align-items: center;
+            min-width: auto;
+            width: 100%;
             font-size: 0.7em;
-            margin-top: 4px;
+            gap: 8px;
         }
         
         .trip-info-popup-delete {
             width: 100%;
-            margin: 8px 0 0 0;
-            padding: 10px 0;
-            font-size: 0.9em;
-            border-radius: 6px;
-            display: flex;
             justify-content: center;
-            align-items: center;
-            gap: 6px;
+            padding: 8px 16px;
+            font-size: 0.85em;
+            border-radius: 6px;
+            margin: 0;
+        }
+        
+        .trip-info-popup-delete svg {
+            width: 12px;
+            height: 12px;
+        }
+    }
+    
+    .trip-details-placeholder {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        color: #94a3b8;
+        font-size: 1.1em;
+    }
+    
+    .trip-details-header h3 {
+        color: #2563eb;
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+    
+    .trip-details-header p {
+        color: #64748b;
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .detail-item {
+        margin-bottom: 1rem;
+    }
+    
+    .detail-label {
+        font-weight: 600;
+        color: #374151;
+        font-size: 0.95rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .detail-value {
+        color: #1f2937;
+        font-size: 1rem;
+        line-height: 1.5;
+    }
+    
+    .route-info {
+        margin-left: 0.5rem;
+    }
+    
+    .route-point {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+    }
+    
+    .route-arrow {
+        margin-left: 1rem;
+        color: #9ca3af;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+    }
+    
+    .route-icon {
+        font-size: 1.1rem;
+    }
+    
+    .btn-primary {
+        background: #2563eb;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 12px 24px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background 0.2s;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+    
+    .btn-primary:hover {
+        background: #1d4ed8;
+    }
+    
+    /* Дублирующийся CSS блок .map-panel удален - использован только основной блок выше без ограничений ширины */
+    
+    .map-panel {
+        width: 100%;
+        height: 50%;
+        min-height: 300px;
+        background: #fff;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: stretch;
+        padding: 0;
+        overflow: hidden;
+    }
+    
+    .trip-details-panel {
+        width: 100%;
+        height: 50%;
+        min-height: 300px;
+        background: #fff;
+        border-top: 1px solid #e5e7eb;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .trip-details-content {
+        padding: 24px;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .trip-details-placeholder {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        color: #94a3b8;
+        font-size: 1.1em;
+    }
+    
+    #mapContainer {
+        width: 100% !important;
+        height: 100% !important;
+        min-height: 300px;
+        flex: 1;
+        border-radius: 0;
+        z-index: 1;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .trips-panel {
+        height: 300px;
+    }
+    #mapContainer { height: 300px !important; }
+    
+    /* Мобильные медиа-запросы для map-panel */
+    @media (max-width: 900px) {
+        .map-panel { 
+            width: 100vw; 
+            height: 50% !important;
+            min-height: 200px !important;
+            max-width: none; 
+        }
+        
+        #mapContainer { 
+            height: 100% !important; 
+        }
+        
+        .trip-details-panel {
+            height: 50% !important;
+            min-height: 200px !important;
+        }
+    }
+    
+    @media (max-width: 600px) {
+        .map-panel { 
+            height: 300px; 
+        }
+        
+        #mapContainer { 
+            height: 300px !important; 
         }
     }
     
@@ -851,7 +1012,3 @@
 {% block content %}
 <div class="w-full flex">
     <!-- Боковая панель -->
-
-<!-- Остальной контент файла остается прежним -->
-
-{% endblock %}
