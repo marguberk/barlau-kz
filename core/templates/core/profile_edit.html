@@ -115,13 +115,7 @@
                         {% if request.user.photo %}
                                 <img class="w-8 h-8 rounded-full object-cover cursor-pointer" src="{{ request.user.photo.url }}" id="user-avatar" />
                         {% else %}
-                                <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center cursor-pointer" id="user-avatar">
-                                <div class="header-user-icon">
-                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M20 21C20 19.6044 20 18.9067 19.8278 18.3389C19.44 17.0605 18.4395 16.06 17.1611 15.6722C16.5933 15.5 15.8956 15.5 14.5 15.5H9.5C8.10444 15.5 7.40665 15.5 6.83886 15.6722C5.56045 16.06 4.56004 17.0605 4.17224 18.3389C4 18.9067 4 19.6044 4 21M16.5 7.5C16.5 10.5376 14.0376 13 11 13C7.96243 13 5.5 10.5376 5.5 7.5C5.5 4.46243 7.96243 2 11 2C14.0376 2 16.5 4.46243 16.5 7.5Z" stroke="#6b7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                    </svg>
-                                </div>
-                            </div>
+                                <img class="w-8 h-8 rounded-full object-cover cursor-pointer" src="{% static 'core/img/avatars/placeholder-ava.png' %}" id="user-avatar" />
                         {% endif %}
                             <div class="hidden group-hover:block absolute right-0 mt-2 w-44 bg-white border border-gray-200 rounded-lg shadow-lg z-50" id="user-dropdown">
                                 <a href="{% url 'core:profile' %}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Профиль</a>
@@ -129,13 +123,7 @@
                             </div>
                         </div>
                     {% else %}
-                        <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
-                            <div class="header-user-icon">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M20 21C20 19.6044 20 18.9067 19.8278 18.3389C19.44 17.0605 18.4395 16.06 17.1611 15.6722C16.5933 15.5 15.8956 15.5 14.5 15.5H9.5C8.10444 15.5 7.40665 15.5 6.83886 15.6722C5.56045 16.06 4.56004 17.0605 4.17224 18.3389C4 18.9067 4 19.6044 4 21M16.5 7.5C16.5 10.5376 14.0376 13 11 13C7.96243 13 5.5 10.5376 5.5 7.5C5.5 4.46243 7.96243 2 11 2C14.0376 2 16.5 4.46243 16.5 7.5Z" stroke="#6b7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
-                            </div>
-                        </div>
+                        <img class="w-8 h-8 rounded-full object-cover" src="{% static 'core/img/avatars/placeholder-ava.png' %}" />
                     {% endif %}
                 </div>
             </div>
@@ -161,11 +149,7 @@
                                         {% if user.photo %}
                                             <img src="{{ user.photo.url }}" alt="Profile photo" class="w-full h-full object-cover">
                                         {% else %}
-                                            <div class="avatar-icon">
-                                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                    <path d="M20 21C20 19.6044 20 18.9067 19.8278 18.3389C19.44 17.0605 18.4395 16.06 17.1611 15.6722C16.5933 15.5 15.8956 15.5 14.5 15.5H9.5C8.10444 15.5 7.40665 15.5 6.83886 15.6722C5.56045 16.06 4.56004 17.0605 4.17224 18.3389C4 18.9067 4 19.6044 4 21M16.5 7.5C16.5 10.5376 14.0376 13 11 13C7.96243 13 5.5 10.5376 5.5 7.5C5.5 4.46243 7.96243 2 11 2C14.0376 2 16.5 4.46243 16.5 7.5Z" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                                </svg>
-                                            </div>
+                                            <img src="{% static 'core/img/avatars/placeholder-ava.png' %}" alt="Profile photo" class="w-full h-full object-cover">
                                         {% endif %}
                                     </div>
                                     <div class="flex-1">
