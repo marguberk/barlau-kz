@@ -15,9 +15,8 @@
         max-width: 100%;
         width: 100%;
         min-height: 400px;
-        height: auto;
-        max-height: none;
-        min-height: 820px;
+        height: 86vh;
+        max-height: 86vh;
         background: #f9fafb;
         border-radius: 16px;
         overflow: hidden;
@@ -25,10 +24,10 @@
         padding: 0;
         flex: 1 1 0%;
     }
-    
-    .trips-panel-wrapper {
-        width: 50%;
-        min-width: 320px;
+    .map-panel {
+        width: 38vw;
+        min-width: 280px;
+        max-width: 540px;
         background: #fff;
         border-right: 1px solid #e5e7eb;
         position: relative;
@@ -38,23 +37,20 @@
         align-items: stretch;
         height: 100%;
         min-height: 400px;
-        max-height: none;
+        max-height: 86vh;
         flex: 1 1 0%;
         padding: 0;
     }
-    
-    .map-content-wrapper {
-        width: 50%;
-        display: flex;
-        flex-direction: column;
+    #mapContainer {
+        width: 100%;
         height: 100%;
         min-height: 400px;
-        max-height: 87vh;
-        overflow-y: auto;
+        max-height: 86vh;
+        flex: 1 1 0%;
+        border-radius: 0;
+        z-index: 1;
+        padding: 0;
     }
-    
-    /* Дублирующийся CSS блок .map-panel удален - использован только основной блок выше без ограничений ширины */
-    
     .trips-panel {
         flex: 1 1 0%;
         background: #f9fafb;
@@ -90,6 +86,17 @@
         transition: box-shadow 0.18s, border-color 0.18s;
         cursor: pointer;
         overflow: hidden;
+        animation: tripCardFadeIn 0.2s ease-out;
+    }
+    @keyframes tripCardFadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
     .trip-card:hover {
         border-color: #2563eb;
@@ -222,25 +229,15 @@
             max-height: none !important;
             min-height: 800px;
         }
-        
-        .trips-panel-wrapper {
-            width: 100%;
-            height: 40% !important;
-            min-height: 350px !important;
-            border-right: none;
-            border-bottom: 1px solid #e5e7eb;
-        }
-        
-        .map-content-wrapper {
-            width: 100%;
-            height: 60% !important;
-            min-height: 450px !important;
-        }
-        
+        .map-panel { width: 100vw; min-width: 0; max-width: none; height: 320px; }
+        #mapContainer { height: 320px !important; }
         .trips-panel { 
-            padding: 16px 16px 20px 16px; 
-            min-height: 300px !important;
+            padding: 16px 16px 120px 16px; 
+            min-height: 450px !important;
             overflow-y: auto;
+        }
+        .trips-panel-wrapper {
+            min-height: 450px !important;
         }
     }
     @media (max-width: 1100px) {
@@ -258,6 +255,8 @@
         .map-trips-layout {
             min-height: 820px;
         }
+        .map-panel { height: 300px; }
+        #mapContainer { height: 300px !important; }
         .trips-panel { 
             min-height: 480px !important;
         }
@@ -300,6 +299,15 @@
         height: auto;
         background: #f9fafb;
         overflow: hidden;
+        animation: pagePageFadeIn 0.3s ease-out;
+    }
+    @keyframes pagePageFadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
     }
     /* Скрыть атрибуцию Leaflet/OpenStreetMap */
     .leaflet-control-attribution { display: none !important; }
@@ -805,725 +813,208 @@
             height: 12px;
         }
     }
-    
-    .trip-details-placeholder {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 100%;
-        color: #94a3b8;
-        font-size: 1.1em;
-    }
-    
-    .trip-details-header h3 {
-        color: #2563eb;
-        font-size: 1.5rem;
-        font-weight: 700;
-        margin-bottom: 0.5rem;
-    }
-    
-    .trip-details-header p {
-        color: #64748b;
-        font-size: 1.1rem;
-        margin-bottom: 1rem;
-    }
-    
-    .detail-item {
-        margin-bottom: 1rem;
-    }
-    
-    .detail-label {
-        font-weight: 600;
-        color: #374151;
-        font-size: 0.95rem;
-        margin-bottom: 0.5rem;
-    }
-    
-    .detail-value {
-        color: #1f2937;
-        font-size: 1rem;
-        line-height: 1.5;
-    }
-    
-    .route-info {
-        margin-left: 0.5rem;
-    }
-    
-    .route-point {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        margin-bottom: 0.5rem;
-        font-size: 0.95rem;
-    }
-    
-    .route-arrow {
-        margin-left: 1rem;
-        color: #9ca3af;
-        font-weight: bold;
-        margin-bottom: 0.5rem;
-    }
-    
-    .route-icon {
-        font-size: 1.1rem;
-    }
-    
-    .btn-primary {
-        background: #2563eb;
-        color: white;
-        border: none;
-        border-radius: 8px;
-        padding: 12px 24px;
-        font-weight: 600;
-        font-size: 1rem;
-        cursor: pointer;
-        transition: background 0.2s;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-    }
-    
-    .btn-primary:hover {
-        background: #1d4ed8;
-    }
-    
-    /* Дублирующийся CSS блок .map-panel удален - использован только основной блок выше без ограничений ширины */
-    
-    .map-panel {
-        width: 100%;
-        height: 50%;
-        min-height: 300px;
-        background: #fff;
-        position: relative;
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-start;
-        align-items: stretch;
-        padding: 0;
-        overflow: hidden;
-    }
-    
-    .trip-details-panel {
-        width: 100%;
-        height: 50%;
-        min-height: 300px;
-        background: #fff;
-        border-top: 1px solid #e5e7eb;
-        overflow-y: auto;
-        display: flex;
-        flex-direction: column;
-    }
-    
-    .trip-details-content {
-        padding: 24px;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-    }
-    
-    .trip-details-placeholder {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 100%;
-        color: #94a3b8;
-        font-size: 1.1em;
-    }
-    
-    #mapContainer {
-        width: 100% !important;
-        height: 100% !important;
-        min-height: 300px;
-        flex: 1;
-        border-radius: 0;
-        z-index: 1;
-        padding: 0;
-        margin: 0;
-    }
-    
-    .trips-panel {
-        height: 300px;
-    }
-    #mapContainer { height: 300px !important; }
-    
-    /* Мобильные медиа-запросы для map-panel */
-    @media (max-width: 900px) {
-        .map-panel { 
-            width: 100vw; 
-            height: 50% !important;
-            min-height: 200px !important;
-            max-width: none; 
-        }
-        
-        #mapContainer { 
-            height: 100% !important; 
-        }
-        
-        .trip-details-panel {
-            height: 50% !important;
-            min-height: 200px !important;
-        }
-    }
-    
-    @media (max-width: 600px) {
-        .map-panel { 
-            height: 300px; 
-        }
-        
-        #mapContainer { 
-            height: 300px !important; 
-        }
-    }
-    
-    /* Анимация пульсации для активных водителей */
-    @keyframes pulse {
-        0% {
-            transform: scale(1);
-            opacity: 1;
-        }
-        50% {
-            transform: scale(1.1);
-            opacity: 0.7;
-        }
-        100% {
-            transform: scale(1);
-            opacity: 1;
-        }
-    }
-    
-    /* Стили для маркеров водителей */
-    .driver-marker {
-        animation: pulse 2s infinite;
-    }
-    
-    .driver-marker-online {
-        border-color: #10b981 !important;
-        background: #10b981 !important;
-    }
-    
-    .driver-marker-offline {
-        border-color: #6b7280 !important;
-        background: #6b7280 !important;
-    }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="w-full flex">
     <!-- Боковая панель -->
-    <div class="map-trips-layout">
-        <!-- Панель поездок -->
-        <div class="trips-panel-wrapper">
-            <div class="trips-panel">
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-bold text-gray-900">
-                        {% if user.role == 'DRIVER' %}
-                            Мои поездки
+    <div class="w-64 h-screen bg-white border-r border-zinc-200 flex flex-col justify-start items-start fixed left-0 bottom-0 sidebar">
+        <div class="self-stretch px-5 py-6 relative flex flex-col justify-start items-start gap-2 sidebar-logo">
+            <div class="py-1 inline-flex justify-start items-center gap-2">
+                <img src="{% static 'core/img/logo.png' %}" alt="Barlau Logo" class="w-10 h-6">
+                <div class="text-center justify-start text-black text-2xl font-semibold leading-normal">Barlau.kz</div>
+            </div>
+        </div>
+        <div class="self-stretch flex-1 px-4 pt-2 pb-4 flex flex-col justify-start items-center gap-4 sidebar-menu">
+            <div class="self-stretch flex flex-col justify-start items-start gap-1">
+                <div class="self-stretch flex flex-col justify-start items-start">
+                    <a href="{% url 'core:home' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2 relative">
+                        <img src="{% static 'core/img/home.svg' %}" alt="Home" class="w-5 h-5 desktop-icon align-middle">
+                        <img src="{% static 'core/img/mobile/home.svg' %}" alt="Home" class="mobile-icon hidden align-middle">
+                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Главная</div>
+                    </a>
+                    <a href="{% url 'core:tasks' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2">
+                        <img src="{% static 'core/img/check-square.svg' %}" alt="Tasks" class="w-5 h-5 desktop-icon align-middle">
+                        <img src="{% static 'core/img/mobile/check-square.svg' %}" alt="Tasks" class="mobile-icon hidden align-middle">
+                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Задачи</div>
+                    </a>
+                    <a href="{% url 'core:map' %}" class="self-stretch px-3 py-3.5 bg-gray-50 rounded-lg inline-flex items-center gap-2 relative">
+                        <div class="w-1 h-6 left-0 top-[calc(50%-12px)] absolute bg-blue-600 rounded-tr-lg rounded-br-lg"></div>
+                        <img src="{% static 'core/img/location.svg' %}?v={% now 'U' %}" alt="Map" class="w-5 h-5 desktop-icon align-middle" onerror="this.onerror=null; this.src='/static/core/img/location.svg'">
+                        <img src="{% static 'core/img/mobile/location.svg' %}" alt="Map" class="mobile-icon hidden align-middle">
+                        <div class="flex-1 text-blue-600 text-base font-medium leading-normal tracking-tight">Карта</div>
+                    </a>
+                    {% if request.user.role != 'DRIVER' %}
+                    <a href="{% url 'core:trucks' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2 relative">
+                        <img src="{% static 'core/img/truck.svg' %}" alt="Vehicles" class="w-5 h-5 desktop-icon">
+                        <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Vehicles" class="mobile-icon hidden w-5 h-5">
+                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Грузовики</div>
+                    </a>
+                    <a href="{% url 'core:employees' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2">
+                        <img src="{% static 'core/img/employee.svg' %}" alt="Employees" class="w-5 h-5 desktop-icon align-middle">
+                        <img src="{% static 'core/img/mobile/employee.svg' %}" alt="Employees" class="mobile-icon hidden align-middle">
+                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Сотрудники</div>
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Основной контент -->
+    <div class="ml-64 flex-1 min-h-screen bg-gray-50 relative main-content">
+        <!-- Верхняя панель -->
+        <div class="w-full h-20 px-8 py-5 bg-white flex justify-between items-center">
+            <div class="justify-start text-zinc-950 text-2xl font-semibold leading-loose">Карта и поездки</div>
+            <div class="flex justify-start items-center gap-3">
+                <div class="flex justify-start items-start gap-2">
+                    <a href="{% url 'core:notifications' %}" class="w-10 h-10 px-3 py-2 bg-white rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex justify-center items-center gap-1.5 relative">
+                        <img src="{% static 'core/img/bell.svg' %}" alt="Notifications" class="w-5 h-5">
+                        <span id="notif-badge" class="absolute -top-2 -right-2 bg-red-500 rounded-full border-2 border-white flex items-center justify-center font-bold shadow-lg transition-all duration-200" style="min-width: 1.4rem; min-height: 1.4rem; font-size: 0.85rem; color: #fff; padding: 0 0.3em; display: none; align-items: center; justify-content: center;"></span>
+                    </a>
+                </div>
+                <div class="flex justify-start items-center gap-1.5 relative">
+                    {% if request.user.is_authenticated %}
+                        <div class="relative group" id="user-menu">
+                        {% if request.user.photo %}
+                                <img class="w-8 h-8 rounded-full object-cover cursor-pointer" src="{{ request.user.photo.url }}" id="user-avatar" />
                         {% else %}
-                            Активные поездки
+                                <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center cursor-pointer" id="user-avatar">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
                         {% endif %}
-                    </h2>
-                    <div class="flex gap-3">
-                        {% if user.role != 'DRIVER' %}
-                        <button id="refreshTripsBtn" class="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                            <div class="hidden group-hover:block absolute right-0 mt-2 w-44 bg-white border border-gray-200 rounded-lg shadow-lg z-50" id="user-dropdown">
+                                <a href="{% url 'core:profile' %}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Профиль</a>
+                                <a href="{% url 'core:custom-logout' %}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Выйти</a>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
                             </svg>
-                            Обновить
-                        </button>
-                        {% endif %}
-                    </div>
-                </div>
-
-                <!-- Кнопка создания поездки (мобильная версия) -->
-                {% if user.role != 'DRIVER' %}
-                <a href="#" class="create-trip-inline" onclick="openTripForm(); return false;">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                    </svg>
-                    Создать поездку
-                </a>
-                {% endif %}
-
-                <!-- Список поездок -->
-                <div id="tripsList" class="trip-list">
-                    <!-- Поездки будут загружены через JavaScript -->
+                        </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
-
-        <!-- Карта -->
-        <div class="map-content-wrapper">
-            <div class="map-panel">
-                <div id="mapContainer"></div>
-            </div>
-            <div class="trip-details-panel">
-                <div class="trip-details-content">
-                    <div class="trip-details-placeholder">
-                        <p>Выберите поездку на карте для просмотра деталей</p>
+        <!-- Контент карты и поездок -->
+        <div class="p-0 pb-4 md:pb-0">
+            <div class="map-trips-layout">
+                <div class="map-panel" style="position:relative;">
+                    <div id="mapContainer"></div>
+                    <div id="tripInfoPopup" class="trip-info-popup" style="display:none;"></div>
+                        </div>
+                <div class="flex flex-col items-stretch trips-panel-wrapper" style="height:100%;">
+                  <div class="rounded-2xl px-5 py-5 mx-0 my-1" style="height:100%; min-height:0; display:flex; flex-direction:column;">
+                    <div class="flex justify-between items-center mb-2">
+                      <h2 class="text-2xl font-semibold">Поездки</h2>
+                        </div>
+                    <div class="trips-panel" style="padding:0; background:transparent; box-shadow:none;">
+                        <div id="tripList" class="trip-list">
+                            <div class="text-gray-400">Загрузка...</div>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Плавающая кнопка создания поездки (десктопная версия) -->
-{% if user.role != 'DRIVER' %}
-<button class="create-trip-button" onclick="openTripForm()">
-    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-    </svg>
-    Создать поездку
-</button>
-{% endif %}
-
-<!-- Модальное окно создания поездки -->
-<div id="tripFormModal" class="trip-form-modal">
-    <div class="trip-form-content">
-        <div class="flex justify-between items-center mb-6">
-            <h3 class="text-xl font-bold text-gray-900">Создать новую поездку</h3>
-            <button onclick="closeTripForm()" class="text-gray-400 hover:text-gray-600">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
+                    </div>
+                    </div>
+            
+            <!-- Плавающая кнопка создания поездки -->
+            {% if request.user.is_authenticated and request.user.role in 'DIRECTOR SUPERADMIN ADMIN' or request.user.is_superuser %}
+            <button class="create-trip-button" id="openTripFormBtn">
+                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"></path>
+                </svg>Создать поездку
             </button>
+            {% endif %}
+            
+            <div id="tripFormModal" class="trip-form-modal" style="display:none;">
+                <div class="trip-form-content">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold">Создать поездку</h3>
+                        <button onclick="closeTripForm()" class="text-gray-400 hover:text-gray-700"><i class="fas fa-times"></i></button>
+                    </div>
+                    <form id="tripForm">
+                        <div class="form-group">
+                            <label class="form-label">Транспорт</label>
+                            <select id="tripVehicle" name="vehicle" class="form-select" required></select>
+                </div>
+                        <div class="form-group">
+                            <label class="form-label">Водитель</label>
+                            <select id="tripDriver" name="driver" class="form-select" required></select>
+            </div>
+                        <div class="form-group address-autocomplete">
+                            <label class="form-label">Адрес отправления</label>
+                            <input type="text" id="startAddress" class="form-input" placeholder="Введите адрес или отметьте на карте" autocomplete="off" required>
+                            <div id="startAutocomplete" class="autocomplete-list" style="display:none;"></div>
         </div>
-        
-        <form id="tripForm">
-            <div class="form-group">
-                <label class="form-label">Номер грузовика</label>
-                <input type="text" id="tripNumber" class="form-input" placeholder="Введите номер" required>
-            </div>
-            
-            <div class="form-group">
-                <label class="form-label">Марка грузовика</label>
-                <input type="text" id="tripBrand" class="form-input" placeholder="Введите марку">
-            </div>
-            
-            <div class="form-group">
-                <label class="form-label">Описание груза</label>
-                <textarea id="tripDescription" class="form-textarea" rows="3" placeholder="Описание груза"></textarea>
-            </div>
-            
-            <div class="form-group">
-                <label class="form-label">Водитель</label>
-                <select id="tripDriver" class="form-select">
-                    <option value="">Выберите водителя</option>
-                    <!-- Водители будут загружены через JavaScript -->
-                </select>
-            </div>
-            
-            <div class="form-group">
-                <label class="form-label">Начальная точка</label>
-                <div class="address-autocomplete">
-                    <input type="text" id="startAddress" class="form-input" placeholder="Введите адрес или кликните на карте" required>
-                    <div id="startAutocomplete" class="autocomplete-list"></div>
+                        <div class="form-group address-autocomplete">
+                            <label class="form-label">Адрес назначения</label>
+                            <input type="text" id="endAddress" class="form-input" placeholder="Введите адрес или отметьте на карте" autocomplete="off" required>
+                            <div id="endAutocomplete" class="autocomplete-list" style="display:none;"></div>
+    </div>
+                        <div class="form-group">
+                            <label class="form-label">Описание груза</label>
+                            <textarea id="cargoDesc" name="cargo_description" class="form-textarea" rows="2" required></textarea>
+</div>
+                        <div class="form-group">
+                            <label class="form-label">Дата</label>
+                            <input type="date" id="tripDate" name="date" class="form-input" required>
+                    </div>
+                        <div class="flex justify-end gap-3 mt-4">
+                            <button type="button" onclick="closeTripForm()" class="btn-main" style="background:#e5e7eb;color:#334155;">Отмена</button>
+                            <button type="submit" class="btn-main">Сохранить</button>
+                    </div>
+                    </form>
                 </div>
             </div>
-            
-            <div class="form-group">
-                <label class="form-label">Конечная точка</label>
-                <div class="address-autocomplete">
-                    <input type="text" id="endAddress" class="form-input" placeholder="Введите адрес или кликните на карте" required>
-                    <div id="endAutocomplete" class="autocomplete-list"></div>
-                </div>
-            </div>
-            
-            <div class="flex gap-3 mt-6">
-                <button type="submit" class="btn-main flex-1">Создать поездку</button>
-                <button type="button" onclick="closeTripForm()" class="btn-main" style="background: #6b7280;">Отмена</button>
-            </div>
-        </form>
+        </div>
     </div>
 </div>
-
+<!-- Нижнее мобильное меню - показываем только на мобильных устройствах -->
+<nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 lg:hidden py-2">
+    <div class="flex justify-between items-center px-2">
+        <a href="{% url 'core:home' %}" class="flex-1 flex flex-col items-center text-gray-600 relative mx-1">
+            <div class="icon-container w-8 h-8 flex items-center justify-center">
+                <img src="{% static 'core/img/mobile/home.svg' %}" alt="Home" class="w-6 h-6">
+            </div>
+            <span class="text-xs text-[9px] mt-1 text-center whitespace-nowrap">Главная</span>
+        </a>
+        <a href="{% url 'core:tasks' %}" class="flex-1 flex flex-col items-center text-gray-600 relative mx-1">
+            <div class="icon-container w-8 h-8 flex items-center justify-center">
+                <img src="{% static 'core/img/mobile/check-square.svg' %}" alt="Tasks" class="w-6 h-6">
+            </div>
+            <span class="text-xs text-[9px] mt-1 text-center whitespace-nowrap">Задачи</span>
+        </a>
+        <a href="{% url 'core:map' %}" class="flex-1 flex flex-col items-center text-blue-600 relative mx-1">
+            <div class="icon-container w-8 h-8 flex items-center justify-center">
+                <img src="{% static 'core/img/mobile/location.svg' %}" alt="Map" class="w-6 h-6">
+            </div>
+            <span class="text-xs text-[9px] mt-1 text-center whitespace-nowrap">Карта</span>
+        </a>
+        {% if request.user.role != 'DRIVER' %}
+        <a href="{% url 'core:trucks' %}" class="flex-1 flex flex-col items-center text-gray-600 relative mx-1">
+            <div class="icon-container w-8 h-8 flex items-center justify-center">
+                <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Vehicles" class="w-6 h-6">
+            </div>
+            <span class="text-xs text-[9px] mt-1 text-center whitespace-nowrap">Грузовики</span>
+        </a>
+        <a href="{% url 'core:employees' %}" class="flex-1 flex flex-col items-center text-gray-600 relative mx-1">
+            <div class="icon-container w-8 h-8 flex items-center justify-center">
+                <img src="{% static 'core/img/mobile/employee.svg' %}" alt="Employees" class="w-6 h-6">
+            </div>
+            <span class="text-xs text-[9px] mt-1 text-center whitespace-nowrap">Сотрудники</span>
+        </a>
+        {% endif %}
+    </div>
+</nav>
 <script>
-// Переменные карты
-let map;
-let trips = [];
-let drivers = [];
-let selectedTrip = null;
-let tripMarkers = [];
-let driverMarkers = [];
-let pointSelectionMode = null;
-let startMarker = null;
-let endMarker = null;
-
-// Инициализация карты
-function initMap() {
-    // Центр Алматы
-    const almaty = [43.238949, 76.889709];
-    
-    map = L.map('mapContainer').setView(almaty, 11);
-    
-    // Добавляем тайлы OpenStreetMap
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: ''
-    }).addTo(map);
-    
-    // Обработчик кликов по карте
-    map.on('click', function(e) {
-        if (pointSelectionMode) {
-            handleMapClick(e.latlng);
-        }
-    });
-    
-    console.log('Карта инициализирована');
-}
-
-// Загрузка поездок
-async function loadTrips() {
-    try {
-        console.log('Загрузка поездок...');
-        const response = await fetch('/api/logistics/map/', {
-            credentials: 'same-origin'
-        });
-        
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        trips = data.trips || [];
-        
-        console.log('Поездки загружены:', trips.length);
-        
-        displayTrips();
-        displayTripsOnMap();
-        
-        // Загружаем активных водителей для администрации
-        if (['DIRECTOR', 'SUPERADMIN', 'DISPATCHER'].includes(window.currentUserRole?.toUpperCase()) || window.currentUserId === 1) {
-            loadActiveDrivers();
-        }
-        
-    } catch (error) {
-        console.error('Ошибка загрузки поездок:', error);
-    }
-}
-
-// Отображение поездок в списке
-function displayTrips() {
-    const tripsList = document.getElementById('tripsList');
-    if (!tripsList) return;
-    
-    if (trips.length === 0) {
-        tripsList.innerHTML = `
-            <div class="text-center py-8 text-gray-500">
-                <svg class="w-12 h-12 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-                <p>Нет активных поездок</p>
-            </div>
-        `;
-        return;
-    }
-    
-    tripsList.innerHTML = trips.map(trip => `
-        <div class="trip-card" data-trip-id="${trip.id}" onclick="selectTrip(${trip.id})">
-            <div class="trip-card-info">
-                <div class="trip-card-brand">${trip.vehicle_brand || 'Не указано'}</div>
-                <div class="trip-card-number">${trip.vehicle_number}</div>
-                <div class="trip-card-desc">${trip.description || 'Без описания'}</div>
-                <div class="trip-card-date">
-                    ${trip.driver_name ? `Водитель: ${trip.driver_name}` : 'Водитель не назначен'}
-                </div>
-            </div>
-        </div>
-    `).join('');
-}
-
-// Отображение поездок на карте
-function displayTripsOnMap() {
-    // Очищаем существующие маркеры
-    tripMarkers.forEach(marker => map.removeLayer(marker));
-    tripMarkers = [];
-    
-    trips.forEach(trip => {
-        if (trip.start_latitude && trip.start_longitude) {
-            const startMarker = L.marker([trip.start_latitude, trip.start_longitude], {
-                icon: L.divIcon({
-                    className: 'trip-marker-start',
-                    html: `<div style="background: #10b981; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.2);"></div>`,
-                    iconSize: [16, 16],
-                    iconAnchor: [8, 8]
-                })
-            }).addTo(map);
-            
-            startMarker.on('click', () => selectTrip(trip.id));
-            tripMarkers.push(startMarker);
-        }
-        
-        if (trip.end_latitude && trip.end_longitude) {
-            const endMarker = L.marker([trip.end_latitude, trip.end_longitude], {
-                icon: L.divIcon({
-                    className: 'trip-marker-end',
-                    html: `<div style="background: #ef4444; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.2);"></div>`,
-                    iconSize: [16, 16],
-                    iconAnchor: [8, 8]
-                })
-            }).addTo(map);
-            
-            endMarker.on('click', () => selectTrip(trip.id));
-            tripMarkers.push(endMarker);
-        }
-        
-        // Рисуем маршрут если есть обе точки
-        if (trip.start_latitude && trip.start_longitude && trip.end_latitude && trip.end_longitude) {
-            const polyline = L.polyline([
-                [trip.start_latitude, trip.start_longitude],
-                [trip.end_latitude, trip.end_longitude]
-            ], {
-                color: '#2563eb',
-                weight: 3,
-                opacity: 0.7
-            }).addTo(map);
-            
-            polyline.on('click', () => selectTrip(trip.id));
-            tripMarkers.push(polyline);
-        }
-    });
-}
-
-// Загрузка активных водителей для администрации
-async function loadActiveDrivers() {
-    try {
-        console.log('[GPS] Загрузка активных водителей для администрации...');
-        
-        const response = await fetch('/api/drivers/active/', {
-            method: 'GET',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-            },
-            credentials: 'same-origin'
-        });
-        
-        if (!response.ok) {
-            console.warn('[GPS] Ошибка загрузки водителей:', response.status);
-            return;
-        }
-        
-        const data = await response.json();
-        const activeDrivers = data.drivers || [];
-        
-        console.log('[GPS] Найдено активных водителей:', activeDrivers.length);
-        
-        // Очищаем старые маркеры водителей
-        clearDriverMarkers();
-        
-        // Добавляем маркеры для каждого активного водителя
-        activeDrivers.forEach(driver => {
-            if (driver.latitude && driver.longitude) {
-                addDriverMarker(driver);
-            }
-        });
-        
-    } catch (error) {
-        console.error('[GPS] Ошибка загрузки активных водителей:', error);
-    }
-}
-
-// Очистка маркеров водителей
-function clearDriverMarkers() {
-    driverMarkers.forEach(marker => map.removeLayer(marker));
-    driverMarkers = [];
-}
-
-// Добавление маркера водителя
-function addDriverMarker(driver) {
-    const now = new Date();
-    const lastUpdate = new Date(driver.last_update);
-    const minutesAgo = Math.floor((now - lastUpdate) / 1000 / 60);
-    
-    // Определяем статус водителя
-    const isOnline = minutesAgo < 30; // Считаем онлайн если обновление было менее 30 минут назад
-    
-    const marker = L.marker([driver.latitude, driver.longitude], {
-        icon: L.divIcon({
-            className: `driver-marker ${isOnline ? 'driver-marker-online' : 'driver-marker-offline'}`,
-            html: `
-                <div style="
-                    background: ${isOnline ? '#10b981' : '#6b7280'};
-                    width: 16px; 
-                    height: 16px; 
-                    border-radius: 50%; 
-                    border: 3px solid white;
-                    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-                    position: relative;
-                ">
-                    <div style="
-                        position: absolute;
-                        top: -2px;
-                        left: -2px;
-                        width: 20px;
-                        height: 20px;
-                        border-radius: 50%;
-                        border: 2px solid ${isOnline ? '#10b981' : '#6b7280'};
-                        opacity: 0.4;
-                        ${isOnline ? 'animation: pulse 2s infinite;' : ''}
-                    "></div>
-                </div>
-            `,
-            iconSize: [22, 22],
-            iconAnchor: [11, 11]
-        })
-    }).addTo(map);
-    
-    // Добавляем popup с информацией о водителе
-    const popupContent = `
-        <div style="text-align: center; font-family: system-ui, -apple-system, sans-serif;">
-            <div style="font-weight: 600; color: #1f2937; margin-bottom: 4px;">
-                🚛 ${driver.first_name} ${driver.last_name}
-            </div>
-            <div style="font-size: 0.85em; color: ${isOnline ? '#059669' : '#6b7280'}; font-weight: 500;">
-                ${isOnline ? '🟢 Онлайн' : '⚫ Офлайн'}
-            </div>
-            <div style="font-size: 0.8em; color: #6b7280; margin-top: 2px;">
-                Обновлено: ${minutesAgo} мин назад
-            </div>
-        </div>
-    `;
-    
-    marker.bindPopup(popupContent);
-    
-    driverMarkers.push(marker);
-}
-
-// Выбор поездки
-function selectTrip(tripId) {
-    selectedTrip = trips.find(t => t.id === tripId);
-    if (!selectedTrip) return;
-    
-    // Обновляем стили карточек
-    document.querySelectorAll('.trip-card').forEach(card => {
-        card.classList.remove('trip-card-selected');
-    });
-    
-    const selectedCard = document.querySelector(`[data-trip-id="${tripId}"]`);
-    if (selectedCard) {
-        selectedCard.classList.add('trip-card-selected');
-    }
-    
-    // Показываем детали поездки
-    showTripDetails(selectedTrip);
-    
-    // Центрируем карту на поездке
-    if (selectedTrip.start_latitude && selectedTrip.start_longitude) {
-        map.setView([selectedTrip.start_latitude, selectedTrip.start_longitude], 13);
-    }
-}
-
-// Показ деталей поездки
-function showTripDetails(trip) {
-    const detailsPanel = document.querySelector('.trip-details-content');
-    if (!detailsPanel) return;
-    
-    detailsPanel.innerHTML = `
-        <div class="trip-details-header">
-            <h3>${trip.vehicle_number}</h3>
-            <p>${trip.vehicle_brand || 'Марка не указана'}</p>
-        </div>
-        
-        <div class="detail-item">
-            <div class="detail-label">Описание груза</div>
-            <div class="detail-value">${trip.description || 'Не указано'}</div>
-        </div>
-        
-        <div class="detail-item">
-            <div class="detail-label">Водитель</div>
-            <div class="detail-value">${trip.driver_name || 'Не назначен'}</div>
-        </div>
-        
-        <div class="detail-item">
-            <div class="detail-label">Маршрут</div>
-            <div class="detail-value">
-                <div class="route-info">
-                    <div class="route-point">
-                        <span class="route-icon">📍</span>
-                        <span>${trip.start_address || 'Начальная точка не указана'}</span>
-                    </div>
-                    <div class="route-arrow">↓</div>
-                    <div class="route-point">
-                        <span class="route-icon">🏁</span>
-                        <span>${trip.end_address || 'Конечная точка не указана'}</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="detail-item">
-            <div class="detail-label">Дата создания</div>
-            <div class="detail-value">${new Date(trip.created_at).toLocaleDateString('ru-RU')}</div>
-        </div>
-        
-        ${window.currentUserRole !== 'DRIVER' ? `
-        <button onclick="deleteTrip(${trip.id})" class="btn-primary" style="background: #ef4444; margin-top: 20px;">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-            </svg>
-            Удалить поездку
-        </button>
-        ` : ''}
-    `;
-}
-
-// Инициализация при загрузке страницы
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('Инициализация страницы карты...');
-    
-    // Устанавливаем глобальные переменные для карты
-    window.currentUserRole = '{{ user.role }}';
-    window.currentUserId = {{ user.id }};
-    
-    initMap();
-    loadTrips();
-    
-    // Обработчик обновления поездок
-    const refreshBtn = document.getElementById('refreshTripsBtn');
-    if (refreshBtn) {
-        refreshBtn.addEventListener('click', loadTrips);
-    }
-    
-    // Автообновление каждые 30 секунд
-    setInterval(() => {
-        loadTrips();
-    }, 30000);
-});
-
-// Остальные функции для работы с формой создания поездки...
-function openTripForm() {
-    const modal = document.getElementById('tripFormModal');
-    if (modal) {
-        modal.style.display = 'flex';
-        loadDriversList();
-    }
-}
-
-function closeTripForm() {
-    const modal = document.getElementById('tripFormModal');
-    if (modal) {
-        modal.style.display = 'none';
-        resetForm();
-    }
-}
-
-function resetForm() {
-    document.getElementById('tripForm').reset();
-    if (startMarker) {
-        map.removeLayer(startMarker);
-        startMarker = null;
-    }
-    if (endMarker) {
-        map.removeLayer(endMarker);
-        endMarker = null;
-    }
-    pointSelectionMode = null;
-}
-
-// Получение CSRF токена
+// --- Передаём роль и id пользователя в JS ---
+window.currentUserRole = "{{ request.user.role|default:'' }}";
+window.currentUserId = {{ request.user.id|default_if_none:'null' }};
+// --- CSRF helper ---
 function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
@@ -1538,28 +1029,922 @@ function getCookie(name) {
     }
     return cookieValue;
 }
+    
+// --- Leaflet карта ---
+let map, startMarker, endMarker, routeLine;
+let startCoords = null, endCoords = null;
+let selfLocationMarker = null;
+let driverMarkers = [];
 
-// Загрузка списка водителей
-async function loadDriversList() {
-    try {
-        const response = await fetch('/api/logistics/map/', {
-            credentials: 'same-origin'
+function initMap() {
+    map = L.map('mapContainer', {
+        zoomControl: true,
+        attributionControl: false
+    }).setView([43.238949, 76.889709], 12);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, &copy; <a href="https://carto.com/attributions">CARTO</a>',
+        subdomains: 'abcd',
+        maxZoom: 19
+    }).addTo(map);
+}
+
+// --- Геолокация водителя (только для DRIVER) ---
+function isDriver() {
+    const role = window.currentUserRole && window.currentUserRole.toUpperCase();
+    return role === 'DRIVER' && !['SUPERADMIN', 'DIRECTOR', 'ADMIN'].includes(role);
+}
+
+function isAdmin() {
+    const role = window.currentUserRole && window.currentUserRole.toUpperCase();
+    return ['SUPERADMIN', 'DIRECTOR', 'ADMIN'].includes(role) || window.currentUserId === 1;
+}
+
+let geoWatchStarted = false;
+function startDriverGeolocation() {
+    if (!navigator.geolocation || geoWatchStarted) return;
+    geoWatchStarted = true;
+    removeGeoButton();
+    
+    function updatePosition() {
+        navigator.geolocation.getCurrentPosition(function(pos) {
+            const lat = pos.coords.latitude;
+            const lng = pos.coords.longitude;
+            console.log('Sending driver location:', lat, lng);
+            
+            // Мгновенно обновляем свою позицию на карте
+            showSelfLocationOnMap(lat, lng);
+            
+            // Отправляем на сервер
+            sendDriverLocation(lat, lng).then(() => {
+                console.log('Location sent successfully');
+                // Мгновенно обновляем локации для всех (включая админов)
+                if (!isDriver()) {
+                    loadDriverLocations();
+                }
+            });
+        }, function(error) {
+            console.error('Geolocation error:', error);
+        }, {
+            enableHighAccuracy: true,
+            timeout: 5000,
+            maximumAge: 1000
         });
-        const data = await response.json();
-        drivers = data.drivers || [];
-        
-        const driverSelect = document.getElementById('tripDriver');
-        if (driverSelect && drivers.length > 0) {
-            driverSelect.innerHTML = '<option value="">Выберите водителя</option>' + 
-                drivers.map(driver => 
-                    `<option value="${driver.id}">${driver.first_name} ${driver.last_name}</option>`
-                ).join('');
+    }
+    
+    // Первое обновление сразу
+    updatePosition();
+    
+    // Затем каждые 3 секунды для более быстрого отслеживания
+    setInterval(updatePosition, 3000);
+}
+
+// Глобальная переменная для отслеживания последнего обновления
+let lastLocationUpdate = 0;
+let locationUpdateQueue = [];
+
+function sendDriverLocation(lat, lng) {
+    return fetch('/api/driver_locations/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({ latitude: lat, longitude: lng })
+    }).then(response => {
+        if (response.ok) {
+            console.log('Location update sent successfully');
+            lastLocationUpdate = Date.now();
+            
+            // Мгновенно уведомляем всех пользователей о новой локации
+            broadcastLocationUpdate(lat, lng);
+            
+            return response.json();
+        } else {
+            console.error('Failed to send location:', response.status);
+            throw new Error('Failed to send location');
         }
-    } catch (error) {
-        console.error('Ошибка загрузки водителей:', error);
+    });
+}
+
+// Функция для мгновенного обновления локации на всех картах
+function broadcastLocationUpdate(lat, lng) {
+    // Создаем событие для мгновенного обновления
+    const locationData = {
+        driver_id: window.currentUserId,
+        latitude: lat,
+        longitude: lng,
+        timestamp: new Date().toISOString(),
+        driver_details: {
+            id: window.currentUserId,
+            username: 'Текущий водитель',
+            full_name: 'Текущий водитель'
+        }
+    };
+    
+    // Если это водитель - обновляем свою позицию
+    if (isDriver()) {
+        showSelfLocationOnMap(lat, lng);
+    }
+    
+    // Добавляем в очередь для других пользователей
+    locationUpdateQueue.push(locationData);
+    
+    // Запускаем немедленное обновление для админов
+    setTimeout(() => {
+        if (!isDriver()) {
+            loadDriverLocations();
+        }
+    }, 500); // Небольшая задержка для обработки на сервере
+}
+
+function showSelfLocationOnMap(lat, lng) {
+    if (selfLocationMarker) map.removeLayer(selfLocationMarker);
+    selfLocationMarker = L.marker([lat, lng], {
+        icon: L.divIcon({
+            className: '',
+            html: `<div style="box-shadow:0 0 8px 2px #2563eb33; border-radius:50%; width:28px; height:28px; background:#fff; display:flex; align-items:center; justify-content:center; border:2px solid #2563eb;"><div style='width:14px;height:14px;border-radius:50%;background:#2563eb;'></div></div>`
+        }),
+        zIndexOffset: 2000
+    }).addTo(map);
+}
+
+function removeGeoButton() {
+    if (!isDriver()) return;
+    const btn = document.getElementById('geoStartBtn');
+    if (btn) btn.remove();
+}
+
+function showGeoButton(forceInPanel) {
+    if (!isDriver()) return;
+    if (document.getElementById('geoStartBtn')) return;
+    const btn = document.createElement('button');
+    btn.id = 'geoStartBtn';
+    btn.innerHTML = '<i class="fa fa-location-arrow" style="margin-right:7px;"></i>Включить отслеживание';
+    btn.style = 'width:100%;margin:10px 0 0 0;padding:12px 0;font-size:1.08em;background:#2563eb;color:#fff;border:none;border-radius:8px;box-shadow:0 1px 6px #2563eb22;display:flex;align-items:center;justify-content:center;gap:7px;cursor:pointer;';
+    btn.onclick = function() {
+        btn.disabled = true;
+        btn.innerHTML = '⏳ Запрашиваем разрешение...';
+        navigator.geolocation.getCurrentPosition(function(pos) {
+            startDriverGeolocation();
+        }, function(err) {
+            btn.innerHTML = '❌ Нет доступа к геолокации';
+            btn.disabled = false;
+        });
+    };
+    // Если открыт popup — вставляем в popup, иначе в map-panel
+    if (!forceInPanel) {
+        const popup = document.getElementById('tripInfoPopup');
+        if (popup && popup.style.display !== 'none') {
+            popup.appendChild(btn);
+            return;
+        }
+    }
+    // Вставляем в map-panel (внизу)
+    const mapPanel = document.querySelector('.map-panel');
+    if (mapPanel) {
+        removeGeoButton();
+        mapPanel.appendChild(btn);
     }
 }
 
-console.log('Скрипт карты загружен');
+// --- Автокомплит адресов через Nominatim ---
+async function fetchAddresses(query) {
+    if (!query) return [];
+    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&addressdetails=1`;
+    const resp = await fetch(url);
+    return await resp.json();
+}
+function setupAutocomplete(inputId, listId, setCoordsFn) {
+    const input = document.getElementById(inputId);
+    const list = document.getElementById(listId);
+    let timer;
+    input.addEventListener('input', function() {
+        clearTimeout(timer);
+        const val = input.value.trim();
+        if (!val) { list.style.display = 'none'; return; }
+        timer = setTimeout(async () => {
+            const results = await fetchAddresses(val);
+            if (results.length) {
+                list.innerHTML = results.map(r => `<div class='autocomplete-item' data-lat='${r.lat}' data-lon='${r.lon}'>${r.display_name}</div>`).join('');
+                list.style.display = 'block';
+            } else {
+                list.innerHTML = '<div class="autocomplete-item">Ничего не найдено</div>';
+                list.style.display = 'block';
+            }
+        }, 300);
+    });
+    list.addEventListener('click', function(e) {
+        if (e.target.classList.contains('autocomplete-item')) {
+            input.value = e.target.textContent;
+            list.style.display = 'none';
+            if (e.target.dataset.lat && e.target.dataset.lon) {
+                setCoordsFn([parseFloat(e.target.dataset.lat), parseFloat(e.target.dataset.lon)]);
+            }
+        }
+    });
+    input.addEventListener('blur', () => setTimeout(() => list.style.display = 'none', 200));
+}
+
+// --- Выбор точки на карте ---
+function enableMapPointSelection(type) {
+    map.once('click', function(e) {
+        if (type === 'start') {
+            setStartCoords([e.latlng.lat, e.latlng.lng]);
+                } else {
+            setEndCoords([e.latlng.lat, e.latlng.lng]);
+                }
+    });
+}
+function setStartCoords(coords) {
+    startCoords = coords;
+    if (startMarker) map.removeLayer(startMarker);
+    startMarker = L.marker(coords, {icon: L.divIcon({className:'',html:'<i class="fa-solid fa-circle" style="color:#34D399;font-size:22px;"></i>',iconSize:[22,22],iconAnchor:[11,11]})}).addTo(map);
+    if (routeLine) map.removeLayer(routeLine);
+    if (startCoords && endCoords) drawRoute();
+}
+function setEndCoords(coords) {
+    endCoords = coords;
+    if (endMarker) map.removeLayer(endMarker);
+    endMarker = L.marker(coords, {icon: L.divIcon({className:'',html:'<i class="fa-solid fa-location-dot" style="color:#2679DB;font-size:22px;"></i>',iconSize:[22,22],iconAnchor:[11,11]})}).addTo(map);
+    if (routeLine) map.removeLayer(routeLine);
+    if (startCoords && endCoords) drawRoute();
+}
+function drawRoute() {
+    if (routeLine) map.removeLayer(routeLine);
+    routeLine = L.polyline([startCoords, endCoords], {color:'#2679DB',weight:6,opacity:0.85,smoothFactor:1.2}).addTo(map);
+    map.fitBounds([startCoords, endCoords], {padding:[40,40]});
+}
+
+// --- Trip form modal logic ---
+function openTripForm() {
+    document.getElementById('tripFormModal').style.display = 'flex';
+}
+function closeTripForm() {
+    document.getElementById('tripFormModal').style.display = 'none';
+    document.getElementById('tripForm').reset();
+    if (startMarker) map.removeLayer(startMarker); startMarker = null; startCoords = null;
+    if (endMarker) map.removeLayer(endMarker); endMarker = null; endCoords = null;
+    if (routeLine) map.removeLayer(routeLine); routeLine = null;
+            }
+            
+// --- Trip form: загрузка транспорта и водителей ---
+async function loadTripFormData() {
+    const vehicleSelect = document.getElementById('tripVehicle');
+    const respV = await fetch('/api/v1/vehicles/');
+    const vehicles = (await respV.json()).results || [];
+    vehicleSelect.innerHTML = '<option value="">Выберите транспорт</option>' + vehicles.map(v => `<option value="${v.id}">${v.brand} ${v.model} (${v.number})</option>`).join('');
+    const driverSelect = document.getElementById('tripDriver');
+    const respD = await fetch('/api/v1/users/?role=DRIVER');
+    const drivers = (await respD.json()).results || [];
+    driverSelect.innerHTML = '<option value="">Выберите водителя</option>' + drivers.map(d => `<option value="${d.id}">${d.first_name} ${d.last_name}</option>`).join('');
+}
+
+// --- Trip form: submit ---
+const round6 = x => x !== null && x !== undefined ? Number.parseFloat(x).toFixed(6) : null;
+document.getElementById('tripForm').onsubmit = async function(e) {
+    e.preventDefault();
+    const data = {
+        vehicle: document.getElementById('tripVehicle').value,
+        driver: document.getElementById('tripDriver').value,
+        cargo_description: document.getElementById('cargoDesc').value,
+        date: document.getElementById('tripDate').value,
+        start_latitude: round6(startCoords ? startCoords[0] : null),
+        start_longitude: round6(startCoords ? startCoords[1] : null),
+        end_latitude: round6(endCoords ? endCoords[0] : null),
+        end_longitude: round6(endCoords ? endCoords[1] : null),
+        start_address: document.getElementById('startAddress').value,
+        end_address: document.getElementById('endAddress').value,
+    };
+    if (!data.start_latitude || !data.end_latitude) {
+        alert('Выберите адреса отправления и назначения (или отметьте на карте)');
+        return;
+    }
+    try {
+        const resp = await fetch('/dashboard/api/trips/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify(data)
+        });
+        if (resp.ok) {
+            closeTripForm();
+            loadTrips();
+        } else {
+            const err = await resp.json();
+            alert('Ошибка: ' + JSON.stringify(err));
+        }
+    } catch (err) {
+        alert('Ошибка: ' + err);
+        }
+};
+
+// --- Trip form: инициализация ---
+document.getElementById('openTripFormBtn')?.addEventListener('click', function() {
+    openTripForm();
+    loadTripFormData();
+});
+setupAutocomplete('startAddress', 'startAutocomplete', setStartCoords);
+setupAutocomplete('endAddress', 'endAutocomplete', setEndCoords);
+document.getElementById('startAddress').addEventListener('focus', () => enableMapPointSelection('start'));
+document.getElementById('endAddress').addEventListener('focus', () => enableMapPointSelection('end'));
+
+// --- Загрузка и отображение поездок ---
+let tripPolylines = [];
+const ORS_API_KEY = '5b3ce3597851110001cf624837a2d1abb30640ba92c5c16d57e75087';
+
+async function fetchRouteORS(start, end) {
+    // start/end: [lat, lng]
+    const url = 'https://api.openrouteservice.org/v2/directions/driving-car/geojson';
+    const body = {
+        coordinates: [
+            [start[1], start[0]], // ORS: [lng, lat]
+            [end[1], end[0]]
+        ]
+    };
+    const resp = await fetch(url, {
+        method: 'POST',
+        headers: {
+            'Authorization': ORS_API_KEY,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body)
+    });
+    if (!resp.ok) return null;
+    const data = await resp.json();
+    return data;
+}
+
+async function renderTripRoutes(trips) {
+    // Удаляем старые линии
+    tripPolylines.forEach(l => map.removeLayer(l));
+    tripPolylines = [];
+    
+    let routeBounds = null; // Для хранения границ маршрута
+    
+    for (const trip of trips) {
+        if (trip.start_latitude && trip.end_latitude) {
+            const start = [parseFloat(trip.start_latitude), parseFloat(trip.start_longitude)];
+            const end = [parseFloat(trip.end_latitude), parseFloat(trip.end_longitude)];
+            // Получаем маршрут по дорогам
+            let geojson = null;
+            try {
+                geojson = await fetchRouteORS(start, end);
+            } catch (e) { geojson = null; }
+            if (geojson && geojson.features && geojson.features[0]) {
+                const coords = geojson.features[0].geometry.coordinates.map(c => [c[1], c[0]]);
+                // Линия маршрута без glow-эффекта
+                const polyline = L.polyline(coords, {
+                    color: '#2563eb',
+                    weight: 6,
+                    opacity: 0.9,
+                    smoothFactor: 1.5,
+                    lineCap: 'round',
+                    lineJoin: 'round',
+                    className: 'trip-route-polyline'
+                }).addTo(map);
+                tripPolylines.push(polyline);
+                
+                // Сохраняем boundaries полного маршрута для более точного фокуса
+                routeBounds = polyline.getBounds();
+                
+                // Кастомные маркеры с меньшей белой обводкой
+                const startIcon = L.divIcon({
+                    className: '',
+                    html: `<div style="box-shadow:0 0 6px 1px #2563eb33; border-radius:50%; width:20px; height:20px; background:#2563eb; display:flex; align-items:center; justify-content:center; border:2px solid #fff;"><div style='width:8px;height:8px;border-radius:50%;background:#fff;'></div></div>`,
+                    iconSize: [20,20],
+                    iconAnchor: [10,10]
+                });
+                const endIcon = L.divIcon({
+                    className: '',
+                    html: `<div style="box-shadow:0 0 6px 1px #34d39933; border-radius:50%; width:20px; height:20px; background:#34d399; display:flex; align-items:center; justify-content:center; border:2px solid #fff;"><div style='width:8px;height:8px;border-radius:50%;background:#fff;'></div></div>`,
+                    iconSize: [20,20],
+                    iconAnchor: [10,10]
+                });
+                const startM = L.marker(start, {icon: startIcon, zIndexOffset:1000}).addTo(map);
+                const endM = L.marker(end, {icon: endIcon, zIndexOffset:1000}).addTo(map);
+                tripPolylines.push(startM, endM);
+                
+                // Автоматический фокус на детальном маршруте если это единственная поездка
+                if (trips.length === 1 && routeBounds) {
+                    setTimeout(() => {
+                        map.fitBounds(routeBounds, {
+                            padding: [40, 40],
+                            maxZoom: 13,
+                            animate: true,
+                            duration: 1.0
+                        });
+                    }, 300); // Небольшая задержка для завершения отрисовки
+                }
+            } else {
+                // fallback: прямая линия
+                const polyline = L.polyline([start, end], {
+                    color: '#F87171', weight: 5, opacity: 0.5, dashArray: '6 8'
+                }).addTo(map);
+                tripPolylines.push(polyline);
+                
+                // Фокус на простой линии если нет детального маршрута
+                if (trips.length === 1) {
+                    setTimeout(() => {
+                        const bounds = L.latLngBounds([start, end]);
+                        map.fitBounds(bounds, {
+                            padding: [60, 60],
+                            maxZoom: 12,
+                            animate: true,
+                            duration: 1.0
+                        });
+                    }, 300);
+                }
+            }
+        }
+    }
+}
+
+function renderTripList(trips) {
+    const list = document.getElementById('tripList');
+    
+    // Проверяем права доступа для создания поездки
+    const userRole = window.currentUserRole && window.currentUserRole.toUpperCase();
+    const canCreateTrips = ['DIRECTOR', 'SUPERADMIN', 'ADMIN'].includes(userRole) || window.currentUserId === 1;
+    
+    if (!trips.length) {
+        let content = '<div class="text-gray-400">Нет поездок</div>';
+        
+        // Если поездок нет и пользователь может создавать - показываем кнопку первой
+        if (canCreateTrips) {
+            content = `
+                <button class="create-trip-inline" onclick="openTripForm(); loadTripFormData();">
+                    <svg fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"></path>
+                    </svg>
+                    Создать поездку
+                </button>
+                <div class="text-gray-400" style="text-align: center; margin-top: 20px;">Нет поездок</div>
+            `;
+        }
+        
+        list.innerHTML = content;
+        return;
+    }
+    
+    let tripsHtml = trips.map((trip, idx) => {
+        const brand = trip.vehicle_details ? trip.vehicle_details.brand + ' ' + trip.vehicle_details.model : '';
+        const number = trip.vehicle_details ? trip.vehicle_details.number : '';
+        let img = '';
+        if (trip.vehicle_details && trip.vehicle_details.main_photo_url) {
+            img = `<img src="${trip.vehicle_details.main_photo_url}" alt="Truck" />`;
+                } else {
+            // Минималистичная SVG-заглушка
+            img = `<svg width="90" height="40" viewBox="0 0 90 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="8" y="18" width="50" height="16" rx="4" fill="#e5e7eb"/><rect x="58" y="22" width="18" height="12" rx="3" fill="#e5e7eb"/><circle cx="20" cy="36" r="4" fill="#cbd5e1"/><circle cx="66" cy="34" r="4" fill="#cbd5e1"/></svg>`;
+        }
+        function shortAddr(addr) {
+            if (!addr) return '';
+            let parts = addr.split(',');
+            let city = parts[0].trim();
+            if (city.match(/\d/)) city = (parts[1]||'').trim();
+            return city;
+        }
+        let pointA = shortAddr(trip.start_address);
+        let pointB = shortAddr(trip.end_address);
+        let route = (pointA && pointB) ? `${pointA} — ${pointB}` : '';
+        return `
+        <div class="trip-card" data-idx="${idx}">
+          <div class="trip-card-info">
+            <div class="trip-card-brand">${brand}</div>
+            <div class="trip-card-number">${number}</div>
+            <div class="trip-card-desc">${route}</div>
+          </div>
+          <div class="trip-card-img">${img}</div>
+        </div>
+        `;
+    }).join('');
+    
+    // Добавляем кнопку создания в конце списка если есть права
+    if (canCreateTrips) {
+        tripsHtml += `
+            <button class="create-trip-inline" onclick="openTripForm(); loadTripFormData();">
+                <svg fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"></path>
+                </svg>
+                Создать поездку
+            </button>
+        `;
+    }
+    
+    list.innerHTML = tripsHtml;
+    
+    // Навешиваем обработчик выбора поездки
+    document.querySelectorAll('.trip-card').forEach(card => {
+        card.onclick = function() {
+            selectTrip(parseInt(card.dataset.idx));
+        };
+    });
+}
+
+let selectedTripIdx = null;
+let allTripsCache = [];
+
+function selectTrip(idx) {
+    selectedTripIdx = idx;
+    renderTripListWithSelection(allTripsCache, idx);
+    renderTripRoutes([allTripsCache[idx]]);
+    // Убираем показ popup карточки
+    // showTripInfoPopup(allTripsCache[idx]);
+    // Автоматический фокус на маршруте
+    focusMapOnTrip(allTripsCache[idx]);
+}
+
+function renderTripListWithSelection(trips, selectedIdx) {
+    const list = document.getElementById('tripList');
+    
+    // Проверяем права доступа для создания поездки
+    const userRole = window.currentUserRole && window.currentUserRole.toUpperCase();
+    const canCreateTrips = ['DIRECTOR', 'SUPERADMIN', 'ADMIN'].includes(userRole) || window.currentUserId === 1;
+    
+    let tripsHtml = trips.map((trip, idx) => {
+        const brand = trip.vehicle_details ? trip.vehicle_details.brand + ' ' + trip.vehicle_details.model : '';
+        const number = trip.vehicle_details ? trip.vehicle_details.number : '';
+        let img = '';
+        if (trip.vehicle_details && trip.vehicle_details.main_photo_url) {
+            img = `<img src="${trip.vehicle_details.main_photo_url}" alt="Truck" />`;
+                } else {
+            img = `<svg width="90" height="40" viewBox="0 0 90 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="8" y="18" width="50" height="16" rx="4" fill="#e5e7eb"/><rect x="58" y="22" width="18" height="12" rx="3" fill="#e5e7eb"/><circle cx="20" cy="36" r="4" fill="#cbd5e1"/><circle cx="66" cy="34" r="4" fill="#cbd5e1"/></svg>`;
+        }
+        function shortAddr(addr) {
+            if (!addr) return '';
+            let parts = addr.split(',');
+            let city = parts[0].trim();
+            if (city.match(/\d/)) city = (parts[1]||'').trim();
+            return city;
+        }
+        let pointA = shortAddr(trip.start_address);
+        let pointB = shortAddr(trip.end_address);
+        let route = (pointA && pointB) ? `${pointA} — ${pointB}` : '';
+        return `
+        <div class="trip-card${selectedIdx===idx?' trip-card-selected':''}" data-idx="${idx}">
+          <div class="trip-card-info">
+            <div class="trip-card-brand">${brand}</div>
+            <div class="trip-card-number">${number}</div>
+            <div class="trip-card-desc">${route}</div>
+          </div>
+          <div class="trip-card-img">${img}</div>
+        </div>
+        `;
+    }).join('');
+    
+    // Добавляем кнопку создания в конце списка если есть права
+    if (canCreateTrips) {
+        tripsHtml += `
+            <button class="create-trip-inline" onclick="openTripForm(); loadTripFormData();">
+                <svg fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"></path>
+                </svg>
+                Создать поездку
+            </button>
+        `;
+    }
+    
+    list.innerHTML = tripsHtml;
+    
+    document.querySelectorAll('.trip-card').forEach(card => {
+        card.onclick = function() {
+            selectTrip(parseInt(card.dataset.idx));
+        };
+    });
+    if (selectedIdx === null || trips.length === 0) {
+        showTripInfoPopup(null);
+    }
+}
+
+async function loadTrips() {
+    const resp = await fetch('/dashboard/api/trips/');
+    const trips = await resp.json();
+    allTripsCache = trips;
+    if (selectedTripIdx !== null && trips[selectedTripIdx]) {
+        renderTripListWithSelection(trips, selectedTripIdx);
+        renderTripRoutes([trips[selectedTripIdx]]);
+    } else {
+        renderTripListWithSelection(trips, null);
+        renderTripRoutes([]);
+    }
+}
+
+// --- Инициализация ---
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('=== MAP DEBUG INFO ===');
+    console.log('Current user role:', window.currentUserRole);
+    console.log('Current user ID:', window.currentUserId);
+    console.log('Is driver:', isDriver());
+    console.log('Is admin:', isAdmin());
+    console.log('======================');
+    
+    initMap();
+    loadTrips();
+    if (isDriver()) {
+        console.log('Initializing driver mode: showing geo button');
+        showGeoButton();
+        loadDriverLocations();
+    } else {
+        console.log('Initializing admin mode: loading driver locations');
+        loadDriverLocations();
+        // Для админов обновляем каждые 5 секунд для быстрого отслеживания
+        setInterval(loadDriverLocations, 5000);
+    }
+});
+
+// Trip info popup logic
+function showTripInfoPopup(trip) {
+    const popup = document.getElementById('tripInfoPopup');
+    if (!trip) {
+        popup.style.display = 'none';
+        popup.innerHTML = '';
+        // Если водитель — показываем кнопку внизу карты
+        if (isDriver()) showGeoButton(true);
+        return;
+    }
+    const brand = trip.vehicle_details ? trip.vehicle_details.brand + ' ' + trip.vehicle_details.model : '';
+    const number = trip.vehicle_details ? trip.vehicle_details.number : '';
+    const driver = trip.driver_details ? (trip.driver_details.full_name || (trip.driver_details.first_name + ' ' + trip.driver_details.last_name)) : '';
+    function shortAddr(addr) {
+        if (!addr) return '';
+        let parts = addr.split(',');
+        let city = parts[0].trim();
+        if (city.match(/\d/)) city = (parts[1]||'').trim();
+        return city;
+    }
+    let pointA = shortAddr(trip.start_address);
+    let pointB = shortAddr(trip.end_address);
+    let route = (pointA && pointB) ? `${pointA} — ${pointB}` : '';
+    
+    popup.innerHTML = `
+        <div class="trip-info-popup-content">
+            <div class="trip-info-popup-main">
+                <div class="trip-info-popup-icon">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4.35746 15.2241H3.91814C2.85878 15.2241 2 14.3653 2 13.3059V5.0314C2 3.97197 2.85878 3.11316 3.91814 3.11316H10.3973C11.4567 3.11316 12.3155 3.97197 12.3155 5.0314V15.2241H7.79807M16.3211 9.21706H12.3155V4.98346H12.8324C13.174 4.98343 13.5094 5.0746 13.804 5.24755C14.0986 5.4205 14.3417 5.66895 14.5081 5.96726L16.3211 9.21706Z" stroke="#2563eb" stroke-width="2" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M6.07814 16.8869C7.00585 16.8869 7.7579 16.1352 7.7579 15.2079C7.7579 14.2806 7.00585 13.5289 6.07814 13.5289C5.15043 13.5289 4.39838 14.2806 4.39838 15.2079C4.39838 16.1352 5.15043 16.8869 6.07814 16.8869Z" stroke="#2563eb" stroke-width="2" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M13.9953 16.8869C14.923 16.8869 15.675 16.1352 15.675 15.2079C15.675 14.2806 14.923 13.5289 13.9953 13.5289C13.0675 13.5289 12.3155 14.2806 12.3155 15.2079C12.3155 16.1352 13.0675 16.8869 13.9953 16.8869Z" stroke="#2563eb" stroke-width="2" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M15.7703 15.2241H16.6921C17.2362 15.2241 17.7031 14.8939 17.9035 14.423M18 10.9591C17.9111 9.98232 17.0898 9.2171 16.0899 9.2171H12.3155V15.2242" stroke="#2563eb" stroke-width="2" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <div class="trip-info-popup-details">
+                    <div class="trip-info-popup-number">${number}</div>
+                    <div class="trip-info-popup-brand">${brand}</div>
+                    <div class="trip-info-popup-route">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 21.3004C8.70003 17.9004 5.60003 16.7004 5.60003 12.0004C5.60003 8.50036 8.50003 5.60036 12 5.60036C15.5 5.60036 18.4 8.50036 18.4 12.0004C18.4 16.7004 15.3 17.9004 12 21.3004Z" stroke="#64748b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <circle cx="12" cy="12" r="2.5" stroke="#64748b" stroke-width="1.5"/>
+                        </svg>
+                        ${route}
+                    </div>
+                </div>
+            </div>
+            <div class="trip-info-popup-meta">
+                ${driver ? `<div class="trip-info-popup-driver">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M20 21V19C20 16.7909 18.2091 15 16 15H8C5.79086 15 4 16.7909 4 19V21M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z" stroke="#64748b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    ${driver}
+                </div>` : ''}
+                ${trip.date ? `<div class="trip-info-popup-date">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M8 2V6M16 2V6M3 10H21M5 4H19C20.1046 4 21 4.89543 21 6V20C21 21.1046 20.1046 22 19 22H5C3.89543 22 3 21.1046 3 20V6C3 4.89543 3.89543 4 5 4Z" stroke="#64748b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    ${trip.date}
+                </div>` : ''}
+            </div>
+            <button class="trip-info-popup-delete" onclick="showTripDetailsPopup(tripInfoPopupTrip)">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M9 6L15 12L9 18" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Подробнее
+            </button>
+        </div>
+    `;
+    popup.style.display = 'block';
+    // Если водитель — показываем кнопку в popup
+    if (isDriver()) showGeoButton(false);
+}
+
+function deleteTrip(tripId) {
+    if (!confirm('Удалить эту поездку?')) return;
+    fetch(`/dashboard/api/trips/${tripId}/`, {
+        method: 'DELETE',
+        headers: { 'X-CSRFToken': getCookie('csrftoken') }
+    }).then(resp => {
+        if (resp.ok) {
+            loadTrips();
+            showTripInfoPopup(null);
+        } else {
+            alert('Ошибка при удалении');
+            }
+        });
+    }
+    
+function clearDriverMarkers() {
+    driverMarkers.forEach(m => map.removeLayer(m));
+    driverMarkers = [];
+}
+
+function renderDriverMarkers(locations) {
+    clearDriverMarkers();
+    console.log('Rendering driver markers. Locations:', locations);
+    console.log('Current user is driver:', isDriver());
+    console.log('Current user ID:', window.currentUserId);
+    
+    locations.forEach(loc => {
+        if (!loc.latitude || !loc.longitude) {
+            console.log('Skipping location without coordinates:', loc);
+            return;
+        }
+        // Для водителя — не дублируем свой маркер (он рисуется отдельно)
+        if (isDriver() && loc.driver_details && loc.driver_details.id === window.currentUserId) {
+            console.log('Skipping self marker for driver:', loc.driver_details);
+            return;
+        }
+        
+        console.log('Adding marker for location:', loc);
+        const marker = L.marker([loc.latitude, loc.longitude], {
+            icon: L.divIcon({
+                className: '',
+                html: `<div style=\"box-shadow:0 0 8px 2px #2563eb33; border-radius:50%; width:24px; height:24px; background:#fff; display:flex; align-items:center; justify-content:center; border:2px solid #2563eb;\"><div style='width:10px;height:10px;border-radius:50%;background:#2563eb;'></div></div>`
+            }),
+            zIndexOffset: 1000
+        }).addTo(map);
+        marker.bindTooltip(loc.driver_details ? (loc.driver_details.full_name || loc.driver_details.username) : 'Водитель', {permanent: false});
+        driverMarkers.push(marker);
+    });
+    
+    console.log('Total markers added:', driverMarkers.length);
+}
+
+async function loadDriverLocations() {
+    try {
+        console.log('Loading driver locations...');
+        console.log('Current user role:', window.currentUserRole);
+        console.log('Current user ID:', window.currentUserId);
+        console.log('Is driver:', isDriver());
+        console.log('Is admin:', isAdmin());
+        
+        const resp = await fetch('/api/driver_locations/');
+        console.log('API response status:', resp.status);
+        
+        if (!resp.ok) {
+            console.error('API error:', resp.status, resp.statusText);
+            if (resp.status === 401) {
+                console.error('Authentication required for driver locations API');
+            }
+            return;
+        }
+        
+        const data = await resp.json();
+        console.log('driver_locations API response:', data);
+        console.log('Number of locations received:', data.length);
+        
+        if (data.length === 0) {
+            console.warn('No driver locations received from API');
+        } else {
+            console.log('Driver locations details:');
+            data.forEach((loc, index) => {
+                console.log(`  ${index + 1}. Driver: ${loc.driver_details?.username || 'Unknown'} (ID: ${loc.driver}) at ${loc.latitude}, ${loc.longitude}`);
+            });
+        }
+        
+        renderDriverMarkers(data);
+        
+        // Для водителя — если есть свои координаты, рисуем себя
+        if (isDriver() && data.length > 0) {
+            const selfLoc = data.find(l => l.driver_details && l.driver_details.id === window.currentUserId);
+            if (selfLoc) {
+                console.log('Found self location for driver:', selfLoc);
+                showSelfLocationOnMap(selfLoc.latitude, selfLoc.longitude);
+            } else {
+                console.log('No self location found for current driver');
+            }
+        }
+    } catch (e) { 
+        console.error('Ошибка загрузки driver_locations:', e); 
+    }
+}
+
+// Модальное окно подробной информации о поездке
+function showTripDetailsPopup(trip) {
+    if (!trip) return;
+    // Удаляем старый попап если есть
+    let old = document.getElementById('tripDetailsModal');
+    if (old) old.remove();
+    // Создаём оверлей
+    const overlay = document.createElement('div');
+    overlay.id = 'tripDetailsModal';
+    overlay.style = 'position:fixed;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.25);z-index:9999;display:flex;align-items:center;justify-content:center;';
+    overlay.onclick = function(e) { if (e.target === overlay) overlay.remove(); };
+    // Контент
+    const content = document.createElement('div');
+    content.style = 'background:#fff;border-radius:16px;box-shadow:0 8px 32px rgba(37,99,235,0.13);padding:32px 28px;max-width:420px;width:95vw;position:relative;';
+    content.innerHTML = `
+        <button onclick="document.getElementById('tripDetailsModal').remove()" style="position:absolute;top:18px;right:18px;background:none;border:none;font-size:1.7em;color:#64748b;cursor:pointer;">&times;</button>
+        <div style="font-size:1.3em;font-weight:700;color:#2563eb;margin-bottom:8px;">${trip.vehicle_details ? trip.vehicle_details.number : ''}</div>
+        <div style="color:#64748b;font-size:1em;margin-bottom:8px;">${trip.vehicle_details ? trip.vehicle_details.brand + ' ' + trip.vehicle_details.model : ''}</div>
+        <div style="font-size:1.1em;font-weight:500;margin-bottom:8px;">${trip.start_address || ''} <span style='color:#2563eb;'>→</span> ${trip.end_address || ''}</div>
+        <div style="color:#64748b;font-size:0.98em;margin-bottom:8px;display:flex;align-items:center;gap:8px;">
+            <svg width="18" height="18" fill="none" stroke="#64748b" stroke-width="1.5" viewBox="0 0 24 24"><path d="M20 21V19C20 16.7909 18.2091 15 16 15H8C5.79086 15 4 16.7909 4 19V21M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z"/></svg>
+            ${trip.driver_details ? (trip.driver_details.full_name || (trip.driver_details.first_name + ' ' + trip.driver_details.last_name)) : ''}
+        </div>
+        <div style="color:#64748b;font-size:0.98em;margin-bottom:8px;display:flex;align-items:center;gap:8px;">
+            <svg width="18" height="18" fill="none" stroke="#64748b" stroke-width="1.5" viewBox="0 0 24 24"><path d="M8 2V6M16 2V6M3 10H21M5 4H19C20.1046 4 21 4.89543 21 6V20C21 21.1046 20.1046 22 19 22H5C3.89543 22 3 21.1046 3 20V6C3 4.89543 3.89543 4 5 4Z"/></svg>
+            ${trip.date || ''}
+        </div>
+        <div style="color:#334155;font-size:1em;margin-bottom:12px;">${trip.cargo_description ? `<b>Груз:</b> ${trip.cargo_description}` : ''}</div>
+        <div style="display:flex;gap:12px;margin-top:18px;">
+            <button onclick="deleteTrip(${trip.id});document.getElementById('tripDetailsModal').remove();" style="background:#f87171;color:#fff;border:none;border-radius:8px;padding:10px 22px;font-weight:600;font-size:1em;box-shadow:0 2px 8px #f8717122;cursor:pointer;">Удалить</button>
+        </div>
+    `;
+    overlay.appendChild(content);
+    document.body.appendChild(overlay);
+}
+// Для передачи выбранной поездки в попап
+let tripInfoPopupTrip = null;
+
+// Функция для фокусировки карты на выбранной поездке
+function focusMapOnTrip(trip) {
+    if (!trip || !trip.start_latitude || !trip.end_latitude) return;
+    
+    const start = [parseFloat(trip.start_latitude), parseFloat(trip.start_longitude)];
+    const end = [parseFloat(trip.end_latitude), parseFloat(trip.end_longitude)];
+    
+    // Создаем bounds для начальной и конечной точки
+    const bounds = L.latLngBounds([start, end]);
+    
+    // Фокусируем карту на маршруте с padding для красивого отображения
+    map.fitBounds(bounds, {
+        padding: [60, 60], // отступы в пикселях
+        maxZoom: 14, // максимальный зум чтобы не слишком близко
+        animate: true, // плавная анимация
+        duration: 1.2 // длительность анимации в секундах
+    });
+}
+
 </script>
-{% endblock %}
+
+<!-- Нижнее мобильное меню -->
+<nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 lg:hidden py-2">
+    <div class="flex justify-between items-center px-2">
+        <a href="{% url 'core:home' %}" class="flex-1 flex flex-col items-center text-gray-600 relative mx-1">
+            <div class="icon-container w-8 h-8 flex items-center justify-center">
+                <img src="{% static 'core/img/mobile/home.svg' %}" alt="Home" class="w-6 h-6">
+            </div>
+            <span class="text-xs text-[9px] mt-1 text-center whitespace-nowrap">Главная</span>
+        </a>
+        <a href="{% url 'core:tasks' %}" class="flex-1 flex flex-col items-center text-gray-600 relative mx-1">
+            <div class="icon-container w-8 h-8 flex items-center justify-center">
+                <img src="{% static 'core/img/mobile/check-square.svg' %}" alt="Tasks" class="w-6 h-6">
+            </div>
+            <span class="text-xs text-[9px] mt-1 text-center whitespace-nowrap">Задачи</span>
+        </a>
+        <a href="{% url 'core:map' %}" class="flex-1 flex flex-col items-center text-blue-600 relative mx-1">
+            <div class="icon-container w-8 h-8 flex items-center justify-center">
+                <img src="{% static 'core/img/mobile/location.svg' %}" alt="Map" class="w-6 h-6">
+            </div>
+            <span class="text-xs text-[9px] mt-1 text-center whitespace-nowrap">Карта</span>
+        </a>
+        {% if request.user.role != 'DRIVER' %}
+        <a href="{% url 'core:trucks' %}" class="flex-1 flex flex-col items-center text-gray-600 relative mx-1">
+            <div class="icon-container w-8 h-8 flex items-center justify-center">
+                <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Vehicles" class="w-6 h-6">
+            </div>
+            <span class="text-xs text-[9px] mt-1 text-center whitespace-nowrap">Грузовики</span>
+        </a>
+        <a href="{% url 'core:employees' %}" class="flex-1 flex flex-col items-center text-gray-600 relative mx-1">
+            <div class="icon-container w-8 h-8 flex items-center justify-center">
+                <img src="{% static 'core/img/mobile/employee.svg' %}" alt="Employees" class="w-6 h-6">
+            </div>
+            <span class="text-xs text-[9px] mt-1 text-center whitespace-nowrap">Сотрудники</span>
+        </a>
+        {% endif %}
+    </div>
+</nav>
+
+
+
+<script>
+    // Обработчик для мобильного меню пользователя
+    document.addEventListener('DOMContentLoaded', function() {
+        const userAvatar = document.getElementById('user-avatar');
+        const userDropdown = document.getElementById('user-dropdown');
+        
+        if (userAvatar && userDropdown) {
+            userAvatar.addEventListener('click', function(e) {
+                e.stopPropagation();
+                userDropdown.classList.toggle('hidden');
+            });
+            
+            document.addEventListener('click', function() {
+                userDropdown.classList.add('hidden');
+            });
+        }
+    });
+</script>
+
+
+{% endblock %} 

@@ -41,7 +41,7 @@ from .views import (
     FileUploadView,
     NotificationManualCreateView,
 )
-from .api import update_profile, upload_profile_photo, get_profile_stats, trips_api, driver_locations_api, update_driver_location, get_active_drivers, toggle_driver_tracking
+from .api import update_profile, upload_profile_photo, get_profile_stats, trips_api, driver_locations_api
 from django.views.generic import TemplateView
 
 app_name = 'core'
@@ -79,11 +79,6 @@ urlpatterns = [
     path('api/trips/', trips_api, name='api-trips'),
     path('api/trips/<int:pk>/', trips_api, name='api-trips-detail'),
     path('api/driver_locations/', driver_locations_api, name='api-driver-locations'),
-    
-    # Геолокация водителей
-    path('api/drivers/location/update/', update_driver_location, name='api-update-driver-location'),
-    path('api/drivers/active/', get_active_drivers, name='api-active-drivers'),
-    path('api/drivers/tracking/toggle/', toggle_driver_tracking, name='api-toggle-driver-tracking'),
     
     # Employees
     path('employees/', EmployeesView.as_view(), name='employees'),
