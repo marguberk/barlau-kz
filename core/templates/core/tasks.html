@@ -1191,12 +1191,41 @@ async function handleTaskFormSubmit(e) {
             const message = taskId ? 'Задача успешно обновлена' : 'Задача успешно создана';
             showNotification(message, 'success');
         } else {
-            const errorData = await response.json();
-            alert('Ошибка при сохранении задачи: ' + (errorData.detail || 'Неизвестная ошибка'));
+            // Пытаемся получить детали ошибки
+            let errorMessage = 'Неизвестная ошибка';
+            try {
+                const errorData = await response.json();
+                console.error('Детали ошибки:', errorData);
+                
+                if (errorData.detail) {
+                    errorMessage = errorData.detail;
+                } else if (errorData.non_field_errors) {
+                    errorMessage = errorData.non_field_errors.join(', ');
+                } else if (typeof errorData === 'object') {
+                    // Собираем все ошибки валидации полей
+                    const fieldErrors = [];
+                    for (const [field, errors] of Object.entries(errorData)) {
+                        if (Array.isArray(errors)) {
+                            fieldErrors.push(`${field}: ${errors.join(', ')}`);
+                        } else {
+                            fieldErrors.push(`${field}: ${errors}`);
+                        }
+                    }
+                    if (fieldErrors.length > 0) {
+                        errorMessage = fieldErrors.join('; ');
+                    }
+                }
+            } catch (jsonError) {
+                console.error('Ошибка при парсинге JSON ответа:', jsonError);
+                errorMessage = `Ошибка сервера (HTTP ${response.status})`;
+            }
+            
+            console.error('Ошибка при создании/обновлении задачи:', response.status, errorMessage);
+            showNotification(`Ошибка при сохранении задачи: ${errorMessage}`, 'error');
         }
     } catch (error) {
         console.error('Ошибка:', error);
-        alert('Ошибка при сохранении задачи');
+        showNotification('Ошибка при сохранении задачи: ' + error.message, 'error');
     }
 }
 
@@ -1250,12 +1279,41 @@ async function handleNewTaskSubmit(e) {
             // Показываем уведомление об успехе
             showNotification('Задача успешно создана', 'success');
         } else {
-            const errorData = await response.json();
-            alert('Ошибка при создании задачи: ' + (errorData.detail || 'Неизвестная ошибка'));
+            // Пытаемся получить детали ошибки
+            let errorMessage = 'Неизвестная ошибка';
+            try {
+                const errorData = await response.json();
+                console.error('Детали ошибки:', errorData);
+                
+                if (errorData.detail) {
+                    errorMessage = errorData.detail;
+                } else if (errorData.non_field_errors) {
+                    errorMessage = errorData.non_field_errors.join(', ');
+                } else if (typeof errorData === 'object') {
+                    // Собираем все ошибки валидации полей
+                    const fieldErrors = [];
+                    for (const [field, errors] of Object.entries(errorData)) {
+                        if (Array.isArray(errors)) {
+                            fieldErrors.push(`${field}: ${errors.join(', ')}`);
+                        } else {
+                            fieldErrors.push(`${field}: ${errors}`);
+                        }
+                    }
+                    if (fieldErrors.length > 0) {
+                        errorMessage = fieldErrors.join('; ');
+                    }
+                }
+            } catch (jsonError) {
+                console.error('Ошибка при парсинге JSON ответа:', jsonError);
+                errorMessage = `Ошибка сервера (HTTP ${response.status})`;
             }
-        } catch (error) {
+            
+            console.error('Ошибка при создании задачи:', response.status, errorMessage);
+            showNotification(`Ошибка при создании задачи: ${errorMessage}`, 'error');
+        }
+    } catch (error) {
         console.error('Ошибка:', error);
-        alert('Ошибка при создании задачи');
+        showNotification('Ошибка при создании задачи: ' + error.message, 'error');
     }
 }
 
