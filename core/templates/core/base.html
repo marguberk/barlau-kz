@@ -119,7 +119,7 @@
                 notifyModal.classList.remove('hidden');
                 // Загружаем уведомления
                 try {
-                    const response = await fetch('/api/v1/notifications/');
+                    const response = await fetch('/api/notifications/');
                     const data = await response.json();
                     notifyContent.innerHTML = data.results.map(notification => `
                         <div class="p-4 border-b ${notification.read ? 'bg-white' : 'bg-blue-50'}">

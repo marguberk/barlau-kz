@@ -235,8 +235,29 @@ class NotificationViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
     pagination_class = NotificationPagination
 
+    def get_permissions(self):
+        """
+        Переопределяем получение разрешений для возврата тестовых данных неавторизованным пользователям
+        """
+        if self.request.method == 'GET' and settings.DEBUG:
+            return []
+        return [permission() for permission in self.permission_classes]
+
     def get_queryset(self):
-        queryset = Notification.objects.filter(user=self.request.user)
+        """
+        Переопределяем метод для обеспечения корректной работы с анонимными пользователями
+        """
+        if getattr(self, 'swagger_fake_view', False):
+            return Notification.objects.none()
+            
+        if not self.request.user.is_authenticated and settings.DEBUG:
+            # Для неавторизованных пользователей в режиме отладки возвращаем все уведомления
+            queryset = Notification.objects.all()
+        elif not self.request.user.is_authenticated:
+            return Notification.objects.none()
+        else:
+            queryset = Notification.objects.filter(user=self.request.user)
+            
         notif_type = self.request.query_params.get('type')
         unread = self.request.query_params.get('unread')
         if notif_type and notif_type != 'all':
@@ -2340,6 +2361,15 @@ class VehicleUpdateView(LoginRequiredMixin, View):
                 vehicle.main_photo = main_photo
                 vehicle.save()
 
+            # Обрабатываем дополнительные фотографии
+            additional_photos = request.FILES.getlist('additional_photos')
+            if additional_photos:
+                for photo_file in additional_photos:
+                    VehiclePhoto.objects.create(
+                        vehicle=vehicle,
+                        photo=photo_file
+                    )
+
             # Обрабатываем документы
             technical_passport = form.cleaned_data.get('technical_passport')
             if technical_passport:
@@ -2362,6 +2392,37 @@ class VehicleUpdateView(LoginRequiredMixin, View):
 
                 vehicle.insurance = insurance
                 vehicle.save()
+
+            # Обрабатываем техосмотр
+            technical_inspection = request.FILES.get('technical_inspection')
+            if technical_inspection:
+                VehicleDocument.objects.create(
+                    vehicle=vehicle,
+                    document_type='TECHNICAL_INSPECTION',
+                    file=technical_inspection,
+                    issue_date=timezone.now().date()
+                )
+
+            # Обрабатываем регистрацию
+            registration = request.FILES.get('registration')
+            if registration:
+                VehicleDocument.objects.create(
+                    vehicle=vehicle,
+                    document_type='REGISTRATION',
+                    file=registration,
+                    issue_date=timezone.now().date()
+                )
+
+            # Обрабатываем дополнительные документы
+            additional_documents = request.FILES.getlist('additional_documents')
+            if additional_documents:
+                for doc_file in additional_documents:
+                    VehicleDocument.objects.create(
+                        vehicle=vehicle,
+                        document_type='OTHER',
+                        file=doc_file,
+                        issue_date=timezone.now().date()
+                    )
 
             messages.success(request, f'Транспорт {number} успешно обновлен')
             return redirect('core:vehicles')
