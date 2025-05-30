@@ -2869,20 +2869,24 @@ def create_test_notification(request):
     """Создает тестовое уведомление прямо в веб-приложении"""
     try:
         from accounts.models import User
+        import uuid
         
         # Найдем любого пользователя
         user = User.objects.filter(is_active=True).first()
         if not user:
             return JsonResponse({'error': 'No active users found'})
         
-        # Создадим уведомление
-        notification = Notification.objects.create(
+        # Создадим уведомление с явным UUID
+        notification = Notification(
+            id=uuid.uuid4(),  # Явно генерируем UUID
             user=user,
             type=Notification.Type.SYSTEM,
             title='Тест из веб-приложения',
             message=f'Уведомление создано в {timezone.now()}',
             read=False
         )
+        notification.save()
+        
         
         total_count = Notification.objects.count()
         
