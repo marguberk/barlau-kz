@@ -70,7 +70,7 @@ class TaskViewSet(BaseModelViewSet):
             return queryset.filter(assigned_to=user)
         elif user.role in ['DIRECTOR', 'ADMIN', 'SUPERADMIN']:
             # Показываем все задачи без фильтрации
-            return queryset
+        return queryset
         else:
             # Для остальных ролей - задачи которые создали или им назначены
             return queryset.filter(

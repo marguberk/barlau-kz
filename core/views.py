@@ -324,26 +324,7 @@ class PublicNotificationViewSet(viewsets.ReadOnlyModelViewSet):
         """
         Возвращаем последние 10 уведомлений для демонстрации
         """
-        print(f"[DEBUG] PublicNotificationViewSet.get_queryset() called")
-        queryset = Notification.objects.all().order_by('-created_at')
-        print(f"[DEBUG] Total notifications in DB: {queryset.count()}")
-        return queryset
-    
-    def list(self, request, *args, **kwargs):
-        """
-        Переопределяем list для ограничения количества уведомлений
-        """
-        print(f"[DEBUG] PublicNotificationViewSet.list() called")
-        queryset = self.get_queryset()[:10]  # Берем только последние 10
-        print(f"[DEBUG] Queryset slice: {len(list(queryset))}")
-        serializer = self.get_serializer(queryset, many=True)
-        print(f"[DEBUG] Serialized data: {len(serializer.data)}")
-        return Response({
-            'count': len(serializer.data),
-            'next': None,
-            'previous': None,
-            'results': serializer.data
-        })
+        return Notification.objects.all().order_by('-created_at')[:10]
 
 
 class HomeView(LoginRequiredMixin, TemplateView):
@@ -2836,69 +2817,3 @@ class TestEmployeesView(View):
         html += f"<p>Результат фильтра: {employees_filtered.count()} сотрудников</p>"
         
         return HttpResponse(html)
-
-@csrf_exempt
-def public_notifications_test(request):
-    """Простая тестовая функция для проверки публичного API"""
-    try:
-        notifications = Notification.objects.all().order_by('-created_at')[:10]
-        data = []
-        for notif in notifications:
-            data.append({
-                'id': notif.id,
-                'title': notif.title,
-                'message': notif.message,
-                'type': notif.type,
-                'created_at': notif.created_at.isoformat(),
-                'user': notif.user.username
-            })
-        
-        return JsonResponse({
-            'count': len(data),
-            'results': data,
-            'debug': f'Total notifications in DB: {Notification.objects.count()}'
-        })
-    except Exception as e:
-        return JsonResponse({
-            'error': str(e),
-            'debug': 'Exception occurred'
-        })
-
-@csrf_exempt
-def create_test_notification(request):
-    """Создает тестовое уведомление прямо в веб-приложении"""
-    try:
-        from accounts.models import User
-        import uuid
-        
-        # Найдем любого пользователя
-        user = User.objects.filter(is_active=True).first()
-        if not user:
-            return JsonResponse({'error': 'No active users found'})
-        
-        # Создадим уведомление с явным UUID
-        notification = Notification(
-            id=uuid.uuid4(),  # Явно генерируем UUID
-            user=user,
-            type=Notification.Type.SYSTEM,
-            title='Тест из веб-приложения',
-            message=f'Уведомление создано в {timezone.now()}',
-            read=False
-        )
-        notification.save()
-        
-        
-        total_count = Notification.objects.count()
-        
-        return JsonResponse({
-            'success': True,
-            'notification_id': notification.id,
-            'total_notifications': total_count,
-            'user': user.username,
-            'debug': 'Notification created successfully'
-        })
-    except Exception as e:
-        return JsonResponse({
-            'error': str(e),
-            'debug': 'Exception occurred during creation'
-        })
