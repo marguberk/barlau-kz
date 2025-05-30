@@ -2836,3 +2836,30 @@ class TestEmployeesView(View):
         html += f"<p>Результат фильтра: {employees_filtered.count()} сотрудников</p>"
         
         return HttpResponse(html)
+
+@csrf_exempt
+def public_notifications_test(request):
+    """Простая тестовая функция для проверки публичного API"""
+    try:
+        notifications = Notification.objects.all().order_by('-created_at')[:10]
+        data = []
+        for notif in notifications:
+            data.append({
+                'id': notif.id,
+                'title': notif.title,
+                'message': notif.message,
+                'type': notif.type,
+                'created_at': notif.created_at.isoformat(),
+                'user': notif.user.username
+            })
+        
+        return JsonResponse({
+            'count': len(data),
+            'results': data,
+            'debug': f'Total notifications in DB: {Notification.objects.count()}'
+        })
+    except Exception as e:
+        return JsonResponse({
+            'error': str(e),
+            'debug': 'Exception occurred'
+        })
