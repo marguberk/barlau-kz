@@ -2863,3 +2863,38 @@ def public_notifications_test(request):
             'error': str(e),
             'debug': 'Exception occurred'
         })
+
+@csrf_exempt
+def create_test_notification(request):
+    """Создает тестовое уведомление прямо в веб-приложении"""
+    try:
+        from accounts.models import User
+        
+        # Найдем любого пользователя
+        user = User.objects.filter(is_active=True).first()
+        if not user:
+            return JsonResponse({'error': 'No active users found'})
+        
+        # Создадим уведомление
+        notification = Notification.objects.create(
+            user=user,
+            type=Notification.Type.SYSTEM,
+            title='Тест из веб-приложения',
+            message=f'Уведомление создано в {timezone.now()}',
+            read=False
+        )
+        
+        total_count = Notification.objects.count()
+        
+        return JsonResponse({
+            'success': True,
+            'notification_id': notification.id,
+            'total_notifications': total_count,
+            'user': user.username,
+            'debug': 'Notification created successfully'
+        })
+    except Exception as e:
+        return JsonResponse({
+            'error': str(e),
+            'debug': 'Exception occurred during creation'
+        })

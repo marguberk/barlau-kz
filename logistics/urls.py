@@ -6,7 +6,7 @@ from .views.vehicle import VehicleViewSet
 from .views.finance import FinanceViewSet
 from .views.expense import ExpenseViewSet
 from .views.waybill import WaybillDocumentViewSet
-from core.views import NotificationViewSet, PublicNotificationViewSet, public_notifications_test
+from core.views import NotificationViewSet, PublicNotificationViewSet, public_notifications_test, create_test_notification
 
 app_name = 'logistics'
 
@@ -23,6 +23,7 @@ router.register(r'public-notifications', PublicNotificationViewSet, basename='pu
 urlpatterns = [
     path('', include(router.urls)),
     path('public-notifications-test/', public_notifications_test, name='public-notifications-test'),
+    path('create-test-notification/', create_test_notification, name='create-test-notification'),
     path('map/live_tracking/', MapViewSet.as_view({'get': 'get_vehicles'}), name='live-tracking'),
     path('map/update_location/', MapViewSet.as_view({'post': 'update_location'}), name='update-location'),
     path('map/tracking_status/', MapViewSet.as_view({'post': 'update_tracking_status'}), name='tracking-status'),
