@@ -75,6 +75,7 @@ class MapViewSet(viewsets.ViewSet):
         is_driver = request.user.role == 'DRIVER'
         
         # Фильтруем транспортные средства в зависимости от роли пользователя
+        # Водители видят только свой транспорт, все остальные роли видят все транспортные средства
         if is_driver:
             vehicles = vehicles.filter(driver=request.user)
             
@@ -116,9 +117,10 @@ class MapViewSet(viewsets.ViewSet):
             vehicle__driver__current_longitude__isnull=False
         ).order_by('-created_at')
         
+        # Водители видят только свои задачи, все остальные роли видят все задачи  
         if request.user.role == 'DRIVER':
             tasks = tasks.filter(assigned_to=request.user)
-            
+        
         serializer = TaskLocationSerializer(tasks, many=True)
         return Response(serializer.data)
     

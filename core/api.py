@@ -137,8 +137,8 @@ def driver_locations_api(request):
         #     return Response(cached_data)
         
         # Оптимизированный запрос с select_related для уменьшения количества SQL запросов
-        if user.role in ['SUPERADMIN', 'ADMIN'] or user.is_superuser:
-            # Для админов - показываем только последние локации каждого водителя (последние 30 минут)
+        if user.role in ['SUPERADMIN', 'ADMIN', 'DIRECTOR', 'DISPATCHER'] or user.is_superuser:
+            # Для админов, директоров и диспетчеров - показываем только последние локации каждого водителя (последние 30 минут)
             thirty_minutes_ago = timezone.now() - timedelta(minutes=30)
             all_locations = DriverLocation.objects.select_related('driver').filter(
                 timestamp__gte=thirty_minutes_ago
