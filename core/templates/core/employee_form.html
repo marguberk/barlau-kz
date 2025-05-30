@@ -326,14 +326,14 @@
                         {% endif %}
                     </div>
                     <div class="flex space-x-3">
-                        <a href="{% url 'core:employees' %}" 
-                           class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
-                            Отмена
-                        </a>
-                        <button type="submit" 
-                                class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                            {% if is_new %}Создать{% else %}Сохранить{% endif %}
-                        </button>
+                    <a href="{% url 'core:employees' %}" 
+                       class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
+                        Отмена
+                    </a>
+                    <button type="submit" 
+                            class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                        {% if is_new %}Создать{% else %}Сохранить{% endif %}
+                    </button>
                     </div>
                 </div>
                 

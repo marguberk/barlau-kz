@@ -267,43 +267,43 @@
                 </div>
                 
                 <!-- Фото профиля -->
-                {% if employee.photo %}
-                <img src="{{ employee.photo.url }}" alt="{{ employee.get_full_name }}" class="profile-image">
+            {% if employee.photo %}
+            <img src="{{ employee.photo.url }}" alt="{{ employee.get_full_name }}" class="profile-image">
                 {% else %}
                 <div class="profile-placeholder">
                     {{ employee.first_name|first }}{{ employee.last_name|first }}
                 </div>
-                {% endif %}
-                
+            {% endif %}
+            
                 <!-- Контактная информация -->
-                <div class="sidebar-section">
-                    <h2 class="sidebar-title">Контактная информация</h2>
+            <div class="sidebar-section">
+                <h2 class="sidebar-title">Контактная информация</h2>
                     
                     {% if employee.email %}
-                    <div class="contact-item">
-                        <div class="contact-icon">
+                <div class="contact-item">
+                    <div class="contact-icon">
                             <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M6 8L10.2111 10.1056C11.3373 10.6686 12.6627 10.6686 13.7889 10.1056L18 8M6 19H18C19.6569 19 21 17.6569 21 16V8C21 6.34315 19.6569 5 18 5H6C4.34315 5 3 6.34315 3 8V16C3 17.6569 4.34315 19 6 19Z" stroke="rgba(255,255,255,0.9)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                             </svg>
-                        </div>
-                        <div class="contact-text">{{ employee.email }}</div>
                     </div>
+                    <div class="contact-text">{{ employee.email }}</div>
+                </div>
                     {% endif %}
                     
                     {% if employee.phone %}
-                    <div class="contact-item">
-                        <div class="contact-icon">
+                <div class="contact-item">
+                    <div class="contact-icon">
                             <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M11.7925 14.742L9.25195 12.2057C8.43422 11.3893 8.43422 10.0657 9.25195 9.24935C9.98275 8.51977 10.071 7.36701 9.45987 6.53498L7.37385 3.69514C6.75631 2.85444 5.53346 2.76108 4.79506 3.49826C3.67086 4.62058 2.91814 6.10588 3.00713 7.6906C3.44184 15.4326 9.49836 20.6079 16.3476 20.993C17.9183 21.0813 19.3811 20.3229 20.4935 19.2123C21.2429 18.4642 21.148 17.2252 20.2933 16.5995L17.4726 14.5344C16.6392 13.9242 15.4845 14.0124 14.7537 14.742C13.936 15.5583 12.6102 15.5583 11.7925 14.742Z" stroke="rgba(255,255,255,0.9)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                             </svg>
-                        </div>
-                        <div class="contact-text">{{ employee.phone }}</div>
                     </div>
+                    <div class="contact-text">{{ employee.phone }}</div>
+                </div>
                     {% endif %}
                     
                     {% if employee.location %}
-                    <div class="contact-item">
-                        <div class="contact-icon">
+                <div class="contact-item">
+                    <div class="contact-icon">
                             <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M5 8.91995C5 12.6683 6.34786 14.6401 11.173 21.5716C11.5706 22.1428 12.4294 22.1428 12.827 21.5716C17.6521 14.6401 19 12.6683 19 8.91995C19 5.09817 15.866 2 12 2C8.13401 2 5 5.09817 5 8.91995Z" stroke="rgba(255,255,255,0.9)" stroke-width="2" stroke-linejoin="round"/>
                                 <path d="M13 9C13 8.44772 12.5523 8 12 8C11.4477 8 11 8.44772 11 9C11 9.55228 11.4477 10 12 10C12.5523 10 13 9.55228 13 9ZM15 9C15 10.6569 13.6569 12 12 12C10.3431 12 9 10.6569 9 9C9 7.34315 10.3431 6 12 6C13.6569 6 15 7.34315 15 9Z" fill="rgba(255,255,255,0.9)"/>
@@ -312,38 +312,38 @@
                         <div class="contact-text">{{ employee.location|default:"Алматы, Казахстан" }}</div>
                     </div>
                     {% endif %}
-                </div>
-                
+            </div>
+            
                 <!-- Языки -->
-                <div class="sidebar-section">
-                    <h2 class="sidebar-title">Языки</h2>
-                    {% if employee.languages %}
-                        {% for language in employee.languages|split_lines %}
-                            {% if language %}
-                            <div class="language-item">{{ language }}</div>
-                            {% endif %}
-                        {% endfor %}
-                    {% else %}
+            <div class="sidebar-section">
+                <h2 class="sidebar-title">Языки</h2>
+                {% if employee.languages %}
+                    {% for language in employee.languages|split_lines %}
+                        {% if language %}
+                        <div class="language-item">{{ language }}</div>
+                        {% endif %}
+                    {% endfor %}
+                {% else %}
                     <div class="language-item">Казахский (родной)</div>
                     <div class="language-item">Русский (свободно)</div>
-                    {% endif %}
-                </div>
-                
+                {% endif %}
+            </div>
+            
                 <!-- Хобби и интересы -->
-                <div class="sidebar-section">
-                    <h2 class="sidebar-title">Хобби и интересы</h2>
-                    {% if employee.hobbies %}
-                        {% for hobby in employee.hobbies|split_lines %}
-                            {% if hobby %}
-                            <div class="hobby-item">{{ hobby }}</div>
-                            {% endif %}
-                        {% endfor %}
-                    {% else %}
+            <div class="sidebar-section">
+                <h2 class="sidebar-title">Хобби и интересы</h2>
+                {% if employee.hobbies %}
+                    {% for hobby in employee.hobbies|split_lines %}
+                        {% if hobby %}
+                        <div class="hobby-item">{{ hobby }}</div>
+                        {% endif %}
+                    {% endfor %}
+                {% else %}
                     <div class="hobby-item">Ремонт автомобилей</div>
                     <div class="hobby-item">Рыбалка</div>
                     <div class="hobby-item">Слесарное дело</div>
                     <div class="hobby-item">Изобретательство</div>
-                    {% endif %}
+                {% endif %}
                 </div>
             </div>
         </div>
