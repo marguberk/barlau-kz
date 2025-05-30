@@ -50,14 +50,15 @@
     <!-- Основной контент -->
     <div class="ml-64 flex-1 min-h-screen bg-gray-50 main-content">
         <!-- Верхняя панель -->
-        <div class="w-full h-20 px-8 py-5 bg-white flex justify-between items-center">
+        <div class="w-full h-20 px-8 py-5 bg-white flex justify-between items-center mobile-header">
             <div class="flex items-center gap-4">
                 <a href="{% url 'core:trucks' %}" class="text-gray-500 hover:text-gray-700">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
                     </svg>
                 </a>
-                <div class="justify-start text-zinc-950 text-2xl font-semibold leading-loose">{{ truck.brand }} {{ truck.model }} ({{ truck.number }})</div>
+                <div class="justify-start text-zinc-950 text-2xl font-semibold leading-loose mobile-title">{{ truck.brand }} {{ truck.model }}</div>
+                <div class="hidden lg:block justify-start text-zinc-950 text-2xl font-semibold leading-loose">({{ truck.number }})</div>
             </div>
             <div class="flex justify-start items-center gap-3">
                 <div class="flex justify-start items-start gap-2">
@@ -95,18 +96,45 @@
         </div>
 
         <!-- Основная информация -->
-        <div class="p-8">
+        <div class="p-8 mobile-content">
             <div class="bg-white rounded-2xl border border-zinc-200 overflow-hidden">
-                <div class="p-8">
-                    <div class="flex items-start gap-8">
+                <div class="p-8 mobile-padding">
+                    <!-- Фотографии в начале для мобильных -->
+                    <div class="block lg:hidden mb-8">
+                        <div class="w-full">
+                            {% with main=truck.photos.first %}
+                            {% if main %}
+                                <div class="w-full aspect-video rounded-xl overflow-hidden mb-4">
+                                    <img src="{{ main.photo.url }}" alt="Основное фото" class="w-full h-full object-cover">
+                                </div>
+                            {% else %}
+                                <div class="w-full aspect-video rounded-xl overflow-hidden mb-4 bg-gray-100 flex items-center justify-center">
+                                    <img src="{% static 'core/img/truck-side.png' %}" alt="Truck" class="object-contain opacity-50 w-48 h-18">
+                                </div>
+                            {% endif %}
+                            {% endwith %}
+                        </div>
+
+                        {% if truck.photos.count > 1 %}
+                        <div class="grid grid-cols-3 gap-2">
+                            {% for photo in truck.photos.all|slice:"1:4" %}
+                            <div class="aspect-square rounded-lg overflow-hidden">
+                                <img src="{{ photo.photo.url }}" alt="Фото {{ forloop.counter }}" class="w-full h-full object-cover">
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="flex items-start gap-8 mobile-flex">
                         <!-- Основная информация -->
                         <div class="flex-1">
                             <div class="mb-6">
                                 <p class="text-sm text-gray-500 mb-1">Государственный номер</p>
-                                <h2 class="text-3xl font-semibold text-zinc-950">{{ truck.number }}</h2>
+                                <h2 class="text-3xl font-semibold text-zinc-950 mobile-h2">{{ truck.number }}</h2>
                             </div>
                             
-                            <div class="grid grid-cols-2 gap-6 mb-8">
+                            <div class="grid grid-cols-2 gap-6 mb-8 mobile-grid">
                                 <div>
                                     <p class="text-sm text-gray-500 mb-1">Статус</p>
                                     <p class="text-base text-zinc-950">{{ truck.get_status_display }}</p>
@@ -130,18 +158,18 @@
                             <!-- Технические характеристики -->
                             <div class="border-t border-zinc-200 pt-8">
                                 <h3 class="text-lg font-semibold text-zinc-950 mb-6">Технические характеристики</h3>
-                                <div class="grid grid-cols-2 gap-6">
+                                <div class="grid grid-cols-2 gap-6 mobile-tech-grid">
                                     <div>
                                         <p class="text-sm text-gray-500 mb-1">VIN номер</p>
-                                        <p class="text-base text-zinc-950 font-mono">{{ truck.vin_number|default:'—' }}</p>
+                                        <p class="text-base text-zinc-950 font-mono mobile-mono">{{ truck.vin_number|default:'—' }}</p>
                                     </div>
                                     <div>
                                         <p class="text-sm text-gray-500 mb-1">Номер двигателя</p>
-                                        <p class="text-base text-zinc-950 font-mono">{{ truck.engine_number|default:'—' }}</p>
+                                        <p class="text-base text-zinc-950 font-mono mobile-mono">{{ truck.engine_number|default:'—' }}</p>
                                     </div>
                                     <div>
                                         <p class="text-sm text-gray-500 mb-1">Номер шасси</p>
-                                        <p class="text-base text-zinc-950 font-mono">{{ truck.chassis_number|default:'—' }}</p>
+                                        <p class="text-base text-zinc-950 font-mono mobile-mono">{{ truck.chassis_number|default:'—' }}</p>
                                     </div>
                                     <div>
                                         <p class="text-sm text-gray-500 mb-1">Объем двигателя</p>
@@ -167,8 +195,8 @@
                             </div>
                         </div>
 
-                        <!-- Фотографии -->
-                        <div class="w-96">
+                        <!-- Фотографии для десктопа -->
+                        <div class="w-96 hidden lg:block desktop-photos">
                             <div class="w-[400px] h-[150px]">
                                 {% with main=truck.photos.first %}
                                 {% if main %}
@@ -306,6 +334,87 @@
     
     .main-content {
         padding-bottom: 120px !important;
+    }
+    
+    /* Мобильная адаптация заголовка */
+    .mobile-header {
+        padding: 12px 16px !important;
+        height: auto !important;
+        min-height: 60px;
+    }
+    
+    .mobile-title {
+        font-size: 18px !important;
+        line-height: 1.2 !important;
+        font-weight: 600 !important;
+    }
+    
+    /* Контент */
+    .mobile-content {
+        padding: 16px !important;
+    }
+    
+    .mobile-padding {
+        padding: 20px !important;
+    }
+    
+    .mobile-flex {
+        flex-direction: column !important;
+        gap: 0 !important;
+    }
+    
+    .mobile-h2 {
+        font-size: 28px !important;
+        line-height: 1.2 !important;
+    }
+    
+    /* Сетки */
+    .mobile-grid {
+        grid-template-columns: 1fr !important;
+        gap: 16px !important;
+        margin-bottom: 24px !important;
+    }
+    
+    .mobile-tech-grid {
+        grid-template-columns: 1fr !important;
+        gap: 16px !important;
+    }
+    
+    .mobile-mono {
+        font-size: 14px !important;
+        word-break: break-all !important;
+    }
+    
+    /* Фото раздел */
+    .desktop-photos {
+        display: none !important;
+    }
+}
+
+/* Адаптация для очень маленьких экранов */
+@media (max-width: 480px) {
+    .mobile-header {
+        padding: 8px 12px !important;
+    }
+    
+    .mobile-title {
+        font-size: 16px !important;
+    }
+    
+    .mobile-content {
+        padding: 12px !important;
+    }
+    
+    .mobile-padding {
+        padding: 16px !important;
+    }
+    
+    .mobile-h2 {
+        font-size: 24px !important;
+    }
+    
+    .mobile-mono {
+        font-size: 12px !important;
     }
 }
 
