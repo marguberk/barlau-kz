@@ -133,22 +133,8 @@
         {% if request.user.role != 'DRIVER' %}
         <div class="w-full px-8 pt-4 flex justify-start items-start gap-4 finance-tasks">
             <!-- Финансовая отчетность -->
-            <div class="w-2/3 bg-white rounded-2xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex flex-col justify-start items-start overflow-hidden finance-report-card">
-                <!-- Мобильная версия заголовка с иконкой -->
-                <div class="mobile-finance-header hidden">
-                    <div class="flex items-center gap-3 mb-4">
-                        <div class="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M12 2L3 7V17C3 19.21 4.79 21 7 21H17C19.21 21 21 19.21 21 17V7L12 2Z" fill="#8B5CF6" stroke="#8B5CF6" stroke-width="2" stroke-linejoin="round"/>
-                                <path d="M8 11H16M8 15H13" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
-                            </svg>
-                        </div>
-                        <h2 class="text-xl font-semibold text-gray-900">Финансовая отчетность</h2>
-                    </div>
-                </div>
-
-                <!-- Десктопная версия заголовка -->
-                <div class="desktop-finance-header flex justify-between items-center w-full px-8 pt-5">
+            <div class="w-2/3 bg-white rounded-2xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex flex-col justify-start items-start overflow-hidden">
+                <div class="flex justify-between items-center w-full px-8 pt-5">
                     <h2 class="text-[18px] font-medium text-zinc-900">Финансовая отчетность</h2>
                     <div class="flex gap-4 items-center">
                         <button class="inline-flex items-center justify-center rounded-[6px] outline-offset-2 transition-all focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 text-[14px] font-semibold h-9 px-3 border border-slate-300 hover:bg-zinc-50 text-zinc-800">
@@ -171,23 +157,7 @@
                         </button>
                     </div>
                 </div>
-
-                <!-- Мобильная версия основной суммы -->
-                <div class="mobile-finance-summary hidden">
-                    <div class="flex items-baseline gap-3 mb-6">
-                        <span class="text-3xl font-bold text-gray-900">$23,569</span>
-                        <div class="flex items-center gap-1">
-                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M7 3L10 7H4L7 3Z" fill="#10B981"/>
-                            </svg>
-                            <span class="text-sm font-medium text-green-500">10,5%</span>
-                            <span class="text-sm text-gray-500 ml-1">с прошлого месяца</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Десктопная версия с легендой и цифрами -->
-                <div class="desktop-finance-data flex justify-between items-start w-full px-8 pt-6">
+                <div class="flex justify-between items-start w-full px-8 pt-6">
                     <div class="flex flex-col gap-4">
                         <div class="flex items-center gap-2">
                             <span class="inline-block w-[10px] h-[10px] rounded-full bg-[#3B82F6]"></span>
@@ -211,71 +181,51 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- Мобильная версия легенды -->
-                <div class="mobile-finance-legend hidden">
-                    <div class="flex gap-6 mb-4">
-                        <div class="flex items-center gap-2">
-                            <div class="w-3 h-3 rounded-sm bg-blue-600"></div>
-                            <span class="text-sm text-gray-600">Этот месяц</span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <div class="w-3 h-3 rounded-sm bg-sky-400"></div>
-                            <span class="text-sm text-gray-600">Прошлый месяц</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- График -->
-                <div class="finance-chart-wrapper">
-                    <div class="mt-2 w-full px-6 py-2 h-[250px] finance-chart-container relative">
-                        <!-- Финансовый график -->
-                        <svg id="financial-chart" width="100%" height="100%" viewBox="0 0 688 240" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <!-- Горизонтальные линии сетки -->
-                            <line x1="0" y1="0" x2="688" y2="0" stroke="#E5E7EB" stroke-dasharray="4 4" />
-                            <line x1="0" y1="40" x2="688" y2="40" stroke="#E5E7EB" stroke-dasharray="4 4" />
-                            <line x1="0" y1="80" x2="688" y2="80" stroke="#E5E7EB" stroke-dasharray="4 4" />
-                            <line x1="0" y1="120" x2="688" y2="120" stroke="#E5E7EB" stroke-dasharray="4 4" />
-                            <line x1="0" y1="160" x2="688" y2="160" stroke="#E5E7EB" stroke-dasharray="4 4" />
-                            <line x1="0" y1="200" x2="688" y2="200" stroke="#E5E7EB" stroke-dasharray="4 4" />
-                            <line x1="0" y1="240" x2="688" y2="240" stroke="#E5E7EB" stroke-dasharray="4 4" />
-                            
-                            <!-- Подписи по оси X (даты) -->
-                            <text x="0" y="260" font-size="12" fill="#6B7280">1.06</text>
-                            <text x="115" y="260" font-size="12" fill="#6B7280">5.06</text>
-                            <text x="229" y="260" font-size="12" fill="#6B7280">10.06</text>
-                            <text x="344" y="260" font-size="12" fill="#6B7280">15.06</text>
-                            <text x="459" y="260" font-size="12" fill="#6B7280">20.06</text>
-                            <text x="573" y="260" font-size="12" fill="#6B7280">25.06</text>
-                            <text x="688" y="260" font-size="12" fill="#6B7280">30.06</text>
-                            
-                            <!-- График прошлого месяца (пунктирная линия) -->
-                            <path d="M0,140 C40,100 80,180 115,170 C150,160 200,130 229,120 C260,110 300,140 344,90 C380,50 420,70 459,80 C500,90 540,60 573,40 C610,20 650,30 688,10" stroke="#93C5FD" stroke-width="2" stroke-dasharray="3 3" fill="none" />
-                            
-                            <!-- График текущего месяца (сплошная линия) -->
-                            <path d="M0,160 C40,140 80,150 115,120 C150,90 200,110 229,80 C260,50 300,60 344,40 C380,30 420,50 459,70 C500,85 540,60 573,50 C610,40 650,30 688,20" stroke="#2563EB" stroke-width="3" fill="none" />
-                            
-                            <!-- Интерактивные точки на линии текущего месяца -->
-                            <circle cx="0" cy="160" r="4" class="graph-point" fill="#2563EB" data-date="1 июня" data-value="120 000" />
-                            <circle cx="115" cy="120" r="4" class="graph-point" fill="#2563EB" data-date="5 июня" data-value="135 000" />
-                            <circle cx="229" cy="80" r="4" class="graph-point" fill="#2563EB" data-date="10 июня" data-value="148 000" />
-                            <circle cx="344" cy="40" r="4" class="graph-point" fill="#2563EB" data-date="15 июня" data-value="162 000" />
-                            <circle cx="459" cy="70" r="4" class="graph-point" fill="#2563EB" data-date="20 июня" data-value="156 000" />
-                            <circle cx="573" cy="50" r="4" class="graph-point" fill="#2563EB" data-date="25 июня" data-value="160 000" />
-                            <circle cx="688" cy="20" r="4" class="graph-point" fill="#2563EB" data-date="30 июня" data-value="170 000" />
-                        </svg>
+                <div class="mt-2 w-full px-6 py-2 h-[250px] finance-chart-container relative">
+                    <!-- Финансовый график -->
+                    <svg id="financial-chart" width="100%" height="100%" viewBox="0 0 688 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Горизонтальные линии сетки -->
+                        <line x1="0" y1="0" x2="688" y2="0" stroke="#E5E7EB" stroke-dasharray="4 4" />
+                        <line x1="0" y1="40" x2="688" y2="40" stroke="#E5E7EB" stroke-dasharray="4 4" />
+                        <line x1="0" y1="80" x2="688" y2="80" stroke="#E5E7EB" stroke-dasharray="4 4" />
+                        <line x1="0" y1="120" x2="688" y2="120" stroke="#E5E7EB" stroke-dasharray="4 4" />
+                        <line x1="0" y1="160" x2="688" y2="160" stroke="#E5E7EB" stroke-dasharray="4 4" />
+                        <line x1="0" y1="200" x2="688" y2="200" stroke="#E5E7EB" stroke-dasharray="4 4" />
+                        <line x1="0" y1="240" x2="688" y2="240" stroke="#E5E7EB" stroke-dasharray="4 4" />
                         
-                        <!-- Тултип для мобильной версии -->
-                        <div id="mobile-chart-tooltip" class="absolute hidden bg-white shadow-lg rounded-lg px-3 py-2 border border-gray-200 z-20 pointer-events-none">
-                            <div class="text-xs font-medium text-gray-900" id="mobile-tooltip-date">Mar 12, 2025</div>
-                            <div class="text-sm font-bold text-blue-600" id="mobile-tooltip-value">$18.5K</div>
+                        <!-- Подписи по оси X (даты) -->
+                        <text x="0" y="260" font-size="12" fill="#6B7280">1.06</text>
+                        <text x="115" y="260" font-size="12" fill="#6B7280">5.06</text>
+                        <text x="229" y="260" font-size="12" fill="#6B7280">10.06</text>
+                        <text x="344" y="260" font-size="12" fill="#6B7280">15.06</text>
+                        <text x="459" y="260" font-size="12" fill="#6B7280">20.06</text>
+                        <text x="573" y="260" font-size="12" fill="#6B7280">25.06</text>
+                        <text x="688" y="260" font-size="12" fill="#6B7280">30.06</text>
+                        
+                        <!-- График прошлого месяца -->
+                        <path d="M0,140 C40,100 80,180 115,170 C150,160 200,130 229,120 C260,110 300,140 344,90 C380,50 420,70 459,80 C500,90 540,60 573,40 C610,20 650,30 688,10" stroke="#9CA3AF" stroke-width="2" fill="none" />
+                        
+                        <!-- График текущего месяца -->
+                        <path d="M0,160 C40,140 80,150 115,120 C150,90 200,110 229,80 C260,50 300,60 344,40 C380,30 420,50 459,70 C500,85 540,60 573,50 C610,40 650,30 688,20" stroke="#3B82F6" stroke-width="2" fill="none" />
+                        
+                        <!-- Интерактивные точки на линии текущего месяца -->
+                        <circle cx="0" cy="160" r="3" class="graph-point" fill="#3B82F6" data-date="1 июня" data-value="120 000" />
+                        <circle cx="115" cy="120" r="3" class="graph-point" fill="#3B82F6" data-date="5 июня" data-value="135 000" />
+                        <circle cx="229" cy="80" r="3" class="graph-point" fill="#3B82F6" data-date="10 июня" data-value="148 000" />
+                        <circle cx="344" cy="40" r="3" class="graph-point" fill="#3B82F6" data-date="15 июня" data-value="162 000" />
+                        <circle cx="459" cy="70" r="3" class="graph-point" fill="#3B82F6" data-date="20 июня" data-value="156 000" />
+                        <circle cx="573" cy="50" r="3" class="graph-point" fill="#3B82F6" data-date="25 июня" data-value="160 000" />
+                        <circle cx="688" cy="20" r="3" class="graph-point" fill="#3B82F6" data-date="30 июня" data-value="170 000" />
+                        
+                        <!-- Всплывающая подсказка для точек графика -->
+                        <div id="chart-tooltip" class="absolute hidden bg-white shadow-lg rounded-lg p-2 border border-gray-200 z-10 pointer-events-none transform -translate-x-1/2 -translate-y-full">
+                            <div class="text-sm font-medium text-gray-900" id="tooltip-date">Дата</div>
+                            <div class="text-sm text-gray-600" id="tooltip-value">Значение</div>
                         </div>
-                    </div>
+                    </svg>
                 </div>
-
                 {% if request.user.is_authenticated %}
-                <!-- Десктопная версия нижней части -->
-                <div class="desktop-finance-footer self-stretch p-5 flex justify-start items-baseline gap-2">
+                <div class="self-stretch p-5 flex justify-start items-baseline gap-2">
                     <div class="justify-start text-zinc-950 text-2xl font-semibold leading-loose">$23,569.00</div>
                     <div class="flex-1 flex justify-start items-center gap-1.5">
                         <div class="flex justify-start items-center gap-0.5">
@@ -1141,9 +1091,41 @@
             width: 100% !important;
         }
         
-
+        /* ПЛАНШЕТНАЯ АДАПТАЦИЯ ФИНАНСОВОГО ГРАФИКА */
         
-
+        /* Контейнер финансового графика для планшетов */
+        .finance-chart-container {
+            height: 220px !important;
+            padding: 12px !important;
+        }
+        
+        /* SVG график на планшетах */
+        #financial-chart {
+            height: 220px !important;
+            viewBox: "0 0 500 200" !important;
+        }
+        
+        /* Подписи дат на планшетах */
+        #financial-chart text {
+            font-size: 11px !important;
+        }
+        
+        /* Заголовок и селекторы на планшетах */
+        .finance-tasks .w-2\/3 .flex.justify-between {
+            flex-wrap: wrap !important;
+            gap: 8px !important;
+        }
+        
+        /* Легенда и показатели на планшетах */
+        .finance-tasks .flex.justify-between.items-start {
+            flex-wrap: wrap !important;
+            gap: 12px !important;
+        }
+        
+        /* Показатели доходов/расходов на планшетах */
+        .finance-tasks .flex.gap-10 {
+            gap: 20px !important;
+        }
         
         /* Нижнее меню */
         .fixed.bottom-0 {
@@ -1225,88 +1207,120 @@
             font-size: 2rem !important;
         }
         
+        /* МОБИЛЬНАЯ АДАПТАЦИЯ ФИНАНСОВОГО ГРАФИКА */
+        
+        /* Контейнер финансового графика */
+        .finance-chart-container {
+            height: 180px !important; /* Уменьшаем высоту на мобильных */
+            padding: 8px !important; /* Уменьшаем внутренние отступы */
+            margin-top: 8px !important;
+        }
+        
+        /* SVG график на мобильных */
+        #financial-chart {
+            width: 100% !important;
+            height: 180px !important;
+            viewBox: "0 0 320 160" !important; /* Адаптируем размер под мобильный */
+        }
+        
+        /* Уменьшаем размер текста подписей дат */
+        #financial-chart text {
+            font-size: 10px !important;
+            fill: #9CA3AF !important;
+        }
+        
+        /* Адаптируем заголовок финансовой отчетности */
+        .finance-tasks .w-2\/3 .flex.justify-between {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 12px !important;
+        }
+        
+        /* Селекторы месяца и года на мобильных */
+        .finance-tasks .flex.gap-4.items-center {
+            gap: 8px !important;
+        }
+        
+        .finance-tasks .flex.gap-4.items-center button {
+            font-size: 12px !important;
+            padding: 6px 8px !important;
+            height: auto !important;
+        }
+        
+        /* Легенда и показатели доходов/расходов */
+        .finance-tasks .flex.justify-between.items-start {
+            flex-direction: column !important;
+            gap: 16px !important;
+        }
+        
+        /* Показатели доходов и расходов */
+        .finance-tasks .flex.gap-10 {
+            gap: 24px !important;
+            align-self: stretch !important;
+            justify-content: space-between !important;
+        }
+        
+        .finance-tasks .flex.gap-10 .flex.flex-col span {
+            font-size: 12px !important;
+        }
+        
+        .finance-tasks .flex.gap-10 .flex.flex-col .text-\[24px\] {
+            font-size: 18px !important;
+        }
+        
+        /* Итоговая сумма внизу */
+        .finance-tasks .self-stretch.p-5.flex.justify-start.items-baseline {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 8px !important;
+            padding: 16px !important;
+        }
+        
+        .finance-tasks .self-stretch.p-5.flex.justify-start.items-baseline .text-2xl {
+            font-size: 20px !important;
+        }
+        
+        /* Сравнение с прошлым месяцем */
+        .finance-tasks .flex-1.flex.justify-start.items-center .text-sm {
+            font-size: 11px !important;
+        }
+        
+        /* Легенда "Этот месяц / Прошлый месяц" */
+        .finance-tasks .flex.justify-start.items-baseline.gap-3 {
+            gap: 12px !important;
+        }
+        
+        .finance-tasks .flex.justify-start.items-baseline.gap-3 .text-sm {
+            font-size: 11px !important;
+        }
+        
+        /* Адаптируем интерактивные точки графика */
+        .graph-point {
+            r: 2 !important; /* Уменьшаем размер точек */
+        }
+        
+        /* Всплывающая подсказка на мобильных */
+        #chart-tooltip {
+            font-size: 11px !important;
+            padding: 6px 8px !important;
+        }
+        
         /* Уменьшаем размер графика */
         .self-stretch.p-5.h-48 {
             height: auto !important;
             min-height: 200px !important;
         }
         
-        /* === МОБИЛЬНАЯ АДАПТАЦИЯ ФИНАНСОВОГО ГРАФИКА === */
-        
-        /* Карточка финансовой отчетности */
-        .finance-report-card {
-            padding: 20px !important;
-            margin-bottom: 16px !important;
-        }
-        
-        /* Скрываем десктопные элементы */
-        .desktop-finance-header,
-        .desktop-finance-data,
-        .desktop-finance-footer {
-            display: none !important;
-        }
-        
-        /* Показываем мобильные элементы */
-        .mobile-finance-header,
-        .mobile-finance-summary,
-        .mobile-finance-legend {
-            display: block !important;
-        }
-        
-        /* Контейнер графика */
-        .finance-chart-wrapper {
-            margin-top: 0 !important;
-        }
-        
-        .finance-chart-container {
-            height: 200px !important;
-            padding: 0 !important;
-            margin-top: 0 !important;
-        }
-        
-        /* SVG график адаптация */
-        #financial-chart {
-            height: 200px !important;
-        }
-        
-        /* Увеличиваем размер точек для лучшего touch взаимодействия */
-        .graph-point {
-            r: 6 !important;
-            cursor: pointer;
-        }
-        
-        /* Улучшенный тултип для мобильных */
-        #mobile-chart-tooltip {
-            font-size: 14px !important;
-            padding: 8px 12px !important;
-            border-radius: 8px !important;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.15) !important;
-        }
-        
-        #mobile-tooltip-date {
-            font-size: 12px !important;
-            margin-bottom: 2px !important;
-        }
-        
-        #mobile-tooltip-value {
-            font-size: 16px !important;
-            font-weight: 700 !important;
-        }
-        
-        /* Подписи дат на оси X - уменьшаем размер */
-        #financial-chart text {
-            font-size: 10px !important;
-        }
-        
-        /* Линии графика - делаем толще для мобильных */
-        #financial-chart path {
-            stroke-width: 3 !important;
-        }
-        
-        /* Сетка - делаем менее заметной */
-        #financial-chart line {
-            stroke-width: 0.5 !important;
-            opacity: 0.3 !important;
+        /* Специальные стили для горизонтального скролла графика на очень маленьких экранах */
+        @media (max-width: 375px) {
+            .finance-chart-container {
+                overflow-x: auto !important;
+                padding-bottom: 16px !important;
+            }
+            
+            #financial-chart {
+                min-width: 300px !important;
+            }
         }
     }
     
@@ -1404,103 +1418,6 @@
         to {
             opacity: 1;
             transform: translateY(0);
-        }
-    }
-
-    /* Сетка - делаем менее заметной */
-    #financial-chart line {
-        stroke-width: 0.5 !important;
-        opacity: 0.3 !important;
-    }
-
-    /* === ПЛАНШЕТНАЯ АДАПТАЦИЯ ФИНАНСОВОГО ГРАФИКА (641px - 1100px) === */
-    @media (min-width: 641px) and (max-width: 1100px) {
-        /* Карточка финансовой отчетности для планшетов */
-        .finance-report-card {
-            padding: 24px !important;
-        }
-        
-        /* На планшетах показываем упрощенную десктопную версию */
-        .desktop-finance-header {
-            display: flex !important;
-            padding: 16px 24px !important;
-        }
-        
-        .desktop-finance-header h2 {
-            font-size: 16px !important;
-        }
-        
-        .desktop-finance-header button {
-            height: 32px !important;
-            padding: 0 12px !important;
-            font-size: 12px !important;
-        }
-        
-        /* Скрываем детальные данные, оставляем только легенду */
-        .desktop-finance-data {
-            display: flex !important;
-            padding: 12px 24px !important;
-        }
-        
-        .desktop-finance-data > div:last-child {
-            display: none !important; /* Скрываем доходы/расходы */
-        }
-        
-        .desktop-finance-data > div:first-child {
-            gap: 16px !important;
-        }
-        
-        .desktop-finance-data span {
-            font-size: 12px !important;
-        }
-        
-        /* Скрываем мобильные элементы */
-        .mobile-finance-header,
-        .mobile-finance-summary,
-        .mobile-finance-legend {
-            display: none !important;
-        }
-        
-        /* Контейнер графика для планшетов */
-        .finance-chart-container {
-            height: 220px !important;
-            padding: 0 12px !important;
-        }
-        
-        /* График для планшетов */
-        #financial-chart {
-            height: 220px !important;
-        }
-        
-        /* Показываем упрощенную нижнюю часть */
-        .desktop-finance-footer {
-            display: flex !important;
-            padding: 16px 24px !important;
-        }
-        
-        .desktop-finance-footer .text-2xl {
-            font-size: 20px !important;
-        }
-        
-        .desktop-finance-footer .text-sm {
-            font-size: 11px !important;
-        }
-        
-        .desktop-finance-footer .w-3.5 {
-            width: 12px !important;
-            height: 12px !important;
-        }
-        
-        /* Точки на планшетах */
-        .graph-point {
-            r: 5 !important;
-            cursor: pointer;
-        }
-        
-        /* Тултип для планшетов */
-        #chart-tooltip {
-            font-size: 13px !important;
-            padding: 6px 10px !important;
         }
     }
 </style>
@@ -1805,154 +1722,115 @@
         // Получаем все точки графика
         const points = document.querySelectorAll('.graph-point');
         const tooltip = document.getElementById('chart-tooltip');
-        const mobileTooltip = document.getElementById('mobile-chart-tooltip');
+        const chart = document.getElementById('financial-chart');
         
-        // Если нет точек, завершаем выполнение
-        if (!points.length) return;
+        // Если нет точек или подсказки, завершаем выполнение
+        if (!points.length || !tooltip || !chart) return;
         
-        // Определяем, мобильная ли это версия
-        const isMobile = window.innerWidth <= 640;
-        const currentTooltip = isMobile ? mobileTooltip : tooltip;
+        // Адаптивная настройка размера SVG в зависимости от экрана
+        function updateChartSize() {
+            const container = chart.closest('.finance-chart-container');
+            if (!container) return;
+            
+            const containerWidth = container.offsetWidth;
+            const windowWidth = window.innerWidth;
+            
+            if (windowWidth <= 640) {
+                // Мобильные устройства
+                chart.setAttribute('height', '180');
+                chart.setAttribute('viewBox', `0 0 ${Math.max(320, containerWidth - 16)} 160`);
+                // Обновляем размер точек для мобильных
+                points.forEach(point => {
+                    point.setAttribute('r', '2');
+                });
+            } else if (windowWidth <= 1100) {
+                // Планшеты
+                chart.setAttribute('height', '220');
+                chart.setAttribute('viewBox', `0 0 ${Math.max(500, containerWidth - 24)} 200`);
+                // Обновляем размер точек для планшетов
+                points.forEach(point => {
+                    point.setAttribute('r', '2.5');
+                });
+            } else {
+                // Десктоп
+                chart.setAttribute('height', '250');
+                chart.setAttribute('viewBox', `0 0 ${Math.max(688, containerWidth)} 240`);
+                // Обновляем размер точек для десктопа
+                points.forEach(point => {
+                    point.setAttribute('r', '3');
+                });
+            }
+        }
         
-        if (!currentTooltip) return;
+        // Первоначальная настройка размера
+        updateChartSize();
+        
+        // Обновляем размер при изменении окна
+        let resizeTimeout;
+        window.addEventListener('resize', function() {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(updateChartSize, 100);
+        });
         
         // Добавляем обработчики для каждой точки
         points.forEach(point => {
-            // Mouse события для десктопа
             point.addEventListener('mouseenter', function(e) {
-                if (isMobile) return; // Не обрабатываем mouse события на мобильных
+                // Получаем данные из атрибутов
+                const date = this.getAttribute('data-date');
+                const value = this.getAttribute('data-value');
                 
-                showTooltip(this, currentTooltip, false);
+                // Заполняем подсказку
+                document.getElementById('tooltip-date').textContent = date;
+                document.getElementById('tooltip-value').textContent = value;
+                
+                // Позиционируем подсказку
+                const rect = this.getBoundingClientRect();
+                const chartRect = chart.getBoundingClientRect();
+                
+                // Адаптивное позиционирование подсказки
+                const windowWidth = window.innerWidth;
+                let tooltipLeft, tooltipTop;
+                
+                if (windowWidth <= 640) {
+                    // На мобильных размещаем подсказку сбоку или снизу
+                    tooltipLeft = Math.min(rect.left, window.innerWidth - tooltip.offsetWidth - 10);
+                    tooltipTop = rect.top - tooltip.offsetHeight - 5;
+                    
+                    // Если не помещается сверху, размещаем снизу
+                    if (tooltipTop < 0) {
+                        tooltipTop = rect.bottom + 5;
+                    }
+                } else {
+                    // На планшетах и десктопе размещаем как обычно
+                    tooltipLeft = rect.left - tooltip.offsetWidth / 2;
+                    tooltipTop = rect.top - tooltip.offsetHeight - 10;
+                }
+                
+                tooltip.style.left = `${Math.max(5, tooltipLeft)}px`;
+                tooltip.style.top = `${Math.max(5, tooltipTop)}px`;
+                
+                // Показываем подсказку
+                tooltip.classList.remove('hidden');
+                
+                // Увеличиваем размер точки в зависимости от экрана
+                const currentRadius = parseFloat(this.getAttribute('r'));
+                this.setAttribute('r', currentRadius + 1);
             });
             
             point.addEventListener('mouseleave', function() {
-                if (isMobile) return;
+                // Скрываем подсказку
+                tooltip.classList.add('hidden');
                 
-                currentTooltip.classList.add('hidden');
-                this.setAttribute('r', '4');
+                // Возвращаем исходный размер точки
+                const windowWidth = window.innerWidth;
+                if (windowWidth <= 640) {
+                    this.setAttribute('r', '2');
+                } else if (windowWidth <= 1100) {
+                    this.setAttribute('r', '2.5');
+                } else {
+                    this.setAttribute('r', '3');
+                }
             });
-            
-            // Touch события для мобильных
-            point.addEventListener('touchstart', function(e) {
-                e.preventDefault();
-                if (!isMobile) return;
-                
-                // Скрываем все остальные тултипы
-                hideAllTooltips();
-                
-                showTooltip(this, currentTooltip, true);
-                
-                // Автоматически скрыть через 3 секунды
-                setTimeout(() => {
-                    currentTooltip.classList.add('hidden');
-                    this.setAttribute('r', '6');
-                }, 3000);
-            });
-            
-            // Click события (работают на всех устройствах)
-            point.addEventListener('click', function(e) {
-                e.preventDefault();
-                
-                // Скрываем все остальные тултипы
-                hideAllTooltips();
-                
-                showTooltip(this, currentTooltip, isMobile);
-            });
-        });
-        
-        // Функция отображения тултипа
-        function showTooltip(point, tooltipElement, isMobileDevice) {
-            // Получаем данные из атрибутов
-            const date = point.getAttribute('data-date');
-            const value = point.getAttribute('data-value');
-            
-            // Заполняем подсказку
-            if (isMobileDevice && mobileTooltip) {
-                // Форматируем данные для мобильной версии
-                const formattedDate = formatMobileDate(date);
-                const formattedValue = formatMobileValue(value);
-                
-                document.getElementById('mobile-tooltip-date').textContent = formattedDate;
-                document.getElementById('mobile-tooltip-value').textContent = formattedValue;
-            } else if (tooltip) {
-                document.getElementById('tooltip-date').textContent = date;
-                document.getElementById('tooltip-value').textContent = value;
-            }
-            
-            // Позиционируем подсказку
-            const rect = point.getBoundingClientRect();
-            const chartRect = document.getElementById('financial-chart').getBoundingClientRect();
-            const container = point.closest('.finance-chart-container');
-            const containerRect = container.getBoundingClientRect();
-            
-            // Вычисляем позицию относительно контейнера
-            const x = rect.left - containerRect.left + rect.width / 2;
-            const y = rect.top - containerRect.top;
-            
-            // Устанавливаем позицию
-            tooltipElement.style.left = `${x - tooltipElement.offsetWidth / 2}px`;
-            tooltipElement.style.top = `${y - tooltipElement.offsetHeight - 10}px`;
-            
-            // Показываем подсказку
-            tooltipElement.classList.remove('hidden');
-            
-            // Увеличиваем размер точки
-            const newRadius = isMobileDevice ? '8' : '5';
-            point.setAttribute('r', newRadius);
-        }
-        
-        // Функция скрытия всех тултипов
-        function hideAllTooltips() {
-            if (tooltip) tooltip.classList.add('hidden');
-            if (mobileTooltip) mobileTooltip.classList.add('hidden');
-            
-            points.forEach(p => {
-                const defaultRadius = window.innerWidth <= 640 ? '6' : '4';
-                p.setAttribute('r', defaultRadius);
-            });
-        }
-        
-        // Форматирование даты для мобильной версии
-        function formatMobileDate(dateStr) {
-            // Преобразуем "1 июня" в "Jun 1, 2025"
-            const months = {
-                'января': 'Jan', 'февраля': 'Feb', 'марта': 'Mar',
-                'апреля': 'Apr', 'мая': 'May', 'июня': 'Jun',
-                'июля': 'Jul', 'августа': 'Aug', 'сентября': 'Sep',
-                'октября': 'Oct', 'ноября': 'Nov', 'декабря': 'Dec'
-            };
-            
-            const parts = dateStr.split(' ');
-            if (parts.length >= 2) {
-                const day = parts[0];
-                const month = months[parts[1]] || parts[1];
-                return `${month} ${day}, 2025`;
-            }
-            return dateStr;
-        }
-        
-        // Форматирование значения для мобильной версии
-        function formatMobileValue(valueStr) {
-            // Преобразуем "120 000" в "$18.5K"
-            const num = parseInt(valueStr.replace(/\s/g, ''));
-            if (num >= 1000) {
-                return `$${(num / 1000).toFixed(1)}K`;
-            }
-            return `$${num}`;
-        }
-        
-        // Скрываем тултип при клике вне графика
-        document.addEventListener('click', function(e) {
-            if (!e.target.closest('.finance-chart-container')) {
-                hideAllTooltips();
-            }
-        });
-        
-        // Обновление при изменении размера окна
-        window.addEventListener('resize', function() {
-            hideAllTooltips();
-            // Переинициализируем через небольшую задержку
-            setTimeout(initFinancialChart, 100);
         });
     }
 
