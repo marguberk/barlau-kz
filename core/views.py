@@ -2705,3 +2705,22 @@ def create_expiry_notification(vehicle, document_type, expiry_date):
                 print(f'[DEBUG] Уведомление создано для {user.email}')
     else:
         print('[DEBUG] days_left вне диапазона 0-30, уведомление не создается')
+
+
+class TestEmployeesView(View):
+    """Временное представление для отладки проблемы с отображением сотрудников"""
+    
+    def get(self, request):
+        from django.http import HttpResponse
+        from accounts.models import User
+        
+        html = "<h1>Тест сотрудников</h1>"
+        employees = User.objects.filter(is_active=True).order_by('last_name', 'first_name')
+        
+        html += f"<p>Всего активных пользователей: {employees.count()}</p>"
+        html += "<hr><h2>Список:</h2>"
+        
+        for emp in employees:
+            html += f"<p>ID: {emp.id} | Имя: '{emp.first_name}' | Фамилия: '{emp.last_name}' | Email: {emp.email} | get_full_name(): '{emp.get_full_name()}'</p>"
+        
+        return HttpResponse(html)

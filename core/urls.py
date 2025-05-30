@@ -41,6 +41,7 @@ from .views import (
     TruckDetailView,
     FileUploadView,
     NotificationManualCreateView,
+    TestEmployeesView,
 )
 from .api import update_profile, upload_profile_photo, get_profile_stats, trips_api, driver_locations_api
 from django.views.generic import TemplateView
@@ -113,4 +114,7 @@ urlpatterns = [
     
     # Ручное создание уведомления
     path('notifications/manual_create/', NotificationManualCreateView.as_view(), name='notification-manual-create'),
+    
+    # Тестовое представление сотрудников
+    path('test-employees/', TestEmployeesView.as_view(), name='test-employees'),
 ] 
