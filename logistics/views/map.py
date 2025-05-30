@@ -120,7 +120,7 @@ class MapViewSet(viewsets.ViewSet):
         # Водители видят только свои задачи, все остальные роли видят все задачи  
         if request.user.role == 'DRIVER':
             tasks = tasks.filter(assigned_to=request.user)
-        
+            
         serializer = TaskLocationSerializer(tasks, many=True)
         return Response(serializer.data)
     

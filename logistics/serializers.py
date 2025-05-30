@@ -66,7 +66,7 @@ class TaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
         fields = '__all__'
-        read_only_fields = ['created_by']
+        read_only_fields = ['id', 'created_by', 'created_at', 'updated_at']
 
 class TaskLocationSerializer(serializers.ModelSerializer):
     vehicle_number = serializers.CharField(source='vehicle.number', read_only=True)
