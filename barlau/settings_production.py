@@ -52,6 +52,7 @@ CSRF_COOKIE_SECURE = True
 
 # Static and media files for VPS
 STATIC_ROOT = '/var/www/barlau/static/'
+STATICFILES_DIRS = []  # Отключаем в продакшн
 MEDIA_ROOT = '/var/www/barlau/media/'
 
 # Logging configuration
