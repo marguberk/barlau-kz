@@ -19,8 +19,14 @@ class User(AbstractUser):
         DRIVER = 'DRIVER', _('Водитель')
         SUPPLIER = 'SUPPLIER', _('Снабженец')
         TECH = 'TECH', _('Техотдел')
+        MANAGER = 'MANAGER', _('Менеджер')
+        DISPATCHER = 'DISPATCHER', _('Диспетчер')
+        LOGIST = 'LOGIST', _('Логист')
+        CONSULTANT = 'CONSULTANT', _('Консультант')
+        IT_MANAGER = 'IT_MANAGER', _('IT-менеджер')
         ADMIN = 'ADMIN', _('Администратор')
         SUPERADMIN = 'SUPERADMIN', _('Суперадмин')
+        EMPLOYEE = 'EMPLOYEE', _('Сотрудник')
 
     phone_regex = RegexValidator(
         regex=r'^\+?1?\d{9,15}$',
