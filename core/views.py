@@ -312,6 +312,21 @@ class NotificationViewSet(viewsets.ModelViewSet):
         return Response({'deleted': count}, status=status.HTTP_204_NO_CONTENT)
 
 
+class PublicNotificationViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    Публичный API для уведомлений без аутентификации
+    Возвращает только базовую информацию для демонстрации
+    """
+    serializer_class = NotificationSerializer
+    permission_classes = []  # Нет требования аутентификации
+    
+    def get_queryset(self):
+        """
+        Возвращаем последние 10 уведомлений для демонстрации
+        """
+        return Notification.objects.all().order_by('-created_at')[:10]
+
+
 class HomeView(LoginRequiredMixin, TemplateView):
     template_name = 'core/dashboard.html'
 
