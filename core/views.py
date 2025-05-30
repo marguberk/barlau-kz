@@ -2715,12 +2715,29 @@ class TestEmployeesView(View):
         from accounts.models import User
         
         html = "<h1>Тест сотрудников</h1>"
+        html += f"<p>Пользователь: {request.user if request.user.is_authenticated else 'Не авторизован'}</p>"
+        
         employees = User.objects.filter(is_active=True).order_by('last_name', 'first_name')
         
         html += f"<p>Всего активных пользователей: {employees.count()}</p>"
-        html += "<hr><h2>Список:</h2>"
+        html += "<hr><h2>Список всех активных пользователей:</h2>"
         
         for emp in employees:
-            html += f"<p>ID: {emp.id} | Имя: '{emp.first_name}' | Фамилия: '{emp.last_name}' | Email: {emp.email} | get_full_name(): '{emp.get_full_name()}'</p>"
+            html += f"<div style='border: 1px solid #ccc; margin: 5px; padding: 10px;'>"
+            html += f"<strong>ID:</strong> {emp.id}<br>"
+            html += f"<strong>Username:</strong> {emp.username}<br>"
+            html += f"<strong>Имя:</strong> '{emp.first_name}'<br>"
+            html += f"<strong>Фамилия:</strong> '{emp.last_name}'<br>"
+            html += f"<strong>Email:</strong> {emp.email}<br>"
+            html += f"<strong>get_full_name():</strong> '{emp.get_full_name()}'<br>"
+            html += f"<strong>Роль:</strong> {emp.role}<br>"
+            html += f"<strong>Должность:</strong> {emp.position}<br>"
+            html += f"<strong>Активен:</strong> {emp.is_active}<br>"
+            html += f"<strong>Создан:</strong> {emp.date_joined}<br>"
+            html += f"</div>"
+        
+        html += "<hr><h2>Фильтр как в EmployeesView:</h2>"
+        employees_filtered = User.objects.filter(is_active=True).order_by('last_name', 'first_name')
+        html += f"<p>Результат фильтра: {employees_filtered.count()} сотрудников</p>"
         
         return HttpResponse(html)
