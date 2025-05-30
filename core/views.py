@@ -324,7 +324,20 @@ class PublicNotificationViewSet(viewsets.ReadOnlyModelViewSet):
         """
         Возвращаем последние 10 уведомлений для демонстрации
         """
-        return Notification.objects.all().order_by('-created_at')[:10]
+        return Notification.objects.all().order_by('-created_at')
+    
+    def list(self, request, *args, **kwargs):
+        """
+        Переопределяем list для ограничения количества уведомлений
+        """
+        queryset = self.get_queryset()[:10]  # Берем только последние 10
+        serializer = self.get_serializer(queryset, many=True)
+        return Response({
+            'count': len(serializer.data),
+            'next': None,
+            'previous': None,
+            'results': serializer.data
+        })
 
 
 class HomeView(LoginRequiredMixin, TemplateView):
