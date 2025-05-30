@@ -1165,6 +1165,11 @@ async function handleTaskFormSubmit(e) {
         taskData.due_date = dueDate + 'T12:00:00';
     }
     
+    // Явно удаляем поле id чтобы не было конфликтов с автоинкрементом
+    delete taskData.id;
+    
+    console.log('Отправляем данные задачи:', taskData);
+    
     try {
         let url = '/api/tasks/';
         let method = 'POST';
@@ -1262,6 +1267,11 @@ async function handleNewTaskSubmit(e) {
     if (dueDate) {
         taskData.due_date = dueDate + 'T12:00:00';
     }
+    
+    // Явно удаляем поле id чтобы не было конфликтов с автоинкрементом
+    delete taskData.id;
+    
+    console.log('Отправляем данные задачи (старая форма):', taskData);
     
     try {
         const response = await fetch('/api/tasks/', {
