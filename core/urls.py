@@ -22,6 +22,7 @@ from .views import (
     EmployeeListView,
     EmployeeCreateView,
     EmployeeEditView,
+    EmployeeDeleteView,
     WaybillCreateView,
     WaybillUpdateView,
     WaybillDeleteView,
@@ -87,6 +88,7 @@ urlpatterns = [
     path('employees/<int:pk>/pdf/', EmployeePDFView.as_view(), name='employee-pdf'),
     path('employees/add/', EmployeeCreateView.as_view(), name='employee_add'),
     path('employees/<int:pk>/edit/', EmployeeEditView.as_view(), name='employee_edit'),
+    path('employees/<int:pk>/delete/', EmployeeDeleteView.as_view(), name='employee_delete'),
     path('employees/<int:pk>/upload-photo/', EmployeePhotoUploadView.as_view(), name='employee_upload_photo'),
     
     # Waybills

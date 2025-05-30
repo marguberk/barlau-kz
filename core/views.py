@@ -1708,6 +1708,40 @@ class EmployeeEditView(View):
         return redirect('core:employees')
 
 
+class EmployeeDeleteView(View):
+    def delete(self, request, pk):
+        # Проверка прав доступа - только суперадмины
+        if not request.user.is_authenticated or request.user.role != 'SUPERADMIN':
+            return JsonResponse({'error': 'У вас нет прав для удаления сотрудников'}, status=403)
+
+        # Получение сотрудника
+        try:
+            employee = User.objects.get(pk=pk)
+        except User.DoesNotExist:
+            return JsonResponse({'error': 'Сотрудник не найден'}, status=404)
+
+        # Проверка, что не удаляем самого себя
+        if employee == request.user:
+            return JsonResponse({'error': 'Нельзя удалить самого себя'}, status=400)
+
+        # Проверка, что не удаляем других суперадминов (опционально)
+        if employee.role == 'SUPERADMIN':
+            return JsonResponse({'error': 'Нельзя удалить суперадминистратора'}, status=400)
+
+        try:
+            employee_name = employee.get_full_name()
+            employee.delete()
+            
+            # Логируем действие
+            print(f"[INFO] Сотрудник {employee_name} (ID: {pk}) удален пользователем {request.user.username}")
+            
+            return JsonResponse({'success': True, 'message': f'Сотрудник {employee_name} успешно удален'})
+        
+        except Exception as e:
+            print(f"[ERROR] Ошибка при удалении сотрудника: {e}")
+            return JsonResponse({'error': 'Ошибка при удалении сотрудника'}, status=500)
+
+
 class VehiclesView(LoginRequiredMixin, TemplateView):
     template_name = 'core/vehicles.html'
 
@@ -2513,10 +2547,43 @@ class VehicleDeleteView(LoginRequiredMixin, View):
 
         if not request.user.role in [
                 'DIRECTOR', 'SUPERADMIN'] and not request.user.is_superuser:
+            if request.method == 'DELETE':
+                return JsonResponse({'error': 'У вас нет прав для удаления транспорта'}, status=403)
             messages.error(request, 'У вас нет прав для удаления транспорта')
             return redirect('core:trucks')
 
         return super().dispatch(request, *args, **kwargs)
+
+    def delete(self, request, pk):
+        """Обработка AJAX DELETE запроса"""
+        try:
+            vehicle = Vehicle.objects.get(id=pk)
+            
+            # Дополнительные проверки безопасности
+            if request.user.role != 'SUPERADMIN' and not request.user.is_superuser:
+                return JsonResponse({'error': 'Недостаточно прав для удаления транспорта'}, status=403)
+            
+            # Проверяем, есть ли связанные задачи
+            if hasattr(vehicle, 'task_set') and vehicle.task_set.filter(status__in=['NEW', 'IN_PROGRESS']).exists():
+                return JsonResponse({'error': 'Нельзя удалить транспорт с активными задачами'}, status=400)
+            
+            vehicle_info = f"{vehicle.brand} {vehicle.model} ({vehicle.number})"
+            vehicle.delete()
+            
+            # Логирование
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.info(f"Vehicle deleted by {request.user.email}: {vehicle_info}")
+            
+            return JsonResponse({'success': True, 'message': f'Транспорт {vehicle_info} успешно удален'})
+            
+        except Vehicle.DoesNotExist:
+            return JsonResponse({'error': 'Транспорт не найден'}, status=404)
+        except Exception as e:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Error deleting vehicle by {request.user.email}: {str(e)}")
+            return JsonResponse({'error': f'Ошибка при удалении транспорта: {str(e)}'}, status=500)
 
     def post(self, request, pk):
         try:
