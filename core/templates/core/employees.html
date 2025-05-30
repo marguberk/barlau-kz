@@ -108,7 +108,7 @@
                                 <path d="M16 2H8a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path>
                             </svg>
                             <span class="px-2 py-0.5 
-                                {% if employee.role == 'ACCOUNTANT' %}bg-indigo-50 text-blue-600{% elif employee.role == 'DRIVER' %}bg-orange-100 text-amber-600{% elif employee.role == 'SUPPLIER' %}bg-green-50 text-green-600{% elif employee.role == 'TECH' %}bg-purple-50 text-purple-600{% elif employee.role == 'DIRECTOR' %}bg-red-50 text-red-600{% else %}bg-gray-50 text-gray-600{% endif %} 
+                                {% if employee.role == 'ACCOUNTANT' %}bg-indigo-50 text-blue-600{% elif employee.role == 'DIRECTOR' %}bg-red-50 text-red-600{% elif employee.role == 'DRIVER' %}bg-orange-100 text-amber-600{% elif employee.role == 'SUPPLIER' %}bg-green-50 text-green-600{% elif employee.role == 'TECH' %}bg-purple-50 text-purple-600{% elif employee.role == 'MANAGER' %}bg-blue-50 text-blue-700{% elif employee.role == 'DISPATCHER' %}bg-yellow-50 text-yellow-700{% elif employee.role == 'LOGIST' %}bg-teal-50 text-teal-600{% elif employee.role == 'CONSULTANT' %}bg-pink-50 text-pink-600{% elif employee.role == 'IT_MANAGER' %}bg-cyan-50 text-cyan-600{% elif employee.role == 'ADMIN' %}bg-slate-50 text-slate-700{% elif employee.role == 'SUPERADMIN' %}bg-gray-900 text-white{% else %}bg-gray-50 text-gray-600{% endif %} 
                                 rounded text-sm font-medium">{{ employee.get_role_display }}</span>
                         </div>
                         {% if employee.phone %}
