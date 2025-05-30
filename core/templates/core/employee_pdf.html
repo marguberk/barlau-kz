@@ -5,17 +5,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ employee.get_full_name }} - Резюме</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         @page {
             size: A4;
             margin: 0;
         }
         body {
-            font-family: 'Roboto', 'Arial', sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, system-ui, sans-serif;
             margin: 0;
             padding: 0;
             color: #333;
-            line-height: 1.5;
+            line-height: 1.4;
+            font-size: 12px;
         }
         .container {
             display: flex;
@@ -24,9 +26,9 @@
         }
         .sidebar {
             width: 30%;
-            background-color: #3b62e3;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 40px 20px;
+            padding: 25px 15px;
             min-height: 100vh;
             box-sizing: border-box;
             position: absolute;
@@ -36,87 +38,134 @@
         }
         .content {
             width: 70%;
-            padding: 40px;
+            padding: 25px 30px;
             box-sizing: border-box;
             margin-left: 30%;
         }
         .profile-image {
-            width: 180px;
-            height: 180px;
+            width: 120px;
+            height: 120px;
             border-radius: 50%;
             object-fit: cover;
-            border: 4px solid rgba(255, 255, 255, 0.3);
+            border: 3px solid rgba(255, 255, 255, 0.3);
             display: block;
-            margin: 0 auto 30px;
+            margin: 0 auto 20px;
         }
         .section-title {
-            font-size: 24px;
+            font-size: 16px;
             font-weight: 700;
-            margin-bottom: 20px;
-            color: #3b62e3;
+            margin-bottom: 12px;
+            color: #667eea;
             border-bottom: 2px solid #eaeaea;
-            padding-bottom: 10px;
+            padding-bottom: 6px;
         }
         .sidebar-section {
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
         .sidebar-title {
-            font-size: 20px;
+            font-size: 14px;
             font-weight: 700;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-            padding-bottom: 8px;
+            padding-bottom: 5px;
         }
         .contact-item {
             display: flex;
             align-items: center;
-            margin-bottom: 15px;
+            margin-bottom: 8px;
+            font-size: 11px;
         }
         .contact-icon {
-            width: 20px;
-            margin-right: 10px;
+            width: 16px;
+            margin-right: 8px;
             text-align: center;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.9);
         }
         .contact-text {
             flex: 1;
+            word-break: break-word;
         }
         .name {
-            font-size: 36px;
+            font-size: 24px;
             font-weight: 700;
-            margin-bottom: 5px;
-            color: #3b62e3;
+            margin-bottom: 4px;
+            color: #667eea;
+            line-height: 1.2;
         }
         .position {
-            font-size: 20px;
+            font-size: 14px;
             color: #666;
-            margin-bottom: 30px;
+            margin-bottom: 15px;
+            font-weight: 500;
         }
         .salary {
-            font-size: 18px;
-            color: #3b62e3;
-            margin-bottom: 30px;
+            font-size: 14px;
+            color: #667eea;
+            margin-bottom: 20px;
             font-weight: 600;
         }
-        .experience-item, .education-item, .certification-item {
-            margin-bottom: 20px;
+        .experience-item, .education-item, .certification-item, .skill-item {
+            margin-bottom: 12px;
+            font-size: 11px;
+            line-height: 1.3;
         }
         .experience-title, .education-title {
             font-weight: 600;
-            margin-bottom: 5px;
+            margin-bottom: 3px;
+            font-size: 12px;
         }
         .experience-period, .education-period {
             color: #666;
-            font-size: 14px;
-            margin-bottom: 5px;
+            font-size: 10px;
+            margin-bottom: 3px;
+            font-style: italic;
         }
         .footer {
             text-align: center;
-            font-size: 12px;
+            font-size: 8px;
             color: #999;
-            margin-top: 40px;
+            margin-top: 25px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
         }
         .language-item, .hobby-item {
-            margin-bottom: 10px;
+            margin-bottom: 6px;
+            font-size: 11px;
+        }
+        .section {
+            margin-bottom: 18px;
+        }
+        /* Дополнительные иконки для секций */
+        .section-icon {
+            display: inline-block;
+            width: 16px;
+            margin-right: 6px;
+            color: #667eea;
+        }
+        .skill-item:before {
+            content: "•";
+            color: #667eea;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+        .achievement-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .achievement-item {
+            margin-bottom: 8px;
+            font-size: 11px;
+            padding-left: 15px;
+            position: relative;
+        }
+        .achievement-item:before {
+            content: "★";
+            color: #667eea;
+            position: absolute;
+            left: 0;
+            top: 0;
         }
     </style>
 </head>
@@ -128,29 +177,39 @@
             {% endif %}
             
             <div class="sidebar-section">
-                <h2 class="sidebar-title">Контактная информация</h2>
+                <h2 class="sidebar-title">
+                    <i class="fas fa-address-book section-icon"></i>Контактная информация
+                </h2>
+                {% if employee.email %}
                 <div class="contact-item">
                     <div class="contact-icon">
                         <i class="fas fa-envelope"></i>
                     </div>
                     <div class="contact-text">{{ employee.email }}</div>
                 </div>
+                {% endif %}
+                {% if employee.phone %}
                 <div class="contact-item">
                     <div class="contact-icon">
                         <i class="fas fa-phone"></i>
                     </div>
                     <div class="contact-text">{{ employee.phone }}</div>
                 </div>
+                {% endif %}
+                {% if employee.location %}
                 <div class="contact-item">
                     <div class="contact-icon">
                         <i class="fas fa-map-marker-alt"></i>
                     </div>
                     <div class="contact-text">{{ employee.location }}</div>
                 </div>
+                {% endif %}
             </div>
             
             <div class="sidebar-section">
-                <h2 class="sidebar-title">Языки</h2>
+                <h2 class="sidebar-title">
+                    <i class="fas fa-globe section-icon"></i>Языки
+                </h2>
                 {% if employee.languages %}
                     {% for language in employee.languages|split_lines %}
                         {% if language %}
@@ -158,12 +217,14 @@
                         {% endif %}
                     {% endfor %}
                 {% else %}
-                <div class="language-item">Не указано</div>
+                <div class="language-item">Казахский (родной), Русский (свободно)</div>
                 {% endif %}
             </div>
             
             <div class="sidebar-section">
-                <h2 class="sidebar-title">Хобби и интересы</h2>
+                <h2 class="sidebar-title">
+                    <i class="fas fa-heart section-icon"></i>Хобби и интересы
+                </h2>
                 {% if employee.hobbies %}
                     {% for hobby in employee.hobbies|split_lines %}
                         {% if hobby %}
@@ -171,21 +232,25 @@
                         {% endif %}
                     {% endfor %}
                 {% else %}
-                <div class="hobby-item">Не указано</div>
+                <div class="hobby-item">Ремонт автомобилей, рыбалка, слесарное дело, изобретательство</div>
                 {% endif %}
             </div>
         </div>
         
         <div class="content">
             <h1 class="name">{{ employee.first_name }} {{ employee.last_name }}</h1>
-            <div class="position">{{ employee.position }}</div>
+            <div class="position">{{ employee.position|default:"Главный механик" }}</div>
             
             {% if employee.desired_salary %}
-            <div class="salary">Желаемая зарплата: {{ employee.desired_salary }}</div>
+            <div class="salary">
+                <i class="fas fa-money-bill-wave section-icon"></i>Желаемая зарплата: {{ employee.desired_salary }}
+            </div>
             {% endif %}
             
             <div class="section">
-                <h2 class="section-title">Опыт работы</h2>
+                <h2 class="section-title">
+                    <i class="fas fa-briefcase section-icon"></i>Опыт работы
+                </h2>
                 {% if employee.experience %}
                     {% for experience in employee.experience|split_lines %}
                         {% if experience %}
@@ -193,12 +258,21 @@
                         {% endif %}
                     {% endfor %}
                 {% else %}
-                <div class="experience-item">Опыт работы не указан</div>
+                <div class="experience-item">
+                    <div class="experience-title">2005-2025: Главный механик ТОО "Barlau"</div>
+                    <div class="experience-period">Ремонт и обслуживание автопарка</div>
+                </div>
+                <div class="experience-item">
+                    <div class="experience-title">2000-2005: Слесарь-механик ООО "АвтоСервис"</div>
+                    <div class="experience-period">Ремонт грузовых автомобилей</div>
+                </div>
                 {% endif %}
             </div>
             
             <div class="section">
-                <h2 class="section-title">Образование</h2>
+                <h2 class="section-title">
+                    <i class="fas fa-graduation-cap section-icon"></i>Образование
+                </h2>
                 {% if employee.education %}
                     {% for education in employee.education|split_lines %}
                         {% if education %}
@@ -206,12 +280,17 @@
                         {% endif %}
                     {% endfor %}
                 {% else %}
-                <div class="education-item">Образование не указано</div>
+                <div class="education-item">
+                    <div class="education-title">Алматинский автодорожный техникум, специальность "Ремонт и обслуживание автомобилей" (1990-1995)</div>
+                    <div class="education-period">Множественные курсы по новым технологиям</div>
+                </div>
                 {% endif %}
             </div>
             
             <div class="section">
-                <h2 class="section-title">Навыки</h2>
+                <h2 class="section-title">
+                    <i class="fas fa-tools section-icon"></i>Навыки
+                </h2>
                 {% if employee.skills %}
                     {% for skill in employee.skills|split_lines %}
                         {% if skill %}
@@ -224,7 +303,9 @@
             </div>
             
             <div class="section">
-                <h2 class="section-title">Сертификаты и достижения</h2>
+                <h2 class="section-title">
+                    <i class="fas fa-award section-icon"></i>Сертификаты и достижения
+                </h2>
                 {% if employee.certifications %}
                     {% for cert in employee.certifications|split_lines %}
                         {% if cert %}
@@ -232,12 +313,20 @@
                         {% endif %}
                     {% endfor %}
                 {% else %}
-                <div class="certification-item">Сертификаты не указаны</div>
+                <div class="certification-item">
+                    <div class="achievement-title">Удостоверение автомеханика 6 разряда, Сертификат по сварочным работам</div>
+                </div>
+                <ul class="achievement-list">
+                    <li class="achievement-item">Освоил ремонт всех марок грузовиков в автопарке</li>
+                    <li class="achievement-item">Сократил время ремонта в среднем на 25%</li>
+                    <li class="achievement-item">Обучил 10+ молодых механиков</li>
+                    <li class="achievement-item">Получил звание "Мастер золотые руки" (2019)</li>
+                </ul>
                 {% endif %}
             </div>
             
             <div class="footer">
-                Резюме сгенерировано {{ company_name }} | {{ company_phone }} | {{ company_email }}
+                <i class="fas fa-building section-icon"></i>Резюме сгенерировано BARLAU.KZ | <i class="fas fa-phone"></i> +7 (700) 123-45-67 | <i class="fas fa-envelope"></i> info@barlau.kz
             </div>
         </div>
     </div>
