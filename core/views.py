@@ -324,14 +324,20 @@ class PublicNotificationViewSet(viewsets.ReadOnlyModelViewSet):
         """
         Возвращаем последние 10 уведомлений для демонстрации
         """
-        return Notification.objects.all().order_by('-created_at')
+        print(f"[DEBUG] PublicNotificationViewSet.get_queryset() called")
+        queryset = Notification.objects.all().order_by('-created_at')
+        print(f"[DEBUG] Total notifications in DB: {queryset.count()}")
+        return queryset
     
     def list(self, request, *args, **kwargs):
         """
         Переопределяем list для ограничения количества уведомлений
         """
+        print(f"[DEBUG] PublicNotificationViewSet.list() called")
         queryset = self.get_queryset()[:10]  # Берем только последние 10
+        print(f"[DEBUG] Queryset slice: {len(list(queryset))}")
         serializer = self.get_serializer(queryset, many=True)
+        print(f"[DEBUG] Serialized data: {len(serializer.data)}")
         return Response({
             'count': len(serializer.data),
             'next': None,
