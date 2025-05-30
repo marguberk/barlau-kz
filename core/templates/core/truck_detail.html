@@ -204,9 +204,13 @@
                                 <ul class="space-y-2">
                                     {% for doc in truck.documents.all %}
                                         <li>
-                                            <a href="{{ doc.file.url }}" target="_blank" class="text-blue-600 hover:underline">
-                                                {{ doc.get_document_type_display }}
-                                            </a>
+                                            {% if doc.file %}
+                                                <a href="{{ doc.file.url }}" target="_blank" class="text-blue-600 hover:underline">
+                                                    {{ doc.get_document_type_display }}
+                                                </a>
+                                            {% else %}
+                                                <span class="text-gray-800">{{ doc.get_document_type_display }}</span>
+                                            {% endif %}
                                             {% if doc.number %} (№{{ doc.number }}){% endif %}
                                             {% if doc.issue_date %} — от {{ doc.issue_date }}{% endif %}
                                         </li>
