@@ -4,7 +4,7 @@ from django.utils.timesince import timesince
 from django.utils.timezone import now
 from django.contrib.auth.password_validation import validate_password
 from django.db import IntegrityError
-from .models import Notification, Waybill, Trip, DriverLocation
+from .models import Notification, Waybill, Trip, DriverLocation, ChecklistTemplate, TripChecklist, ChecklistItem, ChecklistItemPhoto
 from logistics.models import Vehicle
 
 User = get_user_model()
@@ -148,17 +148,35 @@ class UserPhotoSerializer(serializers.ModelSerializer):
 
 class TripSerializer(serializers.ModelSerializer):
     vehicle_details = VehicleSerializer(source='vehicle', read_only=True)
+    trailer_details = VehicleSerializer(source='trailer', read_only=True)
     driver_details = UserSerializer(source='driver', read_only=True)
+    created_by_details = UserSerializer(source='created_by', read_only=True)
+    current_location = serializers.ReadOnlyField()
+    route_info = serializers.ReadOnlyField()
+    vehicle_info = serializers.ReadOnlyField()
+    status_display = serializers.CharField(source='get_status_display', read_only=True)
+    cargo_type_display = serializers.CharField(source='get_cargo_type_display', read_only=True)
+    freight_payment_type_display = serializers.CharField(source='get_freight_payment_type_display', read_only=True)
 
     class Meta:
         model = Trip
         fields = [
-            'id', 'vehicle', 'vehicle_details', 'driver', 'driver_details',
+            'id', 'title', 'status', 'status_display',
+            'vehicle', 'vehicle_details', 'trailer', 'trailer_details',
+            'driver', 'driver_details', 'created_by', 'created_by_details',
             'start_latitude', 'start_longitude', 'end_latitude', 'end_longitude',
-            'cargo_description', 'date', 'created_at',
-            'start_address', 'end_address'
+            'start_address', 'end_address', 'route_info',
+            'cargo_description', 'cargo_type', 'cargo_type_display', 'cargo_weight',
+            'freight_amount', 'freight_payment_type', 'freight_payment_type_display',
+            'planned_start_date', 'planned_end_date', 'actual_start_date', 'actual_end_date',
+            'notes', 'date', 'created_at', 'updated_at',
+            'current_location', 'vehicle_info'
         ]
-        read_only_fields = ['created_at']
+        read_only_fields = ['created_at', 'updated_at', 'created_by']
+    
+    def create(self, validated_data):
+        validated_data['created_by'] = self.context['request'].user
+        return super().create(validated_data)
 
 class DriverLocationSerializer(serializers.ModelSerializer):
     driver_details = UserSerializer(source='driver', read_only=True)
@@ -169,4 +187,98 @@ class DriverLocationSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'driver', 'driver_details', 'latitude', 'longitude', 'timestamp', 'trip', 'trip_details'
         ]
-        read_only_fields = ['timestamp'] 
+        read_only_fields = ['timestamp']
+
+
+class ChecklistTemplateSerializer(serializers.ModelSerializer):
+    category_display = serializers.CharField(source='get_category_display', read_only=True)
+
+    class Meta:
+        model = ChecklistTemplate
+        fields = [
+            'id', 'category', 'category_display', 'title', 'description',
+            'is_required', 'order', 'is_active'
+        ]
+
+
+class ChecklistItemPhotoSerializer(serializers.ModelSerializer):
+    uploaded_by_details = UserSerializer(source='uploaded_by', read_only=True)
+    
+    class Meta:
+        model = ChecklistItemPhoto
+        fields = [
+            'id', 'image', 'description', 'uploaded_by', 'uploaded_by_details', 'uploaded_at'
+        ]
+        read_only_fields = ['uploaded_at']
+
+
+class ChecklistItemSerializer(serializers.ModelSerializer):
+    template_details = ChecklistTemplateSerializer(source='template', read_only=True)
+    checked_by_details = UserSerializer(source='checked_by', read_only=True)
+    photos = ChecklistItemPhotoSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = ChecklistItem
+        fields = [
+            'id', 'template', 'template_details', 'is_checked', 'is_ok', 
+            'notes', 'checked_by', 'checked_by_details', 'checked_at', 'photos'
+        ]
+        read_only_fields = ['checked_at']
+
+    def update(self, instance, validated_data):
+        # Автоматически устанавливаем пользователя при проверке
+        if validated_data.get('is_checked') and not instance.checked_by:
+            validated_data['checked_by'] = self.context['request'].user
+        return super().update(instance, validated_data)
+
+
+class TripChecklistSerializer(serializers.ModelSerializer):
+    trip_details = TripSerializer(source='trip', read_only=True)
+    mechanic_details = UserSerializer(source='mechanic', read_only=True)
+    deputy_director_details = UserSerializer(source='deputy_director', read_only=True)
+    items = ChecklistItemSerializer(many=True, read_only=True)
+    completion_percentage = serializers.ReadOnlyField()
+    is_fully_signed = serializers.ReadOnlyField()
+    status_display = serializers.CharField(source='get_status_display', read_only=True)
+
+    class Meta:
+        model = TripChecklist
+        fields = [
+            'id', 'trip', 'trip_details', 'status', 'status_display',
+            'driver_signature', 'driver_signed_at', 
+            'mechanic', 'mechanic_details', 'mechanic_signature', 'mechanic_signed_at',
+            'deputy_director', 'deputy_director_details', 'deputy_director_signature', 'deputy_director_signed_at',
+            'notes', 'created_at', 'updated_at', 'completed_at',
+            'items', 'completion_percentage', 'is_fully_signed'
+        ]
+        read_only_fields = ['created_at', 'updated_at']
+
+
+class TripChecklistCreateSerializer(serializers.ModelSerializer):
+    """Сериализатор для создания чек-листа с автоматическим заполнением пунктов"""
+    
+    class Meta:
+        model = TripChecklist
+        fields = ['trip', 'notes']
+    
+    def create(self, validated_data):
+        # Создаем чек-лист
+        checklist = super().create(validated_data)
+        
+        # Получаем все активные шаблоны
+        templates = ChecklistTemplate.objects.filter(is_active=True).order_by('category', 'order')
+        
+        # Создаем пункты чек-листа на основе шаблонов
+        checklist_items = []
+        for template in templates:
+            checklist_items.append(
+                ChecklistItem(
+                    checklist=checklist,
+                    template=template
+                )
+            )
+        
+        # Массовое создание пунктов
+        ChecklistItem.objects.bulk_create(checklist_items)
+        
+        return checklist 

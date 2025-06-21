@@ -1039,8 +1039,7 @@ class WaybillViewSet(viewsets.ModelViewSet):
             output.seek(0)
             response = HttpResponse(
                 output.read(), content_type='application/pdf')
-            response['Content-Disposition'] = f'attachment; filename="waybill-{
-                waybill.number}.pdf"'
+            response['Content-Disposition'] = f'attachment; filename="waybill-{waybill.number}.pdf"'
             return response
 
     @action(detail=False, methods=['get'])
@@ -1083,8 +1082,7 @@ class WaybillViewSet(viewsets.ModelViewSet):
 
         # Подготавливаем ответ
         output.seek(0)
-        filename = f"waybills_export_{
-            timezone.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
+        filename = f"waybills_export_{timezone.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
 
         response = HttpResponse(
             output.read(),
@@ -1132,8 +1130,7 @@ class WaybillPrintView(LoginRequiredMixin, DetailView):
             output.seek(0)
             response = HttpResponse(
                 output.read(), content_type='application/pdf')
-            response['Content-Disposition'] = f'attachment; filename="waybill-{
-                waybill.number}.pdf"'
+            response['Content-Disposition'] = f'attachment; filename="waybill-{waybill.number}.pdf"'
             return response
 
 
@@ -1253,8 +1250,7 @@ class WaybillDeleteView(LoginRequiredMixin, View):
         except Exception as e:
             messages.error(
                 request,
-                f'Ошибка при удалении путевого листа: {
-                    str(e)}')
+                f'Ошибка при удалении путевого листа: {str(e)}')
 
         return redirect('core:waybills')
 
@@ -1293,8 +1289,7 @@ class EmployeePDFView(LoginRequiredMixin, DetailView):
 
         # Создаем PDF
         response = HttpResponse(content_type='application/pdf')
-        response['Content-Disposition'] = f'attachment; filename="{
-            user.get_full_name()}_resume.pdf"'
+        response['Content-Disposition'] = f'attachment; filename="{user.get_full_name()}_resume.pdf"'
 
         # Конфигурация шрифтов
         font_config = FontConfiguration()
@@ -1739,8 +1734,7 @@ class EmployeeEditView(View):
         employee.save()
 
         messages.success(
-            request, f'Данные сотрудника {
-                employee.get_full_name()} успешно обновлены')
+            request, f'Данные сотрудника {employee.get_full_name()} успешно обновлены')
         return redirect('core:employees')
 
 
@@ -2063,7 +2057,7 @@ class VehicleCreateView(LoginRequiredMixin, View):
                             user=user,
                             type=Notification.Type.DOCUMENT,
                             title='Скоро истекает срок документа',
-                            message=f'У {vehicle.brand} {vehicle.model} ({vehicle.number}) истекает срок: {doc_type} — {doc.expiry_date.strftime('%d.%m.%Y')}',
+                            message=f'У {vehicle.brand} {vehicle.model} ({vehicle.number}) истекает срок: {doc_type} — {doc.expiry_date.strftime("%d.%m.%Y")}',
                             link=f'/trucks/{vehicle.id}/'
                         )
 
@@ -2081,13 +2075,13 @@ class VehicleCreateView(LoginRequiredMixin, View):
             if 0 <= days_left <= 30:
                 doc_type = dict(doc.DOCUMENT_TYPE_CHOICES).get(doc.document_type, doc.document_type)
                 for user in recipients:
-                    if not Notification.objects.filter(user=user, type=Notification.Type.DOCUMENT, message__contains=doc.expiry_date.strftime('%d.%m.%Y')).exists():
+                    if not Notification.objects.filter(user=user, type=Notification.Type.DOCUMENT, message__contains=doc.expiry_date.strftime("%d.%m.%Y")).exists():
                         print(f'[DEBUG] Создаю уведомление для {user.email} по документу {doc_type} ({doc.expiry_date})')
                         Notification.objects.create(
                             user=user,
                             type=Notification.Type.DOCUMENT,
                             title='Скоро истекает срок документа',
-                            message=f'У {vehicle.brand} {vehicle.model} ({vehicle.number}) истекает срок: {doc_type} — {doc.expiry_date.strftime('%d.%m.%Y')}',
+                            message=f'У {vehicle.brand} {vehicle.model} ({vehicle.number}) истекает срок: {doc_type} — {doc.expiry_date.strftime("%d.%m.%Y")}',
                             link=f'/trucks/{vehicle.id}/'
                         )
 
@@ -2487,10 +2481,7 @@ class VehicleArchiveView(LoginRequiredMixin, View):
             Notification.create_system_notification(
                 old_driver,
                 'Транспорт отозван',
-                f'Транспорт {
-                    self.vehicle.brand} {
-                    self.vehicle.model} ({
-                    self.vehicle.number}) отозван'
+                f'Транспорт {self.vehicle.brand} {self.vehicle.model} ({self.vehicle.number}) отозван'
             )
 
         messages.success(request, 'Транспорт отвязан от водителя')
@@ -2526,6 +2517,18 @@ class MapView(TemplateView):
     # Убираем требование аутентификации, чтобы страница была доступна всем
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
+
+
+class ChecklistView(LoginRequiredMixin, TemplateView):
+    template_name = 'core/checklist.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'page_title': 'Чек-листы поездок',
+            'active_page': 'checklist',
+        })
+        return context
 
 
 class ProfileEditView(LoginRequiredMixin, View):
@@ -2672,8 +2675,7 @@ class VehicleDeleteView(LoginRequiredMixin, View):
         except Exception as e:
             messages.error(
                 request,
-                f'Ошибка при удалении транспорта: {
-                    str(e)}')
+                f'Ошибка при удалении транспорта: {str(e)}')
 
         return redirect('core:trucks')
 
@@ -2768,14 +2770,14 @@ def create_expiry_notification(vehicle, document_type, expiry_date):
             print(f'[DEBUG] Реципиент: id={user.id}, username={user.username}, email={user.email}, role={getattr(user, "role", None)}, is_superuser={getattr(user, "is_superuser", None)}')
         doc_type = dict(VehicleDocument.DOCUMENT_TYPE_CHOICES).get(document_type, document_type)
         for user in recipients:
-            exists = Notification.objects.filter(user=user, type=Notification.Type.DOCUMENT, message__contains=expiry_date.strftime('%d.%m.%Y')).exists()
+            exists = Notification.objects.filter(user=user, type=Notification.Type.DOCUMENT, message__contains=expiry_date.strftime("%d.%m.%Y")).exists()
             print(f'[DEBUG] Проверяю уведомление для {user.email}: exists={exists}')
             if not exists:
                 Notification.objects.create(
                     user=user,
                     type=Notification.Type.DOCUMENT,
                     title='Скоро истекает срок документа',
-                    message=f'У {vehicle.brand} {vehicle.model} ({vehicle.number}) истекает срок: {doc_type} — {expiry_date.strftime('%d.%m.%Y')}',
+                    message=f'У {vehicle.brand} {vehicle.model} ({vehicle.number}) истекает срок: {doc_type} — {expiry_date.strftime("%d.%m.%Y")}',
                     link=f'/trucks/{vehicle.id}/'
                 )
                 print(f'[DEBUG] Уведомление создано для {user.email}')

@@ -35,6 +35,7 @@ from .views import (
     VehicleDeleteView,
     logout_view,
     MapView,
+    ChecklistView,
     ProfileEditView,
     ChangePasswordView,
     TrucksView,
@@ -42,7 +43,12 @@ from .views import (
     FileUploadView,
     NotificationManualCreateView,
 )
-from .api import update_profile, upload_profile_photo, get_profile_stats, trips_api, driver_locations_api
+from .api import (
+    update_profile, upload_profile_photo, get_profile_stats, trips_api, driver_locations_api, 
+    employee_pdf_api, vehicles_api, TripViewSet, ChecklistTemplateViewSet, TripChecklistViewSet, ChecklistItemViewSet,
+    create_checklist_for_trip, generate_checklist_pdf, update_checklist_item, upload_checklist_photos, delete_checklist_photo
+)
+from logistics.views.task import TaskViewSet
 from django.views.generic import TemplateView
 
 app_name = 'core'
@@ -51,6 +57,11 @@ router = DefaultRouter()
 router.register(r'employees', EmployeeViewSet, basename='employee-api')
 router.register(r'waybills', WaybillViewSet, basename='waybill-api')
 router.register(r'notifications', NotificationViewSet, basename='notification-api')
+router.register(r'tasks', TaskViewSet, basename='task-api')
+router.register(r'trips', TripViewSet, basename='trip-api')
+router.register(r'checklist-templates', ChecklistTemplateViewSet, basename='checklist-template-api')
+router.register(r'trip-checklists', TripChecklistViewSet, basename='trip-checklist-api')
+router.register(r'checklist-items', ChecklistItemViewSet, basename='checklist-item-api')
 
 urlpatterns = [
     path('', HomeView.as_view(), name='home'),
@@ -64,6 +75,7 @@ urlpatterns = [
     path('trucks/<int:pk>/delete/', VehicleDeleteView.as_view(), name='truck-delete'),
     path('tasks/', TasksView.as_view(), name='tasks'),
     path('map/', MapView.as_view(), name='map'),
+    path('checklist/', ChecklistView.as_view(), name='checklist'),
     path('expenses/', ExpensesView.as_view(), name='expenses'),
     path('finance/', FinanceView.as_view(), name='finance'),
     
@@ -79,7 +91,16 @@ urlpatterns = [
     path('api/users/me/stats/', get_profile_stats, name='api-profile-stats'),
     path('api/trips/', trips_api, name='api-trips'),
     path('api/trips/<int:pk>/', trips_api, name='api-trips-detail'),
+    path('dashboard/api/trips/', trips_api, name='dashboard-api-trips'),
+    path('dashboard/api/trips/<int:pk>/', trips_api, name='dashboard-api-trips-detail'),
     path('api/driver_locations/', driver_locations_api, name='api-driver-locations'),
+    path('api/employees/<int:pk>/pdf/', employee_pdf_api, name='api-employee-pdf'),
+    path('api/vehicles/', vehicles_api, name='api-vehicles'),
+    path('api/trips/<int:trip_id>/create-checklist/', create_checklist_for_trip, name='api-create-checklist'),
+    path('api/checklists/<int:checklist_id>/pdf/', generate_checklist_pdf, name='api-checklist-pdf'),
+    path('api/checklist-items/<int:item_id>/update/', update_checklist_item, name='api-update-checklist-item'),
+    path('api/checklist-items/<int:item_id>/upload-photos/', upload_checklist_photos, name='api-upload-checklist-photos'),
+    path('api/checklist-photos/<int:photo_id>/delete/', delete_checklist_photo, name='api-delete-checklist-photo'),
     
     # Employees
     path('employees/', EmployeesView.as_view(), name='employees'),
@@ -110,6 +131,9 @@ urlpatterns = [
     
     # Офлайн-страница для PWA
     path('offline/', TemplateView.as_view(template_name='offline.html'), name='offline'),
+    
+    # MaroAI Design System Demo
+    path('demo/maroai/', TemplateView.as_view(template_name='core/maroai-demo.html'), name='maroai-demo'),
     
     # Ручное создание уведомления
     path('notifications/manual_create/', NotificationManualCreateView.as_view(), name='notification-manual-create'),
