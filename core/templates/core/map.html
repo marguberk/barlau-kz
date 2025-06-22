@@ -355,7 +355,7 @@
         border-radius: 16px;
         border: 1px solid #e5e7eb;
         box-shadow: 0 2px 4px -1px rgba(13,13,18,0.06);
-        padding: 24px;
+        padding: 16px;
         margin: 0;
         transition: box-shadow 0.18s, border-color 0.18s;
         cursor: pointer;
@@ -414,9 +414,9 @@
     }
     .trip-card-img {
         flex-shrink: 0;
-        margin-left: 24px;
-        width: 240px;
-        height: 90px;
+        margin-left: 16px;
+        width: 120px;
+        height: 80px;
         border-radius: 12px;
         display: flex;
         align-items: center;
@@ -433,6 +433,30 @@
         object-fit: cover;
         border-radius: 12px;
         background: none;
+    }
+    
+    /* Стили для кнопок чек-листа в детальной панели */
+    .trip-checklist-btn {
+        background: #2563eb;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        padding: 8px 12px;
+        font-weight: 500;
+        font-size: 0.9em;
+        cursor: pointer;
+        transition: background 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-top: 8px;
+    }
+    .trip-checklist-btn:hover {
+        background: #1d4ed8;
+    }
+    .trip-checklist-btn svg {
+        width: 16px;
+        height: 16px;
     }
     .trip-item {
         border-bottom: 1px solid #e5e7eb;
@@ -2364,32 +2388,7 @@ function renderTripListWithSelection(trips, selectedIdx) {
         let pointA = shortAddr(trip.start_address);
         let pointB = shortAddr(trip.end_address);
         let route = (pointA && pointB) ? `${pointA} — ${pointB}` : '';
-        // Определяем статус чек-листа и кнопки
-        let checklistButton = '';
-        const userRole = window.currentUserRole?.toUpperCase();
-        const userId = window.currentUserId;
-        const isDriverOfTrip = trip.driver_details && trip.driver_details.id === userId;
-        const canManageChecklists = ['SUPERADMIN', 'ADMIN', 'DISPATCHER'].includes(userRole);
-        
-        if (trip.status === 'PENDING_CHECKLIST' && (isDriverOfTrip || canManageChecklists)) {
-            checklistButton = `
-                <button onclick="event.stopPropagation(); openChecklistPanel(${trip.id})" class="trip-checklist-btn" style="background: #f59e0b;">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M12 5V19M5 12H19"/>
-                    </svg>
-                    Создать чек-лист
-                </button>
-            `;
-        } else if ((trip.status === 'READY' || trip.status === 'ACTIVE') && trip.checklist_id) {
-            checklistButton = `
-                <button onclick="event.stopPropagation(); openChecklistPanel(${trip.id})" class="trip-checklist-btn">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z"/>
-                    </svg>
-                    Чек-лист
-                </button>
-            `;
-        }
+        // Убираем кнопки чек-листа из карточек для более чистого вида
         
         return `
         <div class="trip-card${selectedIdx===idx?' trip-card-selected':''}" data-idx="${idx}">
@@ -2397,7 +2396,6 @@ function renderTripListWithSelection(trips, selectedIdx) {
             <div class="trip-card-brand">${brand}</div>
             <div class="trip-card-number">${number}</div>
             <div class="trip-card-desc">${route}</div>
-            ${checklistButton}
           </div>
           <div class="trip-card-img">${img}</div>
         </div>
