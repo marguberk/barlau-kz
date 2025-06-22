@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Чек-лист проверки транспорта - {{ trip.title }}</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 2cm;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            line-height: 1.4;
+            color: #333;
+        }
+        
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #2563eb;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .company-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2563eb;
+            margin-bottom: 5px;
+        }
+        
+        .document-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .trip-info {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .trip-info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        
+        .info-row {
+            margin-bottom: 8px;
+        }
+        
+        .info-row strong {
+            color: #1e293b;
+        }
+        
+        .category-section {
+            margin-bottom: 25px;
+            break-inside: avoid;
+        }
+        
+        .category-title {
+            background: #2563eb;
+            color: white;
+            padding: 8px 15px;
+            font-weight: bold;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .checklist-items {
+            border: 1px solid #e2e8f0;
+            border-top: none;
+        }
+        
+        .checklist-item {
+            display: flex;
+            align-items: flex-start;
+            padding: 10px 15px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .checklist-item:last-child {
+            border-bottom: none;
+        }
+        
+        .item-checkbox {
+            width: 16px;
+            height: 16px;
+            border: 2px solid #d1d5db;
+            margin-right: 10px;
+            margin-top: 2px;
+            flex-shrink: 0;
+            position: relative;
+        }
+        
+        .item-checkbox.checked {
+            background: #10b981;
+            border-color: #10b981;
+        }
+        
+        .item-checkbox.checked::after {
+            content: '✓';
+            position: absolute;
+            top: -2px;
+            left: 2px;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .item-checkbox.not-ok {
+            background: #ef4444;
+            border-color: #ef4444;
+        }
+        
+        .item-checkbox.not-ok::after {
+            content: '✗';
+            position: absolute;
+            top: -2px;
+            left: 2px;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .item-content {
+            flex: 1;
+        }
+        
+        .item-title {
+            font-weight: 500;
+            margin-bottom: 3px;
+        }
+        
+        .item-notes {
+            font-size: 11px;
+            color: #6b7280;
+            font-style: italic;
+        }
+        
+        .signatures-section {
+            margin-top: 40px;
+            page-break-inside: avoid;
+        }
+        
+        .signatures-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .signature-block {
+            text-align: center;
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            min-height: 80px;
+        }
+        
+        .signature-block.signed {
+            border-color: #10b981;
+            background: #f0fdf4;
+        }
+        
+        .signature-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .signature-name {
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        
+        .signature-date {
+            font-size: 10px;
+            color: #6b7280;
+        }
+        
+        .summary-section {
+            margin-top: 30px;
+            padding: 15px;
+            background: #f8fafc;
+            border-radius: 8px;
+        }
+        
+        .summary-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+            text-align: center;
+        }
+        
+        .stat-box {
+            padding: 10px;
+            border-radius: 6px;
+        }
+        
+        .stat-completed {
+            background: #dcfce7;
+            color: #166534;
+        }
+        
+        .stat-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .stat-issues {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 10px;
+            color: #6b7280;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="company-name">{{ company_name }}</div>
+        <div class="document-title">ЧЕК-ЛИСТ ПРОВЕРКИ ТРАНСПОРТА</div>
+        <div>{{ company_address }}</div>
+    </div>
+
+    <div class="trip-info">
+        <div class="trip-info-grid">
+            <div>
+                <div class="info-row">
+                    <strong>Поездка:</strong> {{ trip.title }}
+                </div>
+                <div class="info-row">
+                    <strong>Транспорт:</strong> {{ trip.vehicle.brand }} {{ trip.vehicle.model }} ({{ trip.vehicle.number }})
+                </div>
+                <div class="info-row">
+                    <strong>Водитель:</strong> {{ trip.driver.get_full_name }}
+                </div>
+                <div class="info-row">
+                    <strong>Дата создания:</strong> {{ checklist.created_at|date:"d.m.Y H:i" }}
+                </div>
+            </div>
+            <div>
+                <div class="info-row">
+                    <strong>Маршрут:</strong><br>
+                    {{ trip.start_address }} →<br>
+                    {{ trip.end_address }}
+                </div>
+                <div class="info-row">
+                    <strong>Статус:</strong> {{ checklist.get_status_display }}
+                </div>
+                <div class="info-row">
+                    <strong>Завершен:</strong> 
+                    {% if checklist.completed_at %}
+                        {{ checklist.completed_at|date:"d.m.Y H:i" }}
+                    {% else %}
+                        Не завершен
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Сводка -->
+    <div class="summary-section">
+        <h3 style="margin-top: 0; text-align: center;">Сводка проверки</h3>
+        <div class="summary-stats">
+            <div class="stat-box stat-completed">
+                <div style="font-size: 16px; font-weight: bold;">{{ checklist.completion_percentage }}%</div>
+                <div>Выполнено</div>
+            </div>
+            <div class="stat-box stat-pending">
+                <div style="font-size: 16px; font-weight: bold;">{{ checklist.items.filter.is_checked=False.count }}</div>
+                <div>Не проверено</div>
+            </div>
+            <div class="stat-box stat-issues">
+                <div style="font-size: 16px; font-weight: bold;">{{ checklist.items.filter.is_ok=False.count }}</div>
+                <div>Проблемы</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Пункты проверки по категориям -->
+    {% for category, items in items_by_category.items %}
+    <div class="category-section">
+        <div class="category-title">{{ category }}</div>
+        <div class="checklist-items">
+            {% for item in items %}
+            <div class="checklist-item">
+                <div class="item-checkbox {% if item.is_checked %}{% if item.is_ok %}checked{% else %}not-ok{% endif %}{% endif %}"></div>
+                <div class="item-content">
+                    <div class="item-title">{{ item.template.title }}</div>
+                    {% if item.template.description %}
+                        <div class="item-notes">{{ item.template.description }}</div>
+                    {% endif %}
+                    {% if item.notes %}
+                        <div class="item-notes"><strong>Примечание:</strong> {{ item.notes }}</div>
+                    {% endif %}
+                    {% if item.checked_at %}
+                        <div class="item-notes">Проверено: {{ item.checked_at|date:"d.m.Y H:i" }}
+                        {% if item.checked_by %} ({{ item.checked_by.get_full_name }}){% endif %}</div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+
+    <!-- Подписи -->
+    <div class="signatures-section">
+        <h3>Подписи ответственных лиц</h3>
+        <div class="signatures-grid">
+            <div class="signature-block {% if checklist.driver_signature %}signed{% endif %}">
+                <div class="signature-title">ВОДИТЕЛЬ</div>
+                {% if checklist.driver_signature %}
+                    <div class="signature-name">{{ checklist.driver_signature }}</div>
+                    <div class="signature-date">{{ checklist.driver_signed_at|date:"d.m.Y H:i" }}</div>
+                {% else %}
+                    <div style="height: 40px; border-bottom: 1px solid #ccc; margin: 10px 0;"></div>
+                    <div>Подпись</div>
+                {% endif %}
+            </div>
+            
+            <div class="signature-block {% if checklist.mechanic_signature %}signed{% endif %}">
+                <div class="signature-title">МЕХАНИК</div>
+                {% if checklist.mechanic_signature %}
+                    <div class="signature-name">{{ checklist.mechanic_signature }}</div>
+                    <div class="signature-date">{{ checklist.mechanic_signed_at|date:"d.m.Y H:i" }}</div>
+                {% else %}
+                    <div style="height: 40px; border-bottom: 1px solid #ccc; margin: 10px 0;"></div>
+                    <div>Подпись</div>
+                {% endif %}
+            </div>
+            
+            <div class="signature-block {% if checklist.deputy_director_signature %}signed{% endif %}">
+                <div class="signature-title">ЗАМ. ДИРЕКТОРА</div>
+                {% if checklist.deputy_director_signature %}
+                    <div class="signature-name">{{ checklist.deputy_director_signature }}</div>
+                    <div class="signature-date">{{ checklist.deputy_director_signed_at|date:"d.m.Y H:i" }}</div>
+                {% else %}
+                    <div style="height: 40px; border-bottom: 1px solid #ccc; margin: 10px 0;"></div>
+                    <div>Подпись</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    {% if checklist.notes %}
+    <div style="margin-top: 30px;">
+        <h3>Дополнительные примечания</h3>
+        <div style="padding: 15px; background: #f8fafc; border-radius: 8px;">
+            {{ checklist.notes|linebreaks }}
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="footer">
+        <p>Документ сгенерирован автоматически {{ "now"|date:"d.m.Y H:i" }}</p>
+        <p>{{ company_name }} - Система управления автопарком</p>
+    </div>
+</body>
+</html> 

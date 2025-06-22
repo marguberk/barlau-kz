@@ -1,0 +1,260 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}MaroAI Design System Demo | BARLAU.KZ{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-background">
+    <!-- Header -->
+    <div class="card-header border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between py-6">
+                <div>
+                    <h1 class="text-3xl font-bold text-foreground">MaroAI Design System</h1>
+                    <p class="text-muted-foreground mt-2">Демонстрация компонентов для BARLAU.KZ</p>
+                </div>
+                <button onclick="MaroAI.toggleTheme()" class="btn btn-outline btn-icon">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Color Palette -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-semibold text-foreground mb-6">Цветовая палитра</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="card p-4">
+                    <div class="w-full h-20 rounded-md mb-3" style="background-color: #8962DB;"></div>
+                    <h3 class="font-medium text-foreground">Primary</h3>
+                    <p class="text-sm text-muted-foreground">#8962DB</p>
+                </div>
+                <div class="card p-4">
+                    <div class="w-full h-20 bg-secondary rounded-md mb-3"></div>
+                    <h3 class="font-medium text-foreground">Secondary</h3>
+                    <p class="text-sm text-muted-foreground">HSL Variable</p>
+                </div>
+                <div class="card p-4">
+                    <div class="w-full h-20 bg-destructive rounded-md mb-3"></div>
+                    <h3 class="font-medium text-foreground">Destructive</h3>
+                    <p class="text-sm text-muted-foreground">HSL Variable</p>
+                </div>
+                <div class="card p-4">
+                    <div class="w-full h-20 bg-muted rounded-md mb-3"></div>
+                    <h3 class="font-medium text-foreground">Muted</h3>
+                    <p class="text-sm text-muted-foreground">HSL Variable</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Buttons -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-semibold text-foreground mb-6">Кнопки</h2>
+            <div class="card p-6">
+                <div class="space-y-4">
+                    <div>
+                        <h3 class="font-medium text-foreground mb-3">Варианты</h3>
+                        <div class="flex flex-wrap gap-3">
+                            <button class="btn btn-default btn-default-size">По умолчанию</button>
+                            <button class="btn btn-destructive btn-default-size">Деструктивная</button>
+                            <button class="btn btn-outline btn-default-size">Контурная</button>
+                            <button class="btn btn-secondary btn-default-size">Вторичная</button>
+                            <button class="btn btn-ghost btn-default-size">Призрачная</button>
+                            <button class="btn btn-link btn-default-size">Ссылка</button>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="font-medium text-foreground mb-3">Размеры</h3>
+                        <div class="flex flex-wrap items-center gap-3">
+                            <button class="btn btn-default btn-sm">Маленькая</button>
+                            <button class="btn btn-default btn-default-size">Обычная</button>
+                            <button class="btn btn-default btn-lg">Большая</button>
+                            <button class="btn btn-default btn-icon">
+                                <i class="fas fa-heart"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Cards -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-semibold text-foreground mb-6">Карточки</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Простая карточка</h3>
+                        <p class="card-description">Описание карточки с важной информацией.</p>
+                    </div>
+                    <div class="card-content">
+                        <p class="text-muted-foreground">Содержимое карточки находится здесь.</p>
+                    </div>
+                    <div class="card-footer">
+                        <button class="btn btn-default btn-default-size">Действие</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Карточка с иконкой</h3>
+                        <p class="card-description">С красивой иконкой в углу.</p>
+                    </div>
+                    <div class="card-content">
+                        <div class="flex items-start gap-4">
+                            <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background-color: #8962DB; color: white;">
+                                <i class="fas fa-truck"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm text-muted-foreground">Информация о транспорте и другие детали.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Интерактивная карточка</h3>
+                        <p class="card-description">С прогресс-баром и статистикой.</p>
+                    </div>
+                    <div class="card-content">
+                        <div class="space-y-3">
+                            <div class="flex justify-between text-sm">
+                                <span class="text-muted-foreground">Прогресс</span>
+                                <span class="font-medium">75%</span>
+                            </div>
+                            <div class="w-full bg-secondary rounded-full h-2">
+                                <div class="h-2 rounded-full" style="width: 75%; background-color: #8962DB;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Badges -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-semibold text-foreground mb-6">Значки</h2>
+            <div class="card p-6">
+                <div class="flex flex-wrap gap-3">
+                    <div class="badge badge-default">По умолчанию</div>
+                    <div class="badge badge-secondary">Вторичный</div>
+                    <div class="badge badge-destructive">Важный</div>
+                    <div class="badge badge-outline">Контурный</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Form Elements -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-semibold text-foreground mb-6">Элементы форм</h2>
+            <div class="card p-6">
+                <div class="space-y-4 max-w-md">
+                    <div>
+                        <label class="block text-sm font-medium text-foreground mb-2">Поле ввода</label>
+                        <input type="text" class="input" placeholder="Введите текст...">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-foreground mb-2">Текстовая область</label>
+                        <textarea class="input" rows="3" placeholder="Многострочный текст..."></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-foreground mb-2">Выбор</label>
+                        <select class="input">
+                            <option>Выберите опцию</option>
+                            <option>Опция 1</option>
+                            <option>Опция 2</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Alerts -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-semibold text-foreground mb-6">Уведомления</h2>
+            <div class="space-y-4">
+                <div class="alert alert-default">
+                    <h5 class="alert-title">Информация</h5>
+                    <div class="alert-description">Это информационное уведомление с важными деталями.</div>
+                </div>
+                <div class="alert alert-destructive">
+                    <h5 class="alert-title">Ошибка</h5>
+                    <div class="alert-description">Произошла ошибка. Пожалуйста, попробуйте снова.</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Interactive Demo -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-semibold text-foreground mb-6">Интерактивные элементы</h2>
+            <div class="card p-6">
+                <div class="space-y-4">
+                    <button onclick="showMaroAIToast()" class="btn btn-default btn-default-size">
+                        Показать тост
+                    </button>
+                    
+                    <button onclick="createDynamicCard()" class="btn btn-outline btn-default-size">
+                        Создать карточку
+                    </button>
+                    
+                    <div id="dynamic-content" class="mt-6"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Typography -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-semibold text-foreground mb-6">Типографика</h2>
+            <div class="card p-6">
+                <div class="space-y-4">
+                    <h1 class="text-4xl font-bold text-foreground">Заголовок 1</h1>
+                    <h2 class="text-3xl font-semibold text-foreground">Заголовок 2</h2>
+                    <h3 class="text-2xl font-medium text-foreground">Заголовок 3</h3>
+                    <h4 class="text-xl font-medium text-foreground">Заголовок 4</h4>
+                    <p class="text-foreground">Обычный текст с хорошей читаемостью и правильными отступами.</p>
+                    <p class="text-muted-foreground">Приглушенный текст для вторичной информации.</p>
+                    <p class="text-sm text-muted-foreground">Мелкий текст для деталей и примечаний.</p>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+
+<!-- Toast Container -->
+<div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2"></div>
+
+<script>
+// Демонстрационные функции
+function showMaroAIToast() {
+    MaroAI.showToast({
+        title: 'MaroAI Design System',
+        description: 'Тост успешно показан с новой стиль-системой!',
+        variant: 'default',
+        duration: 4000
+    });
+}
+
+function createDynamicCard() {
+    const container = document.getElementById('dynamic-content');
+    const cardHTML = MaroAI.createCard({
+        title: 'Динамическая карточка',
+        description: 'Создана с помощью JavaScript утилит MaroAI',
+        content: '<p class="text-muted-foreground">Эта карточка была создана динамически используя функции стиль-системы.</p>',
+        footer: '<button class="btn btn-destructive btn-sm" onclick="this.closest(\'.card\').remove()">Удалить</button>',
+        customClasses: 'animate-fade-in-up'
+    });
+    
+    container.innerHTML = cardHTML;
+}
+
+// Инициализация анимаций
+document.addEventListener('DOMContentLoaded', function() {
+    // Анимируем карточки при загрузке
+    document.querySelectorAll('.card').forEach((card, index) => {
+        setTimeout(() => MaroAI.animateElement(card), index * 100);
+    });
+});
+</script>
+{% endblock %} 

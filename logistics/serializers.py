@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Vehicle, Task, Expense, WaybillDocument, VehiclePhoto, VehicleDocument, VehicleMaintenance
+from .models import Vehicle, Task, TaskFile, Expense, WaybillDocument, VehiclePhoto, VehicleDocument, VehicleMaintenance
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
@@ -58,15 +58,58 @@ class VehicleLocationSerializer(serializers.ModelSerializer):
         model = Vehicle
         fields = ['id', 'number', 'brand', 'model', 'driver_name', 'latitude', 'longitude', 'last_update']
 
+class TaskFileSerializer(serializers.ModelSerializer):
+    uploaded_by_details = UserSerializer(source='uploaded_by', read_only=True)
+    file_size_display = serializers.CharField(source='get_file_size_display', read_only=True)
+    is_image = serializers.BooleanField(read_only=True)
+    
+    class Meta:
+        model = TaskFile
+        fields = '__all__'
+        read_only_fields = ['id', 'uploaded_by', 'uploaded_at', 'file_size', 'file_type']
+
 class TaskSerializer(serializers.ModelSerializer):
     created_by_details = UserSerializer(source='created_by', read_only=True)
     assigned_user_details = UserSerializer(source='assigned_to', read_only=True)
+    assignees_details = UserSerializer(source='assignees', many=True, read_only=True)
     vehicle_details = VehicleSerializer(source='vehicle', read_only=True)
+    files = TaskFileSerializer(many=True, read_only=True)
+    assignees_ids = serializers.ListField(
+        child=serializers.IntegerField(), 
+        write_only=True, 
+        required=False,
+        help_text="Список ID исполнителей"
+    )
     
     class Meta:
         model = Task
         fields = '__all__'
         read_only_fields = ['id', 'created_by', 'created_at', 'updated_at']
+    
+    def create(self, validated_data):
+        assignees_ids = validated_data.pop('assignees_ids', [])
+        print(f"TaskSerializer.create: assignees_ids = {assignees_ids}")
+        task = super().create(validated_data)
+        
+        if assignees_ids:
+            User = get_user_model()
+            assignees = User.objects.filter(id__in=assignees_ids)
+            print(f"TaskSerializer.create: найдено исполнителей = {list(assignees)}")
+            task.assignees.set(assignees)
+            print(f"TaskSerializer.create: установлены исполнители для задачи {task.id}")
+        
+        return task
+    
+    def update(self, instance, validated_data):
+        assignees_ids = validated_data.pop('assignees_ids', None)
+        task = super().update(instance, validated_data)
+        
+        if assignees_ids is not None:
+            User = get_user_model()
+            assignees = User.objects.filter(id__in=assignees_ids)
+            task.assignees.set(assignees)
+        
+        return task
 
 class TaskLocationSerializer(serializers.ModelSerializer):
     vehicle_number = serializers.CharField(source='vehicle.number', read_only=True)

@@ -218,7 +218,9 @@ class Task(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='NEW', verbose_name='Статус')
     
     assigned_to = models.ForeignKey('accounts.User', on_delete=models.SET_NULL, null=True, blank=True, 
-                                  related_name='assigned_tasks', verbose_name='Исполнитель')
+                                  related_name='assigned_tasks', verbose_name='Основной исполнитель')
+    assignees = models.ManyToManyField('accounts.User', blank=True, 
+                                     related_name='task_assignments', verbose_name='Исполнители')
     vehicle = models.ForeignKey('Vehicle', on_delete=models.SET_NULL, null=True, blank=True,
                               related_name='tasks', verbose_name='Транспорт')
     
@@ -235,6 +237,47 @@ class Task(models.Model):
     
     def __str__(self):
         return self.title
+
+    def get_all_assignees(self):
+        """Получить всех исполнителей (основного + дополнительных)"""
+        assignees = list(self.assignees.all())
+        if self.assigned_to and self.assigned_to not in assignees:
+            assignees.insert(0, self.assigned_to)
+        return assignees
+
+class TaskFile(models.Model):
+    """Файлы и изображения прикрепленные к задаче"""
+    task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='files', verbose_name='Задача')
+    file = models.FileField(upload_to='tasks/files/%Y/%m/', verbose_name='Файл')
+    original_name = models.CharField(max_length=255, verbose_name='Оригинальное имя файла')
+    file_type = models.CharField(max_length=50, verbose_name='Тип файла')
+    file_size = models.PositiveIntegerField(verbose_name='Размер файла (байт)')
+    uploaded_by = models.ForeignKey('accounts.User', on_delete=models.SET_NULL, null=True, 
+                                  related_name='uploaded_task_files', verbose_name='Загрузил')
+    uploaded_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата загрузки')
+    
+    class Meta:
+        verbose_name = 'Файл задачи'
+        verbose_name_plural = 'Файлы задач'
+        ordering = ['-uploaded_at']
+    
+    def __str__(self):
+        return f"{self.task.title} - {self.original_name}"
+    
+    @property
+    def is_image(self):
+        """Проверяет, является ли файл изображением"""
+        image_extensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp']
+        return any(self.original_name.lower().endswith(ext) for ext in image_extensions)
+    
+    def get_file_size_display(self):
+        """Возвращает размер файла в человекочитаемом формате"""
+        if self.file_size < 1024:
+            return f"{self.file_size} Б"
+        elif self.file_size < 1024 * 1024:
+            return f"{self.file_size // 1024} КБ"
+        else:
+            return f"{self.file_size // (1024 * 1024)} МБ"
 
 class Expense(models.Model):
     class Category(models.TextChoices):

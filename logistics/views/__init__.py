@@ -1,4 +1,4 @@
-from .task import TaskViewSet
+from .task import TaskViewSet, TaskFileViewSet
 from .vehicle import VehicleViewSet
 from .expense import ExpenseViewSet
 from .waybill import WaybillDocumentViewSet
@@ -7,6 +7,7 @@ from .finance import FinanceViewSet
 
 __all__ = [
     'TaskViewSet',
+    'TaskFileViewSet',
     'VehicleViewSet',
     'ExpenseViewSet',
     'WaybillDocumentViewSet',

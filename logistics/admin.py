@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Vehicle, Task, Expense, WaybillDocument
+from .models import Vehicle, Task, TaskFile, Expense, WaybillDocument
 
 @admin.register(Vehicle)
 class VehicleAdmin(admin.ModelAdmin):
@@ -8,13 +8,30 @@ class VehicleAdmin(admin.ModelAdmin):
     search_fields = ('number', 'brand', 'model')
     raw_id_fields = ('driver',)
 
+class TaskFileInline(admin.TabularInline):
+    model = TaskFile
+    extra = 0
+    readonly_fields = ('uploaded_at', 'file_size', 'file_type')
+    fields = ('file', 'original_name', 'uploaded_by', 'uploaded_at', 'file_size', 'file_type')
+
 @admin.register(Task)
 class TaskAdmin(admin.ModelAdmin):
     list_display = ('title', 'status', 'priority', 'assigned_to', 'vehicle', 'due_date', 'created_by')
     list_filter = ('status', 'priority', 'created_at')
     search_fields = ('title', 'description')
     raw_id_fields = ('assigned_to', 'vehicle', 'created_by')
+    filter_horizontal = ('assignees',)
     date_hierarchy = 'created_at'
+    inlines = [TaskFileInline]
+
+@admin.register(TaskFile)
+class TaskFileAdmin(admin.ModelAdmin):
+    list_display = ('task', 'original_name', 'file_type', 'file_size', 'uploaded_by', 'uploaded_at')
+    list_filter = ('file_type', 'uploaded_at')
+    search_fields = ('original_name', 'task__title')
+    raw_id_fields = ('task', 'uploaded_by')
+    readonly_fields = ('uploaded_at', 'file_size', 'file_type')
+    date_hierarchy = 'uploaded_at'
 
 @admin.register(Expense)
 class ExpenseAdmin(admin.ModelAdmin):

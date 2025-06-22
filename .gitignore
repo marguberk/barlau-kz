@@ -150,4 +150,4 @@ db.sqlite3
 /tmp.*
 *.pyc
 .env.prod
- 
+ node_modules/

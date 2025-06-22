@@ -10,11 +10,11 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = (
             'id', 'username', 'email', 'phone', 'first_name', 'last_name',
-            'role', 'is_phone_verified', 'current_latitude', 'current_longitude',
-            'last_location_update', 'position', 'experience', 'education',
-            'skills', 'photo'
+            'role', 'is_active', 'is_archived', 'date_joined', 'is_phone_verified', 
+            'current_latitude', 'current_longitude', 'last_location_update', 
+            'position', 'experience', 'education', 'skills', 'photo'
         )
-        read_only_fields = ('is_phone_verified', 'firebase_uid')
+        read_only_fields = ('is_phone_verified', 'firebase_uid', 'date_joined')
 
 class UserCreateSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True, validators=[validate_password])

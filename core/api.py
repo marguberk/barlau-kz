@@ -602,6 +602,116 @@ class TripViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(my_trips, many=True)
         return Response(serializer.data)
 
+    @action(detail=True, methods=['post'])
+    def submit_checklist(self, request, pk=None):
+        """Отправить чек-лист поездки на проверку"""
+        trip = self.get_object()
+        user = request.user
+        
+        # Проверяем права доступа
+        if not (user == trip.driver or user.role in ['SUPERADMIN', 'ADMIN'] or user.is_superuser):
+            return Response(
+                {'detail': 'У вас нет прав для отправки чек-листа этой поездки'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        # Проверяем наличие чек-листа
+        try:
+            checklist = trip.checklist
+        except TripChecklist.DoesNotExist:
+            return Response(
+                {'detail': 'Чек-лист для этой поездки не найден'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        # Проверяем, что все пункты заполнены
+        if checklist.completion_percentage < 100:
+            return Response(
+                {'detail': f'Чек-лист заполнен только на {checklist.completion_percentage}%. Необходимо заполнить все пункты.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Переводим в статус "Завершен"
+        checklist.status = 'COMPLETED'
+        checklist.completed_at = timezone.now()
+        checklist.driver_signature = f"{user.first_name} {user.last_name}"
+        checklist.driver_signed_at = timezone.now()
+        checklist.save()
+        
+        # Создаем уведомления для диспетчеров и админов
+        from accounts.models import User
+        dispatchers_and_admins = User.objects.filter(
+            role__in=['ADMIN', 'SUPERADMIN', 'DISPATCHER', 'DIRECTOR'],
+            is_active=True
+        )
+        
+        for admin_user in dispatchers_and_admins:
+            Notification.create_system_notification(
+                user=admin_user,
+                title="Чек-лист готов к проверке",
+                message=f"Водитель {user.get_full_name()} завершил заполнение чек-листа для поездки '{trip.title}'. Требуется проверка и одобрение.",
+                link=f"/dashboard/checklist/{checklist.id}/"
+            )
+        
+        return Response({
+            'detail': 'Чек-лист отправлен на проверку',
+            'checklist_status': checklist.status
+        })
+
+    @action(detail=True, methods=['post'])
+    def approve_checklist(self, request, pk=None):
+        """Одобрить чек-лист поездки"""
+        trip = self.get_object()
+        user = request.user
+        
+        # Проверяем права доступа
+        if not (user.role in ['SUPERADMIN', 'ADMIN', 'DISPATCHER', 'DIRECTOR'] or user.is_superuser):
+            return Response(
+                {'detail': 'У вас нет прав для одобрения чек-листов'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        # Проверяем наличие чек-листа
+        try:
+            checklist = trip.checklist
+        except TripChecklist.DoesNotExist:
+            return Response(
+                {'detail': 'Чек-лист для этой поездки не найден'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        # Проверяем статус чек-листа
+        if checklist.status != 'COMPLETED':
+            return Response(
+                {'detail': 'Можно одобрить только завершенный чек-лист'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Одобряем чек-лист
+        checklist.status = 'APPROVED'
+        checklist.deputy_director = user
+        checklist.deputy_director_signature = f"{user.first_name} {user.last_name}"
+        checklist.deputy_director_signed_at = timezone.now()
+        checklist.save()
+        
+        # Обновляем статус поездки
+        trip.status = 'READY'
+        trip.save()
+        
+        # Создаем уведомление водителю
+        Notification.create_system_notification(
+            user=trip.driver,
+            title="Чек-лист одобрен",
+            message=f"Ваш чек-лист для поездки '{trip.title}' одобрен. Поездка готова к отправке!",
+            link=f"/dashboard/trips/{trip.id}/"
+        )
+        
+        return Response({
+            'detail': 'Чек-лист одобрен',
+            'trip_status': trip.status,
+            'checklist_status': checklist.status
+        })
+
 
 class ChecklistTemplateViewSet(viewsets.ReadOnlyModelViewSet):
     """ViewSet для просмотра шаблонов чек-листа"""
@@ -906,7 +1016,82 @@ class ChecklistItemViewSet(viewsets.ModelViewSet):
         item.save()
         
         serializer = self.get_serializer(item)
-        return Response(serializer.data) 
+        return Response(serializer.data)
+
+    @action(detail=True, methods=['patch'])
+    def toggle(self, request, pk=None):
+        """Переключить состояние пункта чек-листа"""
+        item = self.get_object()
+        user = request.user
+        
+        # Проверяем права
+        checklist = item.checklist
+        can_toggle = (
+            user == checklist.trip.driver or
+            user.role in ['MECHANIC', 'SUPERADMIN', 'ADMIN'] or
+            user.is_superuser
+        )
+        
+        if not can_toggle:
+            return Response(
+                {'detail': 'У вас нет прав для изменения этого пункта'}, 
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        # Проверяем, что чек-лист в правильном статусе
+        if checklist.status not in ['PENDING', 'IN_PROGRESS']:
+            return Response(
+                {'detail': 'Нельзя изменять пункты утвержденного чек-листа'}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Переключаем состояние
+        new_checked_state = request.data.get('is_checked', not item.is_checked)
+        
+        item.is_checked = new_checked_state
+        if new_checked_state:
+            item.is_ok = request.data.get('is_ok', True)
+            item.notes = request.data.get('notes', item.notes)
+            item.checked_by = user
+            item.checked_at = timezone.now()
+        else:
+            item.is_ok = True
+            item.notes = ''
+            item.checked_by = None
+            item.checked_at = None
+        
+        item.save()
+        
+        serializer = self.get_serializer(item)
+        return Response(serializer.data)
+
+@api_view(['GET'])
+@authentication_classes([SessionAuthentication, BasicAuthentication])
+@permission_classes([IsAuthenticated])
+def get_trip_checklist(request, trip_id):
+    """Получить чек-лист для конкретной поездки"""
+    user = request.user
+    
+    try:
+        trip = Trip.objects.get(id=trip_id)
+    except Trip.DoesNotExist:
+        return Response({'detail': 'Поездка не найдена'}, status=status.HTTP_404_NOT_FOUND)
+    
+    # Проверяем права доступа
+    if not (user.role in ['SUPERADMIN', 'ADMIN', 'DISPATCHER'] or 
+            user.is_superuser or 
+            trip.driver == user):
+        return Response({'detail': 'У вас нет прав для просмотра этого чек-листа'}, 
+                       status=status.HTTP_403_FORBIDDEN)
+    
+    # Проверяем, есть ли чек-лист для этой поездки
+    try:
+        checklist = TripChecklist.objects.select_related('trip', 'trip__driver', 'trip__vehicle').prefetch_related('items__template').get(trip=trip)
+        serializer = TripChecklistSerializer(checklist)
+        return Response(serializer.data)
+    except TripChecklist.DoesNotExist:
+        return Response({'detail': 'Чек-лист для этой поездки не найден'}, status=status.HTTP_404_NOT_FOUND)
+
 
 @api_view(['POST'])
 @authentication_classes([SessionAuthentication, BasicAuthentication])

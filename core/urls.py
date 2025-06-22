@@ -46,7 +46,7 @@ from .views import (
 from .api import (
     update_profile, upload_profile_photo, get_profile_stats, trips_api, driver_locations_api, 
     employee_pdf_api, vehicles_api, TripViewSet, ChecklistTemplateViewSet, TripChecklistViewSet, ChecklistItemViewSet,
-    create_checklist_for_trip, generate_checklist_pdf, update_checklist_item, upload_checklist_photos, delete_checklist_photo
+    create_checklist_for_trip, get_trip_checklist, generate_checklist_pdf, update_checklist_item, upload_checklist_photos, delete_checklist_photo
 )
 from logistics.views.task import TaskViewSet
 from django.views.generic import TemplateView
@@ -97,6 +97,7 @@ urlpatterns = [
     path('api/employees/<int:pk>/pdf/', employee_pdf_api, name='api-employee-pdf'),
     path('api/vehicles/', vehicles_api, name='api-vehicles'),
     path('api/trips/<int:trip_id>/create-checklist/', create_checklist_for_trip, name='api-create-checklist'),
+    path('api/trips/<int:trip_id>/checklist/', get_trip_checklist, name='api-get-trip-checklist'),
     path('api/checklists/<int:checklist_id>/pdf/', generate_checklist_pdf, name='api-checklist-pdf'),
     path('api/checklist-items/<int:item_id>/update/', update_checklist_item, name='api-update-checklist-item'),
     path('api/checklist-items/<int:item_id>/upload-photos/', upload_checklist_photos, name='api-upload-checklist-photos'),

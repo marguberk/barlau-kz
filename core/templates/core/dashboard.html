@@ -2033,13 +2033,34 @@
     async function loadDashboardTrips() {
         try {
             const resp = await fetch('/dashboard/api/trips/');
+            if (!resp.ok) {
+                console.error('API error:', resp.status, resp.statusText);
+                const errorText = await resp.text();
+                console.error('Error details:', errorText);
+                
+                if (resp.status === 401 || resp.status === 403) {
+                    console.error('Authentication error - user not logged in or no permissions');
+                    const list = document.getElementById('dashboardTripList');
+                    if (list) {
+                        list.innerHTML = '<div class="text-red-500">Ошибка аутентификации. Войдите в систему.</div>';
+                    }
+                }
+                return;
+            }
             const trips = await resp.json();
-            dashboardAllTripsCache = trips;
-            if (dashboardSelectedTripIdx !== null && trips[dashboardSelectedTripIdx]) {
-                renderDashboardTripListWithSelection(trips, dashboardSelectedTripIdx);
-                renderDashboardTripRoutes([trips[dashboardSelectedTripIdx]]);
+            console.log('Dashboard trips loaded:', trips);
+            
+            // Фильтруем поездки - показываем активные, запланированные и в процессе
+            const activeTrips = trips.filter(trip => 
+                ['ACTIVE', 'PLANNED', 'IN_PROGRESS'].includes(trip.status)
+            );
+            
+            dashboardAllTripsCache = activeTrips;
+            if (dashboardSelectedTripIdx !== null && activeTrips[dashboardSelectedTripIdx]) {
+                renderDashboardTripListWithSelection(activeTrips, dashboardSelectedTripIdx);
+                renderDashboardTripRoutes([activeTrips[dashboardSelectedTripIdx]]);
             } else {
-                renderDashboardTripListWithSelection(trips, null);
+                renderDashboardTripListWithSelection(activeTrips, null);
                 renderDashboardTripRoutes([]);
             }
         } catch (e) {
@@ -2284,6 +2305,7 @@
                     return;
                 }
                 try {
+                    console.log('Creating trip with data:', data);
                     const resp = await fetch('/dashboard/api/trips/', {
                         method: 'POST',
                         headers: {
@@ -2292,14 +2314,20 @@
                         },
                         body: JSON.stringify(data)
                     });
+                    console.log('Create trip response:', resp.status, resp.statusText);
+                    
                     if (resp.ok) {
+                        const createdTrip = await resp.json();
+                        console.log('Trip created successfully:', createdTrip);
                         closeDashboardTripForm();
                         loadDashboardTrips();
                     } else {
                         const err = await resp.json();
+                        console.error('Create trip error:', err);
                         alert('Ошибка: ' + JSON.stringify(err));
                     }
                 } catch (err) {
+                    console.error('Network error:', err);
                     alert('Ошибка: ' + err);
                 }
             };

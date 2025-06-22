@@ -1,4 +1,4 @@
-from .views.task import TaskViewSet
+from .views.task import TaskViewSet, TaskFileViewSet
 from .views.vehicle import VehicleViewSet
 from .views.expense import ExpenseViewSet
 from .views.waybill import WaybillDocumentViewSet
@@ -23,6 +23,7 @@ from datetime import datetime, timedelta
 
 __all__ = [
     'TaskViewSet',
+    'TaskFileViewSet',
     'VehicleViewSet',
     'ExpenseViewSet',
     'WaybillDocumentViewSet',

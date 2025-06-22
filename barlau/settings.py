@@ -31,6 +31,9 @@ DEBUG = config('DEBUG', default=True, cast=bool)
 ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
+    '0.0.0.0',  # Для всех интерфейсов
+    '192.168.27.223',  # Текущий IP вашего Mac
+    '192.168.122.215',  # Старый IP (на всякий случай)
     'f999-176-110-126-5.ngrok-free.app',
 ]
 
@@ -171,7 +174,7 @@ REST_FRAMEWORK = {
         'django_filters.rest_framework.DjangoFilterBackend',
     ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 10,
+    'PAGE_SIZE': 50,
 }
 
 AUTHENTICATION_BACKENDS = [
@@ -282,7 +285,7 @@ LOGGING = {
     'loggers': {
         'django': {
             'handlers': ['console'],
-            'level': 'DEBUG',
+            'level': 'INFO',  # Возвращаем чистый вывод
         },
     },
 }

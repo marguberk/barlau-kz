@@ -7,8 +7,8 @@ from core.views import FileUploadView
 urlpatterns = [
     path('api/upload/', FileUploadView.as_view(), name='file-upload'),  # СТАВИМ ПЕРВЫМ!
     path('admin/', admin.site.urls),
+    path('accounts/', include('accounts.urls')),  # API для мобильного приложения
     path('', include('core.urls')),
-    path('accounts/', include('accounts.urls')),
     path('api/logistics/', include('logistics.urls', namespace='logistics-api')),
     path('', include('pwa.urls')),  # Добавляем URL-адреса PWA
 ]

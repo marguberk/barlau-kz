@@ -4,6 +4,12 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
 User = get_user_model()
 
+# Сначала отменяем регистрацию стандартной модели User, если она была зарегистрирована
+try:
+    admin.site.unregister(User)
+except admin.sites.NotRegistered:
+    pass
+
 @admin.register(User)
 class UserAdmin(BaseUserAdmin):
     list_display = ('username', 'email', 'phone', 'role', 'is_phone_verified', 'is_staff')

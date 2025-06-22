@@ -1,8 +1,7 @@
-<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-<g>
-<path d="M7.65695 31.4278H6.69593C4.37859 31.4278 2.5 29.5491 2.5 27.2317V9.13121C2.5 6.81372 4.37859 4.93506 6.69593 4.93506H20.8692C23.1865 4.93506 25.0651 6.81372 25.0651 9.13121V31.4278H15.1833M33.8274 18.2874H25.0651V9.02636H26.1959C26.9432 9.02629 27.6769 9.22572 28.3214 9.60404C28.9658 9.98237 29.4975 10.5259 29.8616 11.1784L33.8274 18.2874Z" stroke="#666D80" stroke-width="2" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M11.4211 35.0653C13.4504 35.0653 15.0956 33.4209 15.0956 31.3925C15.0956 29.3641 13.4504 27.7197 11.4211 27.7197C9.39171 27.7197 7.74658 29.3641 7.74658 31.3925C7.74658 33.4209 9.39171 35.0653 11.4211 35.0653Z" stroke="#666D80" stroke-width="2" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M28.7394 35.0653C30.7688 35.0653 32.4139 33.4209 32.4139 31.3925C32.4139 29.3641 30.7688 27.7197 28.7394 27.7197C26.7101 27.7197 25.0649 29.3641 25.0649 31.3925C25.0649 33.4209 26.7101 35.0653 28.7394 35.0653Z" stroke="#666D80" stroke-width="2" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M32.6224 31.4277H34.6389C35.829 31.4277 36.8504 30.7054 37.2887 29.6752M37.4999 22.0981C37.3053 19.9613 35.5088 18.2874 33.3215 18.2874H25.0649V31.4278" stroke="#666D80" stroke-width="2" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
-</g>
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M4 18H3C2.45 18 2 17.55 2 17V7C2 6.45 2.45 6 3 6H13C13.55 6 14 6.45 14 7V18H8M18 10H14V8H14.5C14.78 8 15.04 8.11 15.24 8.29C15.44 8.47 15.56 8.72 15.58 9L18 10Z" stroke="#2563EB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+<circle cx="6" cy="19" r="2" stroke="#2563EB" stroke-width="2" fill="none"/>
+<circle cx="16" cy="19" r="2" stroke="#2563EB" stroke-width="2" fill="none"/>
+<path d="M14 18H18C18.55 18 19 17.55 19 17V11C19 10.45 18.55 10 18 10H14V18Z" stroke="#2563EB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+<path d="M8 18H14" stroke="#2563EB" stroke-width="2" stroke-linecap="round"/>
 </svg>
