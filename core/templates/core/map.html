@@ -22,11 +22,12 @@
         overflow: hidden;
         box-shadow: 0 2px 8px rgba(13,13,18,0.06);
         padding: 0;
+        flex: 1 1 0%;
     }
     .map-panel {
-        width: 400px;
-        min-width: 400px;
-        max-width: 400px;
+        width: 38vw;
+        min-width: 280px;
+        max-width: 540px;
         background: #fff;
         border-right: 1px solid #e5e7eb;
         position: relative;
@@ -37,7 +38,7 @@
         height: 100%;
         min-height: 400px;
         max-height: 86vh;
-        flex: 0 0 auto;
+        flex: 1 1 0%;
         padding: 0;
     }
     #mapContainer {
@@ -49,281 +50,6 @@
         border-radius: 0;
         z-index: 1;
         padding: 0;
-    }
-    
-    /* Панель чек-листа */
-    .checklist-panel {
-        width: 400px;
-        min-width: 400px;
-        max-width: 400px;
-        background: #fff;
-        border-left: 1px solid #e5e7eb;
-        position: fixed;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        display: flex;
-        flex-direction: column;
-        padding: 0;
-        transform: translateX(100%);
-        transition: transform 0.3s ease-in-out;
-        z-index: 1000;
-        box-shadow: -4px 0 12px rgba(0, 0, 0, 0.1);
-    }
-    
-    .checklist-panel.active {
-        display: flex !important;
-        transform: translateX(0);
-    }
-    
-    .checklist-panel-hidden {
-        display: none;
-    }
-    
-    /* Стили для чек-листа */
-    .checklist-item {
-        padding: 16px 24px;
-        border-bottom: 1px solid #f1f5f9;
-        display: flex;
-        align-items: flex-start;
-        gap: 12px;
-        background: #fff;
-        transition: background 0.2s;
-    }
-    
-    .checklist-item:hover {
-        background: #f8fafc;
-    }
-    
-    .checklist-item:last-child {
-        border-bottom: none;
-    }
-    
-    .checklist-checkbox {
-        margin-top: 2px;
-        width: 18px;
-        height: 18px;
-        border: 2px solid #d1d5db;
-        border-radius: 4px;
-        cursor: pointer;
-        transition: all 0.2s;
-        flex-shrink: 0;
-    }
-    
-    .checklist-checkbox.checked {
-        background: #10b981;
-        border-color: #10b981;
-        position: relative;
-    }
-    
-    .checklist-checkbox.checked::after {
-        content: '✓';
-        position: absolute;
-        top: -2px;
-        left: 2px;
-        color: white;
-        font-size: 12px;
-        font-weight: bold;
-    }
-    
-    .checklist-item-content {
-        flex: 1;
-        min-width: 0;
-    }
-    
-    .checklist-item-title {
-        font-weight: 500;
-        color: #1e293b;
-        margin-bottom: 4px;
-        line-height: 1.4;
-    }
-    
-    .checklist-item-desc {
-        color: #64748b;
-        font-size: 0.9rem;
-        line-height: 1.4;
-    }
-    
-    .checklist-photo-upload {
-        margin-top: 12px;
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-    }
-    
-    .checklist-photo-preview {
-        width: 100%;
-        max-width: 200px;
-        height: 120px;
-        object-fit: cover;
-        border-radius: 8px;
-        border: 2px solid #e5e7eb;
-    }
-    
-    .checklist-upload-btn {
-        padding: 8px 16px;
-        background: #f3f4f6;
-        border: 1px solid #d1d5db;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 0.9rem;
-        color: #374151;
-        transition: all 0.2s;
-        text-align: center;
-    }
-    
-    .checklist-upload-btn:hover {
-        background: #e5e7eb;
-        border-color: #9ca3af;
-    }
-    
-    .checklist-status-badge {
-        display: inline-block;
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-size: 0.8rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.025em;
-    }
-    
-    .checklist-status-pending {
-        background: #fef3c7;
-        color: #92400e;
-    }
-    
-    .checklist-status-in-progress {
-        background: #dbeafe;
-        color: #1e40af;
-    }
-    
-    .checklist-status-completed {
-        background: #e0e7ff;
-        color: #3730a3;
-    }
-    
-    .checklist-status-approved {
-        background: #dcfce7;
-        color: #166534;
-    }
-    
-    .checklist-status-rejected {
-        background: #fee2e2;
-        color: #991b1b;
-    }
-    
-    .checklist-actions {
-        padding: 24px;
-        border-top: 1px solid #e5e7eb;
-        background: #f8fafc;
-        display: flex;
-        gap: 12px;
-        flex-wrap: wrap;
-    }
-    
-    .checklist-btn {
-        padding: 10px 20px;
-        border: none;
-        border-radius: 8px;
-        font-weight: 600;
-        font-size: 0.9rem;
-        cursor: pointer;
-        transition: all 0.2s;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-    
-    .checklist-btn-primary {
-        background: #2563eb;
-        color: white;
-    }
-    
-    .checklist-btn-primary:hover {
-        background: #1d4ed8;
-    }
-    
-    .checklist-btn-success {
-        background: #10b981;
-        color: white;
-    }
-    
-    .checklist-btn-success:hover {
-        background: #059669;
-    }
-    
-    .checklist-btn-danger {
-        background: #ef4444;
-        color: white;
-    }
-    
-    .checklist-btn-danger:hover {
-        background: #dc2626;
-    }
-    
-    .checklist-btn-secondary {
-        background: #6b7280;
-        color: white;
-    }
-    
-    .checklist-btn-secondary:hover {
-        background: #4b5563;
-    }
-    
-    .checklist-progress {
-        margin: 16px 24px;
-        padding: 16px;
-        background: #f8fafc;
-        border-radius: 12px;
-        border: 1px solid #e5e7eb;
-    }
-    
-    .checklist-progress-bar {
-        width: 100%;
-        height: 8px;
-        background: #e5e7eb;
-        border-radius: 4px;
-        overflow: hidden;
-        margin-bottom: 8px;
-    }
-    
-    .checklist-progress-fill {
-        height: 100%;
-        background: #10b981;
-        transition: width 0.3s ease;
-    }
-    
-    .checklist-progress-text {
-        font-size: 0.9rem;
-        color: #374151;
-        font-weight: 500;
-    }
-    
-    /* Кнопка чек-листа в карточке поездки */
-    .trip-checklist-btn {
-        background: #8b5cf6;
-        color: white;
-        border: none;
-        border-radius: 6px;
-        padding: 6px 12px;
-        font-size: 0.8rem;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.2s;
-        display: flex;
-        align-items: center;
-        gap: 4px;
-        margin-top: 8px;
-    }
-    
-    .trip-checklist-btn:hover {
-        background: #7c3aed;
-        transform: translateY(-1px);
-    }
-    
-    .trip-checklist-btn svg {
-        width: 14px;
-        height: 14px;
     }
     .trips-panel {
         flex: 1 1 0%;
@@ -355,7 +81,7 @@
         border-radius: 16px;
         border: 1px solid #e5e7eb;
         box-shadow: 0 2px 4px -1px rgba(13,13,18,0.06);
-        padding: 16px;
+        padding: 24px;
         margin: 0;
         transition: box-shadow 0.18s, border-color 0.18s;
         cursor: pointer;
@@ -414,9 +140,9 @@
     }
     .trip-card-img {
         flex-shrink: 0;
-        margin-left: 16px;
-        width: 120px;
-        height: 80px;
+        margin-left: 24px;
+        width: 240px;
+        height: 90px;
         border-radius: 12px;
         display: flex;
         align-items: center;
@@ -434,57 +160,6 @@
         border-radius: 12px;
         background: none;
     }
-    
-    /* Стили для кнопок чек-листа в детальной панели */
-    .trip-checklist-btn {
-        background: #2563eb;
-        color: #fff;
-        border: none;
-        border-radius: 8px;
-        padding: 8px 12px;
-        font-weight: 500;
-        font-size: 0.9em;
-        cursor: pointer;
-        transition: background 0.2s;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        margin-top: 8px;
-    }
-    .trip-checklist-btn:hover {
-        background: #1d4ed8;
-    }
-    .trip-checklist-btn svg {
-        width: 16px;
-        height: 16px;
-    }
-    
-    /* Исправляем отступы для левого меню */
-    .sidebar {
-        left: 0 !important;
-        top: 0 !important;
-        z-index: 40;
-    }
-    
-    .main-content {
-        margin-left: 256px !important; /* 16rem в пикселях */
-    }
-    
-    /* Исправляем отступы для всех элементов body */
-    body {
-        margin: 0 !important;
-        padding: 0 !important;
-    }
-    
-    html {
-        margin: 0 !important;
-        padding: 0 !important;
-    }
-    
-    /* Убираем отрицательные отступы если они есть */
-    * {
-        box-sizing: border-box;
-    }
     .trip-item {
         border-bottom: 1px solid #e5e7eb;
         padding: 12px 0;
@@ -497,6 +172,12 @@
         width: 16px; height: 16px; border-radius: 50%;
         background: #2679DB; box-shadow: 0 0 0 4px #e0e7ef;
         margin-right: 8px;
+    }
+    .no-trips {
+        text-align: center;
+        padding: 40px 20px;
+        color: #64748b;
+        font-size: 16px;
     }
     .trip-info { flex: 1; }
     .trip-title { font-weight: 600; color: #1e293b; }
@@ -564,12 +245,6 @@
         .trips-panel-wrapper {
             min-height: 450px !important;
         }
-        .sidebar {
-            display: none !important;
-        }
-        .main-content {
-            margin-left: 0 !important;
-        }
     }
     @media (max-width: 1100px) {
         body nav.fixed.bottom-0 {
@@ -597,10 +272,9 @@
     }
     
     .trips-panel-wrapper {
-        width: 400px;
-        min-width: 400px;
-        max-width: 400px;
-        flex: 0 0 auto;
+        flex: 1 1 0%;
+        min-width: 320px;
+        width: 100%;
         display: flex;
         flex-direction: column;
         min-height: 400px;
@@ -730,467 +404,17 @@
         }
     }
     
-    /* Стили для кнопок чек-листов */
-    .trip-checklist-actions {
-        display: flex;
-        gap: 8px;
-        margin-top: 12px;
-        flex-wrap: wrap;
-    }
-    
-    .trip-action-btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        padding: 8px 12px;
-        border: none;
-        border-radius: 6px;
-        font-size: 13px;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        text-decoration: none;
-        white-space: nowrap;
-    }
-    
-    .trip-action-btn.primary {
-        background: #2563eb;
-        color: white;
-    }
-    
-    .trip-action-btn.primary:hover {
-        background: #1d4ed8;
-        transform: translateY(-1px);
-        box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
-    }
-    
-    .trip-action-btn.secondary {
-        background: #f1f5f9;
-        color: #475569;
-        border: 1px solid #e2e8f0;
-    }
-    
-    .trip-action-btn.secondary:hover {
-        background: #e2e8f0;
-        color: #334155;
-        transform: translateY(-1px);
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-    
-    .trip-action-btn svg {
-        width: 16px;
-        height: 16px;
-    }
-    
-    .trip-detail-badge {
-        display: inline-block;
-        padding: 4px 8px;
-        border-radius: 4px;
-        font-size: 12px;
-        font-weight: 500;
-        text-transform: uppercase;
-        letter-spacing: 0.025em;
-    }
-    
-    .trip-detail-badge.pending {
-        background: #fef3c7;
-        color: #92400e;
-    }
-    
-    .trip-detail-badge.ready {
-        background: #d1fae5;
-        color: #065f46;
-    }
-    
-    .trip-detail-badge.active {
-        background: #dbeafe;
-        color: #1e40af;
-    }
-    
-    .trip-detail-badge.planned {
-        background: #f3f4f6;
-        color: #374151;
-    }
-    
-    .trip-detail-badge.completed {
-        background: #d1fae5;
-        color: #065f46;
-    }
-    
-    .trip-detail-badge.cancelled {
-        background: #fee2e2;
-        color: #991b1b;
-    }
-    
-    /* Затемнение фона */
-    .trip-details-backdrop {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.5);
-        z-index: 999;
-        opacity: 0;
-        transition: opacity 0.3s ease-in-out;
-    }
-    
-    .trip-details-backdrop.show {
-        opacity: 1;
-    }
-    
-    /* Показываем backdrop только на мобильных */
-    @media (min-width: 901px) {
-        .trip-details-backdrop {
-            display: none !important;
-        }
-    }
-    
-    /* Стили для панели детальной информации о поездке */
-    .trip-details-panel {
-        position: fixed;
-        right: 0;
-        top: 80px; /* Учитываем высоту хедера */
-        bottom: 0;
-        width: 51%; /* Идеальная ширина - 51% экрана */
-        min-width: 430px;
-        max-width: 680px;
-        background: white;
-        border-left: 1px solid #e5e7eb;
-        box-shadow: -4px 0 24px rgba(0, 0, 0, 0.1);
-        z-index: 1000;
-        transform: translateX(100%);
-        transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-        display: flex;
-        flex-direction: column;
-    }
-    
-    .trip-details-panel.show {
-        transform: translateX(0);
-    }
-    
-    /* Скрываем правую панель с поездками когда открыта детальная панель */
-    .trips-panel-wrapper.hidden-for-details {
-        opacity: 0;
-        pointer-events: none;
-        transition: opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    }
-    
-    /* Расширяем карту на всю ширину когда панель открыта */
-    .map-panel.expanded {
-        width: 49% !important;
-        transition: width 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    }
-    
-    /* Адаптивное поведение для средних экранов */
-    @media (max-width: 1200px) and (min-width: 901px) {
-        .trip-details-panel {
-            width: 52%;
-            min-width: 400px;
-        }
-        
-        .map-panel.expanded {
-            width: 48% !important;
-        }
-    }
-    
-    .trip-details-header {
-        padding: 20px 24px;
-        border-bottom: 1px solid #e5e7eb;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        background: #f8fafc;
-        min-height: 60px;
-    }
-    
-    .trip-details-header-left {
-        display: flex;
-        align-items: center;
-    }
-    
-    .trip-details-back {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        background: none;
-        border: none;
-        color: #2563eb;
-        font-size: 0.95rem;
-        font-weight: 500;
-        cursor: pointer;
-        padding: 8px 12px;
-        border-radius: 6px;
-        transition: all 0.2s;
-    }
-    
-    .trip-details-back:hover {
-        background: #eff6ff;
-        color: #1d4ed8;
-    }
-    
-    .trip-details-title {
-        font-size: 1.25rem;
-        font-weight: 600;
-        color: #1e293b;
-        margin: 0;
-    }
-    
-    .trip-details-close {
-        background: none;
-        border: none;
-        color: #64748b;
-        cursor: pointer;
-        padding: 8px;
-        border-radius: 6px;
-        transition: all 0.2s;
-    }
-    
-    .trip-details-close:hover {
-        background: #e2e8f0;
-        color: #334155;
-    }
-    
-    .trip-details-content {
-        flex: 1;
-        overflow-y: auto;
-        padding: 16px 20px;
-    }
-    
-    .trip-detail-section {
-        margin-bottom: 20px;
-    }
-    
-    .trip-detail-section:last-child {
-        margin-bottom: 0;
-    }
-    
-    /* Сетка для секций в широкой панели */
-    .trip-detail-sections-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 20px;
-        margin-top: 16px;
-    }
-    
-    @media (max-width: 1300px) {
-        .trip-detail-sections-grid {
-            grid-template-columns: 1fr;
-            gap: 18px;
-        }
-    }
-    
-    @media (max-width: 1200px) {
-        .trip-detail-sections-grid {
-            grid-template-columns: 1fr;
-            gap: 16px;
-        }
-    }
-    
-    .trip-detail-section-title {
-        font-size: 1rem;
-        font-weight: 600;
-        color: #1e293b;
-        margin-bottom: 12px;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-    }
-    
-    .trip-detail-section-title svg {
-        width: 18px;
-        height: 18px;
-        color: #2563eb;
-    }
-    
-    .trip-detail-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        padding: 8px 0;
-        border-bottom: 1px solid #f1f5f9;
-    }
-    
-    .trip-detail-row:last-child {
-        border-bottom: none;
-    }
-    
-    .trip-detail-label {
-        font-weight: 500;
-        color: #64748b;
-        font-size: 0.85rem;
-        flex-shrink: 0;
-        width: 100px;
-    }
-    
-    .trip-detail-value {
-        color: #1e293b;
-        font-weight: 500;
-        text-align: right;
-        flex: 1;
-        word-break: break-word;
-        font-size: 0.9rem;
-    }
-    
-    .trip-detail-value.highlight {
-        color: #2563eb;
-        font-weight: 600;
-    }
-    
-    .trip-detail-badge {
-        display: inline-flex;
-        align-items: center;
-        padding: 4px 12px;
-        border-radius: 6px;
-        font-size: 0.8rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.025em;
-    }
-    
-    .trip-detail-badge.active {
-        background: #dcfce7;
-        color: #166534;
-    }
-    
-    .trip-detail-badge.planned {
-        background: #fef3c7;
-        color: #92400e;
-    }
-    
-    .trip-detail-badge.completed {
-        background: #e0e7ff;
-        color: #3730a3;
-    }
-    
-    .trip-detail-badge.cancelled {
-        background: #fee2e2;
-        color: #991b1b;
-    }
-    
-    .trip-detail-vehicle-info {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 16px;
-        background: #f8fafc;
-        border-radius: 8px;
-        margin-bottom: 16px;
-        border: 1px solid #e2e8f0;
-    }
-    
-    .trip-detail-vehicle-photo {
-        width: 60px;
-        height: 40px;
-        border-radius: 6px;
-        object-fit: cover;
-        background: #e5e7eb;
-    }
-    
-    .trip-detail-vehicle-placeholder {
-        width: 60px;
-        height: 40px;
-        background: #e5e7eb;
-        border-radius: 6px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #9ca3af;
-    }
-    
-    .trip-detail-route {
-        background: #f0f9ff;
-        border: 1px solid #bae6fd;
-        border-radius: 8px;
-        padding: 16px;
-        margin-bottom: 16px;
-    }
-    
-    .trip-detail-route-item {
-        display: flex;
-        align-items: flex-start;
-        gap: 12px;
-        margin-bottom: 12px;
-    }
-    
-    .trip-detail-route-item:last-child {
-        margin-bottom: 0;
-    }
-    
-    .trip-detail-route-icon {
-        width: 20px;
-        height: 20px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.7rem;
-        font-weight: 700;
-        color: white;
-        flex-shrink: 0;
-        margin-top: 2px;
-    }
-    
-    .trip-detail-route-icon.start {
-        background: #22c55e;
-    }
-    
-    .trip-detail-route-icon.end {
-        background: #ef4444;
-    }
-    
-    .trip-detail-route-address {
-        color: #1e293b;
-        font-weight: 500;
-        line-height: 1.4;
-    }
-    
-    /* Мобильное поведение - панель выдвигается снизу */
-    @media (max-width: 900px) {
-        .trip-details-panel {
-            width: 100vw;
-            height: 85vh;
-            left: 0;
-            right: 0;
-            top: auto;
-            bottom: 0;
-            transform: translateY(100%);
-            border-left: none;
-            border-top: 1px solid #e5e7eb;
-            border-radius: 16px 16px 0 0;
-            box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.15);
-        }
-        
-        .trip-details-panel.show {
-            transform: translateY(0);
-        }
-        
-        /* Добавляем drag handle для мобильных */
-        .trip-details-panel::before {
-            content: '';
-            position: absolute;
-            top: 8px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 40px;
-            height: 4px;
-            background: #d1d5db;
-            border-radius: 2px;
-        }
-        
-        .trip-details-header {
-            padding: 32px 24px 16px 24px;
-        }
-    }
-    
+    /* Обновленные стили для popup информации о поездке BARLAU.KZ */
     .trip-info-popup {
         position: absolute;
-        left: 8px; right: 8px; bottom: 8px;
+        left: 8px; 
+        right: 8px; 
+        bottom: 8px;
         z-index: 10;
         background: #fff;
-        border-radius: 12px;
-        box-shadow: 0 4px 24px rgba(13,13,18,0.12);
-        padding: 16px 20px;
+        border-radius: 20px;
+        box-shadow: 0px 16px 32px -12px rgba(88,92,95,0.10);
+        padding: 20px 24px;
         min-height: 64px;
         display: flex;
         align-items: center;
@@ -1199,13 +423,9 @@
         font-size: 1em;
         color: #334155;
         font-weight: 500;
-        border: 1px solid #e5e7eb;
+        border: none;
         animation: slideUp 0.3s ease-out;
-    }
-    
-    @keyframes slideUp {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
+        font-family: 'Inter Tight', -apple-system, BlinkMacSystemFont, sans-serif;
     }
     
     .trip-info-popup-content {
@@ -1213,7 +433,7 @@
         align-items: center;
         justify-content: space-between;
         width: 100%;
-        gap: 16px;
+        gap: 20px;
     }
     
     .trip-info-popup-main {
@@ -1224,90 +444,102 @@
         min-width: 0;
     }
     
-    .trip-info-popup-icon { display: none; }
-    
     .trip-info-popup-details {
         flex: 1;
         min-width: 0;
         display: flex;
         flex-direction: column;
-        gap: 2px;
-        margin-bottom: 2px;
+        gap: 4px;
     }
     
     .trip-info-popup-number {
-        color: #2563eb;
+        color: #2679DB;
         font-weight: 700;
-        font-size: 1.1em;
-        letter-spacing: 0.01em;
+        font-size: 1.3em;
+        letter-spacing: 0.02em;
         line-height: 1.2;
     }
     
     .trip-info-popup-brand {
         color: #64748b;
         font-weight: 500;
-        font-size: 0.85em;
+        font-size: 0.9em;
         line-height: 1.2;
     }
     
     .trip-info-popup-route {
-        color: #1e293b;
+        color: #374151;
         font-weight: 500;
-        font-size: 0.9em;
+        font-size: 0.95em;
         display: flex;
         align-items: center;
         gap: 4px;
         line-height: 1.2;
-        margin-top: 1px;
+        margin-top: 2px;
     }
     
     .trip-info-popup-meta {
         display: flex;
         flex-direction: column;
         align-items: flex-end;
-        gap: 10px;
+        gap: 8px;
         color: #64748b;
-        font-size: 0.8em;
+        font-size: 0.85em;
         font-weight: 400;
-        min-width: 80px;
+        min-width: 120px;
         flex-shrink: 0;
     }
     
     .trip-info-popup-driver {
         display: flex;
         align-items: center;
-        gap: 4px;
+        gap: 6px;
         white-space: nowrap;
     }
     
     .trip-info-popup-date {
         display: flex;
         align-items: center;
-        gap: 4px;
+        gap: 6px;
         white-space: nowrap;
+    }
+
+    .trip-info-popup-actions {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        margin-left: 16px;
+    }
+    
+    @keyframes slideUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
     }
     
     .trip-info-popup-delete {
-        background: #2563eb;
-        color: #fff;
+        background: #f8fafc;
+        color: #2679DB;
+        border: 1px solid #e2e8f0;
         border-radius: 8px;
-        padding: 10px 22px;
-        font-weight: 600;
-        font-size: 1em;
-        box-shadow: 0 2px 8px #2563eb22;
-        transition: background 0.2s;
-        margin-left: 18px;
+        padding: 8px 16px;
+        font-weight: 500;
+        font-size: 0.9em;
+        cursor: pointer;
+        transition: all 0.2s;
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 6px;
         white-space: nowrap;
     }
+    
     .trip-info-popup-delete svg {
-        width: 18px;
-        height: 18px;
+        width: 16px;
+        height: 16px;
     }
+    
     .trip-info-popup-delete:hover {
-        background: #1d4ed8;
+        background: #f1f5f9;
+        border-color: #cbd5e1;
     }
     /* --- Новый стиль информ-блока о поездке --- */
     .trip-info-block {
@@ -1334,7 +566,7 @@
     .trip-info-block-number {
         font-size: 2.1em;
         font-weight: 800;
-        color: #2563eb;
+        color: #2679DB;
         letter-spacing: 0.03em;
         margin-bottom: 2px;
         line-height: 1.1;
@@ -1598,6 +830,178 @@
             height: 12px;
         }
     }
+
+    @media (max-width: 768px) {
+        .checklist-modal-content {
+            max-height: 95vh;
+            margin: 10px;
+        }
+        
+        .trip-info-card {
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+        
+        .signatures-grid {
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+    }
+
+    /* Стили для модального окна подробностей поездки */
+    .trip-details-modal {
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0,0,0,0.4);
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'Inter Tight', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    .trip-details-modal-content {
+        background: #fff;
+        border-radius: 20px;
+        box-shadow: 0px 16px 32px -12px rgba(88,92,95,0.10);
+        padding: 28px;
+        max-width: 450px;
+        width: 95vw;
+        position: relative;
+        animation: slideIn 0.3s ease-out;
+    }
+
+    @keyframes slideIn {
+        from { opacity: 0; transform: scale(0.95) translateY(20px); }
+        to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .trip-details-close {
+        position: absolute;
+        top: 18px;
+        right: 18px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #64748b;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-size: 18px;
+        font-weight: 400;
+    }
+
+    .trip-details-close:hover {
+        background: #f1f5f9;
+        color: #475569;
+    }
+
+    .trip-details-number {
+        font-size: 22px;
+        font-weight: 700;
+        color: #2679DB;
+        margin-bottom: 8px;
+        letter-spacing: 0.02em;
+    }
+
+    .trip-details-vehicle {
+        color: #64748b;
+        font-size: 16px;
+        font-weight: 500;
+        margin-bottom: 12px;
+    }
+
+    .trip-details-route {
+        font-size: 16px;
+        font-weight: 500;
+        margin-bottom: 16px;
+        color: #374151;
+        line-height: 1.5;
+    }
+
+    .trip-details-route .arrow {
+        color: #2679DB;
+        font-weight: 600;
+        margin: 0 8px;
+    }
+
+    .trip-details-meta {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    .trip-details-meta-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #64748b;
+        font-size: 15px;
+    }
+
+    .trip-details-meta-item svg {
+        flex-shrink: 0;
+    }
+
+    .trip-details-cargo {
+        color: #374151;
+        font-size: 15px;
+        margin-bottom: 20px;
+        padding: 12px;
+        background: #f8fafc;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+    }
+
+    .trip-details-cargo strong {
+        color: #1e293b;
+    }
+
+    .trip-details-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 20px;
+    }
+
+    .trip-details-delete-btn {
+        background: #ef4444;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        padding: 12px 24px;
+        font-weight: 600;
+        font-size: 15px;
+        cursor: pointer;
+        transition: all 0.2s;
+        box-shadow: 0px 16px 32px -12px rgba(239,68,68,0.15);
+    }
+
+    .trip-details-delete-btn:hover {
+        background: #dc2626;
+        transform: translateY(-1px);
+        box-shadow: 0px 20px 40px -12px rgba(239,68,68,0.25);
+    }
+
+    @media (max-width: 480px) {
+        .trip-details-modal-content {
+            margin: 20px;
+            padding: 24px 20px;
+            max-width: none;
+            width: calc(100vw - 40px);
+        }
+        
+        .trip-details-number {
+            font-size: 20px;
+        }
+    }
 </style>
 {% endblock %}
 
@@ -1693,34 +1097,6 @@
                         <div id="tripList" class="trip-list">
                             <div class="text-gray-400">Загрузка...</div>
                         </div>
-                    </div>
-                </div>
-                    </div>
-                    
-                    <!-- Затемнение фона для мобильных -->
-                    <div id="tripDetailsBackdrop" class="trip-details-backdrop" style="display:none;" onclick="closeTripDetails()"></div>
-                    
-                    <!-- Боковая панель с подробной информацией о поездке -->
-                    <div id="tripDetailsPanel" class="trip-details-panel" style="display:none;">
-                        <div class="trip-details-header">
-                            <div class="trip-details-header-left">
-                                <button class="trip-details-back" onclick="closeTripDetails()">
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M19 12H5M12 19L5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                    </svg>
-                                    Назад к поездкам
-                                </button>
-                            </div>
-                            <button class="trip-details-close" onclick="closeTripDetails()">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
-                            </button>
-                        </div>
-                        
-                        <div class="trip-details-content">
-                            <div id="tripDetailsContent">
-                                <!-- Контент будет загружен динамически -->
                             </div>
                         </div>
                     </div>
@@ -1768,16 +1144,6 @@
                             <label class="form-label">Дата</label>
                             <input type="date" id="tripDate" name="date" class="form-input" required>
                         </div>
-                        
-                        <!-- Чек-бокс для создания чек-листа -->
-                        <div class="form-group">
-                            <label class="flex items-center gap-3">
-                                <input type="checkbox" id="createChecklist" name="create_checklist" checked class="form-checkbox h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-                                <span class="form-label mb-0">Требовать чек-лист перед началом поездки</span>
-                            </label>
-                            <p class="text-sm text-gray-500 mt-1 ml-7">Водитель должен будет заполнить чек-лист с 48 пунктами проверки транспорта перед началом движения</p>
-                        </div>
-                        
                         <div class="flex justify-end gap-3 mt-4">
                             <button type="button" onclick="closeTripForm()" class="btn-main" style="background:#e5e7eb;color:#334155;">Отмена</button>
                             <button type="submit" class="btn-main">Сохранить</button>
@@ -1788,30 +1154,6 @@
         </div>
     </div>
 </div>
-
-<!-- Панель чек-листа (fixed позиционирование) -->
-<div id="checklistPanel" class="checklist-panel checklist-panel-hidden">
-    <div class="checklist-panel-header" style="padding: 24px; border-bottom: 1px solid #e5e7eb; background: #fff;">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <div>
-                <h3 style="font-size: 1.25rem; font-weight: 600; color: #1e293b; margin: 0;">Чек-лист</h3>
-                <p id="checklistTripTitle" style="color: #64748b; font-size: 0.9rem; margin: 4px 0 0 0;"></p>
-            </div>
-            <button onclick="closeChecklistPanel()" style="background: none; border: none; color: #64748b; cursor: pointer; padding: 8px; border-radius: 6px; transition: all 0.2s;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='none'">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M18 6L6 18M6 6L18 18"/>
-                </svg>
-            </button>
-        </div>
-    </div>
-    
-    <div class="checklist-panel-content" style="flex: 1; overflow-y: auto; padding: 0;">
-        <div id="checklistContent">
-            <!-- Контент чек-листа будет загружен динамически -->
-        </div>
-    </div>
-</div>
-
 <!-- Нижнее мобильное меню - показываем только на мобильных устройствах -->
 <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 lg:hidden py-2">
     <div class="flex justify-between items-center px-2">
@@ -2153,7 +1495,6 @@ document.getElementById('tripForm').onsubmit = async function(e) {
         end_longitude: round6(endCoords ? endCoords[1] : null),
         start_address: document.getElementById('startAddress').value,
         end_address: document.getElementById('endAddress').value,
-        create_checklist: document.getElementById('createChecklist').checked,
     };
     if (!data.start_latitude || !data.end_latitude) {
         alert('Выберите адреса отправления и назначения (или отметьте на карте)');
@@ -2389,14 +1730,21 @@ function selectTrip(idx) {
     selectedTripIdx = idx;
     renderTripListWithSelection(allTripsCache, idx);
     renderTripRoutes([allTripsCache[idx]]);
-    // Показываем детальную панель вместо popup
-    showTripDetails(allTripsCache[idx]);
+    // Показываем popup карточки
+    showTripInfoPopup(allTripsCache[idx]);
     // Автоматический фокус на маршруте
     focusMapOnTrip(allTripsCache[idx]);
 }
 
 function renderTripListWithSelection(trips, selectedIdx) {
     const list = document.getElementById('tripList');
+    
+    // Проверяем что trips это массив
+    if (!Array.isArray(trips)) {
+        console.error('renderTripListWithSelection: trips is not an array:', trips);
+        list.innerHTML = '<div class="no-trips">Поездки не найдены</div>';
+        return;
+    }
     
     // Проверяем права доступа для создания поездки
     const userRole = window.currentUserRole && window.currentUserRole.toUpperCase();
@@ -2421,8 +1769,6 @@ function renderTripListWithSelection(trips, selectedIdx) {
         let pointA = shortAddr(trip.start_address);
         let pointB = shortAddr(trip.end_address);
         let route = (pointA && pointB) ? `${pointA} — ${pointB}` : '';
-        // Убираем кнопки чек-листа из карточек для более чистого вида
-        
         return `
         <div class="trip-card${selectedIdx===idx?' trip-card-selected':''}" data-idx="${idx}">
           <div class="trip-card-info">
@@ -2461,18 +1807,30 @@ function renderTripListWithSelection(trips, selectedIdx) {
 
 async function loadTrips() {
     try {
-        console.log('Loading trips...');
-        const resp = await fetch('/api/trips/active/');
-        
+        const resp = await fetch('/dashboard/api/trips/');
         if (!resp.ok) {
             console.error('API error:', resp.status, resp.statusText);
             return;
         }
+        const data = await resp.json();
+        console.log('Trips API response:', data);
         
-        const trips = await resp.json();
-        console.log('Active trips loaded:', trips);
+        // Проверяем что data это массив
+        let trips = [];
+        if (Array.isArray(data)) {
+            trips = data;
+        } else if (data && Array.isArray(data.results)) {
+            trips = data.results;
+        } else if (data && data.trips && Array.isArray(data.trips)) {
+            trips = data.trips;
+        } else {
+            console.error('Invalid trips data format:', data);
+            trips = [];
+        }
         
         allTripsCache = trips;
+        console.log('Processed trips:', trips.length);
+        
         if (selectedTripIdx !== null && trips[selectedTripIdx]) {
             renderTripListWithSelection(trips, selectedTripIdx);
             renderTripRoutes([trips[selectedTripIdx]]);
@@ -2480,459 +1838,9 @@ async function loadTrips() {
             renderTripListWithSelection(trips, null);
             renderTripRoutes([]);
         }
-    } catch (e) {
-        console.error('Ошибка загрузки поездок:', e);
-    }
-}
-
-// --- Функции для панели детальной информации ---
-function generateChecklistActions(trip) {
-    const userRole = window.currentUserRole;
-    const userId = window.currentUserId;
-    const isDriverOfTrip = trip.driver_details && trip.driver_details.id === userId;
-    const canManageChecklists = ['SUPERADMIN', 'ADMIN', 'DISPATCHER'].includes(userRole);
-    
-    // Отладочная информация
-    console.log('=== CHECKLIST DEBUG ===');
-    console.log('Trip status:', trip.status);
-    console.log('User role:', userRole);
-    console.log('User ID:', userId);
-    console.log('Trip driver ID:', trip.driver_details?.id);
-    console.log('Is driver of trip:', isDriverOfTrip);
-    console.log('Can manage checklists:', canManageChecklists);
-    console.log('=======================');
-    
-    // Определяем статус чек-листа
-    let checklistHtml = '';
-    
-    if (trip.status === 'PENDING_CHECKLIST') {
-        // Поездка ожидает создания чек-листа
-        if (isDriverOfTrip || canManageChecklists) {
-            checklistHtml = `
-                <div class="trip-detail-section">
-                    <div class="trip-detail-section-title">
-                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                        Чек-лист
-                    </div>
-                    
-                    <div class="trip-detail-row">
-                        <div class="trip-detail-label">Статус:</div>
-                        <div class="trip-detail-value">
-                            <span class="trip-detail-badge pending">Требуется создание</span>
-                        </div>
-                    </div>
-                    
-                    <div class="trip-checklist-actions">
-                        <button onclick="createChecklistForTrip(${trip.id})" class="trip-action-btn primary">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                            Создать чек-лист
-                        </button>
-                    </div>
-                </div>
-            `;
-        }
-    } else if (trip.status === 'READY') {
-        // Чек-лист создан, поездка готова к началу
-        checklistHtml = `
-            <div class="trip-detail-section">
-                <div class="trip-detail-section-title">
-                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                    Чек-лист
-                </div>
-                
-                <div class="trip-detail-row">
-                    <div class="trip-detail-label">Статус:</div>
-                    <div class="trip-detail-value">
-                        <span class="trip-detail-badge ready">Готов к отправке</span>
-                    </div>
-                </div>
-                
-                <div class="trip-checklist-actions">
-                    <button onclick="viewChecklist(${trip.id})" class="trip-action-btn secondary">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M1 12S5 4 12 4S23 12 23 12S19 20 12 20S1 12 1 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
-                        </svg>
-                        Просмотреть чек-лист
-                    </button>
-                    ${(isDriverOfTrip || canManageChecklists) ? `
-                        <button onclick="startTripWithChecklist(${trip.id})" class="trip-action-btn primary">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M8 5V3C8 2.44772 8.44772 2 9 2H15C15.5523 2 16 2.44772 16 3V5M8 5H16M8 5H6C4.89543 5 4 5.89543 4 7V19C4 20.1046 4.89543 21 6 21H18C19.1046 21 20 20.1046 20 19V7C20 5.89543 19.1046 5 18 5H16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M9 12L11 14L15 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                            Начать поездку
-                        </button>
-                    ` : ''}
-                </div>
-            </div>
-        `;
-    } else if (trip.status === 'ACTIVE' && trip.checklist_id) {
-        // Поездка активна, чек-лист есть
-        checklistHtml = `
-            <div class="trip-detail-section">
-                <div class="trip-detail-section-title">
-                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                    Чек-лист
-                </div>
-                
-                <div class="trip-detail-row">
-                    <div class="trip-detail-label">Статус:</div>
-                    <div class="trip-detail-value">
-                        <span class="trip-detail-badge active">Поездка активна</span>
-                    </div>
-                </div>
-                
-                <div class="trip-checklist-actions">
-                    <button onclick="viewChecklist(${trip.id})" class="trip-action-btn secondary">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M1 12S5 4 12 4S23 12 23 12S19 20 12 20S1 12 1 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
-                        </svg>
-                        Просмотреть чек-лист
-                    </button>
-                    <button onclick="downloadChecklistPDF(${trip.checklist_id})" class="trip-action-btn secondary">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15M7 10L12 15L17 10M12 15V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                        Скачать PDF
-                    </button>
-                </div>
-            </div>
-        `;
-    }
-    
-    return checklistHtml;
-}
-
-function showTripDetails(trip) {
-    const panel = document.getElementById('tripDetailsPanel');
-    const content = document.getElementById('tripDetailsContent');
-    const tripsWrapper = document.querySelector('.trips-panel-wrapper');
-    const mapPanel = document.querySelector('.map-panel');
-    
-    if (!trip) {
-        closeTripDetails();
-        return;
-    }
-    
-    // Скрываем панель поездок и расширяем карту (только на десктопе)
-    if (window.innerWidth > 900) {
-        if (tripsWrapper) tripsWrapper.classList.add('hidden-for-details');
-        if (mapPanel) mapPanel.classList.add('expanded');
-    }
-    
-    // Форматируем данные
-    const vehicle = trip.vehicle_details || {};
-    const driver = trip.driver_details || {};
-    const trailer = trip.trailer_details || {};
-    
-    // Определяем статус
-    const statusMap = {
-        'PLANNED': { text: 'Запланирована', class: 'planned' },
-        'PENDING_CHECKLIST': { text: 'Ожидает чек-лист', class: 'pending' },
-        'READY': { text: 'Готова к отправке', class: 'ready' },
-        'ACTIVE': { text: 'Активна', class: 'active' },
-        'COMPLETED': { text: 'Завершена', class: 'completed' },
-        'CANCELLED': { text: 'Отменена', class: 'cancelled' }
-    };
-    const status = statusMap[trip.status] || { text: trip.status || 'Неизвестно', class: 'planned' };
-    
-    // Определяем тип груза
-    const cargoTypeMap = {
-        'CUSTOMS': 'Растаможка',
-        'DIRECT': 'Прямой склад',
-        'OTHER': 'Другое'
-    };
-    const cargoType = cargoTypeMap[trip.cargo_type] || trip.cargo_type || 'Не указано';
-    
-    // Определяем тип оплаты
-    const paymentTypeMap = {
-        'CASH': 'Наличные',
-        'TRANSFER': 'Перечисление'
-    };
-    const paymentType = paymentTypeMap[trip.freight_payment_type] || trip.freight_payment_type || 'Не указано';
-    
-    // Форматируем адреса
-    function formatAddress(addr) {
-        if (!addr) return 'Не указан';
-        return addr.length > 60 ? addr.substring(0, 60) + '...' : addr;
-    }
-    
-    // Генерируем HTML
-    content.innerHTML = `
-        <!-- Информация о транспорте -->
-        <div class="trip-detail-section">
-            <div class="trip-detail-section-title">
-                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M9 17H7L6 8H2L3 6H7L8 15H18L19 8H21L20 17H18C18 18.1046 17.1046 19 16 19C14.8954 19 14 18.1046 14 17H10C10 18.1046 9.10457 19 8 19C6.89543 19 6 18.1046 6 17H4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                Транспорт
-            </div>
-            
-            <div class="trip-detail-vehicle-info">
-                ${vehicle.main_photo_url ? 
-                    `<img src="${vehicle.main_photo_url}" alt="Фото транспорта" class="trip-detail-vehicle-photo">` :
-                    `<div class="trip-detail-vehicle-placeholder">
-                        <svg width="24" height="16" viewBox="0 0 24 16" fill="none">
-                            <rect x="2" y="6" width="14" height="8" rx="2" fill="currentColor"/>
-                            <rect x="16" y="8" width="6" height="6" rx="1" fill="currentColor"/>
-                            <circle cx="6" cy="16" r="2" fill="currentColor"/>
-                            <circle cx="18" cy="16" r="2" fill="currentColor"/>
-                        </svg>
-                    </div>`
-                }
-                <div>
-                    <div class="trip-detail-value highlight">${vehicle.number || 'Не указан'}</div>
-                    <div style="color: #64748b; font-size: 0.9rem; margin-top: 2px;">
-                        ${vehicle.brand || ''} ${vehicle.model || ''}
-                    </div>
-                </div>
-            </div>
-            
-            <div class="trip-detail-row">
-                <div class="trip-detail-label">Статус:</div>
-                <div class="trip-detail-value">
-                    <span class="trip-detail-badge ${status.class}">${status.text}</span>
-                </div>
-            </div>
-            
-            ${trailer.number ? `
-            <div class="trip-detail-row">
-                <div class="trip-detail-label">Прицеп:</div>
-                <div class="trip-detail-value highlight">${trailer.number}</div>
-            </div>
-            ` : ''}
-        </div>
-        
-        <!-- Маршрут (полная ширина) -->
-        <div class="trip-detail-section">
-            <div class="trip-detail-section-title">
-                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 2L13.09 8.26L20 9L13.09 9.74L12 16L10.91 9.74L4 9L10.91 8.26L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                Маршрут
-            </div>
-            
-            <div class="trip-detail-route">
-                <div class="trip-detail-route-item">
-                    <div class="trip-detail-route-icon start">А</div>
-                    <div class="trip-detail-route-address">${formatAddress(trip.start_address)}</div>
-                </div>
-                <div class="trip-detail-route-item">
-                    <div class="trip-detail-route-icon end">Б</div>
-                    <div class="trip-detail-route-address">${formatAddress(trip.end_address)}</div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Сетка для остальных секций -->
-        <div class="trip-detail-sections-grid">
-            <!-- Информация о водителе -->
-            <div class="trip-detail-section">
-                <div class="trip-detail-section-title">
-                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M20 21V19C20 16.7909 18.2091 15 16 15H8C5.79086 15 4 16.7909 4 19V21M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                    Водитель
-                </div>
-                
-                <div class="trip-detail-row">
-                    <div class="trip-detail-label">Имя:</div>
-                    <div class="trip-detail-value">${driver.full_name || driver.first_name + ' ' + (driver.last_name || '') || 'Не назначен'}</div>
-                </div>
-                
-                ${driver.phone ? `
-                <div class="trip-detail-row">
-                    <div class="trip-detail-label">Телефон:</div>
-                    <div class="trip-detail-value">${driver.phone}</div>
-                </div>
-                ` : ''}
-            </div>
-            
-            <!-- Информация о грузе -->
-            <div class="trip-detail-section">
-                <div class="trip-detail-section-title">
-                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M21 16V8C21 6.89543 20.1046 6 19 6H5C3.89543 6 3 6.89543 3 8V16C3 17.1046 3.89543 18 5 18H19C20.1046 18 21 17.1046 21 16Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M3 10H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                    Груз
-                </div>
-                
-                <div class="trip-detail-row">
-                    <div class="trip-detail-label">Тип:</div>
-                    <div class="trip-detail-value">${cargoType}</div>
-                </div>
-                
-                ${trip.cargo_description ? `
-                <div class="trip-detail-row">
-                    <div class="trip-detail-label">Описание:</div>
-                    <div class="trip-detail-value">${trip.cargo_description}</div>
-                </div>
-                ` : ''}
-            </div>
-            
-            <!-- Фрахт -->
-            <div class="trip-detail-section">
-                <div class="trip-detail-section-title">
-                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 2V22M17 5H9.5C8.11929 5 7 6.11929 7 7.5C7 8.88071 8.11929 10 9.5 10H14.5C15.8807 10 17 11.1193 17 12.5C17 13.8807 15.8807 15 14.5 15H7M21 12H3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                    Фрахт
-                </div>
-                
-                ${trip.freight_amount ? `
-                <div class="trip-detail-row">
-                    <div class="trip-detail-label">Сумма:</div>
-                    <div class="trip-detail-value highlight">${Number(trip.freight_amount).toLocaleString('ru-RU')} ₸</div>
-                </div>
-                ` : ''}
-                
-                <div class="trip-detail-row">
-                    <div class="trip-detail-label">Способ оплаты:</div>
-                    <div class="trip-detail-value">${paymentType}</div>
-                </div>
-            </div>
-            
-            <!-- Дополнительная информация (если есть) -->
-            ${trip.notes || trip.planned_start_date ? `
-            <div class="trip-detail-section">
-                <div class="trip-detail-section-title">
-                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M18.5 2.5C18.8978 2.10217 19.4374 1.87868 20 1.87868C20.5626 1.87868 21.1022 2.10217 21.5 2.5C21.8978 2.89783 22.1213 3.43739 22.1213 4C22.1213 4.56261 21.8978 5.10217 21.5 5.5L12 15L8 16L9 12L18.5 2.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                    Дополнительно
-                </div>
-                
-                ${trip.planned_start_date ? `
-                <div class="trip-detail-row">
-                    <div class="trip-detail-label">Плановая дата:</div>
-                    <div class="trip-detail-value">${new Date(trip.planned_start_date).toLocaleDateString('ru-RU')}</div>
-                </div>
-                ` : ''}
-                
-                ${trip.notes ? `
-                <div class="trip-detail-row">
-                    <div class="trip-detail-label">Примечание:</div>
-                    <div class="trip-detail-value">${trip.notes}</div>
-                </div>
-                ` : ''}
-            </div>
-            ` : ''}
-        </div>
-
-        <!-- Действия с чек-листом -->
-        ${generateChecklistActions(trip)}
-
-    `;
-    
-    // Показываем панель и backdrop
-    const backdrop = document.getElementById('tripDetailsBackdrop');
-    
-    panel.style.display = 'flex';
-    if (backdrop && window.innerWidth <= 900) {
-        backdrop.style.display = 'block';
-        setTimeout(() => {
-            backdrop.classList.add('show');
-        }, 10);
-    }
-    
-    setTimeout(() => {
-        panel.classList.add('show');
-    }, 10);
-}
-
-function closeTripDetails() {
-    const panel = document.getElementById('tripDetailsPanel');
-    const backdrop = document.getElementById('tripDetailsBackdrop');
-    const tripsWrapper = document.querySelector('.trips-panel-wrapper');
-    const mapPanel = document.querySelector('.map-panel');
-    
-    // Возвращаем панель поездок и обычный размер карты
-    if (tripsWrapper) tripsWrapper.classList.remove('hidden-for-details');
-    if (mapPanel) mapPanel.classList.remove('expanded');
-    
-    // Скрываем backdrop
-    if (backdrop) {
-        backdrop.classList.remove('show');
-        setTimeout(() => {
-            backdrop.style.display = 'none';
-        }, 300);
-    }
-    
-    panel.classList.remove('show');
-    setTimeout(() => {
-        panel.style.display = 'none';
-    }, 400);
-}
-
-// --- Поддержка жестов для мобильных ---
-function initTouchGestures() {
-    const panel = document.getElementById('tripDetailsPanel');
-    if (!panel) return;
-    
-    let startY = 0;
-    let currentY = 0;
-    let isDragging = false;
-    
-    panel.addEventListener('touchstart', (e) => {
-        if (window.innerWidth > 900) return; // Только для мобильных
-        startY = e.touches[0].clientY;
-        isDragging = true;
-        panel.style.transition = 'none';
-    });
-    
-    panel.addEventListener('touchmove', (e) => {
-        if (!isDragging || window.innerWidth > 900) return;
-        
-        currentY = e.touches[0].clientY;
-        const deltaY = currentY - startY;
-        
-        if (deltaY > 0) { // Только свайп вниз
-            const translateY = Math.min(deltaY, 200);
-            panel.style.transform = `translateY(${translateY}px)`;
-        }
-    });
-    
-    panel.addEventListener('touchend', () => {
-        if (!isDragging || window.innerWidth > 900) return;
-        
-        isDragging = false;
-        panel.style.transition = 'all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
-        
-        const deltaY = currentY - startY;
-        if (deltaY > 100) { // Если свайп больше 100px - закрываем
-            closeTripDetails();
-        } else {
-            panel.style.transform = 'translateY(0)'; // Возвращаем на место
-        }
-    });
-}
-
-// --- Адаптивное поведение при изменении размера окна ---
-function handleResize() {
-    const panel = document.getElementById('tripDetailsPanel');
-    const tripsWrapper = document.querySelector('.trips-panel-wrapper');
-    const mapPanel = document.querySelector('.map-panel');
-    
-    if (window.innerWidth <= 900) {
-        // На мобильных возвращаем обычное состояние
-        if (tripsWrapper) tripsWrapper.classList.remove('hidden-for-details');
-        if (mapPanel) mapPanel.classList.remove('expanded');
-    } else if (panel && panel.classList.contains('show')) {
-        // На десктопе, если панель открыта, применяем эффекты
-        if (tripsWrapper) tripsWrapper.classList.add('hidden-for-details');
-        if (mapPanel) mapPanel.classList.add('expanded');
+    } catch (error) {
+        console.error('Error loading trips:', error);
+        renderTripListWithSelection([], null);
     }
 }
 
@@ -2947,11 +1855,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     initMap();
     loadTrips();
-    initTouchGestures();
-    
-    // Слушаем изменение размера окна
-    window.addEventListener('resize', handleResize);
-    
     if (isDriver()) {
         console.log('Initializing driver mode: showing geo button');
         showGeoButton();
@@ -2967,6 +1870,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // Trip info popup logic
 function showTripInfoPopup(trip) {
     const popup = document.getElementById('tripInfoPopup');
+    tripInfoPopupTrip = trip; // Устанавливаем переменную для кнопок
     if (!trip) {
         popup.style.display = 'none';
         popup.innerHTML = '';
@@ -2989,48 +1893,53 @@ function showTripInfoPopup(trip) {
     let route = (pointA && pointB) ? `${pointA} — ${pointB}` : '';
     
     popup.innerHTML = `
-        <div class="trip-info-popup-content">
-            <div class="trip-info-popup-main">
-                <div class="trip-info-popup-icon">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M4.35746 15.2241H3.91814C2.85878 15.2241 2 14.3653 2 13.3059V5.0314C2 3.97197 2.85878 3.11316 3.91814 3.11316H10.3973C11.4567 3.11316 12.3155 3.97197 12.3155 5.0314V15.2241H7.79807M16.3211 9.21706H12.3155V4.98346H12.8324C13.174 4.98343 13.5094 5.0746 13.804 5.24755C14.0986 5.4205 14.3417 5.66895 14.5081 5.96726L16.3211 9.21706Z" stroke="#2563eb" stroke-width="2" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M6.07814 16.8869C7.00585 16.8869 7.7579 16.1352 7.7579 15.2079C7.7579 14.2806 7.00585 13.5289 6.07814 13.5289C5.15043 13.5289 4.39838 14.2806 4.39838 15.2079C4.39838 16.1352 5.15043 16.8869 6.07814 16.8869Z" stroke="#2563eb" stroke-width="2" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M13.9953 16.8869C14.923 16.8869 15.675 16.1352 15.675 15.2079C15.675 14.2806 14.923 13.5289 13.9953 13.5289C13.0675 13.5289 12.3155 14.2806 12.3155 15.2079C12.3155 16.1352 13.0675 16.8869 13.9953 16.8869Z" stroke="#2563eb" stroke-width="2" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M15.7703 15.2241H16.6921C17.2362 15.2241 17.7031 14.8939 17.9035 14.423M18 10.9591C17.9111 9.98232 17.0898 9.2171 16.0899 9.2171H12.3155V15.2242" stroke="#2563eb" stroke-width="2" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                </div>
-                <div class="trip-info-popup-details">
-                    <div class="trip-info-popup-number">${number}</div>
-                    <div class="trip-info-popup-brand">${brand}</div>
-                    <div class="trip-info-popup-route">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M12 21.3004C8.70003 17.9004 5.60003 16.7004 5.60003 12.0004C5.60003 8.50036 8.50003 5.60036 12 5.60036C15.5 5.60036 18.4 8.50036 18.4 12.0004C18.4 16.7004 15.3 17.9004 12 21.3004Z" stroke="#64748b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                            <circle cx="12" cy="12" r="2.5" stroke="#64748b" stroke-width="1.5"/>
-                        </svg>
-                        ${route}
+        <style>
+        @media (max-width: 768px) {
+            .trip-info-popup-content {
+                flex-direction: column !important;
+                gap: 3px !important;
+                padding: 2px !important;
+            }
+            .trip-info-popup-left {
+                width: 100% !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            .trip-info-popup-info {
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            .trip-info-popup-actions {
+                width: 100% !important;
+                justify-content: stretch !important;
+                gap: 10px !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            .trip-info-popup-actions button {
+                padding: 10px 12px !important;
+                font-size: 0.8em !important;
+            }
+        }
+        </style>
+        <div class="trip-info-popup-content" style="display: flex !important; align-items: stretch !important; width: 100% !important; gap: 4px !important; min-height: 50px !important;">
+            <div class="trip-info-popup-left" style="display: flex !important; align-items: center !important; flex: 1 !important; min-width: 0 !important;">
+                <div class="trip-info-popup-info" style="flex: 1 !important; min-width: 0 !important; display: flex !important; flex-direction: column !important; justify-content: center !important;">
+                    <div style="display: flex !important; align-items: center !important; gap: 6px !important; margin-bottom: 2px !important;">
+                        <span style="color: #2679DB !important; font-weight: 700 !important; font-size: 1em !important; font-family: 'Inter Tight', sans-serif !important;">${number}</span>
+                        <span style="color: #64748b !important; font-weight: 500 !important; font-size: 0.8em !important;">${brand}</span>
+                    </div>
+                    <div style="color: #374151 !important; font-weight: 500 !important; font-size: 0.85em !important; line-height: 1.2 !important; overflow: hidden !important; text-overflow: ellipsis !important; white-space: nowrap !important; margin-bottom: 2px !important;">${route}</div>
+                    <div style="display: flex !important; gap: 8px !important; font-size: 0.75em !important; color: #64748b !important;">
+                        ${driver ? `<span>${driver}</span>` : ''}
+                        ${trip.date ? `<span>${trip.date}</span>` : ''}
                     </div>
                 </div>
             </div>
-            <div class="trip-info-popup-meta">
-                ${driver ? `<div class="trip-info-popup-driver">
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M20 21V19C20 16.7909 18.2091 15 16 15H8C5.79086 15 4 16.7909 4 19V21M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z" stroke="#64748b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                    ${driver}
-                </div>` : ''}
-                ${trip.date ? `<div class="trip-info-popup-date">
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M8 2V6M16 2V6M3 10H21M5 4H19C20.1046 4 21 4.89543 21 6V20C21 21.1046 20.1046 22 19 22H5C3.89543 22 3 21.1046 3 20V6C3 4.89543 3.89543 4 5 4Z" stroke="#64748b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                    ${trip.date}
-                </div>` : ''}
+            <div class="trip-info-popup-actions" style="display: flex !important; flex-direction: row !important; gap: 3px !important; justify-content: flex-end !important; flex-shrink: 0 !important; min-width: 130px !important;">
+                <button onclick="openTripChecklist(tripInfoPopupTrip)" style="background: #2679DB !important; color: white !important; border: none !important; border-radius: 6px !important; padding: 10px 14px !important; font-weight: 500 !important; font-size: 0.8em !important; cursor: pointer !important; white-space: nowrap !important; flex: 1 !important; transition: all 0.2s ease !important;" onmouseover="this.style.background='#1e5ba8'" onmouseout="this.style.background='#2679DB'">Чек-лист</button>
+                <button onclick="showTripDetailsPopup(tripInfoPopupTrip)" style="background: #f8fafc !important; color: #2679DB !important; border: 1px solid #e2e8f0 !important; border-radius: 6px !important; padding: 10px 14px !important; font-weight: 500 !important; font-size: 0.8em !important; cursor: pointer !important; white-space: nowrap !important; flex: 1 !important; transition: all 0.2s ease !important;" onmouseover="this.style.background='#e6f2ff'; this.style.borderColor='#2679DB'" onmouseout="this.style.background='#f8fafc'; this.style.borderColor='#e2e8f0'">Подробнее</button>
             </div>
-            <button class="trip-info-popup-delete" onclick="showTripDetailsPopup(tripInfoPopupTrip)">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M9 6L15 12L9 18" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                Подробнее
-            </button>
         </div>
     `;
     popup.style.display = 'block';
@@ -3040,7 +1949,7 @@ function showTripInfoPopup(trip) {
 
 function deleteTrip(tripId) {
     if (!confirm('Удалить эту поездку?')) return;
-    fetch(`/api/trips/${tripId}/`, {
+    fetch(`/dashboard/api/trips/${tripId}/`, {
         method: 'DELETE',
         headers: { 'X-CSRFToken': getCookie('csrftoken') }
     }).then(resp => {
@@ -3142,179 +2051,43 @@ async function loadDriverLocations() {
 // Модальное окно подробной информации о поездке
 function showTripDetailsPopup(trip) {
     if (!trip) return;
-    
     // Удаляем старый попап если есть
     let old = document.getElementById('tripDetailsModal');
     if (old) old.remove();
     
-    // Создаём оверлей
+    // Создаём оверлей с обновленными стилями BARLAU.KZ
     const overlay = document.createElement('div');
     overlay.id = 'tripDetailsModal';
-    overlay.style = 'position:fixed;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.4);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;';
+    overlay.style = 'position:fixed;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.4);z-index:9999;display:flex;align-items:center;justify-content:center;font-family:Inter Tight, -apple-system, BlinkMacSystemFont, sans-serif;';
     overlay.onclick = function(e) { if (e.target === overlay) overlay.remove(); };
     
-    // Форматируем данные
-    const vehicleInfo = trip.vehicle_details ? `${trip.vehicle_details.brand} ${trip.vehicle_details.model} (${trip.vehicle_details.number})` : 'Не указано';
-    const trailerInfo = trip.trailer_details ? `${trip.trailer_details.brand} ${trip.trailer_details.model} (${trip.trailer_details.number})` : 'Без прицепа';
-    const driverName = trip.driver_details ? (trip.driver_details.full_name || `${trip.driver_details.first_name} ${trip.driver_details.last_name}`.trim()) : 'Не назначен';
-    const currentLocation = trip.current_location ? `${trip.current_location.latitude.toFixed(6)}, ${trip.current_location.longitude.toFixed(6)}` : 'Не определена';
-    const cargoType = trip.cargo_type_display || 'Не указан';
-    const freightAmount = trip.freight_amount ? `${parseFloat(trip.freight_amount).toLocaleString('ru-RU')} тг` : 'Не указано';
-    const paymentType = trip.freight_payment_type_display || 'Не указано';
-    const status = trip.status_display || 'Неизвестно';
-    
-    // Контент
+    // Контент с корпоративными стилями
     const content = document.createElement('div');
-    content.style = 'background:#fff;border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,0.15);padding:0;max-width:600px;width:100%;max-height:90vh;overflow-y:auto;position:relative;';
+    content.style = 'background:#fff;border-radius:20px;box-shadow:0px 16px 32px -12px rgba(88,92,95,0.10);padding:28px;max-width:450px;width:95vw;position:relative;animation:slideIn 0.3s ease-out;';
     content.innerHTML = `
-        <div style="padding:24px 32px;border-bottom:1px solid #e5e7eb;">
-            <button onclick="document.getElementById('tripDetailsModal').remove()" style="position:absolute;top:20px;right:24px;background:none;border:none;font-size:24px;color:#64748b;cursor:pointer;width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:8px;transition:background 0.2s;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='none'">&times;</button>
-            <h2 style="font-size:24px;font-weight:700;color:#1e293b;margin:0;padding-right:40px;">${trip.title || 'Поездка'}</h2>
-            <div style="display:inline-block;margin-top:8px;padding:4px 12px;background:${trip.status === 'ACTIVE' ? '#dcfce7' : trip.status === 'COMPLETED' ? '#dbeafe' : '#fef3c7'};color:${trip.status === 'ACTIVE' ? '#166534' : trip.status === 'COMPLETED' ? '#1e40af' : '#92400e'};border-radius:20px;font-size:14px;font-weight:500;">${status}</div>
+        <style>
+        @keyframes slideIn {
+            from { opacity: 0; transform: scale(0.95) translateY(20px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        </style>
+        <button onclick="document.getElementById('tripDetailsModal').remove()" style="position:absolute;top:18px;right:18px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;color:#64748b;cursor:pointer;font-size:18px;font-weight:400;transition:all 0.2s;">&times;</button>
+        <div style="font-size:22px;font-weight:700;color:#2679DB;margin-bottom:8px;letter-spacing:0.02em;">${trip.vehicle_details ? trip.vehicle_details.number : ''}</div>
+        <div style="color:#64748b;font-size:16px;font-weight:500;margin-bottom:12px;">${trip.vehicle_details ? trip.vehicle_details.brand + ' ' + trip.vehicle_details.model : ''}</div>
+        <div style="font-size:16px;font-weight:500;margin-bottom:16px;color:#374151;line-height:1.5;">${trip.start_address || ''} <span style='color:#2679DB;font-weight:600;margin:0 8px;'>→</span> ${trip.end_address || ''}</div>
+        <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:20px;">
+            <div style="display:flex;align-items:center;gap:10px;color:#64748b;font-size:15px;">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style="flex-shrink:0;"><path d="M20 21V19C20 16.7909 18.2091 15 16 15H8C5.79086 15 4 16.7909 4 19V21M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z"/></svg>
+                ${trip.driver_details ? (trip.driver_details.full_name || (trip.driver_details.first_name + ' ' + trip.driver_details.last_name)) : ''}
         </div>
-        
-        <div style="padding:24px 32px;">
-            <div style="display:grid;gap:20px;">
-                <!-- Маршрут -->
-                <div>
-                    <h3 style="font-size:16px;font-weight:600;color:#374151;margin:0 0 12px 0;display:flex;align-items:center;gap:8px;">
-                        <svg width="20" height="20" fill="none" stroke="#374151" stroke-width="1.5" viewBox="0 0 24 24">
-                            <path d="M9 6L15 12L9 18"/>
-                        </svg>
-                        Маршрут
-                    </h3>
-                    <div style="background:#f8fafc;border-radius:12px;padding:16px;">
-                        <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
-                            <div style="width:8px;height:8px;background:#10b981;border-radius:50%;"></div>
-                            <span style="font-weight:500;color:#374151;">Откуда:</span>
-                            <span style="color:#6b7280;">${trip.start_address || 'Не указано'}</span>
+            <div style="display:flex;align-items:center;gap:10px;color:#64748b;font-size:15px;">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style="flex-shrink:0;"><path d="M8 2V6M16 2V6M3 10H21M5 4H19C20.1046 4 21 4.89543 21 6V20C21 21.1046 20.1046 22 19 22H5C3.89543 22 3 21.1046 3 20V6C3 4.89543 3.89543 4 5 4Z"/></svg>
+                ${trip.date || ''}
                         </div>
-                        <div style="display:flex;align-items:center;gap:12px;">
-                            <div style="width:8px;height:8px;background:#ef4444;border-radius:50%;"></div>
-                            <span style="font-weight:500;color:#374151;">Куда:</span>
-                            <span style="color:#6b7280;">${trip.end_address || 'Не указано'}</span>
                         </div>
-                    </div>
-                </div>
-                
-                <!-- Водитель -->
-                <div>
-                    <h3 style="font-size:16px;font-weight:600;color:#374151;margin:0 0 12px 0;display:flex;align-items:center;gap:8px;">
-                        <svg width="20" height="20" fill="none" stroke="#374151" stroke-width="1.5" viewBox="0 0 24 24">
-                            <path d="M20 21V19C20 16.7909 18.2091 15 16 15H8C5.79086 15 4 16.7909 4 19V21M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z"/>
-                        </svg>
-                        Водитель
-                    </h3>
-                    <div style="color:#374151;font-weight:500;">${driverName}</div>
-                </div>
-                
-                <!-- Транспорт -->
-                <div>
-                    <h3 style="font-size:16px;font-weight:600;color:#374151;margin:0 0 12px 0;display:flex;align-items:center;gap:8px;">
-                        <svg width="20" height="20" fill="none" stroke="#374151" stroke-width="1.5" viewBox="0 0 24 24">
-                            <path d="M8 18V6C8 4.89543 8.89543 4 10 4H14C15.1046 4 16 4.89543 16 6V18M8 18L6 20H18L16 18M8 18H16M12 8V12"/>
-                        </svg>
-                        Фура + Прицеп
-                    </h3>
-                    <div style="background:#f8fafc;border-radius:12px;padding:16px;">
-                        <div style="margin-bottom:8px;">
-                            <span style="font-weight:500;color:#374151;">Фура:</span>
-                            <span style="color:#6b7280;margin-left:8px;">${vehicleInfo}</span>
-                        </div>
-                        <div>
-                            <span style="font-weight:500;color:#374151;">Прицеп:</span>
-                            <span style="color:#6b7280;margin-left:8px;">${trailerInfo}</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Локация -->
-                <div>
-                    <h3 style="font-size:16px;font-weight:600;color:#374151;margin:0 0 12px 0;display:flex;align-items:center;gap:8px;">
-                        <svg width="20" height="20" fill="none" stroke="#374151" stroke-width="1.5" viewBox="0 0 24 24">
-                            <path d="M12 21.3004C8.70003 17.9004 5.60003 16.7004 5.60003 12.0004C5.60003 8.50036 8.50003 5.60036 12 5.60036C15.5 5.60036 18.4 8.50036 18.4 12.0004C18.4 16.7004 15.3 17.9004 12 21.3004Z"/>
-                            <circle cx="12" cy="12" r="2.5"/>
-                        </svg>
-                        Текущая локация
-                    </h3>
-                    <div style="color:#374151;">${currentLocation}</div>
-                    ${trip.current_location && trip.current_location.last_update ? `<div style="color:#6b7280;font-size:14px;margin-top:4px;">Обновлено: ${new Date(trip.current_location.last_update).toLocaleString('ru-RU')}</div>` : ''}
-                </div>
-                
-                <!-- Информация о грузе -->
-                <div>
-                    <h3 style="font-size:16px;font-weight:600;color:#374151;margin:0 0 12px 0;display:flex;align-items:center;gap:8px;">
-                        <svg width="20" height="20" fill="none" stroke="#374151" stroke-width="1.5" viewBox="0 0 24 24">
-                            <path d="M20 7L12 3L4 7M20 7L12 11M20 7V17L12 21M12 11L4 7M12 11V21M4 7V17L12 21"/>
-                        </svg>
-                        Информация о грузе
-                    </h3>
-                    <div style="background:#f8fafc;border-radius:12px;padding:16px;">
-                        <div style="margin-bottom:8px;">
-                            <span style="font-weight:500;color:#374151;">Тип:</span>
-                            <span style="color:#6b7280;margin-left:8px;">${cargoType}</span>
-                        </div>
-                        ${trip.cargo_weight ? `<div style="margin-bottom:8px;">
-                            <span style="font-weight:500;color:#374151;">Вес:</span>
-                            <span style="color:#6b7280;margin-left:8px;">${parseFloat(trip.cargo_weight).toLocaleString('ru-RU')} кг</span>
-                        </div>` : ''}
-                        ${trip.cargo_description ? `<div>
-                            <span style="font-weight:500;color:#374151;">Описание:</span>
-                            <div style="color:#6b7280;margin-top:4px;line-height:1.5;">${trip.cargo_description}</div>
-                        </div>` : ''}
-                    </div>
-                </div>
-                
-                <!-- Фрахт -->
-                <div>
-                    <h3 style="font-size:16px;font-weight:600;color:#374151;margin:0 0 12px 0;display:flex;align-items:center;gap:8px;">
-                        <svg width="20" height="20" fill="none" stroke="#374151" stroke-width="1.5" viewBox="0 0 24 24">
-                            <path d="M12 2V22M17 5H9.5C8.11929 5 7 6.11929 7 7.5S8.11929 10 9.5 10H14.5C15.8807 10 17 11.1193 17 12.5S15.8807 15 14.5 15H7"/>
-                        </svg>
-                        Фрахт
-                    </h3>
-                    <div style="background:#f8fafc;border-radius:12px;padding:16px;">
-                        <div style="margin-bottom:8px;">
-                            <span style="font-weight:500;color:#374151;">Сумма:</span>
-                            <span style="color:#6b7280;margin-left:8px;">${freightAmount}</span>
-                        </div>
-                        <div>
-                            <span style="font-weight:500;color:#374151;">Тип оплаты:</span>
-                            <span style="color:#6b7280;margin-left:8px;">${paymentType}</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Примечания -->
-                ${trip.notes ? `<div>
-                    <h3 style="font-size:16px;font-weight:600;color:#374151;margin:0 0 12px 0;display:flex;align-items:center;gap:8px;">
-                        <svg width="20" height="20" fill="none" stroke="#374151" stroke-width="1.5" viewBox="0 0 24 24">
-                            <path d="M9 12H15M9 16H15M17 21H7C5.89543 21 5 20.1046 5 19V5C5 3.89543 5.89543 3 7 3H12.5858C12.851 3 13.1054 3.10536 13.2929 3.29289L19.7071 9.70711C19.8946 9.89464 20 10.149 20 10.4142V19C20 20.1046 19.1046 21 18 21H17Z"/>
-                        </svg>
-                        Примечания
-                    </h3>
-                    <div style="background:#f8fafc;border-radius:12px;padding:16px;color:#374151;line-height:1.6;">${trip.notes}</div>
-                </div>` : ''}
-            </div>
-            
-            <!-- Кнопки действий -->
-            <div style="display:flex;gap:12px;margin-top:24px;padding-top:20px;border-top:1px solid #e5e7eb;">
-                ${window.currentUserRole && ['SUPERADMIN', 'ADMIN'].includes(window.currentUserRole.toUpperCase()) ? `
-                    <button onclick="deleteTrip(${trip.id});document.getElementById('tripDetailsModal').remove();" style="background:#ef4444;color:#fff;border:none;border-radius:8px;padding:12px 20px;font-weight:600;font-size:14px;cursor:pointer;transition:background 0.2s;" onmouseover="this.style.background='#dc2626'" onmouseout="this.style.background='#ef4444'">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-right:6px;">
-                            <path d="M19 7L5 7M10 11V17M14 11V17M6 7V18C6 19.1046 6.89543 20 8 20H16C17.1046 20 18 19.1046 18 18V7"/>
-                        </svg>
-                        Удалить
-                    </button>
-                ` : ''}
-                <button onclick="focusMapOnTrip(tripInfoPopupTrip);document.getElementById('tripDetailsModal').remove();" style="background:#2563eb;color:#fff;border:none;border-radius:8px;padding:12px 20px;font-weight:600;font-size:14px;cursor:pointer;transition:background 0.2s;" onmouseover="this.style.background='#1d4ed8'" onmouseout="this.style.background='#2563eb'">
-                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-right:6px;">
-                        <path d="M12 21.3004C8.70003 17.9004 5.60003 16.7004 5.60003 12.0004C5.60003 8.50036 8.50003 5.60036 12 5.60036C15.5 5.60036 18.4 8.50036 18.4 12.0004C18.4 16.7004 15.3 17.9004 12 21.3004Z"/>
-                        <circle cx="12" cy="12" r="2.5"/>
-                    </svg>
-                    Показать на карте
-                </button>
-            </div>
+        ${trip.cargo_description ? `<div style="color:#374151;font-size:15px;margin-bottom:20px;padding:12px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;"><strong style="color:#1e293b;">Груз:</strong> ${trip.cargo_description}</div>` : ''}
+        <div style="display:flex;gap:12px;margin-top:20px;">
+            <button onclick="deleteTrip(${trip.id});document.getElementById('tripDetailsModal').remove();" style="background:#ef4444;color:#fff;border:none;border-radius:8px;padding:12px 24px;font-weight:600;font-size:15px;cursor:pointer;transition:all 0.2s;box-shadow:0px 16px 32px -12px rgba(239,68,68,0.15);" onmouseover="this.style.background='#dc2626';this.style.transform='translateY(-1px)';this.style.boxShadow='0px 20px 40px -12px rgba(239,68,68,0.25)';" onmouseout="this.style.background='#ef4444';this.style.transform='translateY(0)';this.style.boxShadow='0px 16px 32px -12px rgba(239,68,68,0.15)';">Удалить</button>
         </div>
     `;
     overlay.appendChild(content);
@@ -3340,555 +2113,6 @@ function focusMapOnTrip(trip) {
         animate: true, // плавная анимация
         duration: 1.2 // длительность анимации в секундах
     });
-}
-
-// --- Функции для работы с чек-листами ---
-async function createChecklistForTrip(tripId) {
-    try {
-        const response = await fetch(`/api/trips/${tripId}/create-checklist/`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken')
-            }
-        });
-        
-        if (response.ok) {
-            const result = await response.json();
-            alert('Чек-лист успешно создан! Теперь можно заполнить все пункты проверки.');
-            
-            // Обновляем список поездок
-            loadTrips();
-            
-            // Переходим к чек-листу
-            window.location.href = '/dashboard/checklist/';
-        } else {
-            const error = await response.json();
-            alert('Ошибка при создании чек-листа: ' + (error.detail || 'Неизвестная ошибка'));
-        }
-    } catch (error) {
-        console.error('Ошибка при создании чек-листа:', error);
-        alert('Ошибка при создании чек-листа: ' + error.message);
-    }
-}
-
-async function startTripWithChecklist(tripId) {
-    if (!confirm('Начать поездку? Убедитесь, что чек-лист полностью заполнен и подписан.')) {
-        return;
-    }
-    
-    try {
-        const response = await fetch(`/api/trips/${tripId}/start_trip/`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken')
-            }
-        });
-        
-        if (response.ok) {
-            alert('Поездка успешно начата!');
-            loadTrips();
-            closeTripDetails();
-        } else {
-            const error = await response.json();
-            alert('Ошибка при начале поездки: ' + (error.detail || 'Неизвестная ошибка'));
-        }
-    } catch (error) {
-        console.error('Ошибка при начале поездки:', error);
-        alert('Ошибка при начале поездки: ' + error.message);
-    }
-}
-
-function viewChecklist(tripId) {
-    console.log('=== VIEW CHECKLIST CALLED ===');
-    console.log('Trip ID:', tripId);
-    
-    // Открываем панель чек-листа вместо перехода на отдельную страницу
-    openChecklistPanel(tripId);
-}
-
-function downloadChecklistPDF(checklistId) {
-    // Открываем PDF в новой вкладке
-    window.open(`/api/checklists/${checklistId}/pdf/`, '_blank');
-}
-
-// --- Функции для панели чек-листа ---
-function openChecklistPanel(tripId) {
-    console.log('=== OPENING CHECKLIST PANEL ===');
-    console.log('Trip ID:', tripId);
-    
-    const panel = document.getElementById('checklistPanel');
-    console.log('Panel element:', panel);
-    
-    if (!panel) {
-        console.error('Checklist panel element not found!');
-        alert('Ошибка: Панель чек-листа не найдена');
-        return;
-    }
-    
-    // Отладочная информация о стилях
-    console.log('Panel computed styles BEFORE:', {
-        display: window.getComputedStyle(panel).display,
-        transform: window.getComputedStyle(panel).transform,
-        width: window.getComputedStyle(panel).width,
-        position: window.getComputedStyle(panel).position,
-        zIndex: window.getComputedStyle(panel).zIndex
-    });
-    
-    panel.classList.remove('checklist-panel-hidden');
-    panel.classList.add('active');
-    console.log('Panel classes after update:', panel.className);
-    
-    // Отладочная информация о стилях ПОСЛЕ
-    console.log('Panel computed styles AFTER:', {
-        display: window.getComputedStyle(panel).display,
-        transform: window.getComputedStyle(panel).transform,
-        width: window.getComputedStyle(panel).width,
-        position: window.getComputedStyle(panel).position,
-        zIndex: window.getComputedStyle(panel).zIndex
-    });
-    
-    // Принудительно устанавливаем стили
-    panel.style.display = 'flex';
-    panel.style.transform = 'translateX(0)';
-    panel.style.zIndex = '1000';
-    console.log('Panel styles set manually');
-    
-    // Загружаем чек-лист для поездки
-    loadChecklistForTrip(tripId);
-}
-
-function closeChecklistPanel() {
-    const panel = document.getElementById('checklistPanel');
-    panel.classList.remove('active');
-    setTimeout(() => {
-        panel.classList.add('checklist-panel-hidden');
-    }, 300); // Ждем завершения анимации
-}
-
-async function loadChecklistForTrip(tripId) {
-    try {
-        // Сохраняем ID поездки для дальнейшего использования
-        currentChecklistTripId = tripId;
-        
-        const checklistContent = document.getElementById('checklistContent');
-        const tripTitleElement = document.getElementById('checklistTripTitle');
-        
-        // Показываем загрузку
-        checklistContent.innerHTML = '<div style="padding: 24px; text-align: center; color: #64748b;">Загрузка чек-листа...</div>';
-        
-        // Получаем информацию о поездке
-        const tripResponse = await fetch(`/api/trips/${tripId}/`);
-        const trip = await tripResponse.json();
-        
-        tripTitleElement.textContent = `${trip.title || 'Поездка'} - ${trip.vehicle_details?.brand} ${trip.vehicle_details?.model} (${trip.vehicle_details?.number})`;
-        
-        // Проверяем, есть ли уже чек-лист
-        const checklistResponse = await fetch(`/api/trips/${tripId}/checklist/`);
-        
-        if (checklistResponse.ok) {
-            // Чек-лист существует - загружаем его
-            const checklist = await checklistResponse.json();
-            renderChecklist(checklist, trip);
-        } else {
-            // Чек-лист не существует - показываем кнопку создания
-            renderCreateChecklistOption(tripId, trip);
-        }
-        
-    } catch (error) {
-        console.error('Ошибка при загрузке чек-листа:', error);
-        document.getElementById('checklistContent').innerHTML = `
-            <div style="padding: 24px; text-align: center; color: #ef4444;">
-                <p>Ошибка при загрузке чек-листа</p>
-                <button onclick="loadChecklistForTrip(${tripId})" style="margin-top: 12px; padding: 8px 16px; background: #2563eb; color: white; border: none; border-radius: 6px; cursor: pointer;">
-                    Попробовать снова
-                </button>
-            </div>
-        `;
-    }
-}
-
-function renderCreateChecklistOption(tripId, trip) {
-    const checklistContent = document.getElementById('checklistContent');
-    
-    checklistContent.innerHTML = `
-        <div style="padding: 24px; text-align: center;">
-            <div style="margin-bottom: 24px;">
-                <svg width="64" height="64" fill="none" stroke="#8b5cf6" stroke-width="1.5" viewBox="0 0 24 24" style="margin: 0 auto 16px;">
-                    <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z"/>
-                </svg>
-                <h3 style="font-size: 1.25rem; font-weight: 600; color: #1e293b; margin: 0 0 8px 0;">Чек-лист не создан</h3>
-                <p style="color: #64748b; margin: 0;">Для этой поездки еще не создан чек-лист с проверками транспорта</p>
-            </div>
-            
-            <div style="background: #f8fafc; border-radius: 12px; padding: 20px; margin-bottom: 24px; text-align: left;">
-                <h4 style="font-weight: 600; color: #374151; margin: 0 0 12px 0;">Чек-лист включает:</h4>
-                <ul style="color: #64748b; margin: 0; padding-left: 20px; line-height: 1.6;">
-                    <li>48 пунктов проверки транспорта</li>
-                    <li>Проверка технического состояния</li>
-                    <li>Проверка документов</li>
-                    <li>Фотофиксация состояния</li>
-                    <li>Подпись водителя и диспетчера</li>
-                </ul>
-            </div>
-            
-            <button onclick="createChecklistForTrip(${tripId})" class="checklist-btn checklist-btn-primary" style="width: 100%;">
-                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path d="M12 4V20M20 12H4"/>
-                </svg>
-                Создать чек-лист
-            </button>
-        </div>
-    `;
-}
-
-function renderChecklist(checklist, trip) {
-    const checklistContent = document.getElementById('checklistContent');
-    
-    // Рассчитываем прогресс
-    const totalItems = checklist.items.length;
-    const completedItems = checklist.items.filter(item => item.is_checked || item.is_completed).length;
-    const progressPercent = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
-    
-    // Определяем статус и его цвет
-    let statusClass = 'checklist-status-pending';
-    let statusText = 'Ожидает заполнения';
-    
-    switch (checklist.status) {
-        case 'IN_PROGRESS':
-            statusClass = 'checklist-status-in-progress';
-            statusText = 'В процессе заполнения';
-            break;
-        case 'COMPLETED':
-            statusClass = 'checklist-status-completed';
-            statusText = 'Заполнен';
-            break;
-        case 'APPROVED':
-            statusClass = 'checklist-status-approved';
-            statusText = 'Одобрен';
-            break;
-        case 'REJECTED':
-            statusClass = 'checklist-status-rejected';
-            statusText = 'Отклонен';
-            break;
-    }
-    
-    // Определяем доступные действия на основе роли и статуса
-    const userRole = window.currentUserRole?.toUpperCase();
-    const isDriver = userRole === 'DRIVER';
-    const isAdmin = ['SUPERADMIN', 'ADMIN'].includes(userRole);
-    
-    let actionsHTML = '';
-    
-    if (isDriver && checklist.status === 'PENDING') {
-        actionsHTML = `
-            <button onclick="saveChecklistProgress(${checklist.id})" class="checklist-btn checklist-btn-secondary">
-                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path d="M19 21H5C4.44772 21 4 20.5523 4 20V4C4 3.44772 4.44772 3 5 3H16L20 7V20C20 20.5523 19.5523 21 19 21Z"/>
-                    <path d="M17 21V13H7V21"/>
-                    <path d="M7 3V8H15"/>
-                </svg>
-                Сохранить прогресс
-            </button>
-            <button onclick="submitChecklistForApproval(${checklist.id})" class="checklist-btn checklist-btn-primary" ${progressPercent < 100 ? 'disabled' : ''}>
-                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z"/>
-                </svg>
-                Отправить на проверку
-            </button>
-        `;
-    } else if (isAdmin && checklist.status === 'COMPLETED') {
-        actionsHTML = `
-            <button onclick="approveChecklist(${checklist.id})" class="checklist-btn checklist-btn-success">
-                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z"/>
-                </svg>
-                Одобрить
-            </button>
-            <button onclick="rejectChecklist(${checklist.id})" class="checklist-btn checklist-btn-danger">
-                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path d="M18 6L6 18M6 6L18 18"/>
-                </svg>
-                Отклонить
-            </button>
-        `;
-    }
-    
-    if (checklist.status === 'APPROVED') {
-        actionsHTML += `
-            <button onclick="downloadChecklistPDF(${checklist.id})" class="checklist-btn checklist-btn-secondary">
-                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path d="M12 10V18M12 18L9 15M12 18L15 15M4.22 4.22L19.78 19.78"/>
-                </svg>
-                Скачать PDF
-            </button>
-        `;
-    }
-    
-    checklistContent.innerHTML = `
-        <!-- Статус и прогресс -->
-        <div class="checklist-progress">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                <span class="checklist-status-badge ${statusClass}">${statusText}</span>
-                <span style="font-size: 0.9rem; color: #64748b;">Создан: ${new Date(checklist.created_at).toLocaleDateString('ru-RU')}</span>
-            </div>
-            <div class="checklist-progress-bar">
-                <div class="checklist-progress-fill" style="width: ${progressPercent}%; background: ${progressPercent === 100 ? '#10b981' : '#3b82f6'};"></div>
-            </div>
-            <div class="checklist-progress-text">
-                Выполнено: ${completedItems} из ${totalItems} пунктов (${progressPercent}%)
-            </div>
-        </div>
-        
-        <!-- Список пунктов чек-листа -->
-        <div class="checklist-items">
-            ${checklist.items.map(item => `
-                <div class="checklist-item">
-                    <div class="checklist-checkbox ${(item.is_checked || item.is_completed) ? 'checked' : ''}" 
-                         onclick="toggleChecklistItem(${item.id}, ${!(item.is_checked || item.is_completed)})"
-                         ${checklist.status !== 'PENDING' ? 'style="pointer-events: none; opacity: 0.6;"' : ''}></div>
-                    <div class="checklist-item-content">
-                        <div class="checklist-item-title">${item.template?.title || item.title || 'Пункт проверки'}</div>
-                        ${(item.template?.description || item.description) ? `<div class="checklist-item-desc">${item.template?.description || item.description}</div>` : ''}
-                        ${item.requires_photo && checklist.status === 'PENDING' ? `
-                            <div class="checklist-photo-upload">
-                                ${item.photo ? `
-                                    <img src="${item.photo}" alt="Фото проверки" class="checklist-photo-preview" />
-                                ` : `
-                                    <input type="file" id="photo-${item.id}" accept="image/*" style="display: none;" onchange="uploadChecklistPhoto(${item.id}, this)">
-                                    <label for="photo-${item.id}" class="checklist-upload-btn">
-                                        📷 Добавить фото
-                                    </label>
-                                `}
-                            </div>
-                        ` : item.photo ? `
-                            <div class="checklist-photo-upload">
-                                <img src="${item.photo}" alt="Фото проверки" class="checklist-photo-preview" />
-                            </div>
-                        ` : ''}
-                    </div>
-                </div>
-            `).join('')}
-        </div>
-        
-        <!-- Действия -->
-        ${actionsHTML ? `<div class="checklist-actions">${actionsHTML}</div>` : ''}
-    `;
-}
-
-async function createChecklistForTrip(tripId) {
-    try {
-        const response = await fetch(`/api/trips/${tripId}/create-checklist/`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken')
-            }
-        });
-        
-        if (response.ok) {
-            const result = await response.json();
-            // Перезагружаем чек-лист
-            loadChecklistForTrip(tripId);
-            // Обновляем список поездок
-            loadTrips();
-        } else {
-            const error = await response.json();
-            alert('Ошибка при создании чек-листа: ' + (error.detail || 'Неизвестная ошибка'));
-        }
-    } catch (error) {
-        console.error('Ошибка при создании чек-листа:', error);
-        alert('Ошибка при создании чек-листа: ' + error.message);
-    }
-}
-
-async function toggleChecklistItem(itemId, isCompleted) {
-    try {
-        const response = await fetch(`/api/checklist-items/${itemId}/toggle/`, {
-            method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken')
-            },
-            body: JSON.stringify({ is_checked: isCompleted })
-        });
-        
-        if (response.ok) {
-            // Обновляем отображение без полной перезагрузки
-            const checkbox = document.querySelector(`[onclick*="toggleChecklistItem(${itemId},"]`);
-            if (checkbox) {
-                checkbox.classList.toggle('checked', isCompleted);
-                checkbox.setAttribute('onclick', `toggleChecklistItem(${itemId}, ${!isCompleted})`);
-            }
-            
-            // Обновляем прогресс
-            updateChecklistProgress();
-        } else {
-            const error = await response.json();
-            alert('Ошибка при обновлении пункта: ' + (error.detail || 'Неизвестная ошибка'));
-        }
-    } catch (error) {
-        console.error('Ошибка при обновлении пункта чек-листа:', error);
-        alert('Ошибка при обновлении пункта: ' + error.message);
-    }
-}
-
-async function uploadChecklistPhoto(itemId, input) {
-    const file = input.files[0];
-    if (!file) return;
-    
-    const formData = new FormData();
-    formData.append('photo', file);
-    
-    try {
-        const response = await fetch(`/api/checklist-items/${itemId}/upload-photo/`, {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': getCookie('csrftoken')
-            },
-            body: formData
-        });
-        
-        if (response.ok) {
-            const result = await response.json();
-            // Обновляем отображение фото
-            const photoContainer = input.parentElement;
-            photoContainer.innerHTML = `<img src="${result.photo_url}" alt="Фото проверки" class="checklist-photo-preview" />`;
-        } else {
-            const error = await response.json();
-            alert('Ошибка при загрузке фото: ' + (error.detail || 'Неизвестная ошибка'));
-        }
-    } catch (error) {
-        console.error('Ошибка при загрузке фото:', error);
-        alert('Ошибка при загрузке фото: ' + error.message);
-    }
-}
-
-async function submitChecklistForApproval(checklistId) {
-    if (!confirm('Отправить чек-лист на проверку диспетчеру? После отправки вы не сможете его редактировать.')) {
-        return;
-    }
-    
-    try {
-        const tripId = getCurrentTripId();
-        const response = await fetch(`/api/trips/${tripId}/submit_checklist/`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken')
-            }
-        });
-        
-        if (response.ok) {
-            alert('Чек-лист отправлен на проверку диспетчеру!');
-            // Перезагружаем чек-лист
-            loadChecklistForTrip(tripId);
-            loadTrips();
-        } else {
-            const error = await response.json();
-            alert('Ошибка при отправке чек-листа: ' + (error.detail || 'Неизвестная ошибка'));
-        }
-    } catch (error) {
-        console.error('Ошибка при отправке чек-листа:', error);
-        alert('Ошибка при отправке чек-листа: ' + error.message);
-    }
-}
-
-async function approveChecklist(checklistId) {
-    if (!confirm('Одобрить чек-лист? Поездка будет готова к началу.')) {
-        return;
-    }
-    
-    try {
-        const tripId = getCurrentTripId();
-        const response = await fetch(`/api/trips/${tripId}/approve_checklist/`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken')
-            }
-        });
-        
-        if (response.ok) {
-            alert('Чек-лист одобрен! Поездка готова к началу.');
-            // Перезагружаем чек-лист и поездки
-            loadChecklistForTrip(tripId);
-            loadTrips();
-        } else {
-            const error = await response.json();
-            alert('Ошибка при одобрении чек-листа: ' + (error.detail || 'Неизвестная ошибка'));
-        }
-    } catch (error) {
-        console.error('Ошибка при одобрении чек-листа:', error);
-        alert('Ошибка при одобрении чек-листа: ' + error.message);
-    }
-}
-
-async function rejectChecklist(checklistId) {
-    const reason = prompt('Укажите причину отклонения чек-листа:');
-    if (!reason) return;
-    
-    try {
-        const response = await fetch(`/api/checklists/${checklistId}/reject/`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken')
-            },
-            body: JSON.stringify({ rejection_reason: reason })
-        });
-        
-        if (response.ok) {
-            alert('Чек-лист отклонен. Водитель получит уведомление.');
-            // Перезагружаем чек-лист и поездки
-            const tripId = getCurrentTripId();
-            loadChecklistForTrip(tripId);
-            loadTrips();
-        } else {
-            const error = await response.json();
-            alert('Ошибка при отклонении чек-листа: ' + (error.detail || 'Неизвестная ошибка'));
-        }
-    } catch (error) {
-        console.error('Ошибка при отклонении чек-листа:', error);
-        alert('Ошибка при отклонении чек-листа: ' + error.message);
-    }
-}
-
-function updateChecklistProgress() {
-    // Пересчитываем прогресс на основе текущего состояния чекбоксов
-    const checkboxes = document.querySelectorAll('.checklist-checkbox');
-    const total = checkboxes.length;
-    const completed = document.querySelectorAll('.checklist-checkbox.checked').length;
-    const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
-    
-    const progressFill = document.querySelector('.checklist-progress-fill');
-    const progressText = document.querySelector('.checklist-progress-text');
-    
-    if (progressFill) {
-        progressFill.style.width = percent + '%';
-        progressFill.style.background = percent === 100 ? '#10b981' : '#3b82f6';
-    }
-    
-    if (progressText) {
-        progressText.textContent = `Выполнено: ${completed} из ${total} пунктов (${percent}%)`;
-    }
-}
-
-// Переменная для хранения текущего ID поездки в панели чек-листа
-let currentChecklistTripId = null;
-
-function getCurrentTripId() {
-    return currentChecklistTripId;
-}
-
-async function saveChecklistProgress(checklistId) {
-    try {
-        // Просто показываем уведомление, что прогресс сохраняется автоматически
-        alert('Прогресс сохраняется автоматически при выполнении каждого пункта.');
-    } catch (error) {
-        console.error('Ошибка при сохранении прогресса:', error);
-    }
 }
 
 </script>
@@ -3950,7 +2174,849 @@ async function saveChecklistProgress(checklistId) {
             });
         }
     });
+let currentTripForChecklist = null;
+
+// Открытие чек-листа для поездки
+function openTripChecklist(trip) {
+    if (!trip) return;
+    
+    currentTripForChecklist = trip;
+    
+    // Заполняем информацию о поездке
+    document.getElementById('checklistVehicle').textContent = 
+        trip.vehicle_details ? `${trip.vehicle_details.brand} ${trip.vehicle_details.model} (${trip.vehicle_details.number})` : 'Не указан';
+    
+    document.getElementById('checklistDriver').textContent = 
+        trip.driver_details ? (trip.driver_details.full_name || `${trip.driver_details.first_name} ${trip.driver_details.last_name}`) : 'Не указан';
+    
+    function shortAddr(addr) {
+        if (!addr) return '';
+        let parts = addr.split(',');
+        let city = parts[0].trim();
+        if (city.match(/\d/)) city = (parts[1]||'').trim();
+        return city;
+    }
+    
+    let pointA = shortAddr(trip.start_address);
+    let pointB = shortAddr(trip.end_address);
+    let route = (pointA && pointB) ? `${pointA} → ${pointB}` : 'Маршрут не указан';
+    document.getElementById('checklistRoute').textContent = route;
+    
+    // Показываем модальное окно
+    document.getElementById('checklistModal').style.display = 'flex';
+    
+    // Обновляем прогресс
+    updateChecklistProgress();
+    
+    // Добавляем обработчики для чекбоксов
+    const checkboxes = document.querySelectorAll('#checklistModal input[type="checkbox"]');
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateChecklistProgress);
+    });
+}
+
+// Закрытие чек-листа
+function closeChecklistModal() {
+    document.getElementById('checklistModal').style.display = 'none';
+    currentTripForChecklist = null;
+    
+    // Очищаем форму
+    const checkboxes = document.querySelectorAll('#checklistModal input[type="checkbox"]');
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = false;
+    });
+    
+    const inputs = document.querySelectorAll('#checklistModal input[type="text"]');
+    inputs.forEach(input => {
+        input.value = '';
+    });
+}
+
+// Обновление прогресса чек-листа
+function updateChecklistProgress() {
+    const checkboxes = document.querySelectorAll('#checklistModal input[type="checkbox"]');
+    const checkedBoxes = document.querySelectorAll('#checklistModal input[type="checkbox"]:checked');
+    
+    const total = checkboxes.length;
+    const checked = checkedBoxes.length;
+    
+    document.getElementById('checklistProgress').textContent = `${checked} из ${total} проверено`;
+}
+
+// Сохранение чек-листа
+async function saveChecklist() {
+    if (!currentTripForChecklist) {
+        alert('Ошибка: поездка не выбрана');
+        return;
+    }
+    
+    // Собираем данные чек-листа
+    const checklistData = {
+        trip_id: currentTripForChecklist.id,
+        checks: {},
+        signatures: {}
+    };
+    
+    // Собираем чекбоксы
+    const checkboxes = document.querySelectorAll('#checklistModal input[type="checkbox"]');
+    checkboxes.forEach(checkbox => {
+        checklistData.checks[checkbox.name] = checkbox.checked;
+    });
+    
+    // Собираем подписи
+    const signatureInputs = document.querySelectorAll('#checklistModal input[name^="signature_"]');
+    signatureInputs.forEach(input => {
+        checklistData.signatures[input.name] = input.value;
+    });
+    
+    console.log('Данные чек-листа:', checklistData);
+    alert('Чек-лист сохранен! Проверьте консоль браузера для просмотра данных.');
+    closeChecklistModal();
+}
+
+// Закрытие модального окна при нажатии Escape
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        const modal = document.getElementById('checklistModal');
+        if (modal && modal.style.display === 'flex') {
+            closeChecklistModal();
+        }
+    }
+});
 </script>
+
+<!-- Модальное окно чек-листа -->
+<div id="checklistModal" class="checklist-modal" style="display:none;">
+    <div class="checklist-modal-content">
+        <div class="checklist-header">
+            <div class="checklist-header-main">
+                <div class="checklist-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+                <div class="checklist-title">
+                    <h3>Чек-лист проверки фуры</h3>
+                    <p>Проверка перед рейсом</p>
+            </div>
+            </div>
+            <button onclick="closeChecklistModal()" class="checklist-close">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M6 18L18 6M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+        </div>
+        
+        <div class="checklist-content">
+            <div class="checklist-trip-info">
+                <div class="trip-info-card">
+                    <div class="trip-info-item">
+                        <strong>Транспорт:</strong> <span id="checklistVehicle">-</span>
+                    </div>
+                    <div class="trip-info-item">
+                        <strong>Водитель:</strong> <span id="checklistDriver">-</span>
+                    </div>
+                    <div class="trip-info-item">
+                        <strong>Маршрут:</strong> <span id="checklistRoute">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Документы -->
+            <div class="checklist-section">
+                <h4 class="checklist-section-title">📄 Документы</h4>
+                <div class="checklist-items">
+                    <label class="checklist-item"><input type="checkbox" name="doc_passport"><span class="checkmark"></span><span class="item-text">Паспорт водителя</span></label>
+                    <label class="checklist-item"><input type="checkbox" name="doc_license"><span class="checkmark"></span><span class="item-text">Водительское удостоверение</span></label>
+                    <label class="checklist-item"><input type="checkbox" name="doc_tech_passport"><span class="checkmark"></span><span class="item-text">Тех паспорт авто и прицепа</span></label>
+                    <label class="checklist-item"><input type="checkbox" name="doc_customs"><span class="checkmark"></span><span class="item-text">Таможенное свидетельство</span></label>
+                    <label class="checklist-item"><input type="checkbox" name="doc_qr_code"><span class="checkmark"></span><span class="item-text">QR код очереди</span></label>
+                    <label class="checklist-item"><input type="checkbox" name="doc_kat"><span class="checkmark"></span><span class="item-text">КАТ</span></label>
+                    <label class="checklist-item"><input type="checkbox" name="doc_chip"><span class="checkmark"></span><span class="item-text">Китайский чип; Зеленая карта</span></label>
+                    <label class="checklist-item"><input type="checkbox" name="doc_waybill"><span class="checkmark"></span><span class="item-text">Путевой лист</span></label>
+                    <label class="checklist-item"><input type="checkbox" name="doc_invitation"><span class="checkmark"></span><span class="item-text">Приглашение со склада 🇨🇳</span></label>
+                    <label class="checklist-item"><input type="checkbox" name="doc_inspection"><span class="checkmark"></span><span class="item-text">Тех осмотр</span></label>
+                    <label class="checklist-item"><input type="checkbox" name="doc_insurance"><span class="checkmark"></span><span class="item-text">Страховка на фуру и прицеп</span></label>
+                    <label class="checklist-item"><input type="checkbox" name="doc_permit"><span class="checkmark"></span><span class="item-text">Карта допуска</span></label>
+                </div>
+            </div>
+
+            <!-- Техническое состояние -->
+            <div class="checklist-section">
+                <h4 class="checklist-section-title">🔧 Техническое состояние</h4>
+                
+                <div class="checklist-subsection">
+                    <h5>Внешний осмотр</h5>
+                    <div class="checklist-items">
+                        <label class="checklist-item"><input type="checkbox" name="tech_body_integrity"><span class="checkmark"></span><span class="item-text">Целостность кузова, кабины, прицепа</span></label>
+                        <label class="checklist-item"><input type="checkbox" name="tech_no_leaks"><span class="checkmark"></span><span class="item-text">Отсутствие подтеков масла, топлива, охлаждающей жидкости</span></label>
+                        <label class="checklist-item"><input type="checkbox" name="tech_glass_mirrors"><span class="checkmark"></span><span class="item-text">Целостность стекол, зеркал</span></label>
+                        <label class="checklist-item"><input type="checkbox" name="tech_doors_locks"><span class="checkmark"></span><span class="item-text">Проверка дверей, замков и пломб</span></label>
+                    </div>
+                </div>
+
+                <div class="checklist-subsection">
+                    <h5>Состояние шин</h5>
+                    <div class="checklist-items">
+                        <label class="checklist-item"><input type="checkbox" name="tech_tire_pressure"><span class="checkmark"></span><span class="item-text">Давление в шинах соответствует норме</span></label>
+                        <label class="checklist-item"><input type="checkbox" name="tech_tire_tread"><span class="checkmark"></span><span class="item-text">Протектор не изношен</span></label>
+                        <label class="checklist-item"><input type="checkbox" name="tech_tire_damage"><span class="checkmark"></span><span class="item-text">Нет порезов, вздутий или других повреждений</span></label>
+                    </div>
+                </div>
+
+                <div class="checklist-subsection">
+                    <h5>Осветительные приборы</h5>
+                    <div class="checklist-items">
+                        <label class="checklist-item"><input type="checkbox" name="tech_headlights"><span class="checkmark"></span><span class="item-text">Фары ближнего и дальнего света</span></label>
+                        <label class="checklist-item"><input type="checkbox" name="tech_side_lights"><span class="checkmark"></span><span class="item-text">Габаритные огни</span></label>
+                        <label class="checklist-item"><input type="checkbox" name="tech_brake_lights"><span class="checkmark"></span><span class="item-text">Стоп-сигналы</span></label>
+                        <label class="checklist-item"><input type="checkbox" name="tech_turn_signals"><span class="checkmark"></span><span class="item-text">Поворотники</span></label>
+                        <label class="checklist-item"><input type="checkbox" name="tech_fog_lights"><span class="checkmark"></span><span class="item-text">Противотуманные фары</span></label>
+                        <label class="checklist-item"><input type="checkbox" name="tech_license_light"><span class="checkmark"></span><span class="item-text">Подсветка номера</span></label>
+                        <label class="checklist-item"><input type="checkbox" name="tech_trailer_lights"><span class="checkmark"></span><span class="item-text">Рабочие фонари прицепа (если есть)</span></label>
+                    </div>
+                </div>
+
+                <div class="checklist-subsection">
+                    <h5>Электрика</h5>
+                    <div class="checklist-items">
+                        <label class="checklist-item"><input type="checkbox" name="tech_dashboard"><span class="checkmark"></span><span class="item-text">Приборная панель не показывает ошибок</span></label>
+                        <label class="checklist-item"><input type="checkbox" name="tech_battery"><span class="checkmark"></span><span class="item-text">Аккумулятор заряжен</span></label>
+                        <label class="checklist-item"><input type="checkbox" name="tech_gps"><span class="checkmark"></span><span class="item-text">GPS активный</span></label>
+                    </div>
+                </div>
+
+                <div class="checklist-subsection">
+                    <h5>Тормозная система</h5>
+                    <div class="checklist-items">
+                        <label class="checklist-item"><input type="checkbox" name="tech_brake_test"><span class="checkmark"></span><span class="item-text">Проверка тормозов на стоянке</span></label>
+                        <label class="checklist-item"><input type="checkbox" name="tech_handbrake"><span class="checkmark"></span><span class="item-text">Проверка ручного тормоза</span></label>
+                        <label class="checklist-item"><input type="checkbox" name="tech_air_system"><span class="checkmark"></span><span class="item-text">Воздушная система без утечек</span></label>
+                        <label class="checklist-item"><input type="checkbox" name="tech_manometers"><span class="checkmark"></span><span class="item-text">Манометры в норме</span></label>
+                    </div>
+                </div>
+
+                <div class="checklist-subsection">
+                    <h5>Жидкости</h5>
+                    <div class="checklist-items">
+                        <label class="checklist-item"><input type="checkbox" name="tech_engine_oil"><span class="checkmark"></span><span class="item-text">Уровень масла в двигателе</span></label>
+                        <label class="checklist-item"><input type="checkbox" name="tech_brake_fluid"><span class="checkmark"></span><span class="item-text">Уровень тормозной жидкости</span></label>
+                        <label class="checklist-item"><input type="checkbox" name="tech_washer_fluid"><span class="checkmark"></span><span class="item-text">Омывающая жидкость залита</span></label>
+                        <label class="checklist-item"><input type="checkbox" name="tech_fuel"><span class="checkmark"></span><span class="item-text">Топливо в баке (расчет на весь маршрут + резерв)</span></label>
+            </div>
+            </div>
+
+                <div class="checklist-subsection">
+                    <h5>Оснащение фуры</h5>
+                    <div class="checklist-items">
+                        <label class="checklist-item"><input type="checkbox" name="tech_fire_extinguisher"><span class="checkmark"></span><span class="item-text">Огнетушитель (заряжен, срок годности не истек)</span></label>
+                        <label class="checklist-item"><input type="checkbox" name="tech_first_aid"><span class="checkmark"></span><span class="item-text">Аптечка (в наличии, срок годности не истек)</span></label>
+                        <label class="checklist-item"><input type="checkbox" name="tech_warning_triangle"><span class="checkmark"></span><span class="item-text">Знак аварийной остановки</span></label>
+                        <label class="checklist-item"><input type="checkbox" name="tech_spare_wheel"><span class="checkmark"></span><span class="item-text">Запасное колесо и домкрат</span></label>
+                        <label class="checklist-item"><input type="checkbox" name="tech_tools"><span class="checkmark"></span><span class="item-text">Набор ключей, фонарик</span></label>
+                        <label class="checklist-item"><input type="checkbox" name="tech_reflective_vest"><span class="checkmark"></span><span class="item-text">Жилет со светоотражающими элементами</span></label>
+            </div>
+        </div>
+        
+                <div class="checklist-subsection">
+                    <h5>Водитель</h5>
+        <div class="checklist-items">
+                        <label class="checklist-item"><input type="checkbox" name="driver_condition"><span class="checkmark"></span><span class="item-text">Физическое состояние водителя удовлетворительное</span></label>
+                        <label class="checklist-item"><input type="checkbox" name="driver_rest"><span class="checkmark"></span><span class="item-text">Отдых перед рейсом соблюден</span></label>
+                        <label class="checklist-item"><input type="checkbox" name="driver_supplies"><span class="checkmark"></span><span class="item-text">Запас еды, воды, одежды</span></label>
+                        <label class="checklist-item"><input type="checkbox" name="driver_communication"><span class="checkmark"></span><span class="item-text">Мобильная связь и навигация готовы</span></label>
+                            </div>
+                            </div>
+                    </div>
+
+            <!-- Подписи -->
+            <div class="checklist-section">
+                <h4 class="checklist-section-title">✍️ Подписи</h4>
+                <div class="signatures-grid">
+                    <div class="signature-block">
+                        <label>Водитель:</label>
+                        <input type="text" class="signature-input" placeholder="ФИО и подпись" name="signature_driver">
+                </div>
+                    <div class="signature-block">
+                        <label>Механик:</label>
+                        <input type="text" class="signature-input" placeholder="ФИО и подпись" name="signature_mechanic">
+                    </div>
+                    <div class="signature-block">
+                        <label>Зам. директора:</label>
+                        <input type="text" class="signature-input" placeholder="ФИО и подпись" name="signature_deputy">
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="checklist-footer">
+            <div class="progress-info">
+                <span id="checklistProgress">0 из 0 проверено</span>
+            </div>
+            <div class="checklist-actions">
+                <button onclick="closeChecklistModal()" class="btn-secondary">Отмена</button>
+                <button onclick="saveChecklist()" class="btn-primary">Сохранить чек-лист</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Стили для чек-листа */
+.checklist-modal {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0,0,0,0.4);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    font-family: 'Inter Tight', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.checklist-modal-content {
+    background: #fff;
+    border-radius: 20px;
+    max-width: 800px;
+    width: 100%;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0px 16px 32px -12px rgba(88,92,95,0.10);
+}
+
+.checklist-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 28px;
+    border-bottom: 1px solid #f1f5f9;
+    border-radius: 20px 20px 0 0;
+    background: #fff;
+}
+
+.checklist-header-main {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.checklist-icon {
+    width: 48px;
+    height: 48px;
+    background: #2679DB;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.checklist-title h3 {
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0 0 4px 0;
+    color: #1e293b;
+}
+
+.checklist-title p {
+    font-size: 14px;
+    color: #64748b;
+    margin: 0;
+}
+
+.checklist-close {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.checklist-close:hover {
+    background: #f1f5f9;
+    color: #475569;
+}
+
+.checklist-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px 28px;
+}
+
+.checklist-trip-info {
+    margin-bottom: 24px;
+}
+
+.trip-info-card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 16px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+}
+
+.trip-info-item {
+    font-size: 14px;
+    color: #64748b;
+}
+
+.trip-info-item strong {
+    color: #1e293b;
+}
+
+.checklist-section {
+    margin-bottom: 24px;
+}
+
+.checklist-section-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.checklist-subsection {
+    margin-bottom: 20px;
+}
+
+.checklist-subsection h5 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #374151;
+    margin: 0 0 12px 0;
+    padding-left: 12px;
+    border-left: 3px solid #2679DB;
+}
+
+.checklist-items {
+    display: grid;
+    gap: 6px;
+}
+
+.checklist-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 8px;
+    transition: background 0.2s;
+    cursor: pointer;
+    user-select: none;
+    border: 1px solid transparent;
+}
+
+.checklist-item:hover {
+    background: #f8fafc;
+    border-color: #e2e8f0;
+}
+
+.checklist-item input[type="checkbox"] {
+    display: none;
+}
+
+.checkmark {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #cbd5e1;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+
+.checklist-item input[type="checkbox"]:checked + .checkmark {
+    background: #2679DB;
+    border-color: #2679DB;
+}
+
+.checklist-item input[type="checkbox"]:checked + .checkmark:after {
+    content: '✓';
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.item-text {
+    font-size: 15px;
+    color: #374151;
+    line-height: 1.4;
+}
+
+.signatures-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+}
+
+.signature-block {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.signature-block label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #374151;
+}
+
+.signature-input {
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: border-color 0.2s;
+}
+
+.signature-input:focus {
+    outline: none;
+    border-color: #2679DB;
+    box-shadow: 0 0 0 3px rgba(38, 121, 219, 0.1);
+}
+
+.checklist-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 28px;
+    border-top: 1px solid #f1f5f9;
+    border-radius: 0 0 20px 20px;
+    background: #fff;
+}
+
+.progress-info {
+    font-size: 14px;
+    color: #64748b;
+    font-weight: 500;
+}
+
+.checklist-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.btn-secondary {
+    padding: 10px 20px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background: white;
+    color: #64748b;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+    color: #475569;
+}
+
+.btn-primary {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    background: #2679DB;
+    color: white;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+    box-shadow: 0px 16px 32px -12px rgba(88,92,95,0.10);
+}
+
+.btn-primary:hover {
+    background: #1e40af;
+}
+
+.trip-info-popup-checklist {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 16px;
+    background: #2679DB;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+    gap: 6px;
+}
+
+.trip-info-popup-checklist:hover {
+    background: #1e40af;
+}
+
+@media (max-width: 768px) {
+    .checklist-modal-content {
+        max-height: 95vh;
+        margin: 10px;
+    }
+    
+    .trip-info-card {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    
+    .signatures-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+}
+
+/* Стили для модального окна подробностей поездки */
+.trip-details-modal {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0,0,0,0.4);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Inter Tight', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.trip-details-modal-content {
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0px 16px 32px -12px rgba(88,92,95,0.10);
+    padding: 28px;
+    max-width: 450px;
+    width: 95vw;
+    position: relative;
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from { opacity: 0; transform: scale(0.95) translateY(20px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.trip-details-close {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 18px;
+    font-weight: 400;
+}
+
+.trip-details-close:hover {
+    background: #f1f5f9;
+    color: #475569;
+}
+
+.trip-details-number {
+    font-size: 22px;
+    font-weight: 700;
+    color: #2679DB;
+    margin-bottom: 8px;
+    letter-spacing: 0.02em;
+}
+
+.trip-details-vehicle {
+    color: #64748b;
+    font-size: 16px;
+    font-weight: 500;
+    margin-bottom: 12px;
+}
+
+.trip-details-route {
+    font-size: 16px;
+    font-weight: 500;
+    margin-bottom: 16px;
+    color: #374151;
+    line-height: 1.5;
+}
+
+.trip-details-route .arrow {
+    color: #2679DB;
+    font-weight: 600;
+    margin: 0 8px;
+}
+
+.trip-details-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.trip-details-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #64748b;
+    font-size: 15px;
+}
+
+.trip-details-meta-item svg {
+    flex-shrink: 0;
+}
+
+.trip-details-cargo {
+    color: #374151;
+    font-size: 15px;
+    margin-bottom: 20px;
+    padding: 12px;
+    background: #f8fafc;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+}
+
+.trip-details-cargo strong {
+    color: #1e293b;
+}
+
+.trip-details-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.trip-details-delete-btn {
+    background: #ef4444;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 24px;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0px 16px 32px -12px rgba(239,68,68,0.15);
+}
+
+.trip-details-delete-btn:hover {
+    background: #dc2626;
+    transform: translateY(-1px);
+    box-shadow: 0px 20px 40px -12px rgba(239,68,68,0.25);
+}
+
+@media (max-width: 480px) {
+    .trip-details-modal-content {
+        margin: 20px;
+        padding: 24px 20px;
+        max-width: none;
+        width: calc(100vw - 40px);
+    }
+    
+    .trip-details-number {
+        font-size: 20px;
+    }
+}
+</style>
+
+<!-- Стили BARLAU.KZ с высоким приоритетом -->
+<style>
+/* Фиксированные стили для popup'а BARLAU.KZ */
+.trip-info-popup {
+    background: #fff !important;
+    border-radius: 20px !important;
+    box-shadow: 0px 16px 32px -12px rgba(88,92,95,0.10) !important;
+    font-family: 'Inter Tight', -apple-system, BlinkMacSystemFont, sans-serif !important;
+    border: none !important;
+    padding: 20px 24px !important;
+}
+
+.trip-info-popup-number {
+    color: #2679DB !important;
+    font-weight: 700 !important;
+    font-size: 1.3em !important;
+    letter-spacing: 0.02em !important;
+}
+
+.trip-info-popup-brand {
+    color: #64748b !important;
+    font-weight: 500 !important;
+    font-size: 0.9em !important;
+}
+
+.trip-info-popup-route {
+    color: #374151 !important;
+    font-weight: 500 !important;
+    font-size: 0.95em !important;
+}
+
+.trip-info-popup-delete {
+    background: #f8fafc !important;
+    color: #2679DB !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 8px !important;
+    padding: 10px 16px !important;
+    font-weight: 500 !important;
+    font-size: 0.9em !important;
+    transition: all 0.2s !important;
+}
+
+.trip-info-popup-delete:hover {
+    background: #f1f5f9 !important;
+    border-color: #cbd5e1 !important;
+}
+
+.trip-info-popup-checklist {
+    background: #2679DB !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 8px !important;
+    padding: 10px 16px !important;
+    font-weight: 500 !important;
+    font-size: 0.9em !important;
+}
+
+.trip-info-popup-checklist:hover {
+    background: #1e40af !important;
+}
+
+/* Исправление других синих цветов */
+.trip-card:hover {
+    border-color: #2679DB !important;
+    box-shadow: 0 4px 16px rgba(38,121,219,0.10) !important;
+}
+
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+    border-color: #2679DB !important;
+    box-shadow: 0 0 0 2px rgba(38,121,219,0.13) !important;
+}
+
+.btn-main {
+    background: #2679DB !important;
+}
+
+.btn-main:hover {
+    background: #1e40af !important;
+}
+</style>
 
 
 {% endblock %} 

@@ -9,28 +9,43 @@
     <link rel="icon" href="{% static 'core/img/favico.png' %}" type="image/png">
     <title>{% block title %}BARLAU.KZ{% endblock %}</title>
     
-    <!-- MaroAI Design System -->
+    <!-- Tailwind и Shadcn -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="{% static 'css/maroai-styles.css' %}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@shadcn/ui@0.1.0/dist/shadcn-ui.min.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
-    <!-- Подключаем утилиты MaroAI -->
-    <script src="{% static 'js/utils.js' %}"></script>
+    <!-- Кастомные стили для планшетов -->
+    <link rel="stylesheet" href="{% static 'core/css/custom-tablet.css' %}">
     
-    <script>
-        // Конфигурация Tailwind для динамического использования
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#8962DB',
-                        'primary-foreground': '#FFFFFF',
-                    }
-                }
-            }
+    <style>
+        :root {
+            --background: 0 0% 100%;
+            --foreground: 222.2 84% 4.9%;
+            --primary: 221.2 83.2% 53.3%;
+            --primary-foreground: 210 40% 98%;
         }
-    </script>
+
+        .dark {
+            --background: 222.2 84% 4.9%;
+            --foreground: 210 40% 98%;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .animate-pulse-slow {
+            animation: pulse 2s infinite;
+        }
+        /* Анимация для тоста */
+        @keyframes fade-in-up {
+            0% { opacity: 0; transform: translateY(40px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in-up {
+            animation: fade-in-up 0.4s cubic-bezier(.4,0,.2,1) both;
+        }
+    </style>
     {% block extra_head %}{% endblock %}
 </head>
 <body class="bg-background text-foreground">
