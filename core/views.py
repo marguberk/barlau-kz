@@ -73,6 +73,14 @@ class EmployeeViewSet(viewsets.ModelViewSet):
     ordering_fields = ['date_joined', 'last_login', 'id', 'first_name', 'role']
     ordering = ['-date_joined', 'id']
 
+    def get_permissions(self):
+        """
+        Переопределяем получение разрешений для разрешения GET запросов в DEBUG режиме
+        """
+        if self.request.method == 'GET' and settings.DEBUG:
+            return [permissions.AllowAny()]
+        return [permission() for permission in self.permission_classes]
+
     def get_queryset(self):
         queryset = User.objects.all().order_by('-date_joined', 'id')
 
@@ -2819,3 +2827,55 @@ class TestEmployeesView(View):
         html += f"<p>Результат фильтра: {employees_filtered.count()} сотрудников</p>"
         
         return HttpResponse(html)
+
+
+class EmployeePDFPublicView(DetailView):
+    """Публичная версия PDF резюме без авторизации"""
+    model = User
+    template_name = 'core/employee_pdf.html'
+
+    def get(self, request, *args, **kwargs):
+        user = self.get_object()
+
+        # Подготавливаем контекст
+        context = {
+            'employee': user,
+            'company_name': getattr(settings, 'COMPANY_NAME', 'BARLAU.KZ'),
+            'company_address': getattr(settings, 'COMPANY_ADDRESS', 'г. Алматы'),
+            'company_phone': getattr(settings, 'COMPANY_PHONE', '+7 777 123 4567'),
+            'company_email': getattr(settings, 'COMPANY_EMAIL', 'info@barlau.kz'),
+            'STATIC_URL': request.build_absolute_uri(settings.STATIC_URL),
+            'MEDIA_URL': request.build_absolute_uri(settings.MEDIA_URL),
+        }
+
+        # Рендерим HTML
+        template = get_template(self.template_name)
+        html_string = template.render(context)
+
+        # Создаем PDF
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="{user.get_full_name()}_resume.pdf"'
+
+        try:
+            # Конфигурация шрифтов
+            font_config = FontConfiguration()
+
+            # Создаем HTML объект
+            html = HTML(
+                string=html_string,
+                base_url=request.build_absolute_uri('/'),
+            )
+
+            # Генерируем PDF
+            html.write_pdf(
+                response,
+                font_config=font_config,
+                presentational_hints=True,
+                optimize_size=('fonts', 'images'),
+            )
+        except Exception as e:
+            # Если произошла ошибка, возвращаем HTML версию
+            response = HttpResponse(html_string, content_type='text/html')
+            response['Content-Disposition'] = f'inline; filename="{user.get_full_name()}_resume.html"'
+
+        return response

@@ -155,7 +155,7 @@
         // Функция для проверки доступности API
         async function checkApiAccess() {
             try {
-                const response = await fetch('/api/v1/tasks/');
+                const response = await fetch('/api/tasks/');
                 if (response.status === 401 || response.status === 403) {
                     console.log('API требует аутентификации. Перенаправление на страницу входа...');
                     window.location.href = '/accounts/login/?next=' + window.location.pathname;

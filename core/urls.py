@@ -42,10 +42,11 @@ from .views import (
     TruckDetailView,
     FileUploadView,
     NotificationManualCreateView,
+    EmployeePDFPublicView,
 )
 from .api import (
     update_profile, upload_profile_photo, get_profile_stats, trips_api, driver_locations_api, 
-    employee_pdf_api, vehicles_api, TripViewSet, ChecklistTemplateViewSet, TripChecklistViewSet, ChecklistItemViewSet,
+    employee_pdf_api, employee_pdf_public, vehicles_api, TripViewSet, ChecklistTemplateViewSet, TripChecklistViewSet, ChecklistItemViewSet,
     create_checklist_for_trip, get_trip_checklist, generate_checklist_pdf, update_checklist_item, upload_checklist_photos, delete_checklist_photo
 )
 from logistics.views.task import TaskViewSet
@@ -95,6 +96,7 @@ urlpatterns = [
     path('dashboard/api/trips/<int:pk>/', trips_api, name='dashboard-api-trips-detail'),
     path('api/driver_locations/', driver_locations_api, name='api-driver-locations'),
     path('api/employees/<int:pk>/pdf/', employee_pdf_api, name='api-employee-pdf'),
+    path('api/public/employees/<int:pk>/pdf/', employee_pdf_public, name='api-employee-pdf-public'),
     path('api/vehicles/', vehicles_api, name='api-vehicles'),
     path('api/trips/<int:trip_id>/create-checklist/', create_checklist_for_trip, name='api-create-checklist'),
     path('api/trips/<int:trip_id>/checklist/', get_trip_checklist, name='api-get-trip-checklist'),
@@ -108,6 +110,7 @@ urlpatterns = [
     path('employees/mobile/', EmployeesView.as_view(template_name='core/employees_mobile.html'), name='employees_mobile'),
     path('employees/<int:pk>/', EmployeeDetailView.as_view(), name='employee-detail'),
     path('employees/<int:pk>/pdf/', EmployeePDFView.as_view(), name='employee-pdf'),
+    path('public/employees/<int:pk>/pdf/', EmployeePDFPublicView.as_view(), name='employee-pdf-public'),
     path('employees/add/', EmployeeCreateView.as_view(), name='employee_add'),
     path('employees/<int:pk>/edit/', EmployeeEditView.as_view(), name='employee_edit'),
     path('employees/<int:pk>/delete/', EmployeeDeleteView.as_view(), name='employee_delete'),

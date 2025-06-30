@@ -18,7 +18,12 @@ class UserSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'username', 'email', 'phone', 'first_name', 'last_name', 
             'role', 'role_display', 'is_active', 'is_archived', 'position', 'photo', 
-            'date_joined', 'last_login', 'full_name'
+            'date_joined', 'last_login', 'full_name',
+            # Биографические поля
+            'about_me', 'experience', 'education', 'key_skills', 'languages', 
+            'hobbies', 'certifications', 'achievements', 'courses', 'publications',
+            'recommendations', 'desired_salary', 'age', 'location', 'skype', 
+            'linkedin', 'portfolio_url'
         ]
         read_only_fields = ['date_joined', 'last_login']
 

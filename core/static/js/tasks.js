@@ -311,8 +311,8 @@ async function loadVehiclesList() {
     if (debugElement) debugElement.textContent = 'Загрузка списка транспорта...';
     
     try {
-        console.log('Запрос списка транспорта: /api/v1/vehicles/');
-        const response = await fetch('/api/v1/vehicles/');
+        console.log('Запрос списка транспорта: /api/vehicles/');
+        const response = await fetch('/api/vehicles/');
         
         if (!response.ok) {
             throw new Error(`Ошибка HTTP: ${response.status}`);
@@ -431,7 +431,7 @@ async function submitTaskForm() {
         
         // Определяем URL для запроса
         const taskId = formData.get('task_id');
-        const url = taskId ? `/api/v1/tasks/${taskId}/` : '/api/v1/tasks/';
+        const url = taskId ? `/api/tasks/${taskId}/` : '/api/tasks/';
         const method = taskId ? 'PUT' : 'POST';
         
         console.log(`Отправка ${method} запроса на URL: ${url}`);
@@ -515,10 +515,10 @@ async function loadTasks() {
         // Получаем CSRF токен для авторизации
         const csrfToken = getCookie('csrftoken');
         
-        debugDiv.innerHTML += '<br>Отправка запроса на /api/v1/tasks/';
-        console.log('Запрос задач: /api/v1/tasks/');
+        debugDiv.innerHTML += '<br>Отправка запроса на /api/tasks/';
+        console.log('Запрос задач: /api/tasks/');
         
-        const response = await fetch('/api/v1/tasks/', {
+        const response = await fetch('/api/tasks/', {
             headers: {
                 'X-CSRFToken': csrfToken,
                 'Content-Type': 'application/json'
@@ -797,7 +797,7 @@ window.changeTaskStatus = async function(taskId) {
         }
         
         // Отправляем запрос на изменение статуса
-        const response = await fetch(`/api/v1/tasks/${taskId}/change_status/`, {
+        const response = await fetch(`/api/tasks/${taskId}/change_status/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

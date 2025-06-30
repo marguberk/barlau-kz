@@ -38,7 +38,7 @@ class TaskViewSet(BaseModelViewSet):
         """
         Переопределяем получение разрешений для возврата тестовых данных неавторизованным пользователям
         """
-        if self.request.method == 'GET' and settings.DEBUG:
+        if (self.request.method in ['GET', 'PATCH'] and settings.DEBUG):
             return []
         return [permission() for permission in self.permission_classes]
     
@@ -91,6 +91,14 @@ class TaskViewSet(BaseModelViewSet):
                     Notification.create_task_notification(assignee, task)
                 except Exception as e:
                     print(f"Ошибка создания уведомления: {e}")
+    
+    def perform_update(self, serializer):
+        """Обновление задачи с поддержкой неавторизованных пользователей в режиме отладки"""
+        if not self.request.user.is_authenticated and settings.DEBUG:
+            # В режиме отладки разрешаем обновление без пользователя
+            serializer.save()
+        else:
+            serializer.save()
     
     @action(detail=True, methods=['post'])
     def change_status(self, request, pk=None):
