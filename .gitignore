@@ -153,3 +153,12 @@ db.sqlite3
  node_modules/
 node_modules
 node_modules
+
+# APK and AAB files
+*.apk
+*.aab
+
+# Flutter build artifacts
+barlau_flutter/build/
+barlau_flutter/apk_for_testing/
+barlau_flutter/store_releases/
