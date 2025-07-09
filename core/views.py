@@ -247,7 +247,7 @@ class NotificationViewSet(viewsets.ModelViewSet):
         """
         Переопределяем получение разрешений для возврата тестовых данных неавторизованным пользователям
         """
-        if self.request.method == 'GET' and settings.DEBUG:
+        if self.request.method == 'GET':
             return []
         return [permission() for permission in self.permission_classes]
 
@@ -258,11 +258,9 @@ class NotificationViewSet(viewsets.ModelViewSet):
         if getattr(self, 'swagger_fake_view', False):
             return Notification.objects.none()
             
-        if not self.request.user.is_authenticated and settings.DEBUG:
-            # Для неавторизованных пользователей в режиме отладки возвращаем все уведомления
+        if not self.request.user.is_authenticated:
+            # Для неавторизованных пользователей возвращаем все уведомления
             queryset = Notification.objects.all()
-        elif not self.request.user.is_authenticated:
-            return Notification.objects.none()
         else:
             queryset = Notification.objects.filter(user=self.request.user)
             
@@ -2879,3 +2877,187 @@ class EmployeePDFPublicView(DetailView):
             response['Content-Disposition'] = f'inline; filename="{user.get_full_name()}_resume.html"'
 
         return response
+
+
+@csrf_exempt
+def trips_simple_view(request):
+    """Простой Django view для получения и создания поездок"""
+    if request.method == 'GET':
+        try:
+            from django.db import connection
+            
+            cursor = connection.cursor()
+            cursor.execute("""
+                SELECT 
+                    t.id,
+                    t.start_latitude,
+                    t.start_longitude,
+                    t.end_latitude,
+                    t.end_longitude,
+                    t.start_address,
+                    t.end_address,
+                    t.cargo_description,
+                    t.date,
+                    t.created_at,
+                    t.driver_id,
+                    t.vehicle_id,
+                    u.first_name,
+                    u.last_name,
+                    v.brand,
+                    v.model,
+                    v.number
+                FROM core_trip t
+                LEFT JOIN accounts_user u ON t.driver_id = u.id
+                LEFT JOIN logistics_vehicle v ON t.vehicle_id = v.id
+                ORDER BY t.created_at DESC
+            """)
+            
+            trips_data = []
+            for row in cursor.fetchall():
+                trip_data = {
+                    'id': row[0],
+                    'start_latitude': float(row[1]) if row[1] else None,
+                    'start_longitude': float(row[2]) if row[2] else None,
+                    'end_latitude': float(row[3]) if row[3] else None,
+                    'end_longitude': float(row[4]) if row[4] else None,
+                    'start_address': row[5] or '',
+                    'end_address': row[6] or '',
+                    'cargo_description': row[7] or '',
+                    'date': str(row[8]) if row[8] else '',
+                    'created_at': str(row[9]) if row[9] else '',
+                    'status': 'ACTIVE',
+                    'title': f"{row[5]} → {row[6]}" if row[5] and row[6] else 'Поездка',
+                    'driver_details': {
+                        'id': row[10],
+                        'first_name': row[12] or '',
+                        'last_name': row[13] or '',
+                        'full_name': f"{row[12]} {row[13]}".strip() if row[12] or row[13] else 'Неизвестен'
+                    } if row[10] else None,
+                    'vehicle_details': {
+                        'id': row[11],
+                        'brand': row[14] or '',
+                        'model': row[15] or '',
+                        'number': row[16] or '',
+                        'main_photo_url': None
+                    } if row[11] else None
+                }
+                trips_data.append(trip_data)
+            
+            return JsonResponse(trips_data, safe=False)
+            
+        except Exception as e:
+            print(f"[ERROR] trips_simple_view GET error: {str(e)}")
+            return JsonResponse({
+                'detail': f'Ошибка при получении поездок: {str(e)}'
+            }, status=500)
+    
+    elif request.method == 'POST':
+        try:
+            import json
+            from django.db import connection
+            from datetime import datetime
+            
+            # Парсим JSON данные
+            data = json.loads(request.body)
+            
+            # Извлекаем данные
+            vehicle_id = data.get('vehicle')
+            driver_id = data.get('driver')
+            cargo_description = data.get('cargo_description', '')
+            date = data.get('date', datetime.now().date().isoformat())
+            start_latitude = data.get('start_latitude')
+            start_longitude = data.get('start_longitude')
+            end_latitude = data.get('end_latitude')
+            end_longitude = data.get('end_longitude')
+            start_address = data.get('start_address', '')
+            end_address = data.get('end_address', '')
+            
+            # Проверяем обязательные поля
+            if not all([vehicle_id, driver_id, start_latitude, start_longitude, end_latitude, end_longitude]):
+                return JsonResponse({
+                    'detail': 'Отсутствуют обязательные поля: vehicle, driver, координаты'
+                }, status=400)
+            
+            # Вставляем новую поездку
+            cursor = connection.cursor()
+            cursor.execute("""
+                INSERT INTO core_trip 
+                (start_latitude, start_longitude, end_latitude, end_longitude, 
+                 start_address, end_address, cargo_description, date, created_at, 
+                 driver_id, vehicle_id)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, [
+                start_latitude, start_longitude, end_latitude, end_longitude,
+                start_address, end_address, cargo_description, date, 
+                datetime.now().isoformat(), driver_id, vehicle_id
+            ])
+            
+            # Получаем ID созданной поездки
+            trip_id = cursor.lastrowid
+            
+            # Возвращаем созданную поездку
+            trip_data = {
+                'id': trip_id,
+                'start_latitude': float(start_latitude),
+                'start_longitude': float(start_longitude),
+                'end_latitude': float(end_latitude),
+                'end_longitude': float(end_longitude),
+                'start_address': start_address,
+                'end_address': end_address,
+                'cargo_description': cargo_description,
+                'date': date,
+                'created_at': datetime.now().isoformat(),
+                'status': 'ACTIVE',
+                'title': f"{start_address} → {end_address}" if start_address and end_address else 'Поездка'
+            }
+            
+            return JsonResponse(trip_data, status=201)
+            
+        except json.JSONDecodeError:
+            return JsonResponse({'detail': 'Неверный формат JSON'}, status=400)
+        except Exception as e:
+            print(f"[ERROR] trips_simple_view POST error: {str(e)}")
+            return JsonResponse({
+                'detail': f'Ошибка при создании поездки: {str(e)}'
+            }, status=500)
+    
+    else:
+        return JsonResponse({'detail': 'Метод не поддерживается'}, status=405)
+
+
+@csrf_exempt
+def drivers_simple_view(request):
+    """Простой Django view для получения водителей"""
+    if request.method != 'GET':
+        return JsonResponse({'detail': 'Только GET запросы разрешены'}, status=405)
+    
+    try:
+        from django.db import connection
+        
+        cursor = connection.cursor()
+        cursor.execute("""
+            SELECT id, first_name, last_name, phone, email
+            FROM accounts_user
+            WHERE is_active = 1 AND role = 'DRIVER'
+            ORDER BY first_name, last_name
+        """)
+        
+        drivers_data = []
+        for row in cursor.fetchall():
+            driver_data = {
+                'id': row[0],
+                'first_name': row[1] or '',
+                'last_name': row[2] or '',
+                'full_name': f"{row[1]} {row[2]}".strip() if row[1] or row[2] else 'Неизвестен',
+                'phone': row[3] or '',
+                'email': row[4] or ''
+            }
+            drivers_data.append(driver_data)
+        
+        return JsonResponse(drivers_data, safe=False)
+        
+    except Exception as e:
+        print(f"[ERROR] drivers_simple_view error: {str(e)}")
+        return JsonResponse({
+            'detail': f'Ошибка при получении водителей: {str(e)}'
+        }, status=500)

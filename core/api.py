@@ -1,6 +1,6 @@
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.views.decorators.csrf import csrf_exempt
@@ -16,7 +16,7 @@ from .serializers import (
 from .models import Notification, Waybill, Trip, DriverLocation, ChecklistTemplate, TripChecklist, ChecklistItem, ChecklistItemPhoto
 from logistics.models import Task, Expense, Vehicle, VehiclePhoto
 from rest_framework import status
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.template.loader import get_template
 from django.conf import settings
 from accounts.models import User
@@ -102,25 +102,30 @@ def get_profile_stats(request):
 
 @api_view(['GET', 'POST', 'DELETE'])
 @authentication_classes([SessionAuthentication, BasicAuthentication])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def trips_api(request, pk=None):
     """Получить список поездок, создать новую или удалить"""
     user = request.user
-    print(f"[DEBUG] trips_api called by user: {user.username} (role: {user.role})")
+    print(f"[DEBUG] trips_api called by user: {user.username if user.is_authenticated else 'Anonymous'}")
     print(f"[DEBUG] User authenticated: {user.is_authenticated}")
-    print(f"[DEBUG] User is_superuser: {user.is_superuser}")
     print(f"[DEBUG] Request method: {request.method}")
     
     if request.method == 'GET':
-        if user.role in ['SUPERADMIN', 'DIRECTOR', 'ADMIN'] or user.is_superuser:
-            trips = Trip.objects.all().order_by('-date')
+        # Для неавторизованных пользователей показываем все поездки
+        if not user.is_authenticated:
+            trips = Trip.objects.all().order_by('-created_at')
+        elif user.role in ['SUPERADMIN', 'DIRECTOR', 'ADMIN'] or user.is_superuser:
+            trips = Trip.objects.all().order_by('-created_at')
         else:
-            trips = Trip.objects.filter(driver=user).order_by('-date')
+            trips = Trip.objects.filter(driver=user).order_by('-created_at')
         
-        print(f"[DEBUG] Found {trips.count()} trips for user {user.username}")
+        print(f"[DEBUG] Found {trips.count()} trips")
         serializer = TripSerializer(trips, many=True)
         return Response(serializer.data)
     elif request.method == 'POST':
+        # Проверяем аутентификацию
+        if not user.is_authenticated:
+            return Response({'detail': 'Требуется аутентификация'}, status=status.HTTP_401_UNAUTHORIZED)
         # Проверяем права на создание поездок
         if not (user.role in ['SUPERADMIN', 'ADMIN'] or user.is_superuser):
             return Response({'detail': 'У вас нет прав для создания поездок'}, status=status.HTTP_403_FORBIDDEN)
@@ -175,6 +180,9 @@ def trips_api(request, pk=None):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=400)
     elif request.method == 'DELETE':
+        # Проверяем аутентификацию
+        if not user.is_authenticated:
+            return Response({'detail': 'Требуется аутентификация'}, status=status.HTTP_401_UNAUTHORIZED)
         # Ожидаем trips_api(request, pk=...)
         trip_id = pk or request.GET.get('id') or request.data.get('id')
         if not trip_id:
@@ -398,7 +406,7 @@ def employee_pdf_public(request, pk):
 
 @api_view(['GET'])
 @authentication_classes([JWTAuthentication])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def vehicles_api(request):
     """API для получения списка грузовиков"""
     try:
@@ -409,16 +417,12 @@ def vehicles_api(request):
         #         'detail': 'У вас нет прав для просмотра списка грузовиков'
         #     }, status=status.HTTP_403_FORBIDDEN)
 
-        # Получаем все активные грузовики
-        vehicles = Vehicle.objects.filter(is_archived=False).select_related('driver').prefetch_related('photos')
+        # Получаем все активные грузовики с документами и фотографиями
+        from logistics.models import VehicleDocument, VehiclePhoto
+        vehicles = Vehicle.objects.filter(is_archived=False).select_related('driver').prefetch_related('documents', 'photos')
         
         vehicles_data = []
         for vehicle in vehicles:
-            # Получаем основное фото
-            main_photo = vehicle.photos.filter(is_main=True).first()
-            if not main_photo:
-                main_photo = vehicle.photos.first()
-            
             # Определяем статус
             status_display = vehicle.get_status_display()
             status_color = {
@@ -426,6 +430,62 @@ def vehicles_api(request):
                 'INACTIVE': '#6B7280',    # серый
                 'MAINTENANCE': '#F59E0B'  # оранжевый
             }.get(vehicle.status, '#6B7280')
+            
+            # Получаем основную фотографию
+            main_photo_url = None
+            if vehicle.photo:
+                main_photo_url = request.build_absolute_uri(vehicle.photo.url)
+            else:
+                # Ищем основную фотографию в VehiclePhoto
+                main_photo = vehicle.photos.filter(is_main=True).first()
+                if main_photo and main_photo.photo:
+                    main_photo_url = request.build_absolute_uri(main_photo.photo.url)
+                elif vehicle.photos.exists():
+                    # Если нет основной, берем первую
+                    first_photo = vehicle.photos.first()
+                    if first_photo and first_photo.photo:
+                        main_photo_url = request.build_absolute_uri(first_photo.photo.url)
+            
+            # Получаем все фотографии
+            photos = []
+            for photo in vehicle.photos.all():
+                if photo.photo:
+                    photos.append({
+                        'id': photo.id,
+                        'photo': request.build_absolute_uri(photo.photo.url),
+                        'description': photo.description,
+                        'is_main': photo.is_main,
+                        'uploaded_at': photo.uploaded_at.isoformat()
+                    })
+            
+            # Получаем документы
+            documents = []
+            for doc in vehicle.documents.all():
+                doc_data = {
+                    'id': doc.id,
+                    'document_type': doc.document_type,
+                    'document_type_display': doc.get_document_type_display(),
+                    'number': doc.number,
+                    'issue_date': doc.issue_date.isoformat() if doc.issue_date else None,
+                    'expiry_date': doc.expiry_date.isoformat() if doc.expiry_date else None,
+                    'issuing_authority': doc.issuing_authority,
+                    'description': doc.description,
+                    'file_url': request.build_absolute_uri(doc.file.url) if doc.file else None,
+                    'created_at': doc.created_at.isoformat(),
+                }
+                documents.append(doc_data)
+            
+            # Получаем информацию о водителе
+            driver_details = None
+            if vehicle.driver:
+                driver_details = {
+                    'id': vehicle.driver.id,
+                    'first_name': vehicle.driver.first_name,
+                    'last_name': vehicle.driver.last_name,
+                    'phone': vehicle.driver.phone,
+                    'position': vehicle.driver.position,
+                    'photo': request.build_absolute_uri(vehicle.driver.photo.url) if vehicle.driver.photo else None
+                }
             
             vehicle_data = {
                 'id': vehicle.id,
@@ -439,13 +499,10 @@ def vehicles_api(request):
                 'status': vehicle.status,
                 'status_display': status_display,
                 'status_color': status_color,
-                'driver': {
-                    'id': vehicle.driver.id,
-                    'name': vehicle.driver.get_full_name(),
-                    'phone': vehicle.driver.phone,
-                    'photo': request.build_absolute_uri(vehicle.driver.photo.url) if vehicle.driver and vehicle.driver.photo else None
-                } if vehicle.driver else None,
-                'photo': request.build_absolute_uri(main_photo.photo.url) if main_photo else None,
+                'driver_details': driver_details,
+                'main_photo_url': main_photo_url,
+                'photos': photos,
+                'documents': documents,
                 'fuel_type': vehicle.fuel_type,
                 'fuel_type_display': vehicle.get_fuel_type_display() if vehicle.fuel_type else None,
                 'fuel_consumption': float(vehicle.fuel_consumption) if vehicle.fuel_consumption else None,
@@ -460,6 +517,8 @@ def vehicles_api(request):
                 'length': float(vehicle.length) if vehicle.length else None,
                 'width': float(vehicle.width) if vehicle.width else None,
                 'height': float(vehicle.height) if vehicle.height else None,
+                'registration_date': vehicle.created_at.date().isoformat() if vehicle.created_at else None,
+                'location': 'Алматы, Казахстан',  # Можно добавить поле в модель
                 'created_at': vehicle.created_at.isoformat(),
                 'updated_at': vehicle.updated_at.isoformat(),
             }
@@ -1423,4 +1482,79 @@ def delete_checklist_photo(request, photo_id):
         
     except Exception as e:
         print(f"[ERROR] Error deleting photo: {e}")
-        return Response({'error': str(e)}, status=500) 
+        return Response({'error': str(e)}, status=500)
+
+@csrf_exempt
+def open_trips_api(request):
+    """Полностью открытый API для получения поездок"""
+    if request.method != 'GET':
+        return Response({'detail': 'Только GET запросы разрешены'}, status=405)
+    
+    try:
+        from django.db import connection
+        from django.http import JsonResponse
+        
+        cursor = connection.cursor()
+        cursor.execute("""
+            SELECT 
+                t.id,
+                t.start_latitude,
+                t.start_longitude,
+                t.end_latitude,
+                t.end_longitude,
+                t.start_address,
+                t.end_address,
+                t.cargo_description,
+                t.date,
+                t.created_at,
+                t.driver_id,
+                t.vehicle_id,
+                u.first_name,
+                u.last_name,
+                v.brand,
+                v.model,
+                v.number
+            FROM core_trip t
+            LEFT JOIN accounts_user u ON t.driver_id = u.id
+            LEFT JOIN logistics_vehicle v ON t.vehicle_id = v.id
+            ORDER BY t.created_at DESC
+        """)
+        
+        trips_data = []
+        for row in cursor.fetchall():
+            trip_data = {
+                'id': row[0],
+                'start_latitude': float(row[1]) if row[1] else None,
+                'start_longitude': float(row[2]) if row[2] else None,
+                'end_latitude': float(row[3]) if row[3] else None,
+                'end_longitude': float(row[4]) if row[4] else None,
+                'start_address': row[5] or '',
+                'end_address': row[6] or '',
+                'cargo_description': row[7] or '',
+                'date': str(row[8]) if row[8] else '',
+                'created_at': str(row[9]) if row[9] else '',
+                'status': 'ACTIVE',  # По умолчанию активный статус
+                'title': f"{row[5]} → {row[6]}" if row[5] and row[6] else 'Поездка',
+                'driver_details': {
+                    'id': row[10],
+                    'first_name': row[12] or '',
+                    'last_name': row[13] or '',
+                    'full_name': f"{row[12]} {row[13]}".strip() if row[12] or row[13] else 'Неизвестен'
+                } if row[10] else None,
+                'vehicle_details': {
+                    'id': row[11],
+                    'brand': row[14] or '',
+                    'model': row[15] or '',
+                    'number': row[16] or '',
+                    'main_photo_url': None  # Пока без изображений
+                } if row[11] else None
+            }
+            trips_data.append(trip_data)
+        
+        return JsonResponse(trips_data, safe=False)
+        
+    except Exception as e:
+        print(f"[ERROR] open_trips_api error: {str(e)}")
+        return JsonResponse({
+            'detail': f'Ошибка при получении поездок: {str(e)}'
+        }, status=500) 

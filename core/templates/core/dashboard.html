@@ -2032,7 +2032,7 @@
     // Загрузка поездок
     async function loadDashboardTrips() {
         try {
-            const resp = await fetch('/dashboard/api/trips/');
+            const resp = await fetch('/simple-trips/');
             if (!resp.ok) {
                 console.error('API error:', resp.status, resp.statusText);
                 const errorText = await resp.text();
@@ -2306,7 +2306,7 @@
                 }
                 try {
                     console.log('Creating trip with data:', data);
-                    const resp = await fetch('/dashboard/api/trips/', {
+                    const resp = await fetch('/simple-trips/', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',

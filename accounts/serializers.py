@@ -6,13 +6,18 @@ from django.db import IntegrityError
 User = get_user_model()
 
 class UserSerializer(serializers.ModelSerializer):
+    role_display = serializers.CharField(source='get_role_display', read_only=True)
+    
     class Meta:
         model = User
         fields = (
             'id', 'username', 'email', 'phone', 'first_name', 'last_name',
-            'role', 'is_active', 'is_archived', 'date_joined', 'is_phone_verified', 
+            'role', 'role_display', 'is_active', 'is_archived', 'date_joined', 'is_phone_verified', 
             'current_latitude', 'current_longitude', 'last_location_update', 
-            'position', 'experience', 'education', 'skills', 'photo'
+            'position', 'experience', 'education', 'skills', 'photo',
+            'desired_salary', 'age', 'location', 'skype', 'linkedin', 'portfolio_url',
+            'about_me', 'key_skills', 'achievements', 'courses', 'publications',
+            'recommendations', 'hobbies', 'certifications', 'languages'
         )
         read_only_fields = ('is_phone_verified', 'firebase_uid', 'date_joined')
 

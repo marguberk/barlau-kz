@@ -102,6 +102,14 @@ class Vehicle(models.Model):
         verbose_name='Водитель'
     )
     
+    # Основное изображение
+    photo = models.ImageField(
+        upload_to='vehicles/',
+        blank=True,
+        null=True,
+        verbose_name='Основное фото'
+    )
+    
     # Метаданные
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='Дата обновления')
@@ -284,6 +292,10 @@ class Expense(models.Model):
         FUEL = 'FUEL', 'Топливо'
         MAINTENANCE = 'MAINTENANCE', 'Техобслуживание'
         REPAIR = 'REPAIR', 'Ремонт'
+        FOOD = 'FOOD', 'Питание'
+        ACCOMMODATION = 'ACCOMMODATION', 'Проживание'
+        TOLL = 'TOLL', 'Дорожные сборы'
+        PARKING = 'PARKING', 'Парковка'
         OTHER = 'OTHER', 'Прочее'
     
     amount = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Сумма')
@@ -293,10 +305,12 @@ class Expense(models.Model):
         verbose_name='Категория'
     )
     description = models.TextField(verbose_name='Описание')
-    date = models.DateField(verbose_name='Дата')
+    date = models.DateField(auto_now_add=True, verbose_name='Дата')  # Автоматически устанавливается при создании
     vehicle = models.ForeignKey(
         Vehicle,
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
         verbose_name='Транспорт'
     )
     created_by = models.ForeignKey(
@@ -305,11 +319,13 @@ class Expense(models.Model):
         verbose_name='Создал'
     )
     receipt = models.ImageField(
-        upload_to='receipts/',
+        upload_to='receipts/%Y/%m/',
         null=True,
         blank=True,
         verbose_name='Чек'
     )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='Дата обновления')
     
     def __str__(self):
         return f"{self.get_category_display()} - {self.amount} тг"
@@ -317,9 +333,13 @@ class Expense(models.Model):
     class Meta:
         verbose_name = 'Расход'
         verbose_name_plural = 'Расходы'
+        ordering = ['-created_at']
 
-    def get_accountants(self):
+    @classmethod
+    def get_accountants(cls):
         """Получить список бухгалтеров"""
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
         return User.objects.filter(role='ACCOUNTANT', is_active=True)
 
 class WaybillDocument(models.Model):

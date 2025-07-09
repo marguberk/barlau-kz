@@ -151,3 +151,5 @@ db.sqlite3
 *.pyc
 .env.prod
  node_modules/
+node_modules
+node_modules

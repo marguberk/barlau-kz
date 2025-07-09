@@ -43,9 +43,11 @@ from .views import (
     FileUploadView,
     NotificationManualCreateView,
     EmployeePDFPublicView,
+    trips_simple_view,
+    drivers_simple_view,
 )
 from .api import (
-    update_profile, upload_profile_photo, get_profile_stats, trips_api, driver_locations_api, 
+    update_profile, upload_profile_photo, get_profile_stats, trips_api, open_trips_api, driver_locations_api, 
     employee_pdf_api, employee_pdf_public, vehicles_api, TripViewSet, ChecklistTemplateViewSet, TripChecklistViewSet, ChecklistItemViewSet,
     create_checklist_for_trip, get_trip_checklist, generate_checklist_pdf, update_checklist_item, upload_checklist_photos, delete_checklist_photo
 )
@@ -92,7 +94,8 @@ urlpatterns = [
     path('api/users/me/stats/', get_profile_stats, name='api-profile-stats'),
     path('api/trips/', trips_api, name='api-trips'),
     path('api/trips/<int:pk>/', trips_api, name='api-trips-detail'),
-    path('dashboard/api/trips/', trips_api, name='dashboard-api-trips'),
+    path('dashboard/api/trips/', trips_simple_view, name='dashboard-api-trips'),
+    path('simple-trips/', trips_simple_view, name='simple-trips'),
     path('dashboard/api/trips/<int:pk>/', trips_api, name='dashboard-api-trips-detail'),
     path('api/driver_locations/', driver_locations_api, name='api-driver-locations'),
     path('api/employees/<int:pk>/pdf/', employee_pdf_api, name='api-employee-pdf'),
@@ -141,4 +144,8 @@ urlpatterns = [
     
     # Ручное создание уведомления
     path('notifications/manual_create/', NotificationManualCreateView.as_view(), name='notification-manual-create'),
+    
+    # API endpoints
+    path('simple-trips/', trips_simple_view, name='simple-trips'),
+    path('simple-drivers/', drivers_simple_view, name='simple-drivers'),
 ] 

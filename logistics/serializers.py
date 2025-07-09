@@ -32,6 +32,10 @@ class VehicleSerializer(serializers.ModelSerializer):
     main_photo_url = serializers.SerializerMethodField()
 
     def get_main_photo_url(self, obj):
+        # Сначала проверяем новое поле photo
+        if obj.photo:
+            return obj.photo.url
+        # Если нет, проверяем старые фотографии
         main = obj.photos.filter(is_main=True).first()
         if main and main.photo:
             return main.photo.url

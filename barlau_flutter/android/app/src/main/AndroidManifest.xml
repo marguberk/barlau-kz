@@ -7,7 +7,7 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     
     <application
-        android:label="barlau_flutter"
+        android:label="BARLAU.KZ"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

@@ -1501,7 +1501,7 @@ document.getElementById('tripForm').onsubmit = async function(e) {
         return;
     }
     try {
-        const resp = await fetch('/dashboard/api/trips/', {
+        const resp = await fetch('/simple-trips/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -1807,7 +1807,7 @@ function renderTripListWithSelection(trips, selectedIdx) {
 
 async function loadTrips() {
     try {
-        const resp = await fetch('/dashboard/api/trips/');
+        const resp = await fetch('/simple-trips/');
         if (!resp.ok) {
             console.error('API error:', resp.status, resp.statusText);
             return;
@@ -1928,7 +1928,7 @@ function showTripInfoPopup(trip) {
                     <div style="display: flex !important; align-items: center !important; gap: 6px !important; margin-bottom: 2px !important;">
                         <span style="color: #2679DB !important; font-weight: 700 !important; font-size: 1em !important; font-family: 'Inter Tight', sans-serif !important;">${number}</span>
                         <span style="color: #64748b !important; font-weight: 500 !important; font-size: 0.8em !important;">${brand}</span>
-                    </div>
+                </div>
                     <div style="color: #374151 !important; font-weight: 500 !important; font-size: 0.85em !important; line-height: 1.2 !important; overflow: hidden !important; text-overflow: ellipsis !important; white-space: nowrap !important; margin-bottom: 2px !important;">${route}</div>
                     <div style="display: flex !important; gap: 8px !important; font-size: 0.75em !important; color: #64748b !important;">
                         ${driver ? `<span>${driver}</span>` : ''}
