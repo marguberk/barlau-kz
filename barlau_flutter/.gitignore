@@ -45,12 +45,12 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
-# APK and AAB files
-*.apk
-*.aab
+# APK и AAB файлы обрабатываются через Git LFS - НЕ игнорировать!
+# *.apk
+# *.aab
 
 # Build artifacts
-apk_for_testing/
+# apk_for_testing/
 store_releases/
-barlau-debug.apk
-barlau-release.apk
+# barlau-debug.apk
+# barlau-release.apk
