@@ -1,0 +1,8 @@
+# Игнорировать большие файлы
+*.zip
+*.apk
+*.aab
+apk_for_testing/
+store_releases/
+flutter-backup/
+flutter-backup.zip
