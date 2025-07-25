@@ -1,0 +1,2 @@
+*.apk filter=lfs diff=lfs merge=lfs -text
+apk_for_testing/**.apk filter=lfs diff=lfs merge=lfs -text
