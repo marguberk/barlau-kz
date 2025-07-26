@@ -56,6 +56,9 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
             employees = List<Map<String, dynamic>>.from(data);
           }
           
+          // Маппим поля Django API в формат Flutter
+          employees = employees.map((employee) => _mapEmployeeFields(employee)).toList();
+          
           setState(() {
             allEmployees = employees;
             isLoading = false;
@@ -599,5 +602,22 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
     } catch (e) {
       return 'Не указано';
     }
+  }
+
+  // Функция для маппинга полей Django API в формат Flutter
+  Map<String, dynamic> _mapEmployeeFields(Map<String, dynamic> employee) {
+    return {
+      ...employee,
+      // Маппим поля Django в поля Flutter
+      'bio': employee['about_me'] ?? employee['bio'] ?? '',
+      'education': employee['education'] ?? '',
+      'achievements': employee['achievements'] ?? '',
+      'experience': employee['experience'] ?? '',
+      'position': employee['position'] ?? '',
+      'phone': employee['phone'] ?? '',
+      'photo': employee['photo'],
+      'date_joined': employee['date_joined'],
+      'is_active': employee['is_active'] ?? true,
+    };
   }
 } 
