@@ -64,7 +64,14 @@ class UserViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(user)
         return Response(serializer.data)
     
-    @action(detail=False, methods=['get'])
+    @action(detail=False, methods=['get', 'put', 'patch'])
     def me(self, request):
-        serializer = UserSerializer(request.user)
-        return Response(serializer.data)
+        if request.method == 'GET':
+            serializer = UserSerializer(request.user)
+            return Response(serializer.data)
+        elif request.method in ['PUT', 'PATCH']:
+            serializer = UserUpdateSerializer(request.user, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
