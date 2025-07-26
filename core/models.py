@@ -16,6 +16,17 @@ class Notification(models.Model):
         EXPENSE = 'EXPENSE', 'Расход'
         SYSTEM = 'SYSTEM', 'Системное'
         DOCUMENT = 'DOCUMENT', 'Документ'
+        TRIP = 'TRIP', 'Поездка'
+        VEHICLE = 'VEHICLE', 'Транспорт'
+        URGENT = 'URGENT', 'Срочное'
+        INFO = 'INFO', 'Информация'
+    
+    # Уровни приоритета
+    class Priority(models.TextChoices):
+        LOW = 'LOW', 'Низкий'
+        NORMAL = 'NORMAL', 'Обычный'
+        HIGH = 'HIGH', 'Высокий'
+        URGENT = 'URGENT', 'Срочный'
     
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='core_notifications')
     type = models.CharField(
@@ -23,88 +34,233 @@ class Notification(models.Model):
         choices=Type.choices,
         verbose_name='Тип'
     )
+    priority = models.CharField(
+        max_length=10,
+        choices=Priority.choices,
+        default=Priority.NORMAL,
+        verbose_name='Приоритет'
+    )
     title = models.CharField(max_length=200, verbose_name='Заголовок')
     message = models.TextField(verbose_name='Сообщение')
     link = models.CharField(max_length=255, verbose_name='Ссылка', blank=True, null=True)
     read = models.BooleanField(default=False, verbose_name='Прочитано')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Создано')
+    read_at = models.DateTimeField(null=True, blank=True, verbose_name='Прочитано в')
+    
+    # Дополнительные поля для группировки и фильтрации
+    related_object_id = models.PositiveIntegerField(null=True, blank=True, verbose_name='ID связанного объекта')
+    related_object_type = models.CharField(max_length=50, blank=True, verbose_name='Тип связанного объекта')
     
     class Meta:
         verbose_name = 'Уведомление'
         verbose_name_plural = 'Уведомления'
         ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['user', 'read']),
+            models.Index(fields=['type', 'created_at']),
+            models.Index(fields=['priority', 'created_at']),
+        ]
     
     def __str__(self):
         return f"{self.get_type_display()}: {self.title} ({self.user})"
+    
+    def mark_as_read(self):
+        """Отметить уведомление как прочитанное"""
+        if not self.read:
+            self.read = True
+            self.read_at = timezone.now()
+            self.save(update_fields=['read', 'read_at'])
+    
+    @property
+    def is_urgent(self):
+        """Проверка на срочность уведомления"""
+        return self.priority == self.Priority.URGENT or self.type == self.Type.URGENT
+    
+    @property
+    def time_since_created(self):
+        """Время с момента создания уведомления"""
+        return timezone.now() - self.created_at
 
     @classmethod
-    def create_task_notification(cls, user, task):
+    def create_task_notification(cls, user, task, priority=None):
         print(f"[DEBUG] Notification.create_task_notification: user={user}, task={task}")
         """Создать уведомление о задаче"""
         if task.status == 'NEW':
             title = 'Новая задача'
             message = f'Вам назначена новая задача: {task.title}'
+            notification_priority = priority or cls.Priority.NORMAL
         elif task.status == 'IN_PROGRESS':
             title = 'Задача в работе'
             message = f'Задача "{task.title}" взята в работу'
+            notification_priority = priority or cls.Priority.LOW
         elif task.status == 'COMPLETED':
             title = 'Задача выполнена'
             message = f'Задача "{task.title}" выполнена'
+            notification_priority = priority or cls.Priority.LOW
         else:
             title = 'Задача отменена'
             message = f'Задача "{task.title}" отменена'
+            notification_priority = priority or cls.Priority.NORMAL
 
         return cls.objects.create(
             user=user,
             type=cls.Type.TASK,
+            priority=notification_priority,
             title=title,
             message=message,
-            link=reverse('core:tasks')
+            link=reverse('core:tasks'),
+            related_object_id=task.id,
+            related_object_type='Task'
         )
 
     @classmethod
     def create_waybill_notification(cls, user, waybill):
         """Создать уведомление о путевом листе"""
-        cls.objects.create(
+        return cls.objects.create(
             user=user,
             type=cls.Type.WAYBILL,
+            priority=cls.Priority.NORMAL,
             title="Новый путевой лист",
-            message=f"Создан новый путевой лист №{waybill.number}"
+            message=f"Создан новый путевой лист №{waybill.number}",
+            related_object_id=waybill.id,
+            related_object_type='Waybill'
         )
 
     @classmethod
     def create_expense_notification(cls, user, expense):
         """Создать уведомление о расходе"""
+        # Определяем приоритет в зависимости от суммы
+        if expense.amount > 100000:  # Большие расходы требуют внимания
+            priority = cls.Priority.HIGH
+        elif expense.amount > 50000:
+            priority = cls.Priority.NORMAL
+        else:
+            priority = cls.Priority.LOW
+
         return cls.objects.create(
             user=user,
             type=cls.Type.EXPENSE,
+            priority=priority,
             title='Новый расход',
             message=f'Добавлен новый расход на сумму {expense.amount} тг',
-            link=reverse('expense-detail', args=[expense.id])
+            link=reverse('expense-detail', args=[expense.id]),
+            related_object_id=expense.id,
+            related_object_type='Expense'
         )
 
     @classmethod
-    def create_system_notification(cls, user, title, message, link=''):
+    def create_system_notification(cls, user, title, message, link='', priority=None):
         """Создать системное уведомление"""
         return cls.objects.create(
             user=user,
             type=cls.Type.SYSTEM,
+            priority=priority or cls.Priority.NORMAL,
             title=title,
             message=message,
             link=link
         )
 
     @classmethod
-    def create_vehicle_notification(cls, user, vehicle):
-        print(f"[DEBUG] Notification.create_vehicle_notification: user={user}, vehicle={vehicle}")
-        """Создать уведомление о новом транспорте"""
+    def create_trip_notification(cls, user, trip, action='created', priority=None):
+        """Создать уведомление о поездке"""
+        action_messages = {
+            'created': ('Новая поездка', f'Создана новая поездка: {trip.title}'),
+            'started': ('Поездка начата', f'Поездка "{trip.title}" начата'),
+            'completed': ('Поездка завершена', f'Поездка "{trip.title}" завершена'),
+            'cancelled': ('Поездка отменена', f'Поездка "{trip.title}" отменена'),
+            'status_changed': ('Изменен статус поездки', f'У поездки "{trip.title}" изменен статус'),
+        }
+        
+        title, message = action_messages.get(action, ('Уведомление о поездке', f'Поездка "{trip.title}"'))
+        
         return cls.objects.create(
             user=user,
-            type=cls.Type.SYSTEM,
-            title='Добавлен новый транспорт',
-            message=f'Транспорт {vehicle.brand} {vehicle.model} ({vehicle.number}) успешно добавлен',
-            link=f'/trucks/{vehicle.id}/'
+            type=cls.Type.TRIP,
+            priority=priority or cls.Priority.NORMAL,
+            title=title,
+            message=message,
+            link=f'/dashboard/trips/{trip.id}/',
+            related_object_id=trip.id,
+            related_object_type='Trip'
         )
+
+    @classmethod
+    def create_vehicle_notification(cls, user, vehicle, action='created'):
+        print(f"[DEBUG] Notification.create_vehicle_notification: user={user}, vehicle={vehicle}")
+        """Создать уведомление о транспорте"""
+        action_messages = {
+            'created': ('Добавлен новый транспорт', f'Транспорт {vehicle.brand} {vehicle.model} ({vehicle.number}) успешно добавлен'),
+            'updated': ('Обновлен транспорт', f'Транспорт {vehicle.brand} {vehicle.model} ({vehicle.number}) обновлен'),
+            'maintenance': ('Требуется техобслуживание', f'Транспорт {vehicle.brand} {vehicle.model} ({vehicle.number}) требует техобслуживания'),
+        }
+        
+        title, message = action_messages.get(action, ('Уведомление о транспорте', f'Транспорт {vehicle.brand} {vehicle.model}'))
+        
+        return cls.objects.create(
+            user=user,
+            type=cls.Type.VEHICLE,
+            priority=cls.Priority.NORMAL,
+            title=title,
+            message=message,
+            link=f'/trucks/{vehicle.id}/',
+            related_object_id=vehicle.id,
+            related_object_type='Vehicle'
+        )
+
+    @classmethod
+    def create_document_expiry_notification(cls, user, vehicle, document_type, expiry_date, days_left):
+        """Создать уведомление об истечении срока документа"""
+        if days_left <= 0:
+            title = 'Истек срок действия документа!'
+            priority = cls.Priority.URGENT
+            urgency = 'СРОЧНО!'
+        elif days_left <= 3:
+            title = 'Критически мало времени!'
+            priority = cls.Priority.URGENT
+            urgency = 'ВНИМАНИЕ!'
+        elif days_left <= 7:
+            title = 'Скоро истекает срок документа'
+            priority = cls.Priority.HIGH
+            urgency = 'ВНИМАНИЕ!'
+        else:
+            title = 'Скоро истекает срок документа'
+            priority = cls.Priority.NORMAL
+            urgency = ''
+        
+        message = f'{urgency} У {vehicle.brand} {vehicle.model} ({vehicle.number}) '
+        if days_left <= 0:
+            message += f'истек срок: {document_type}'
+        elif days_left == 1:
+            message += f'завтра истекает: {document_type}'
+        else:
+            message += f'через {days_left} дн. истекает: {document_type}'
+        
+        return cls.objects.create(
+            user=user,
+            type=cls.Type.DOCUMENT,
+            priority=priority,
+            title=title,
+            message=f'{message} — {expiry_date.strftime("%d.%m.%Y")}',
+            link=f'/trucks/{vehicle.id}/',
+            related_object_id=vehicle.id,
+            related_object_type='Vehicle'
+        )
+
+    @classmethod
+    def bulk_create_notifications(cls, recipients, notification_type, title, message, link='', priority=None):
+        """Массовое создание уведомлений для нескольких пользователей"""
+        notifications = []
+        for user in recipients:
+            notifications.append(cls(
+                user=user,
+                type=notification_type,
+                priority=priority or cls.Priority.NORMAL,
+                title=title,
+                message=message,
+                link=link
+            ))
+        
+        return cls.objects.bulk_create(notifications)
 
 class Waybill(models.Model):
     number = models.CharField(max_length=50, unique=True, verbose_name='Номер КАТа')

@@ -39,25 +39,34 @@ class ExpenseViewSet(BaseModelViewSet):
         """Фильтрация по ролям пользователей"""
         user = self.request.user
         
-        # Админы, директора, бухгалтеры видят все расходы
-        if user.role in ['SUPERADMIN', 'ADMIN', 'DIRECTOR', 'ACCOUNTANT'] or user.is_superuser:
+        # Админы, директора, бухгалтеры, менеджеры видят все расходы
+        if user.role in ['SUPERADMIN', 'ADMIN', 'DIRECTOR', 'ACCOUNTANT', 'MANAGER'] or user.is_superuser:
+            print(f"ExpenseViewSet: Пользователь {user.username} (роль: {user.role}) видит все расходы")
             return queryset
         
         # Водители, диспетчеры, снабженцы видят только свои расходы
         elif user.role in ['DRIVER', 'DISPATCHER', 'SUPPLIER']:
+            print(f"ExpenseViewSet: Пользователь {user.username} (роль: {user.role}) видит только свои расходы")
             return queryset.filter(created_by=user)
         
-        # Остальные роли не видят расходы
-        return queryset.none()
+        # Для остальных ролей показываем все расходы (более открытый доступ)
+        else:
+            print(f"ExpenseViewSet: Пользователь {user.username} (роль: {user.role}) видит все расходы (расширенный доступ)")
+            return queryset
     
     def perform_create(self, serializer):
         """Создание расхода с проверкой прав"""
         user = self.request.user
         
         # Проверяем, может ли пользователь создавать расходы
-        if user.role not in ['DRIVER', 'DISPATCHER', 'SUPPLIER', 'SUPERADMIN', 'ADMIN']:
-            raise PermissionError('У вас нет прав для создания расходов')
+        # Расширяем список ролей, которые могут создавать расходы
+        allowed_roles = ['DRIVER', 'DISPATCHER', 'SUPPLIER', 'SUPERADMIN', 'ADMIN', 'DIRECTOR', 'ACCOUNTANT', 'MANAGER']
         
+        if user.role not in allowed_roles:
+            print(f"ExpenseViewSet: Пользователь {user.username} (роль: {user.role}) не может создавать расходы")
+            raise PermissionError(f'У вас нет прав для создания расходов. Ваша роль: {user.role}')
+        
+        print(f"ExpenseViewSet: Пользователь {user.username} (роль: {user.role}) создает расход")
         serializer.save(created_by=user)
     
     def update(self, request, *args, **kwargs):

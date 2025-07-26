@@ -1,0 +1,541 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}Заезды | BARLAU.KZ{% endblock %}
+
+{% block content %}
+<div class="w-full flex">
+    <!-- Боковая панель -->
+    <div class="w-64 h-screen bg-white border-r border-zinc-200 flex flex-col justify-start items-start fixed left-0 bottom-0 sidebar">
+        <!-- Логотип -->
+        <div class="w-full px-6 py-6 border-b border-zinc-100">
+            <div class="flex items-center">
+                <img src="{% static 'core/img/logo.png' %}" alt="BARLAU.KZ" class="h-6 w-auto">
+            </div>
+        </div>
+
+        <!-- Навигация -->
+        <nav class="w-full flex-1 px-4 py-4">
+            <ul class="space-y-1">
+                <li>
+                    <a href="{% url 'core:home' %}" class="group flex items-center px-3 py-2.5 text-sm font-medium text-zinc-600 rounded-xl hover:text-zinc-900 hover:bg-zinc-50">
+                        <svg class="desktop-icon w-5 h-5 mr-3 text-zinc-400 group-hover:text-zinc-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"></path>
+                        </svg>
+                        Главная
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'core:tasks' %}" class="group flex items-center px-3 py-2.5 text-sm font-medium text-zinc-600 rounded-xl hover:text-zinc-900 hover:bg-zinc-50">
+                        <svg class="desktop-icon w-5 h-5 mr-3 text-zinc-400 group-hover:text-zinc-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path>
+                        </svg>
+                        Задачи
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'core:trips' %}" class="group flex items-center px-3 py-2.5 text-sm font-medium bg-blue-50 text-blue-700 rounded-xl">
+                        <svg class="desktop-icon w-5 h-5 mr-3 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"></path>
+                            <path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7a1 1 0 00-1 1v6.05A2.5 2.5 0 0115.95 16H17a1 1 0 001-1V8a1 1 0 00-1-1h-3z"></path>
+                        </svg>
+                        Заезды
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'core:trucks' %}" class="group flex items-center px-3 py-2.5 text-sm font-medium text-zinc-600 rounded-xl hover:text-zinc-900 hover:bg-zinc-50">
+                        <svg class="desktop-icon w-5 h-5 mr-3 text-zinc-400 group-hover:text-zinc-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" clip-rule="evenodd"></path>
+                            <path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7a1 1 0 00-1 1v6.05A2.5 2.5 0 0115.95 16H17a1 1 0 001-1V8a1 1 0 00-1-1h-3z"></path>
+                        </svg>
+                        Транспорт
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'core:employees' %}" class="group flex items-center px-3 py-2.5 text-sm font-medium text-zinc-600 rounded-xl hover:text-zinc-900 hover:bg-zinc-50">
+                        <svg class="desktop-icon w-5 h-5 mr-3 text-zinc-400 group-hover:text-zinc-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"></path>
+                        </svg>
+                        Сотрудники
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    <!-- Основной контент -->
+    <div class="ml-64 flex-1 min-h-screen bg-gray-50 relative main-content">
+        <!-- Верхняя панель -->
+        <div class="w-full bg-white border-b border-gray-200 px-8 py-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-2xl font-semibold text-gray-900">Заезды</h1>
+                    <p class="text-gray-600">Управление поездками и маршрутами</p>
+                </div>
+                
+                <!-- Правая часть с уведомлениями и профилем -->
+                <div class="flex items-center space-x-4">
+                    <!-- Уведомления -->
+                    <div class="relative">
+                        <button type="button" class="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5-5v-4a6 6 0 10-12 0v4l-5 5h5m7 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                            </svg>
+                        </button>
+                        <span class="absolute -top-1 -right-1 h-4 w-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">3</span>
+                    </div>
+                    
+                    <!-- Профиль -->
+                    <div class="flex items-center space-x-3">
+                        <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                            <span class="text-white text-sm font-medium">{{ user.first_name.0 }}{{ user.last_name.0 }}</span>
+                        </div>
+                        <span class="text-sm font-medium text-gray-900">{{ user.get_full_name }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Контент с вкладками -->
+        <div class="flex flex-col h-full">
+            <!-- Вкладки - точно как во Flutter -->
+            <div class="bg-white border-b border-gray-200">
+                <div class="px-8">
+                    <nav class="flex space-x-8" aria-label="Tabs">
+                        <button onclick="switchTab('active')" id="tab-active" class="active-tab border-b-2 border-blue-500 py-4 px-1 text-sm font-semibold text-blue-600">
+                            Активные
+                        </button>
+                        <button onclick="switchTab('all')" id="tab-all" class="inactive-tab border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                            Все заезды
+                        </button>
+                        <button onclick="switchTab('schedule')" id="tab-schedule" class="inactive-tab border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                            График
+                        </button>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Контент вкладок -->
+            <div class="flex-1 p-8">
+                <!-- Вкладка "Активные" -->
+                <div id="content-active" class="tab-content">
+                    <div id="active-trips-container">
+                        <!-- Активные заезды будут загружены через JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Вкладка "Все заезды" -->
+                <div id="content-all" class="tab-content hidden">
+                    <div id="all-trips-container">
+                        <!-- Все заезды будут загружены через JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Вкладка "График" с фильтрами -->
+                <div id="content-schedule" class="tab-content hidden">
+                    <!-- Фильтры - точно как во Flutter -->
+                    <div class="bg-white rounded-xl border border-gray-200 p-6 mb-6 shadow-[0px_16px_32px_-12px_rgba(88,92,95,0.10)]">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Фильтры</h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <!-- Дата "с" -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Дата с</label>
+                                <input type="date" id="start-date" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            
+                            <!-- Дата "до" -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Дата до</label>
+                                <input type="date" id="end-date" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            
+                            <!-- Водитель -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Водитель</label>
+                                <select id="driver-filter" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="">Все водители</option>
+                                </select>
+                            </div>
+                            
+                            <!-- Транспорт -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Транспорт</label>
+                                <select id="vehicle-filter" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="">Все транспорты</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-end mt-4 space-x-3">
+                            <button onclick="clearFilters()" class="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 font-medium">
+                                Очистить
+                            </button>
+                            <button onclick="applyFilters()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium">
+                                Применить
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="filtered-trips-container">
+                        <!-- Отфильтрованные заезды -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Глобальные переменные
+let currentTab = 'active';
+let allTrips = [];
+let drivers = [];
+let vehicles = [];
+
+// Инициализация при загрузке страницы
+document.addEventListener('DOMContentLoaded', function() {
+    loadTripsData();
+    loadDriversData();
+    loadVehiclesData();
+});
+
+// Переключение вкладок - точно как во Flutter TabController
+function switchTab(tabName) {
+    // Скрываем все контенты
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.add('hidden');
+    });
+    
+    // Убираем активные стили со всех вкладок
+    document.querySelectorAll('button[id^="tab-"]').forEach(tab => {
+        tab.classList.remove('active-tab', 'border-blue-500', 'text-blue-600');
+        tab.classList.add('inactive-tab', 'border-transparent', 'text-gray-500');
+    });
+    
+    // Показываем нужный контент
+    document.getElementById(`content-${tabName}`).classList.remove('hidden');
+    
+    // Активируем нужную вкладку
+    const activeTab = document.getElementById(`tab-${tabName}`);
+    activeTab.classList.remove('inactive-tab', 'border-transparent', 'text-gray-500');
+    activeTab.classList.add('active-tab', 'border-blue-500', 'text-blue-600');
+    
+    currentTab = tabName;
+    
+    // Загружаем данные для выбранной вкладки
+    switch(tabName) {
+        case 'active':
+            renderActiveTrips();
+            break;
+        case 'all':
+            renderAllTrips();
+            break;
+        case 'schedule':
+            renderFilteredTrips();
+            break;
+    }
+}
+
+// Загрузка данных поездок
+async function loadTripsData() {
+    try {
+        const response = await fetch('/api/trips/simple/');
+        if (response.ok) {
+            allTrips = await response.json();
+            renderActiveTrips(); // По умолчанию показываем активные
+        } else {
+            console.error('Ошибка загрузки поездок:', response.status);
+        }
+    } catch (error) {
+        console.error('Ошибка загрузки поездок:', error);
+    }
+}
+
+// Загрузка водителей для фильтра
+async function loadDriversData() {
+    try {
+        const response = await fetch('/api/drivers/simple/');
+        if (response.ok) {
+            drivers = await response.json();
+            populateDriverFilter();
+        }
+    } catch (error) {
+        console.error('Ошибка загрузки водителей:', error);
+    }
+}
+
+// Загрузка транспорта для фильтра
+async function loadVehiclesData() {
+    try {
+        const response = await fetch('/api/vehicles/');
+        if (response.ok) {
+            const data = await response.json();
+            vehicles = data.results || data;
+            populateVehicleFilter();
+        }
+    } catch (error) {
+        console.error('Ошибка загрузки транспорта:', error);
+    }
+}
+
+// Заполнение фильтра водителей
+function populateDriverFilter() {
+    const select = document.getElementById('driver-filter');
+    select.innerHTML = '<option value="">Все водители</option>';
+    
+    drivers.forEach(driver => {
+        const option = document.createElement('option');
+        option.value = driver.id;
+        option.textContent = driver.full_name || `${driver.first_name} ${driver.last_name}`;
+        select.appendChild(option);
+    });
+}
+
+// Заполнение фильтра транспорта
+function populateVehicleFilter() {
+    const select = document.getElementById('vehicle-filter');
+    select.innerHTML = '<option value="">Все транспорты</option>';
+    
+    vehicles.forEach(vehicle => {
+        const option = document.createElement('option');
+        option.value = vehicle.id;
+        option.textContent = `${vehicle.number} (${vehicle.brand} ${vehicle.model})`;
+        select.appendChild(option);
+    });
+}
+
+// Отображение активных поездок
+function renderActiveTrips() {
+    const activeTrips = allTrips.filter(trip => trip.status === 'ACTIVE');
+    const container = document.getElementById('active-trips-container');
+    
+    if (activeTrips.length === 0) {
+        container.innerHTML = `
+            <div class="flex flex-col items-center justify-center py-16">
+                <svg class="w-16 h-16 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
+                </svg>
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">Нет активных заездов</h3>
+                <p class="text-gray-600">Все грузовики на базе</p>
+            </div>
+        `;
+        return;
+    }
+    
+    container.innerHTML = activeTrips.map(trip => renderTripCard(trip, true)).join('');
+}
+
+// Отображение всех поездок
+function renderAllTrips() {
+    const container = document.getElementById('all-trips-container');
+    container.innerHTML = allTrips.map(trip => renderTripCard(trip)).join('');
+}
+
+// Отображение отфильтрованных поездок
+function renderFilteredTrips() {
+    let filteredTrips = [...allTrips];
+    
+    // Применяем фильтры
+    const startDate = document.getElementById('start-date').value;
+    const endDate = document.getElementById('end-date').value;
+    const driverId = document.getElementById('driver-filter').value;
+    const vehicleId = document.getElementById('vehicle-filter').value;
+    
+    if (startDate) {
+        filteredTrips = filteredTrips.filter(trip => {
+            const tripDate = new Date(trip.date || trip.created_at);
+            return tripDate >= new Date(startDate);
+        });
+    }
+    
+    if (endDate) {
+        filteredTrips = filteredTrips.filter(trip => {
+            const tripDate = new Date(trip.date || trip.created_at);
+            return tripDate <= new Date(endDate);
+        });
+    }
+    
+    if (driverId) {
+        filteredTrips = filteredTrips.filter(trip => 
+            trip.driver_details && trip.driver_details.id == driverId
+        );
+    }
+    
+    if (vehicleId) {
+        filteredTrips = filteredTrips.filter(trip => 
+            trip.vehicle_details && trip.vehicle_details.id == vehicleId
+        );
+    }
+    
+    const container = document.getElementById('filtered-trips-container');
+    container.innerHTML = filteredTrips.map(trip => renderTripCard(trip)).join('');
+}
+
+// Рендер карточки поездки - точно как во Flutter
+function renderTripCard(trip, showProgress = false) {
+    const statusInfo = getStatusInfo(trip.status);
+    const vehicleInfo = trip.vehicle_details || {};
+    const driverInfo = trip.driver_details || {};
+    
+    return `
+        <div class="bg-white rounded-xl border border-gray-200 hover:shadow-md transition-shadow cursor-pointer mb-3 trip-card" 
+             data-trip-id="${trip.id}" onclick="openTripDetails(${trip.id})">
+            <div class="p-4 relative">
+                <!-- Основная информация -->
+                <div class="pb-6 pr-20">
+                    <!-- Номер грузовика - крупно, как во Flutter -->
+                    <h3 class="text-lg font-bold text-gray-900 mb-1">
+                        ${vehicleInfo.number || 'Без транспорта'}
+                    </h3>
+                    
+                    <!-- Модель + Водитель в одну строку -->
+                    <p class="text-sm font-medium text-gray-500 mb-2">
+                        ${vehicleInfo.brand || ''} ${vehicleInfo.model || ''} • ${driverInfo.full_name ? driverInfo.full_name.split(' ')[0] : 'Водитель не назначен'}
+                    </p>
+                    
+                    <!-- Маршрут -->
+                    <p class="text-sm font-semibold text-gray-700 mb-1">
+                        ${trip.start_address || 'Откуда не указано'} → ${trip.end_address || 'Куда не указано'}
+                    </p>
+                    
+                    <!-- Пункт пропуска -->
+                    <p class="text-xs text-gray-400">
+                        ${trip.border_crossing || 'Пункт пропуска не указан'}
+                    </p>
+                </div>
+                
+                <!-- Статус бейдж в правом верхнем углу - точно как во Flutter -->
+                <div class="absolute top-4 right-4">
+                    <div class="flex items-center px-2.5 py-1 rounded-lg border" 
+                         style="background-color: ${statusInfo.bgColor}; border-color: ${statusInfo.color}33;">
+                        <div class="w-1.5 h-1.5 rounded-full mr-2" style="background-color: ${statusInfo.color};"></div>
+                        <span class="text-xs font-semibold" style="color: ${statusInfo.color};">
+                            ${statusInfo.text}
+                        </span>
+                    </div>
+                </div>
+                
+                <!-- Дата в правом нижнем углу -->
+                <div class="absolute bottom-4 right-4">
+                    <span class="text-xs font-medium text-gray-500">
+                        ${formatDate(trip.date || trip.created_at)}
+                    </span>
+                </div>
+                
+                <!-- Прогресс для активных поездок -->
+                ${showProgress && trip.status === 'ACTIVE' && trip.progress ? `
+                    <div class="mt-4 pt-4 border-t border-gray-100">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-sm font-medium text-gray-700">Прогресс поездки</span>
+                            <span class="text-sm font-bold text-blue-600">${Math.round(trip.progress * 100)}%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-1.5">
+                            <div class="bg-blue-600 h-1.5 rounded-full transition-all duration-300" 
+                                 style="width: ${trip.progress * 100}%"></div>
+                        </div>
+                    </div>
+                ` : ''}
+            </div>
+        </div>
+    `;
+}
+
+// Получение информации о статусе - точные цвета как во Flutter
+function getStatusInfo(status) {
+    switch (status) {
+        case 'ACTIVE':
+            return {
+                color: '#059669',
+                bgColor: '#ECFDF5',
+                text: 'В пути'
+            };
+        case 'COMPLETED':
+            return {
+                color: '#6B7280',
+                bgColor: '#F9FAFB',
+                text: 'Завершен'
+            };
+        case 'PLANNED':
+            return {
+                color: '#2563EB',
+                bgColor: '#EFF6FF',
+                text: 'Запланирован'
+            };
+        default:
+            return {
+                color: '#6B7280',
+                bgColor: '#F9FAFB',
+                text: 'Неизвестно'
+            };
+    }
+}
+
+// Форматирование даты - как во Flutter
+function formatDate(dateString) {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('ru-RU', { 
+        day: '2-digit', 
+        month: '2-digit', 
+        year: 'numeric' 
+    });
+}
+
+// Открытие детальной страницы
+function openTripDetails(tripId) {
+    window.location.href = `/trips/${tripId}/`;
+}
+
+// Очистка фильтров
+function clearFilters() {
+    document.getElementById('start-date').value = '';
+    document.getElementById('end-date').value = '';
+    document.getElementById('driver-filter').value = '';
+    document.getElementById('vehicle-filter').value = '';
+    renderFilteredTrips();
+}
+
+// Применение фильтров
+function applyFilters() {
+    renderFilteredTrips();
+}
+</script>
+
+<style>
+/* Стили для вкладок - точно как во Flutter TabBar */
+.active-tab {
+    border-bottom: 2px solid #2679DB !important;
+    color: #2679DB !important;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.inactive-tab {
+    border-bottom: 2px solid transparent;
+    color: #6B7280;
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.inactive-tab:hover {
+    color: #374151;
+    border-bottom-color: #D1D5DB;
+}
+
+/* Стили для карточек поездок */
+.trip-card {
+    transition: all 0.2s ease;
+}
+
+.trip-card:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Прогресс бар */
+.progress-bar {
+    background: linear-gradient(90deg, #2679DB 0%, #60A5FA 100%);
+}
+</style>
+{% endblock %} 

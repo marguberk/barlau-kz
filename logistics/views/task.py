@@ -82,15 +82,8 @@ class TaskViewSet(BaseModelViewSet):
             ).distinct()
     
     def perform_create(self, serializer):
+        # Signals автоматически создадут уведомления при сохранении
         task = serializer.save(created_by=self.request.user)
-        # Создаем уведомления для всех исполнителей
-        all_assignees = task.get_all_assignees()
-        for assignee in all_assignees:
-            if assignee != task.created_by:
-                try:
-                    Notification.create_task_notification(assignee, task)
-                except Exception as e:
-                    print(f"Ошибка создания уведомления: {e}")
     
     def perform_update(self, serializer):
         """Обновление задачи с поддержкой неавторизованных пользователей в режиме отладки"""

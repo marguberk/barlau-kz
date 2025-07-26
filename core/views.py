@@ -794,12 +794,7 @@ class TaskCreateView(LoginRequiredMixin, View):
 
         try:
             task.save()
-            # --- Уведомления ---
-            print('[DEBUG] Перед созданием уведомления о задаче', task.created_by, task)
-            from core.models import Notification
-            # Уведомление только для исполнителя, если он назначен и это не создатель
-            if task.assigned_to and task.assigned_to != task.created_by:
-                Notification.create_task_notification(task.assigned_to, task)
+            # Signals автоматически создадут уведомления при сохранении
             messages.success(request, 'Задача успешно создана')
             # Перенаправляем на страницу со всеми задачами
             return redirect('core:tasks')

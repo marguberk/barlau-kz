@@ -1,0 +1,458 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}Заезды | BARLAU.KZ{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" crossorigin="anonymous" />
+{% endblock %}
+
+{% block content %}
+    <!-- Боковая панель - точная копия из dashboard.html -->
+    <div class="w-64 h-screen bg-white border-r border-zinc-200 flex flex-col justify-start items-start fixed left-0 bottom-0 sidebar">
+        <div class="self-stretch px-5 py-6 relative flex flex-col justify-start items-start gap-2 sidebar-logo">
+            <div class="py-1 inline-flex justify-start items-center gap-2">
+                <img src="{% static 'core/img/logo.png' %}" alt="Barlau Logo" class="w-10 h-6">
+                <div class="text-center justify-start text-black text-2xl font-semibold leading-normal">Barlau.kz</div>
+            </div>
+        </div>
+        <div class="self-stretch flex-1 px-4 pt-2 pb-4 flex flex-col justify-start items-center gap-4 sidebar-menu">
+            <div class="self-stretch flex flex-col justify-start items-start gap-1">
+                <div class="self-stretch flex flex-col justify-start items-start">
+                <a href="{% url 'core:home' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2">
+                    <img src="{% static 'core/img/home.svg' %}" alt="Home" class="w-5 h-5 desktop-icon">
+                    <img src="{% static 'core/img/mobile/home.svg' %}" alt="Home" class="mobile-icon hidden w-5 h-5">
+                    <div class="flex-1 text-gray-500 text-base font-medium leading-normal tracking-tight">Главная</div>
+                    </a>
+                <a href="{% url 'core:tasks' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2">
+                    <img src="{% static 'core/img/check-square.svg' %}" alt="Tasks" class="w-5 h-5 desktop-icon align-middle">
+                    <img src="{% static 'core/img/mobile/check-square.svg' %}" alt="Tasks" class="mobile-icon hidden align-middle">
+                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Задачи</div>
+                    </a>
+                <a href="{% url 'core:trips' %}" class="self-stretch px-3 py-3.5 bg-gray-50 rounded-lg inline-flex items-center gap-2 relative">
+                        <div class="w-1 h-6 left-0 top-[calc(50%-12px)] absolute bg-blue-600 rounded-tr-lg rounded-br-lg"></div>
+                    <img src="{% static 'core/img/truck.svg' %}" alt="Trips" class="w-5 h-5 desktop-icon align-middle" onerror="this.onerror=null; this.src='/static/core/img/location.svg'">
+                    <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Trips" class="mobile-icon hidden align-middle">
+                        <div class="flex-1 justify-start text-blue-600 text-base font-medium leading-normal tracking-tight">Заезды</div>
+                    </a>
+                {% if request.user.role != 'DRIVER' %}
+                <a href="{% url 'core:trucks' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2">
+                    <img src="{% static 'core/img/truck.svg' %}" alt="Trucks" class="w-5 h-5 desktop-icon align-middle">
+                    <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Trucks" class="mobile-icon hidden align-middle">
+                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Грузовики</div>
+                    </a>
+                <a href="{% url 'core:employees' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2">
+                    <img src="{% static 'core/img/employee.svg' %}" alt="Employees" class="w-5 h-5 desktop-icon align-middle">
+                    <img src="{% static 'core/img/mobile/employee.svg' %}" alt="Employees" class="mobile-icon hidden align-middle">
+                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Сотрудники</div>
+                    </a>
+                {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Основной контент -->
+    <div class="ml-64 flex-1 min-h-screen bg-gray-50 relative main-content">
+        <!-- Верхняя панель - точная копия из dashboard.html -->
+        <div class="w-full h-20 px-8 py-5 bg-white flex justify-between items-center border-b border-gray-200">
+            <div class="justify-start text-zinc-950 text-2xl font-semibold leading-loose">Заезды</div>
+            <div class="flex justify-start items-center gap-3">
+                <div class="flex justify-start items-start gap-2">
+                <a href="{% url 'core:notifications' %}" class="w-10 h-10 px-3 py-2 bg-white rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex justify-center items-center gap-1.5 relative">
+                        <img src="{% static 'core/img/bell.svg' %}" alt="Notifications" class="w-5 h-5">
+                    <span id="notif-badge" class="absolute -top-2 -right-2 bg-red-500 rounded-full border-2 border-white flex items-center justify-center font-bold shadow-lg transition-all duration-200" style="min-width: 1.4rem; min-height: 1.4rem; font-size: 0.85rem; color: #fff; padding: 0 0.3em; display: none; align-items: center; justify-content: center;"></span>
+                    </a>
+                </div>
+            <div class="flex justify-start items-center gap-1.5 relative">
+                    {% if request.user.is_authenticated %}
+                    <div class="relative group" id="user-menu">
+                        {% if request.user.photo %}
+                            <img class="w-8 h-8 rounded-full object-cover cursor-pointer" src="{{ request.user.photo.url }}" id="user-avatar" />
+                        {% else %}
+                            <img class="w-8 h-8 rounded-full object-cover cursor-pointer" src="{% static 'core/img/avatars/placeholder-ava.png' %}" id="user-avatar" />
+                        {% endif %}
+                        <div class="hidden group-hover:block absolute right-0 mt-2 w-44 bg-white border border-gray-200 rounded-lg shadow-lg z-50" id="user-dropdown">
+                            <a href="{% url 'core:profile' %}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Профиль</a>
+                            <a href="{% url 'core:custom-logout' %}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Выйти</a>
+                        </div>
+                    </div>
+                    {% else %}
+                        <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+         
+        <!-- Контент страницы заездов -->
+        <div class="p-8">
+            <!-- Вкладки -->
+            <div class="bg-white rounded-2xl shadow-[0px_2px_4px_-1px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200">
+                <div class="border-b border-gray-200">
+                    <nav class="flex space-x-8 px-6" aria-label="Tabs">
+                        <button onclick="switchTab('active')" id="tab-active" class="active-tab border-b-2 border-blue-500 py-4 px-1 text-sm font-semibold text-blue-600">
+                            Активные
+                        </button>
+                        <button onclick="switchTab('all')" id="tab-all" class="inactive-tab border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                            Все заезды
+                        </button>
+                        <button onclick="switchTab('schedule')" id="tab-schedule" class="inactive-tab border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                            График
+                        </button>
+                    </nav>
+                </div>
+
+                <!-- Контент вкладок -->
+                <div class="p-6">
+                    <div id="content-active" class="tab-content">
+                        <div id="active-trips-container">
+                            <p class="text-gray-600">Загрузка активных заездов...</p>
+                        </div>
+                    </div>
+
+                    <div id="content-all" class="tab-content hidden">
+                        <div id="all-trips-container">
+                            <p class="text-gray-600">Загрузка всех заездов...</p>
+                        </div>
+                    </div>
+
+                    <div id="content-schedule" class="tab-content hidden">
+                        <div class="bg-gray-50 rounded-xl p-4 mb-6">
+                            <h3 class="text-lg font-semibold mb-4">Фильтры</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Дата с</label>
+                                    <input type="date" id="start-date" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Дата до</label>
+                                    <input type="date" id="end-date" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Водитель</label>
+                                    <select id="driver-filter" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                                        <option value="">Все водители</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Транспорт</label>
+                                    <select id="vehicle-filter" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                                        <option value="">Все транспорты</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="flex justify-end mt-4 space-x-3">
+                                <button onclick="clearFilters()" class="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200">
+                                    Очистить
+                                </button>
+                                <button onclick="applyFilters()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                                    Применить
+                                </button>
+                            </div>
+                        </div>
+                        <div id="filtered-trips-container">
+                            <p class="text-gray-600">Загрузка отфильтрованных заездов...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    let currentTab = 'active';
+    let allTrips = [];
+    let drivers = [];
+    let vehicles = [];
+
+    document.addEventListener('DOMContentLoaded', function() {
+        loadTripsData();
+        loadDriversData();
+        loadVehiclesData();
+    });
+
+    function switchTab(tabName) {
+        // Скрыть все контенты
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.add('hidden');
+        });
+        
+        // Сбросить стили всех вкладок
+        document.querySelectorAll('button[id^="tab-"]').forEach(tab => {
+            tab.classList.remove('active-tab', 'border-blue-500', 'text-blue-600');
+            tab.classList.add('inactive-tab', 'border-transparent', 'text-gray-500');
+        });
+        
+        // Показать выбранный контент
+        document.getElementById(`content-${tabName}`).classList.remove('hidden');
+        
+        // Активировать выбранную вкладку
+        const activeTab = document.getElementById(`tab-${tabName}`);
+        activeTab.classList.remove('inactive-tab', 'border-transparent', 'text-gray-500');
+        activeTab.classList.add('active-tab', 'border-blue-500', 'text-blue-600');
+        
+        currentTab = tabName;
+        
+        // Загрузить данные для выбранной вкладки
+        switch(tabName) {
+            case 'active': renderActiveTrips(); break;
+            case 'all': renderAllTrips(); break;
+            case 'schedule': renderFilteredTrips(); break;
+        }
+    }
+
+    async function loadTripsData() {
+        try {
+            const response = await fetch('/api/public/trips/');
+            if (response.ok) {
+                allTrips = await response.json();
+                renderActiveTrips();
+            } else {
+                console.error('Ошибка загрузки поездок:', response.status);
+                document.getElementById('active-trips-container').innerHTML = '<p class="text-red-600">Ошибка загрузки данных</p>';
+            }
+        } catch (error) {
+            console.error('Ошибка загрузки поездок:', error);
+            document.getElementById('active-trips-container').innerHTML = '<p class="text-red-600">Ошибка сети</p>';
+        }
+    }
+
+    async function loadDriversData() {
+        try {
+            const response = await fetch('/simple-drivers/');
+            if (response.ok) {
+                drivers = await response.json();
+                populateDriverFilter();
+            }
+        } catch (error) {
+            console.error('Ошибка загрузки водителей:', error);
+        }
+    }
+
+    async function loadVehiclesData() {
+        try {
+            const response = await fetch('/api/vehicles/');
+            if (response.ok) {
+                const data = await response.json();
+                vehicles = data.results || data;
+                populateVehicleFilter();
+            }
+        } catch (error) {
+            console.error('Ошибка загрузки транспорта:', error);
+        }
+    }
+
+    function populateDriverFilter() {
+        const select = document.getElementById('driver-filter');
+        select.innerHTML = '<option value="">Все водители</option>';
+        drivers.forEach(driver => {
+            const option = document.createElement('option');
+            option.value = driver.id;
+            option.textContent = driver.full_name || `${driver.first_name} ${driver.last_name}`;
+            select.appendChild(option);
+        });
+    }
+
+    function populateVehicleFilter() {
+        const select = document.getElementById('vehicle-filter');
+        select.innerHTML = '<option value="">Все транспорты</option>';
+        vehicles.forEach(vehicle => {
+            const option = document.createElement('option');
+            option.value = vehicle.id;
+            option.textContent = `${vehicle.number} (${vehicle.brand} ${vehicle.model})`;
+            select.appendChild(option);
+        });
+    }
+
+    function renderActiveTrips() {
+        const activeTrips = allTrips.filter(trip => trip.status === 'ACTIVE');
+        const container = document.getElementById('active-trips-container');
+        
+        if (activeTrips.length === 0) {
+            container.innerHTML = `
+                <div class="text-center py-12">
+                    <div class="text-gray-400 mb-4">
+                        <svg class="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">Нет активных заездов</h3>
+                    <p class="text-gray-600">Все грузовики на базе</p>
+                </div>
+            `;
+            return;
+        }
+        
+        container.innerHTML = activeTrips.map(trip => renderTripCard(trip, true)).join('');
+    }
+
+    function renderAllTrips() {
+        const container = document.getElementById('all-trips-container');
+        container.innerHTML = allTrips.map(trip => renderTripCard(trip)).join('');
+    }
+
+    function renderFilteredTrips() {
+        let filteredTrips = [...allTrips];
+        
+        const startDate = document.getElementById('start-date').value;
+        const endDate = document.getElementById('end-date').value;
+        const driverId = document.getElementById('driver-filter').value;
+        const vehicleId = document.getElementById('vehicle-filter').value;
+        
+        if (startDate) {
+            filteredTrips = filteredTrips.filter(trip => {
+                const tripDate = new Date(trip.date || trip.created_at);
+                return tripDate >= new Date(startDate);
+            });
+        }
+        
+        if (endDate) {
+            filteredTrips = filteredTrips.filter(trip => {
+                const tripDate = new Date(trip.date || trip.created_at);
+                return tripDate <= new Date(endDate);
+            });
+        }
+        
+        if (driverId) {
+            filteredTrips = filteredTrips.filter(trip =>
+                trip.driver_details && trip.driver_details.id == driverId
+            );
+        }
+        
+        if (vehicleId) {
+            filteredTrips = filteredTrips.filter(trip =>
+                trip.vehicle_details && trip.vehicle_details.id == vehicleId
+            );
+        }
+        
+        const container = document.getElementById('filtered-trips-container');
+        container.innerHTML = filteredTrips.map(trip => renderTripCard(trip)).join('');
+    }
+
+    function renderTripCard(trip, showProgress = false) {
+        const statusInfo = getStatusInfo(trip.status);
+        const vehicleInfo = trip.vehicle_details || {};
+        const driverInfo = trip.driver_details || {};
+        
+        return `
+            <div class="bg-white rounded-xl border border-gray-200 hover:shadow-md transition-shadow cursor-pointer mb-4 trip-card"
+                 data-trip-id="${trip.id}" onclick="openTripDetails(${trip.id})">
+                <div class="p-6 relative">
+                    <div class="pb-6 pr-20">
+                        <h3 class="text-lg font-bold text-gray-900 mb-1">
+                            ${vehicleInfo.number || 'Без транспорта'}
+                        </h3>
+                        <p class="text-sm font-medium text-gray-500 mb-2">
+                            ${vehicleInfo.brand || ''} ${vehicleInfo.model || ''} • ${driverInfo.full_name ? driverInfo.full_name.split(' ')[0] : 'Водитель не назначен'}
+                        </p>
+                        <p class="text-sm font-semibold text-gray-700 mb-1">
+                            ${trip.start_address || 'Откуда не указано'} → ${trip.end_address || 'Куда не указано'}
+                        </p>
+                        <p class="text-xs text-gray-400">
+                            ${trip.border_crossing || 'Пункт пропуска не указан'}
+                        </p>
+                    </div>
+                    
+                    <div class="absolute top-6 right-6">
+                        <div class="flex items-center px-2.5 py-1 rounded-lg border"
+                             style="background-color: ${statusInfo.bgColor}; border-color: ${statusInfo.color}33;">
+                            <div class="w-1.5 h-1.5 rounded-full mr-2" style="background-color: ${statusInfo.color};"></div>
+                            <span class="text-xs font-semibold" style="color: ${statusInfo.color};">
+                                ${statusInfo.text}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="absolute bottom-6 right-6">
+                        <span class="text-xs font-medium text-gray-500">
+                            ${formatDate(trip.date || trip.created_at)}
+                        </span>
+                    </div>
+                    
+                    ${showProgress && trip.status === 'ACTIVE' && trip.progress ? `
+                        <div class="mt-4 pt-4 border-t border-gray-100">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-sm font-medium text-gray-700">Прогресс поездки</span>
+                                <span class="text-sm font-bold text-blue-600">${Math.round(trip.progress * 100)}%</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-1.5">
+                                <div class="bg-blue-600 h-1.5 rounded-full transition-all duration-300"
+                                     style="width: ${trip.progress * 100}%"></div>
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+            </div>
+        `;
+    }
+
+    function getStatusInfo(status) {
+        switch (status) {
+            case 'ACTIVE': return { color: '#059669', bgColor: '#ECFDF5', text: 'В пути' };
+            case 'COMPLETED': return { color: '#6B7280', bgColor: '#F9FAFB', text: 'Завершен' };
+            case 'PLANNED': return { color: '#2563EB', bgColor: '#EFF6FF', text: 'Запланирован' };
+            default: return { color: '#6B7280', bgColor: '#F9FAFB', text: 'Неизвестно' };
+        }
+    }
+
+    function formatDate(dateString) {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        return date.toLocaleDateString('ru-RU', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        });
+    }
+
+    function openTripDetails(tripId) {
+        window.location.href = `/trips/${tripId}/`;
+    }
+
+    function clearFilters() {
+        document.getElementById('start-date').value = '';
+        document.getElementById('end-date').value = '';
+        document.getElementById('driver-filter').value = '';
+        document.getElementById('vehicle-filter').value = '';
+        renderFilteredTrips();
+    }
+
+    function applyFilters() {
+        renderFilteredTrips();
+    }
+    </script>
+
+    <style>
+    .active-tab { 
+        border-bottom: 2px solid #2679DB !important; 
+        color: #2679DB !important; 
+        font-weight: 600; 
+        font-size: 14px; 
+    }
+    .inactive-tab { 
+        border-bottom: 2px solid transparent; 
+        color: #6B7280; 
+        font-weight: 500; 
+        font-size: 14px; 
+    }
+    .inactive-tab:hover { 
+        color: #374151; 
+        border-bottom-color: #D1D5DB; 
+    }
+    .trip-card { 
+        transition: all 0.2s ease; 
+    }
+    .trip-card:hover { 
+        transform: translateY(-1px); 
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); 
+    }
+    </style>
+{% endblock %} 
+ 
+ 
+ 
+ 

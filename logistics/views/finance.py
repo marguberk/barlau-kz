@@ -172,11 +172,5 @@ class FinanceViewSet(viewsets.ViewSet):
         return response
 
     def perform_create(self, serializer):
-        expense = serializer.save(created_by=self.request.user)
-        from core.models import Notification
-        # Уведомление для всех бухгалтеров
-        for accountant in expense.get_accountants():
-            Notification.create_expense_notification(accountant, expense)
-        # Уведомление для создателя, если он не бухгалтер
-        if not self.request.user.role == 'ACCOUNTANT':
-            Notification.create_expense_notification(self.request.user, expense) 
+        # Signals автоматически создадут уведомления при сохранении
+        expense = serializer.save(created_by=self.request.user) 
