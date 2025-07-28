@@ -173,4 +173,4 @@ class FinanceViewSet(viewsets.ViewSet):
 
     def perform_create(self, serializer):
         # Signals автоматически создадут уведомления при сохранении
-        expense = serializer.save(created_by=self.request.user) 
+        expense = serializer.save(created_by=self.request.user)

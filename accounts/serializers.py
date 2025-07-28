@@ -56,6 +56,12 @@ class UserCreateSerializer(serializers.ModelSerializer):
         except IntegrityError as e:
             raise serializers.ValidationError({"detail": "Ошибка при создании пользователя. Возможно, такой пользователь уже существует."})
 
+import base64
+import io
+import uuid
+from django.core.files.base import ContentFile
+from django.core.files.uploadedfile import InMemoryUploadedFile
+
 class UserUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -75,6 +81,17 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         if instance and value and User.objects.exclude(pk=instance.pk).filter(email=value).exists():
             raise serializers.ValidationError("Пользователь с таким email уже существует")
         return value
+    
+    def update(self, instance, validated_data):
+        # Обработка удаления фото
+        photo_data = validated_data.get('photo')
+        if photo_data == 'null':
+            # Если передано 'null', удаляем фото
+            validated_data['photo'] = None
+            if instance.photo:
+                instance.photo.delete(save=False)
+        
+        return super().update(instance, validated_data)
 
 class DriverLocationUpdateSerializer(serializers.ModelSerializer):
     class Meta:

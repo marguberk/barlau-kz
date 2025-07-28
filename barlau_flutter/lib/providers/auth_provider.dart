@@ -83,17 +83,17 @@ class AuthProvider with ChangeNotifier {
       // Проверяем, есть ли все необходимые данные
       if (userProfile != null && authToken != null && userRole != null) {
         // Загружаем пользователя из локального хранилища
-        final localUser = await _loadUserFromLocal();
-        if (localUser != null) {
-          _user = localUser;
-          _isAuthenticated = true;
-          _error = null;
+      final localUser = await _loadUserFromLocal();
+      if (localUser != null) {
+        _user = localUser;
+        _isAuthenticated = true;
+        _error = null;
           print('AuthProvider: Пользователь авторизован - ${localUser.username} (${localUser.role})');
         } else {
           print('AuthProvider: Ошибка загрузки профиля пользователя');
           _isAuthenticated = false;
           _user = null;
-          _error = null;
+        _error = null;
           // Очищаем поврежденные данные
           await _removeUserFromLocal();
         }
@@ -107,9 +107,9 @@ class AuthProvider with ChangeNotifier {
       }
     } catch (e) {
       print('AuthProvider: Ошибка проверки авторизации: $e');
-      _isAuthenticated = false;
-      _user = null;
-      _error = 'Ошибка проверки авторизации';
+        _isAuthenticated = false;
+        _user = null;
+        _error = 'Ошибка проверки авторизации';
       // Очищаем данные при ошибке
       await _removeUserFromLocal();
     }
@@ -152,29 +152,20 @@ class AuthProvider with ChangeNotifier {
         _error = null;
         print('AuthProvider: Авторизация успешна, устанавливаем _isAuthenticated = true');
         _isLoading = false;
+        print('AuthProvider: Вызываем notifyListeners() после успешной авторизации');
         notifyListeners();
         print('AuthProvider: notifyListeners() вызван после успешной авторизации');
+        
+        // Дополнительно вызываем notifyListeners еще раз через небольшую задержку
+        Future.delayed(const Duration(milliseconds: 100), () {
+          print('AuthProvider: Дополнительный вызов notifyListeners()');
+          notifyListeners();
+        });
+        
         return true;
       } else {
         print('AuthProvider: Авторизация неуспешна: ${result['error']}');
-        
-        // Улучшенная обработка ошибок
-        String errorMessage = 'Неверный логин или пароль';
-        if (result['error'] != null) {
-          if (result['error'].toString().contains('401') || 
-              result['error'].toString().contains('credentials')) {
-            errorMessage = 'Неверный логин или пароль';
-          } else if (result['error'].toString().contains('network') ||
-                     result['error'].toString().contains('timeout')) {
-            errorMessage = 'Ошибка подключения к серверу';
-          } else if (result['error'].toString().contains('server')) {
-            errorMessage = 'Ошибка сервера, попробуйте позже';
-          } else {
-            errorMessage = result['error'].toString();
-          }
-        }
-        
-        _error = errorMessage;
+        _error = result['error'] ?? 'Неверный логин или пароль';
         _isAuthenticated = false;
         _user = null;
         _isLoading = false;
@@ -183,21 +174,7 @@ class AuthProvider with ChangeNotifier {
       }
     } catch (e) {
       print('AuthProvider: Ошибка при входе - $e');
-      
-      // Улучшенная обработка исключений
-      String errorMessage = 'Ошибка входа в систему';
-      if (e.toString().contains('SocketException') ||
-          e.toString().contains('Connection failed')) {
-        errorMessage = 'Нет подключения к серверу';
-      } else if (e.toString().contains('TimeoutException')) {
-        errorMessage = 'Превышено время ожидания ответа сервера';
-      } else if (e.toString().contains('FormatException')) {
-        errorMessage = 'Ошибка обработки данных сервера';
-      } else {
-        errorMessage = 'Ошибка входа в систему: ${e.toString()}';
-      }
-      
-      _error = errorMessage;
+      _error = 'Ошибка входа в систему';
       _isAuthenticated = false;
       _user = null;
       _isLoading = false;
@@ -212,20 +189,26 @@ class AuthProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      // Очищаем все локальные данные пользователя
-      await _removeUserFromLocal();
-      print('AuthProvider: Локальные данные очищены');
+      await _apiService.logout();
     } catch (e) {
-      print('AuthProvider: Ошибка при очистке данных: $e');
+      print('AuthProvider: Ошибка при вызове API logout: $e');
+      // Игнорируем ошибки при выходе
     }
 
-    // Сбрасываем состояние
+    // Сначала удаляем локальные данные
+    await _removeUserFromLocal();
+    
+    // Затем очищаем состояние
     _user = null;
     _isAuthenticated = false;
     _error = null;
     _isLoading = false;
     
-    print('AuthProvider: Состояние сброшено, пользователь не авторизован');
+    print('AuthProvider: Выход из аккаунта завершен');
+    notifyListeners();
+    
+    // Принудительно обновляем состояние для перехода на страницу входа
+    await Future.delayed(const Duration(milliseconds: 100));
     notifyListeners();
   }
 
@@ -278,22 +261,22 @@ class AuthProvider with ChangeNotifier {
           lastName: userData['last_name'] ?? lastName,
           email: userData['email'] ?? email,
           phone: userData['phone'] ?? phone,
-          role: _user!.role,
-          isActive: _user!.isActive,
+        role: _user!.role,
+        isActive: _user!.isActive,
           profilePicture: userData['profile_picture'] ?? _user!.profilePicture,
-        );
+      );
 
-        print('AuthProvider: Обновленный пользователь создан');
-        print('AuthProvider: Новый пользователь - ${_user!.firstName} ${_user!.lastName}, ${_user!.email}');
+      print('AuthProvider: Обновленный пользователь создан');
+      print('AuthProvider: Новый пользователь - ${_user!.firstName} ${_user!.lastName}, ${_user!.email}');
 
-        // Сохраняем обновленный профиль локально
-        await _saveUserToLocal(_user!);
-        print('AuthProvider: Профиль сохранен локально успешно');
+      // Сохраняем обновленный профиль локально
+      await _saveUserToLocal(_user!);
+      print('AuthProvider: Профиль сохранен локально успешно');
 
-        _isLoading = false;
-        notifyListeners();
-        print('AuthProvider: notifyListeners() вызван');
-        return true;
+      _isLoading = false;
+      notifyListeners();
+      print('AuthProvider: notifyListeners() вызван');
+      return true;
       } else {
         print('AuthProvider: Ошибка обновления профиля на сервере: ${result['error']}');
         _error = result['error'] ?? 'Ошибка обновления профиля';

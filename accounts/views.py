@@ -70,8 +70,64 @@ class UserViewSet(viewsets.ModelViewSet):
             serializer = UserSerializer(request.user)
             return Response(serializer.data)
         elif request.method in ['PUT', 'PATCH']:
-            serializer = UserUpdateSerializer(request.user, data=request.data, partial=True)
+            print(f'Django: Обновление профиля пользователя {request.user.username}')
+            print(f'Django: Полученные данные: {request.data}')
+            
+            # Обрабатываем base64 фото отдельно
+            photo_data = request.data.get('photo')
+            if photo_data and isinstance(photo_data, str) and photo_data.startswith('data:image'):
+                try:
+                    import base64
+                    import io
+                    import uuid
+                    from django.core.files.uploadedfile import InMemoryUploadedFile
+                    
+                    # Убираем префикс data:image/...;base64,
+                    format, imgstr = photo_data.split(';base64,')
+                    ext = format.split('/')[-1]
+                    
+                    # Декодируем base64
+                    image_data = base64.b64decode(imgstr)
+                    
+                    # Создаем InMemoryUploadedFile
+                    photo_file = InMemoryUploadedFile(
+                        file=io.BytesIO(image_data),
+                        field_name='photo',
+                        name=f'profile_photo_{uuid.uuid4().hex[:8]}.{ext}',
+                        content_type=f'image/{ext}',
+                        size=len(image_data),
+                        charset=None
+                    )
+                    
+                    # Создаем копию данных без base64 фото
+                    data_without_photo = request.data.copy()
+                    data_without_photo['photo'] = photo_file
+                    
+                    serializer = UserUpdateSerializer(request.user, data=data_without_photo, partial=True)
+                except Exception as e:
+                    print(f'Django: Ошибка обработки base64 фото: {e}')
+                    # Если не удалось обработать фото, обновляем без него
+                    data_without_photo = request.data.copy()
+                    data_without_photo.pop('photo', None)
+                    serializer = UserUpdateSerializer(request.user, data=data_without_photo, partial=True)
+            else:
+                serializer = UserUpdateSerializer(request.user, data=request.data, partial=True)
+            
             if serializer.is_valid():
+                try:
+                    serializer.save()
+                    print(f'Django: Профиль успешно обновлен')
+                    return Response(serializer.data)
+                except Exception as e:
+                    print(f'Django: Ошибка сохранения профиля: {e}')
+                    return Response(
+                        {'error': f'Ошибка сохранения: {str(e)}'}, 
+                        status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                    )
+            else:
+                print(f'Django: Ошибки валидации: {serializer.errors}')
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
                 serializer.save()
                 return Response(serializer.data)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

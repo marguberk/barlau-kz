@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../components/app_header.dart';
 import 'employee_detail_screen.dart';
+import '../services/safe_api_service.dart';
 
 class EmployeesScreen extends StatefulWidget {
   const EmployeesScreen({super.key});
@@ -29,6 +31,17 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
       isLoading = true;
     });
 
+    // Получаем валидный токен с принудительным обновлением
+    String? token = await SafeApiService.getValidToken();
+    
+    // Если токен не получен, пытаемся принудительно обновить
+    if (token == null) {
+      print('DEBUG: Токен не получен, пытаемся принудительно обновить...');
+      token = await SafeApiService.forceRefreshToken();
+    }
+    
+    print('DEBUG: Токен авторизации для сотрудников: ${token != null ? 'есть' : 'нет'}');
+
     final urls = [
       'http://localhost:8000/api/employees/',
       'https://barlau.org/api/employees/',
@@ -37,41 +50,66 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
     for (String url in urls) {
       try {
         print('Пробуем URL: $url');
+        
+        final headers = {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        };
+        
+        // Добавляем токен авторизации, если он есть
+        if (token != null) {
+          headers['Authorization'] = 'Bearer $token';
+        }
+        
         final response = await http.get(
           Uri.parse(url),
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-          },
+          headers: headers,
         ).timeout(const Duration(seconds: 3));
         
         if (response.statusCode == 200) {
           final data = json.decode(response.body);
+          print('DEBUG: Получен ответ от $url, статус: ${response.statusCode}');
+          print('DEBUG: Структура данных: ${data.runtimeType}');
+          if (data is Map) {
+            print('DEBUG: Ключи в данных: ${data.keys.toList()}');
+          }
+          
           if (!mounted) return;
           
           List<Map<String, dynamic>> employees = [];
           if (data is Map && data.containsKey('results')) {
             employees = List<Map<String, dynamic>>.from(data['results']);
+            print('DEBUG: Найдено ${employees.length} сотрудников в results');
           } else if (data is List) {
             employees = List<Map<String, dynamic>>.from(data);
+            print('DEBUG: Найдено ${employees.length} сотрудников в списке');
+          } else {
+            print('DEBUG: Неизвестная структура данных');
           }
           
-          // Маппим поля Django API в формат Flutter
-          employees = employees.map((employee) => _mapEmployeeFields(employee)).toList();
-          
-          setState(() {
-            allEmployees = employees;
-            isLoading = false;
-            isConnected = true;
-          });
-          print('Загружено ${allEmployees.length} сотрудников из базы данных');
-          
-          // Логируем данные первого сотрудника для отладки
-          if (allEmployees.isNotEmpty) {
-            print('Пример данных сотрудника: ${allEmployees.first}');
+          if (employees.isNotEmpty) {
+            // Маппим поля Django API в формат Flutter
+            employees = employees.map((employee) => _mapEmployeeFields(employee)).toList();
+            
+            setState(() {
+              allEmployees = employees;
+              isLoading = false;
+              isConnected = true;
+            });
+            print('Загружено ${allEmployees.length} сотрудников из базы данных');
+            
+            // Логируем данные первых 5 сотрудников для отладки
+            for (int i = 0; i < allEmployees.length && i < 5; i++) {
+              final emp = allEmployees[i];
+              print('DEBUG: Сотрудник ${i+1}: ID=${emp['id']}, Имя="${emp['first_name']} ${emp['last_name']}", Роль=${emp['role']}, Фото=${emp['photo']}');
+            }
+            
+            return;
+          } else {
+            print('DEBUG: Список сотрудников пуст');
           }
-          
-          return;
+        } else {
+          print('DEBUG: Неверный статус ответа: ${response.statusCode}');
         }
       } catch (e) {
         print('Ошибка для URL $url: $e');
@@ -261,6 +299,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                       Text(
                         'Сотрудники не найдены',
                         style: TextStyle(
+    fontFamily: 'SF Pro Display',
                           fontSize: 18,
                           color: Color(0xFF6B7280),
                         ),
@@ -287,20 +326,20 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
     );
   }
 
-  String? _getPhotoUrl(dynamic photoPath) {
+  String? _getPhotoUrl(dynamic photoPath, int employeeId) {
     if (photoPath == null || photoPath.toString().isEmpty) {
       return null;
     }
     
     String photoStr = photoPath.toString();
     
-    // Если уже полный URL, возвращаем как есть
+    // Если уже полный URL, добавляем параметр для очистки кеша
     if (photoStr.startsWith('http')) {
-      return photoStr;
+      return '$photoStr?employee_id=$employeeId&t=${DateTime.now().millisecondsSinceEpoch}';
     }
     
-    // Если это относительный путь, формируем полный URL
-    return 'https://barlau.org$photoStr';
+    // Если это относительный путь, формируем полный URL с параметром кеша
+    return 'https://barlau.org$photoStr?employee_id=$employeeId&t=${DateTime.now().millisecondsSinceEpoch}';
   }
 
   Widget _buildEmployeeCard(Map<String, dynamic> employee) {
@@ -309,10 +348,11 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
     final role = employee['role'] ?? '';
     final roleDisplay = _getRoleDisplay(role);
     final roleColor = _getRoleColor(role);
-    final phone = employee['phone'] ?? '';
+
     final position = employee['position'] ?? '';
     final dateJoined = _formatDate(employee['date_joined']);
-    final photoUrl = _getPhotoUrl(employee['photo']);
+    final photoUrl = _getPhotoUrl(employee['photo'], employee['id']);
+    print('DEBUG UI: Сотрудник ${employee['id']} - "${employee['first_name']} ${employee['last_name']}" - роль: ${employee['role']} - фото URL: $photoUrl');
 
     return Container(
       decoration: BoxDecoration(
@@ -353,15 +393,23 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                           borderRadius: BorderRadius.circular(14),
                           child: Image.network(
                             photoUrl,
+                            key: ValueKey('employee_${employee['id']}_photo'),
                             width: 28,
                             height: 28,
                             fit: BoxFit.cover,
+                            cacheWidth: 56, // 2x для retina
+                            cacheHeight: 56,
+                            headers: {
+                              'Cache-Control': 'no-cache',
+                              'Pragma': 'no-cache',
+                            },
                             errorBuilder: (context, error, stackTrace) {
-                              print('Ошибка загрузки фото: $error');
+                              print('Ошибка загрузки фото для сотрудника ${employee['id']}: $error');
                               return Center(
                                 child: Text(
                                   initials,
                                   style: const TextStyle(
+    fontFamily: 'SF Pro Display',
                                     color: Colors.white,
                                     fontSize: 12,
                                     fontWeight: FontWeight.w600,
@@ -375,6 +423,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                           child: Text(
                             initials,
                             style: const TextStyle(
+    fontFamily: 'SF Pro Display',
                               color: Colors.white,
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
@@ -388,6 +437,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                   child: Text(
                     fullName,
                     style: const TextStyle(
+    fontFamily: 'SF Pro Display',
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                       color: Color(0xFF1F2937),
@@ -428,6 +478,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                               child: Text(
                                 roleDisplay,
                                 style: TextStyle(
+    fontFamily: 'SF Pro Display',
                                   fontSize: 11,
                                   fontWeight: FontWeight.w500,
                                   color: roleColor,
@@ -438,30 +489,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 6),
-                      // Телефон
-                      if (phone.isNotEmpty)
-                        Row(
-                          children: [
-                            const Icon(
-                              Icons.phone_outlined,
-                              size: 16,
-                              color: Color(0xFF6B7280),
-                            ),
-                            const SizedBox(width: 6),
-                            Flexible(
-                              child: Text(
-                                phone,
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  color: Color(0xFF6B7280),
-                                ),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          ],
-                        ),
-                      const SizedBox(height: 6),
+                      const SizedBox(height: 12),
                       // Дата присоединения
                       Row(
                         children: [
@@ -475,6 +503,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                             child: Text(
                               'Работает с $dateJoined',
                               style: const TextStyle(
+    fontFamily: 'SF Pro Display',
                                 fontSize: 12,
                                 color: Color(0xFF6B7280),
                               ),
@@ -520,6 +549,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                       child: Text(
                         'Посмотреть резюме',
                         style: TextStyle(
+    fontFamily: 'SF Pro Display',
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
                         ),
