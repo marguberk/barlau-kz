@@ -97,6 +97,30 @@ class ExpenseViewSet(BaseModelViewSet):
         
         return super().destroy(request, *args, **kwargs)
     
+    def list(self, request, *args, **kwargs):
+        """Список расходов с фильтрацией по датам"""
+        queryset = self.get_queryset()
+        
+        # Фильтрация по датам
+        start_date = request.query_params.get('start_date')
+        end_date = request.query_params.get('end_date')
+        
+        if start_date:
+            queryset = queryset.filter(date__gte=start_date)
+        if end_date:
+            queryset = queryset.filter(date__lte=end_date)
+        
+        # Применяем стандартную фильтрацию и поиск
+        queryset = self.filter_queryset(queryset)
+        
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+    
     @action(detail=False, methods=['get'])
     def my_expenses(self, request):
         """Получить расходы текущего пользователя"""

@@ -52,6 +52,8 @@ from .api import (
     create_checklist_for_trip, get_trip_checklist, generate_checklist_pdf, update_checklist_item, upload_checklist_photos, delete_checklist_photo
 )
 from logistics.views.task import TaskViewSet
+from logistics.views.expense import ExpenseViewSet
+from logistics.views.vehicle import VehicleViewSet
 from django.views.generic import TemplateView
 
 app_name = 'core'
@@ -61,6 +63,8 @@ router.register(r'employees', EmployeeViewSet, basename='employee-api')
 router.register(r'waybills', WaybillViewSet, basename='waybill-api')
 router.register(r'notifications', NotificationViewSet, basename='notification-api')
 router.register(r'tasks', TaskViewSet, basename='task-api')
+router.register(r'expenses', ExpenseViewSet, basename='expense-api')
+router.register(r'vehicles', VehicleViewSet, basename='vehicle-api')
 router.register(r'trips', TripViewSet, basename='trip-api')
 router.register(r'checklist-templates', ChecklistTemplateViewSet, basename='checklist-template-api')
 router.register(r'trip-checklists', TripChecklistViewSet, basename='trip-checklist-api')
