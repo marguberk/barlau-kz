@@ -36,8 +36,8 @@
                     </a>
                 <a href="{% url 'core:trips' %}" class="self-stretch px-3 py-3.5 bg-gray-50 rounded-lg inline-flex items-center gap-2 relative">
                         <div class="w-1 h-6 left-0 top-[calc(50%-12px)] absolute bg-blue-600 rounded-tr-lg rounded-br-lg"></div>
-                    <img src="{% static 'core/img/truck.svg' %}" alt="Trips" class="w-5 h-5 desktop-icon align-middle" onerror="this.onerror=null; this.src='/static/core/img/location.svg'">
-                    <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Trips" class="mobile-icon hidden align-middle">
+                    <img src="{% static 'core/img/truck.svg' %}" alt="Trips" style="filter: brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(142deg) brightness(96%) contrast(91%);" class="w-5 h-5 desktop-icon align-middle" onerror="this.onerror=null; this.src='/static/core/img/trips.svg'">
+                    <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Trips" style="filter: brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(142deg) brightness(96%) contrast(91%);" class="mobile-icon hidden align-middle">
                         <div class="flex-1 justify-start text-blue-600 text-base font-medium leading-normal tracking-tight">Заезды</div>
                     </a>
                 {% if request.user.role != 'DRIVER' %}
@@ -179,10 +179,10 @@
                 </div>
             </div>
 
-            <!-- Карта с маршрутом -->
+            <!-- Заезды с маршрутом -->
             <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-[0px_16px_32px_-12px_rgba(88,92,95,0.10)]">
                 <div class="relative">
-                    <!-- Карта -->
+                    <!-- Заезды -->
                     <div id="trip-map" class="w-full h-80"></div>
                     
                     <!-- Кнопки управления картой -->
@@ -587,8 +587,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     </a>
                 <a href="{% url 'core:trips' %}" class="self-stretch px-3 py-3.5 bg-gray-50 rounded-lg inline-flex items-center gap-2 relative">
                         <div class="w-1 h-6 left-0 top-[calc(50%-12px)] absolute bg-blue-600 rounded-tr-lg rounded-br-lg"></div>
-                    <img src="{% static 'core/img/truck.svg' %}" alt="Trips" class="w-5 h-5 desktop-icon align-middle" onerror="this.onerror=null; this.src='/static/core/img/location.svg'">
-                    <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Trips" class="mobile-icon hidden align-middle">
+                    <img src="{% static 'core/img/truck.svg' %}" alt="Trips" style="filter: brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(142deg) brightness(96%) contrast(91%);" class="w-5 h-5 desktop-icon align-middle" onerror="this.onerror=null; this.src='/static/core/img/trips.svg'">
+                    <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Trips" style="filter: brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(142deg) brightness(96%) contrast(91%);" class="mobile-icon hidden align-middle">
                         <div class="flex-1 justify-start text-blue-600 text-base font-medium leading-normal tracking-tight">Заезды</div>
                     </a>
                 {% if request.user.role != 'DRIVER' %}
@@ -730,10 +730,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             </div>
 
-            <!-- Карта с маршрутом -->
+            <!-- Заезды с маршрутом -->
             <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-[0px_16px_32px_-12px_rgba(88,92,95,0.10)]">
                 <div class="relative">
-                    <!-- Карта -->
+                    <!-- Заезды -->
                     <div id="trip-map" class="w-full h-80"></div>
                     
                     <!-- Кнопки управления картой -->

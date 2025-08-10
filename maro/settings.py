@@ -4,6 +4,17 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = 'django-insecure-your-secret-key-here'
+
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = True
+
+ALLOWED_HOSTS = ['*']
+
+# Custom user model
+AUTH_USER_MODEL = 'accounts.User'
+
 # Media files
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -28,6 +39,14 @@ ALLOWED_IMAGE_TYPES = [
 
 # Maximum file size (in bytes)
 MAX_UPLOAD_SIZE = 10 * 1024 * 1024  # 10MB
+
+# Database
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
 
 # Добавляем 'pwa' в INSTALLED_APPS
 INSTALLED_APPS = [

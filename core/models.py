@@ -338,9 +338,9 @@ class Trip(models.Model):
     requires_checklist = models.BooleanField(default=True, verbose_name='Требует чек-лист')
     
     # Транспорт и водитель
-    vehicle = models.ForeignKey('logistics.Vehicle', on_delete=models.CASCADE, related_name='trips', verbose_name='Фура')
+    vehicle = models.ForeignKey('logistics.Vehicle', on_delete=models.CASCADE, null=True, blank=True, related_name='trips', verbose_name='Фура')
     trailer = models.ForeignKey('logistics.Vehicle', on_delete=models.SET_NULL, null=True, blank=True, related_name='trailer_trips', verbose_name='Прицеп')
-    driver = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='trips', verbose_name='Водитель')
+    driver = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True, related_name='trips', verbose_name='Водитель')
     
     # Маршрут
     start_latitude = models.DecimalField(max_digits=9, decimal_places=6, verbose_name='Широта отправления')

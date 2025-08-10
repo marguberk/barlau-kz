@@ -2495,7 +2495,7 @@ def logout_view(request):
 
 
 class MapView(TemplateView):
-    template_name = 'core/map.html'
+    template_name = 'core/trips.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

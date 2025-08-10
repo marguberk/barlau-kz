@@ -18,20 +18,38 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
   List<Map<String, dynamic>> allEmployees = [];
   bool isLoading = true;
   bool isConnected = false;
+  bool _isLoadingEmployees = false; // Защита от множественных загрузок
 
   @override
   void initState() {
     super.initState();
-    _loadEmployees();
+    // Очищаем список сотрудников при инициализации
+    allEmployees = [];
+    
+    // Загружаем сотрудников только один раз при инициализации
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _loadEmployees();
+      }
+    });
   }
 
   Future<void> _loadEmployees() async {
     if (!mounted) return;
+    
+    // Защита от множественных загрузок
+    if (_isLoadingEmployees) {
+      print('Загрузка сотрудников уже выполняется, пропускаем...');
+      return;
+    }
+    
+    _isLoadingEmployees = true;
     setState(() {
       isLoading = true;
     });
 
-    // Получаем валидный токен с принудительным обновлением
+    try {
+      // Получаем валидный токен с принудительным обновлением
     String? token = await SafeApiService.getValidToken();
     
     // Если токен не получен, пытаемся принудительно обновить
@@ -42,10 +60,10 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
     
     print('DEBUG: Токен авторизации для сотрудников: ${token != null ? 'есть' : 'нет'}');
 
-    final urls = [
-      'http://localhost:8000/api/employees/',
-      'https://barlau.org/api/employees/',
-    ];
+          // Используем только продакшн URL для избежания дубликатов
+      final urls = [
+        'https://barlau.org/api/employees/',
+      ];
 
     for (String url in urls) {
       try {
@@ -87,21 +105,54 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
             print('DEBUG: Неизвестная структура данных');
           }
           
-          if (employees.isNotEmpty) {
+                      if (employees.isNotEmpty) {
+              // Убираем дубликаты по ID и имени
+              final Map<int, Map<String, dynamic>> uniqueEmployees = {};
+              final Set<String> seenNames = <String>{};
+              final Map<String, int> nameToId = <String, int>{};
+              
+              print('=== ДЕТАЛЬНАЯ ПРОВЕРКА СОТРУДНИКОВ ===');
+              for (final employee in employees) {
+                final id = employee['id'] as int?;
+                final firstName = employee['first_name'] ?? '';
+                final lastName = employee['last_name'] ?? '';
+                final fullName = '$firstName $lastName'.trim();
+                
+                print('Проверяем: ID=$id, Имя="$fullName"');
+                
+                if (id != null) {
+                  if (!uniqueEmployees.containsKey(id) && !seenNames.contains(fullName)) {
+                    uniqueEmployees[id] = employee;
+                    seenNames.add(fullName);
+                    nameToId[fullName] = id;
+                    print('  ✅ Добавлен: ID=$id, Имя="$fullName"');
+                  } else if (uniqueEmployees.containsKey(id)) {
+                    print('  ❌ ДУБЛИКАТ ID: ID=$id, Имя="$fullName"');
+                  } else if (seenNames.contains(fullName)) {
+                    final existingId = nameToId[fullName];
+                    print('  ❌ ДУБЛИКАТ ИМЕНИ: ID=$id, Имя="$fullName" (уже есть ID=$existingId)');
+                  }
+                } else {
+                  print('  ⚠️ Без ID: Имя="$fullName"');
+                }
+              }
+              
+              final deduplicatedEmployees = uniqueEmployees.values.toList();
+              print('=== РЕЗУЛЬТАТ ДЕДУПЛИКАЦИИ ===');
+              print('Было ${employees.length} сотрудников, стало ${deduplicatedEmployees.length} после дедупликации');
+              print('Уникальные имена: ${seenNames.toList()}');
+              print('================================');
+            
             // Маппим поля Django API в формат Flutter
-            employees = employees.map((employee) => _mapEmployeeFields(employee)).toList();
+            final mappedEmployees = deduplicatedEmployees.map((employee) => _mapEmployeeFields(employee)).toList();
             
-            setState(() {
-              allEmployees = employees;
-              isLoading = false;
-              isConnected = true;
-            });
-            print('Загружено ${allEmployees.length} сотрудников из базы данных');
-            
-            // Логируем данные первых 5 сотрудников для отладки
-            for (int i = 0; i < allEmployees.length && i < 5; i++) {
-              final emp = allEmployees[i];
-              print('DEBUG: Сотрудник ${i+1}: ID=${emp['id']}, Имя="${emp['first_name']} ${emp['last_name']}", Роль=${emp['role']}, Фото=${emp['photo']}');
+            if (mounted) {
+              setState(() {
+                allEmployees = mappedEmployees;
+                isLoading = false;
+                isConnected = true;
+              });
+              print('Загружено ${allEmployees.length} сотрудников из базы данных');
             }
             
             return;
@@ -116,159 +167,25 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
       }
     }
 
-    // Fallback на тестовые данные
-    print('Используются тестовые данные');
-    if (!mounted) return;
-    setState(() {
-      allEmployees = _getTestEmployees();
-      isLoading = false;
-      isConnected = false;
-    });
-  }
-
-  List<Map<String, dynamic>> _getTestEmployees() {
-    return [
-      {
-        'id': 1,
-        'first_name': 'Серик',
-        'last_name': 'Айдарбеков',
-        'role': 'DIRECTOR',
-        'phone': '+77757599686',
-        'date_joined': '2025-05-30T00:00:00Z',
-        'is_active': true,
-        'photo': 'https://barlau.org/media/employee_photos/1.png',
-        'position': 'Директор',
-        'bio': 'Опытный руководитель с более чем 15-летним стажем в логистической отрасли.',
-        'education': 'КазНУ им. аль-Фараби, экономический факультет',
-        'achievements': 'Развитие компании с 5 до 50+ сотрудников',
-      },
-      {
-        'id': 2,
-        'first_name': 'Юнус',
-        'last_name': 'Алиев',
-        'role': 'DRIVER',
-        'phone': '+7 (777) 159 03 06',
-        'date_joined': '2025-05-30T00:00:00Z',
-        'is_active': true,
-        'photo': 'https://barlau.org/media/employee_photos/2.png',
-        'position': 'Водитель',
-        'bio': 'Профессиональный водитель международных рейсов с безупречной репутацией.',
-        'education': 'Автотранспортный колледж',
-        'achievements': 'Более 500,000 км без аварий',
-      },
-      {
-        'id': 3,
-        'first_name': 'Айдана',
-        'last_name': 'Узакова',
-        'role': 'LOGIST',
-        'phone': '+77012345009',
-        'date_joined': '2025-05-30T00:00:00Z',
-        'is_active': true,
-        'photo': 'https://barlau.org/media/employee_photos/3.png',
-        'position': 'Логист / Офис-менеджер',
-        'bio': 'Специалист по планированию маршрутов и координации поставок.',
-        'education': 'КазЭУ им. Т. Рыскулова, логистика',
-        'achievements': 'Оптимизация маршрутов на 25%',
-      },
-      {
-        'id': 4,
-        'first_name': 'Муратжан',
-        'last_name': 'Илахунов',
-        'role': 'CONSULTANT',
-        'phone': '+77012345008',
-        'date_joined': '2025-05-30T00:00:00Z',
-        'is_active': true,
-        'photo': 'https://barlau.org/media/employee_photos/4.png',
-        'position': 'Внештатный консультант',
-        'bio': 'Консультант по развитию бизнеса и стратегическому планированию.',
-        'education': 'КИМЭП, MBA',
-        'achievements': 'Консультирование 20+ компаний',
-      },
-      {
-        'id': 5,
-        'first_name': 'Ерболат',
-        'last_name': 'Кудайбергенов',
-        'role': 'MANAGER',
-        'phone': '+77012345003',
-        'date_joined': '2025-05-30T00:00:00Z',
-        'is_active': true,
-        'photo': 'https://barlau.org/media/employee_photos/5.png',
-        'position': 'Менеджер',
-        'bio': 'Менеджер по работе с клиентами и развитию партнерских отношений.',
-        'education': 'АТУ, менеджмент',
-        'achievements': 'Привлечение 15+ новых клиентов',
-      },
-      {
-        'id': 6,
-        'first_name': 'Назерке',
-        'last_name': 'Садвакасова',
-        'role': 'ACCOUNTANT',
-        'phone': '+77012345004',
-        'date_joined': '2025-05-30T00:00:00Z',
-        'is_active': true,
-        'photo': 'https://barlau.org/media/employee_photos/6.png',
-        'position': 'Бухгалтер',
-        'bio': 'Главный бухгалтер с опытом ведения учета в транспортных компаниях.',
-        'education': 'КазЭУ, учет и аудит',
-        'achievements': 'Безупречная отчетность 5+ лет',
-      },
-      {
-        'id': 7,
-        'first_name': 'Максат',
-        'last_name': 'Кусайын',
-        'role': 'IT_MANAGER',
-        'phone': '+77012345005',
-        'date_joined': '2025-05-30T00:00:00Z',
-        'is_active': true,
-        'photo': 'https://barlau.org/media/employee_photos/7.png',
-        'position': 'IT-менеджер',
-        'bio': 'Руководитель IT-отдела, отвечает за цифровизацию процессов.',
-        'education': 'КазНТУ, информационные системы',
-        'achievements': 'Внедрение CRM и ERP систем',
-      },
-      {
-        'id': 8,
-        'first_name': 'Габит',
-        'last_name': 'Ахметов',
-        'role': 'SUPPLIER',
-        'phone': '+77012345006',
-        'date_joined': '2025-05-30T00:00:00Z',
-        'is_active': true,
-        'photo': 'https://barlau.org/media/employee_photos/8.png',
-        'position': 'Снабженец',
-        'bio': 'Специалист по закупкам и управлению складскими запасами.',
-        'education': 'Торгово-экономический институт',
-        'achievements': 'Снижение затрат на закупки на 20%',
-      },
-      {
-        'id': 9,
-        'first_name': 'Асет',
-        'last_name': 'Ільямов',
-        'role': 'TECH',
-        'phone': '+77012345007',
-        'date_joined': '2025-05-30T00:00:00Z',
-        'is_active': true,
-        'photo': 'https://barlau.org/media/employee_photos/9.png',
-        'position': 'Технический специалист',
-        'bio': 'Механик по обслуживанию и ремонту транспортных средств.',
-        'education': 'Автомеханический техникум',
-        'achievements': 'Сертификация по ремонту европейских грузовиков',
-      },
-      {
-        'id': 10,
-        'first_name': 'Асылбек',
-        'last_name': 'Нурланов',
-        'role': 'DRIVER',
-        'phone': '+77701234567',
-        'date_joined': '2025-05-30T00:00:00Z',
-        'is_active': true,
-        'photo': 'https://barlau.org/media/employee_photos/10.png',
-        'position': 'Водитель',
-        'bio': 'Опытный водитель дальних рейсов, специализация на международных перевозках.',
-        'education': 'Автошкола категории E',
-        'achievements': 'Водитель года 2023',
-      },
-    ];
+          // Если не удалось загрузить с сервера, оставляем пустой список
+      print('Не удалось загрузить сотрудников с сервера');
+      if (!mounted) return;
+      setState(() {
+        allEmployees = [];
+        isLoading = false;
+        isConnected = false;
+      });
+    } catch (e) {
+      print('Ошибка загрузки сотрудников: $e');
+      if (!mounted) return;
+      setState(() {
+        allEmployees = [];
+        isLoading = false;
+        isConnected = false;
+      });
+    } finally {
+      _isLoadingEmployees = false;
+    }
   }
 
   @override
@@ -310,6 +227,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
               : Padding(
                   padding: const EdgeInsets.all(16),
                   child: GridView.builder(
+                    key: ValueKey('employees_grid_${allEmployees.length}'),
                     gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 1,
                       childAspectRatio: 2.1,
@@ -352,9 +270,10 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
     final position = employee['position'] ?? '';
     final dateJoined = _formatDate(employee['date_joined']);
     final photoUrl = _getPhotoUrl(employee['photo'], employee['id']);
-    print('DEBUG UI: Сотрудник ${employee['id']} - "${employee['first_name']} ${employee['last_name']}" - роль: ${employee['role']} - фото URL: $photoUrl');
+    // Убираем debug print для уменьшения перерисовок
 
     return Container(
+      key: ValueKey('employee_card_${employee['id']}'),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),

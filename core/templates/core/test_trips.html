@@ -1,0 +1,174 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}Тест Заезды - BARLAU.KZ{% endblock %}
+
+{% block content %}
+<div class="w-full flex">
+    <!-- Боковая панель -->
+    <div class="w-64 h-screen bg-white border-r border-zinc-200 flex flex-col justify-start items-start fixed left-0 bottom-0 sidebar">
+        <div class="self-stretch px-5 py-6 relative flex flex-col justify-start items-start gap-2 sidebar-logo">
+            <div class="py-1 inline-flex justify-start items-center gap-2">
+                <img src="{% static 'core/img/logo.png' %}" alt="Barlau Logo" class="w-10 h-6">
+                <div class="text-center justify-start text-black text-2xl font-semibold leading-normal">Barlau.kz</div>
+            </div>
+        </div>
+        <div class="self-stretch flex-1 px-4 pt-2 pb-4 flex flex-col justify-start items-center gap-4 sidebar-menu">
+            <div class="self-stretch flex flex-col justify-start items-start gap-1">
+                <div class="self-stretch flex flex-col justify-start items-start">
+                    <a href="{% url 'core:home' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2">
+                        <img src="{% static 'core/img/home.svg' %}" alt="Home" class="w-5 h-5 desktop-icon align-middle">
+                        <img src="{% static 'core/img/mobile/home.svg' %}" alt="Home" class="mobile-icon hidden align-middle">
+                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Главная</div>
+                    </a>
+                    <a href="{% url 'core:tasks' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2">
+                        <img src="{% static 'core/img/check-square.svg' %}" alt="Tasks" class="w-5 h-5 desktop-icon align-middle">
+                        <img src="{% static 'core/img/mobile/check-square.svg' %}" alt="Tasks" class="mobile-icon hidden align-middle">
+                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Задачи</div>
+                    </a>
+                    <a href="{% url 'core:trips' %}" class="self-stretch px-3 py-3.5 bg-gray-50 rounded-lg inline-flex items-center gap-2 relative">
+                        <div class="w-1 h-6 left-0 top-[calc(50%-12px)] absolute bg-blue-600 rounded-tr-lg rounded-br-lg"></div>
+                        <img src="{% static 'core/img/location.svg' %}" alt="Trips" class="w-5 h-5 desktop-icon align-middle">
+                        <img src="{% static 'core/img/mobile/location.svg' %}" alt="Trips" class="mobile-icon hidden align-middle">
+                        <div class="flex-1 text-blue-600 text-base font-medium leading-normal tracking-tight">Заезды</div>
+                    </a>
+                    {% if request.user.role != 'DRIVER' %}
+                    <a href="{% url 'core:trucks' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2">
+                        <img src="{% static 'core/img/truck.svg' %}" alt="Trucks" class="w-5 h-5 desktop-icon align-middle">
+                        <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Trucks" class="mobile-icon hidden align-middle">
+                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Грузовики</div>
+                    </a>
+                    <a href="{% url 'core:employees' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2">
+                        <img src="{% static 'core/img/employee.svg' %}" alt="Employees" class="w-5 h-5 desktop-icon align-middle">
+                        <img src="{% static 'core/img/mobile/employee.svg' %}" alt="Employees" class="mobile-icon hidden align-middle">
+                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Сотрудники</div>
+                    </a>
+                    <a href="{% url 'core:expenses' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2">
+                        <img src="{% static 'core/img/expenses.svg' %}" alt="Expenses" class="w-5 h-5 desktop-icon align-middle" style="filter: brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(142deg) brightness(96%) contrast(91%);">
+                        <img src="{% static 'core/img/mobile/expenses.svg' %}" alt="Expenses" class="mobile-icon hidden align-middle" style="filter: brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(142deg) brightness(96%) contrast(91%);">
+                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Расходы</div>
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Основной контент -->
+    <div class="flex-1 ml-64">
+        <!-- Верхняя панель -->
+        <div class="w-full h-20 px-8 py-5 bg-white flex justify-between items-center border-b border-gray-200">
+            <div class="justify-start text-zinc-950 text-2xl font-semibold leading-loose">Тест Заезды</div>
+            <div class="flex justify-start items-center gap-3">
+                <div class="flex justify-start items-start gap-2">
+                    <a href="{% url 'core:notifications' %}" class="w-10 h-10 px-3 py-2 bg-white rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex justify-center items-center gap-1.5 relative">
+                        <img src="{% static 'core/img/bell.svg' %}" alt="Notifications" class="w-5 h-5">
+                        <span id="notif-badge" class="absolute -top-2 -right-2 bg-red-500 rounded-full border-2 border-white flex items-center justify-center font-bold shadow-lg transition-all duration-200" style="min-width: 1.4rem; min-height: 1.4rem; font-size: 0.85rem; color: #fff; padding: 0 0.3em; display: none; align-items: center; justify-content: center;"></span>
+                    </a>
+                </div>
+                <div class="flex justify-start items-center gap-1.5 relative">
+                    {% if request.user.is_authenticated %}
+                    <div class="relative group" id="user-menu">
+                        {% if request.user.photo %}
+                            <img class="w-8 h-8 rounded-full object-cover cursor-pointer" src="{{ request.user.photo.url }}" id="user-avatar" />
+                        {% else %}
+                            <img class="w-8 h-8 rounded-full object-cover cursor-pointer" src="{% static 'core/img/avatars/placeholder-ava.png' %}" id="user-avatar" />
+                        {% endif %}
+                        <div class="hidden group-hover:block absolute right-0 mt-2 w-44 bg-white border border-gray-200 rounded-lg shadow-lg z-50" id="user-dropdown">
+                            <a href="{% url 'core:profile' %}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Профиль</a>
+                            <a href="{% url 'core:custom-logout' %}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Выйти</a>
+                        </div>
+                    </div>
+                    {% else %}
+                        <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="p-8">
+            <div class="bg-white rounded-xl shadow-sm p-6">
+                <h2 class="text-xl font-semibold mb-4">Тест данных заездов</h2>
+                
+                <div id="trips-data" class="space-y-4">
+                    <div class="text-gray-500">Загрузка данных...</div>
+                </div>
+                
+                <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+                    <h3 class="font-medium mb-2">Отладочная информация:</h3>
+                    <div id="debug-info" class="text-sm text-gray-600"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 Тестовая страница заездов загружена');
+    
+    // Загружаем данные заездов
+    fetch('/api/trips/')
+        .then(response => {
+            console.log('📡 API ответ:', response.status);
+            return response.json();
+        })
+        .then(data => {
+            console.log('📊 Данные заездов:', data);
+            
+            const tripsContainer = document.getElementById('trips-data');
+            const debugInfo = document.getElementById('debug-info');
+            
+            if (data.results && data.results.length > 0) {
+                // Показываем активные заезды
+                const activeTrips = data.results.filter(trip => 
+                    trip.status === 'ACTIVE' || trip.status === 'PLANNED'
+                );
+                
+                const activeIds = activeTrips.map(trip => trip.id);
+                console.log('🎯 WEB ACTIVE TRIPS IDS:', activeIds.join(', '));
+                
+                tripsContainer.innerHTML = `
+                    <div class="text-green-600 font-medium">✅ Найдено ${activeTrips.length} активных заездов</div>
+                    <div class="text-sm text-gray-600">ID: ${activeIds.join(', ')}</div>
+                `;
+                
+                // Показываем детали каждого заезда
+                activeTrips.forEach(trip => {
+                    const tripDiv = document.createElement('div');
+                    tripDiv.className = 'border border-gray-200 rounded-lg p-4';
+                    tripDiv.innerHTML = `
+                        <div class="font-medium">Заезд ID ${trip.id}</div>
+                        <div class="text-sm text-gray-600">
+                            Статус: ${trip.status}<br>
+                            Маршрут: ${trip.start_address || 'N/A'} → ${trip.end_address || 'N/A'}<br>
+                            Грузовик: ${trip.vehicle_details?.number || 'N/A'}<br>
+                            Водитель: ${trip.driver_details?.first_name || 'N/A'}
+                        </div>
+                    `;
+                    tripsContainer.appendChild(tripDiv);
+                });
+                
+                debugInfo.innerHTML = `
+                    <div>✅ API работает корректно</div>
+                    <div>📊 Всего заездов: ${data.results.length}</div>
+                    <div>🎯 Активных заездов: ${activeTrips.length}</div>
+                    <div>🆔 ID активных: ${activeIds.join(', ')}</div>
+                `;
+            } else {
+                tripsContainer.innerHTML = '<div class="text-red-600">❌ Заезды не найдены</div>';
+                debugInfo.innerHTML = '<div class="text-red-600">❌ API не вернул данные</div>';
+            }
+        })
+        .catch(error => {
+            console.error('❌ Ошибка загрузки данных:', error);
+            document.getElementById('trips-data').innerHTML = '<div class="text-red-600">❌ Ошибка загрузки данных</div>';
+            document.getElementById('debug-info').innerHTML = `<div class="text-red-600">❌ Ошибка: ${error.message}</div>`;
+        });
+});
+</script>
+{% endblock %} 
