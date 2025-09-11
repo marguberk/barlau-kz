@@ -1,7 +1,7 @@
 {% extends "core/base.html" %}
 {% load static %}
 
-{% block title %}{{ trip.title }} | BARLAU.KZ{% endblock %}
+{% block title %}Заезд #{{ trip.id }} | BARLAU.KZ{% endblock %}
 
 <!-- Leaflet для интерактивной карты -->
 {% block extra_head %}
@@ -13,7 +13,7 @@
 {% endblock %}
 
 {% block content %}
-    <!-- Боковая панель - точная копия из dashboard.html -->
+    <!-- Боковая панель -->
     <div class="w-64 h-screen bg-white border-r border-zinc-200 flex flex-col justify-start items-start fixed left-0 bottom-0 sidebar">
         <div class="self-stretch px-5 py-6 relative flex flex-col justify-start items-start gap-2 sidebar-logo">
             <div class="py-1 inline-flex justify-start items-center gap-2">
@@ -36,8 +36,8 @@
                     </a>
                 <a href="{% url 'core:trips' %}" class="self-stretch px-3 py-3.5 bg-gray-50 rounded-lg inline-flex items-center gap-2 relative">
                         <div class="w-1 h-6 left-0 top-[calc(50%-12px)] absolute bg-blue-600 rounded-tr-lg rounded-br-lg"></div>
-                    <img src="{% static 'core/img/truck.svg' %}" alt="Trips" style="filter: brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(142deg) brightness(96%) contrast(91%);" class="w-5 h-5 desktop-icon align-middle" onerror="this.onerror=null; this.src='/static/core/img/trips.svg'">
-                    <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Trips" style="filter: brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(142deg) brightness(96%) contrast(91%);" class="mobile-icon hidden align-middle">
+                    <img src="{% static 'core/img/location.svg' %}" alt="Trips" class="w-5 h-5 desktop-icon align-middle">
+                    <img src="{% static 'core/img/mobile/location.svg' %}" alt="Trips" class="mobile-icon hidden align-middle">
                         <div class="flex-1 justify-start text-blue-600 text-base font-medium leading-normal tracking-tight">Заезды</div>
                     </a>
                 {% if request.user.role != 'DRIVER' %}
@@ -51,6 +51,11 @@
                     <img src="{% static 'core/img/mobile/employee.svg' %}" alt="Employees" class="mobile-icon hidden align-middle">
                         <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Сотрудники</div>
                     </a>
+                <a href="{% url 'core:expenses' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2">
+                    <img src="{% static 'core/img/expenses.svg' %}" alt="Expenses" class="w-5 h-5 desktop-icon align-middle" style="filter: brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(142deg) brightness(96%) contrast(91%);">
+                    <img src="{% static 'core/img/mobile/expenses.svg' %}" alt="Expenses" class="mobile-icon hidden align-middle" style="filter: brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(142deg) brightness(96%) contrast(91%);">
+                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Расходы</div>
+                    </a>
                 {% endif %}
                 </div>
             </div>
@@ -59,7 +64,7 @@
 
     <!-- Основной контент -->
     <div class="ml-64 flex-1 min-h-screen bg-gray-50 relative main-content">
-        <!-- Верхняя панель - точная копия из dashboard.html -->
+        <!-- Верхняя панель -->
         <div class="w-full h-20 px-8 py-5 bg-white flex justify-between items-center border-b border-gray-200">
             <div class="flex items-center gap-4">
                 <!-- Кнопка "Назад" -->
@@ -68,7 +73,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
                     </svg>
                 </a>
-                <div class="justify-start text-zinc-950 text-2xl font-semibold leading-loose">{{ trip.vehicle.number|default:'Без транспорта' }}{% if trip.vehicle %} • {{ trip.vehicle.brand }} {{ trip.vehicle.model }}{% endif %}</div>
+                <div class="justify-start text-zinc-950 text-2xl font-semibold leading-loose">Заезд #{{ trip.id }}</div>
             </div>
             <div class="flex justify-start items-center gap-3">
                 <!-- Статус -->
@@ -118,71 +123,100 @@
 
         <!-- Прокручиваемый контент -->
         <div class="p-8 space-y-6">
-            <!-- Основная информация -->
+            <!-- Основная информация - стиль как в Flutter -->
             <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow-[0px_2px_10px_rgba(0,0,0,0.05)]">
                 <div class="space-y-6">
-                    <!-- Информационная панель -->
+                    <!-- Заголовок с информацией о транспорте и водителе -->
+                    <div class="flex items-center justify-between">
+                        <div class="flex-1">
+                            <h1 class="text-xl font-bold text-gray-900">
+                                {% if trip.vehicle %}{{ trip.vehicle.number }} • {{ trip.vehicle.brand }} {{ trip.vehicle.model }}{% else %}Без транспорта{% endif %}
+                            </h1>
+                            {% if trip.driver %}
+                            <p class="text-sm font-medium text-gray-600 mt-1">
+                                Водитель: {{ trip.driver.get_full_name }}
+                            </p>
+                            {% endif %}
+                        </div>
+                        <!-- Статус -->
+                        <div class="flex items-center px-3 py-1.5 rounded-xl border"
+                             style="background-color: {% if trip.status == 'ACTIVE' %}#ECFDF5{% elif trip.status == 'COMPLETED' %}#F9FAFB{% elif trip.status == 'PLANNED' %}#EFF6FF{% else %}#F9FAFB{% endif %}; 
+                                    border-color: {% if trip.status == 'ACTIVE' %}#059669{% elif trip.status == 'COMPLETED' %}#6B7280{% elif trip.status == 'PLANNED' %}#2563EB{% else %}#6B7280{% endif %}33;">
+                            <div class="w-2 h-2 rounded-full mr-2" 
+                                 style="background-color: {% if trip.status == 'ACTIVE' %}#059669{% elif trip.status == 'COMPLETED' %}#6B7280{% elif trip.status == 'PLANNED' %}#2563EB{% else %}#6B7280{% endif %};"></div>
+                            <span class="text-sm font-semibold" 
+                                  style="color: {% if trip.status == 'ACTIVE' %}#059669{% elif trip.status == 'COMPLETED' %}#6B7280{% elif trip.status == 'PLANNED' %}#2563EB{% else %}#6B7280{% endif %};">
+                                {% if trip.status == 'ACTIVE' %}В пути
+                                {% elif trip.status == 'COMPLETED' %}Завершен
+                                {% elif trip.status == 'PLANNED' %}Запланирован
+                                {% else %}{{ trip.status }}{% endif %}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <!-- Информационная панель - стиль как в Flutter -->
                     <div class="bg-gray-50 rounded-xl border border-gray-200 p-4">
                         <div class="space-y-4">
-                            <div class="flex justify-between items-center">
-                                <span class="text-sm font-medium text-gray-700">Маршрут</span>
-                                <span class="text-sm font-semibold text-gray-900">{{ trip.start_address|default:'Откуда не указано' }} → {{ trip.end_address|default:'Куда не указано' }}</span>
+                            <div class="flex justify-between items-start">
+                                <span class="text-sm font-medium text-gray-700 w-32">Маршрут</span>
+                                <span class="text-sm font-semibold text-gray-900 flex-1 text-right">{{ trip.start_address|default:'Откуда не указано' }} → {{ trip.end_address|default:'Куда не указано' }}</span>
                             </div>
                             
-                            {% if trip.date %}
-                            <div class="flex justify-between items-center">
-                                <span class="text-sm font-medium text-gray-700">Дата отправления</span>
-                                <span class="text-sm font-semibold text-gray-900">{{ trip.date|date:'d.m.Y' }}</span>
+                            {% if trip.planned_start_date %}
+                            <div class="flex justify-between items-start">
+                                <span class="text-sm font-medium text-gray-700 w-32">Время отправления</span>
+                                <span class="text-sm font-semibold text-gray-900 flex-1 text-right">{{ trip.planned_start_date|date:'d.m.Y в H:i' }}</span>
                             </div>
                             {% endif %}
                             
                             {% if trip.cargo_type %}
-                            <div class="flex justify-between items-center">
-                                <span class="text-sm font-medium text-gray-700">Груз</span>
-                                <span class="text-sm font-semibold text-gray-900">{{ trip.cargo_type }}</span>
+                            <div class="flex justify-between items-start">
+                                <span class="text-sm font-medium text-gray-700 w-32">Груз</span>
+                                <span class="text-sm font-semibold text-gray-900 flex-1 text-right">{{ trip.cargo_type }}</span>
                             </div>
                             {% endif %}
                             
-                            {% if trip.cargo_weight or trip.cargo_volume %}
-                            <div class="flex justify-between items-center">
-                                <span class="text-sm font-medium text-gray-700">Характеристики</span>
-                                <span class="text-sm text-gray-600">
-                                    {% if trip.cargo_volume %}Объем: {{ trip.cargo_volume }} м³{% endif %}
-                                    {% if trip.cargo_weight and trip.cargo_volume %} • {% endif %}
-                                    {% if trip.cargo_weight %}Вес: {{ trip.cargo_weight|floatformat:0 }} кг{% endif %}
+                            {% if trip.cargo_weight %}
+                            <div class="flex justify-between items-start">
+                                <span class="text-sm font-medium text-gray-700 w-32"></span>
+                                <span class="text-sm text-gray-600 flex-1 text-right">Вес: {{ trip.cargo_weight|floatformat:0 }} кг</span>
+                            </div>
+                            {% endif %}
+                            
+                            {% if trip.freight_amount %}
+                            <div class="flex justify-between items-start">
+                                <span class="text-sm font-medium text-gray-700 w-32">Стоимость</span>
+                                <span class="text-sm font-semibold text-gray-900 flex-1 text-right">{{ trip.freight_amount|floatformat:0 }} тенге</span>
+                            </div>
+                            {% endif %}
+                            
+                            <div class="flex justify-between items-start">
+                                <span class="text-sm font-medium text-gray-700 w-32">Статус</span>
+                                <span class="text-sm font-semibold text-gray-900 flex-1 text-right">
+                                    {% if trip.status == 'ACTIVE' %}В пути
+                                    {% elif trip.status == 'COMPLETED' %}Завершен
+                                    {% elif trip.status == 'PLANNED' %}Запланирован
+                                    {% else %}{{ trip.status }}{% endif %}
                                 </span>
                             </div>
-                            {% endif %}
-                            
-                            {% if trip.border_crossing %}
-                            <div class="flex justify-between items-center">
-                                <span class="text-sm font-medium text-gray-700">Пункт пропуска</span>
-                                <span class="text-sm font-semibold text-gray-900">{{ trip.border_crossing }}</span>
-                            </div>
-                            {% endif %}
                         </div>
                     </div>
                     
-                    <!-- Прогресс для активных заездов -->
-                    {% if trip.status == 'ACTIVE' %}
+                    <!-- GPS информация для активных заездов -->
+                    {% if trip.status == 'ACTIVE' and gps_data.enabled and gps_data.last_update %}
                     <div class="bg-blue-50 border border-blue-100 rounded-xl p-4">
-                        <div class="flex items-center justify-between mb-3">
-                            <span class="text-sm font-semibold text-gray-700">Прогресс поездки</span>
-                            <span class="text-lg font-bold text-blue-600" id="progress-text">60%</span>
-                        </div>
-                        <div class="w-full bg-gray-200 rounded-full h-1.5">
-                            <div class="bg-blue-600 h-1.5 rounded-full transition-all duration-300" 
-                                 style="width: 60%" id="progress-bar"></div>
+                        <div class="text-xs text-gray-500">
+                            Последнее обновление GPS: {{ gps_data.last_update|date:'d.m.Y H:i'|default:gps_data.last_update }}
                         </div>
                     </div>
                     {% endif %}
                 </div>
             </div>
 
-            <!-- Заезды с маршрутом -->
+            <!-- Карта с маршрутом - стиль как в Flutter -->
             <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-[0px_16px_32px_-12px_rgba(88,92,95,0.10)]">
                 <div class="relative">
-                    <!-- Заезды -->
+                    <!-- Карта -->
                     <div id="trip-map" class="w-full h-80"></div>
                     
                     <!-- Кнопки управления картой -->
@@ -204,7 +238,7 @@
                 </div>
             </div>
 
-            <!-- Контакты -->
+            <!-- Контакты - стиль как в Flutter -->
             {% if trip.driver %}
             <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow-[0px_16px_32px_-12px_rgba(88,92,95,0.10)]">
                 <h3 class="text-lg font-bold text-gray-900 mb-4">Контакты</h3>
@@ -299,6 +333,7 @@ let mainMap = null;
 let fullscreenMap = null;
 let routeCoordinates = [];
 let currentPosition = null;
+let realRoutePoints = [];
 
 // Координаты городов Казахстана
 const cityCoordinates = {
@@ -351,7 +386,7 @@ function addMarkersAndRoute(map) {
     const [startLat, startLng] = routeCoordinates[0];
     const [endLat, endLng] = routeCoordinates[1];
     
-    // Начальная точка - синий круг
+    // Начальная точка - синий круг (стиль как в Flutter)
     const startIcon = L.divIcon({
         className: 'custom-marker',
         html: `<div class="w-5 h-5 bg-blue-600 rounded-full border-2 border-white shadow-lg flex items-center justify-center">
@@ -361,7 +396,7 @@ function addMarkersAndRoute(map) {
         iconAnchor: [10, 10]
     });
     
-    // Конечная точка - зеленый круг
+    // Конечная точка - зеленый круг (стиль как в Flutter)
     const endIcon = L.divIcon({
         className: 'custom-marker',
         html: `<div class="w-5 h-5 bg-green-400 rounded-full border-2 border-white shadow-lg flex items-center justify-center">
@@ -374,33 +409,57 @@ function addMarkersAndRoute(map) {
     L.marker([startLat, startLng], {icon: startIcon}).addTo(map);
     L.marker([endLat, endLng], {icon: endIcon}).addTo(map);
     
-    // Простая линия маршрута
-    L.polyline(routeCoordinates, {
+    // Простая линия маршрута (всегда отображаем)
+    const routeLine = L.polyline(routeCoordinates, {
         color: '#2563EB',
         weight: 6,
         opacity: 0.8
     }).addTo(map);
     
-    // Текущая позиция для активных заездов
+    console.log('Базовая линия маршрута добавлена:', routeCoordinates);
+    
+    // Текущая позиция для активных заездов (стиль как в Flutter)
     {% if trip.status == 'ACTIVE' %}
-    const progress = 0.6; // В реальности берется из базы данных
+    {% if gps_data.latitude and gps_data.longitude %}
+    // Используем реальные GPS координаты с правильной конвертацией
+    var gpsLat = parseFloat('{{ gps_data.latitude }}');
+    var gpsLng = parseFloat('{{ gps_data.longitude }}');
+    if (!isNaN(gpsLat) && !isNaN(gpsLng)) {
+        currentPosition = [gpsLat, gpsLng];
+        console.log('GPS позиция грузовика:', currentPosition);
+    } else {
+        console.error('❌ Неверные GPS координаты:', gpsLat, gpsLng);
+        // Fallback к вычисленной позиции
+        const progress = {% if trip_progress %}{{ trip_progress }}{% else %}75{% endif %} / 100;
+        const currentLat = startLat + (endLat - startLat) * progress;
+        const currentLng = startLng + (endLng - startLng) * progress;
+        currentPosition = [currentLat, currentLng];
+        console.log('Fallback позиция грузовика:', currentPosition);
+    }
+    {% else %}
+    // Fallback: вычисляем позицию на основе прогресса
+    const progress = {% if trip_progress %}{{ trip_progress }}{% else %}75{% endif %} / 100;
     const currentLat = startLat + (endLat - startLat) * progress;
     const currentLng = startLng + (endLng - startLng) * progress;
     currentPosition = [currentLat, currentLng];
+    console.log('Fallback позиция грузовика:', currentPosition);
+    {% endif %}
     
     const truckIcon = L.divIcon({
         className: 'custom-marker',
         html: `<div class="w-12 h-12 bg-blue-600 rounded-full border-4 border-white shadow-xl flex items-center justify-center">
-                 <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                   <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"></path>
-                   <path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7a1 1 0 00-1 1v6.05A2.5 2.5 0 0115.95 16H17a1 1 0 001-1V8a1 1 0 00-1-1h-3z"></path>
-                 </svg>
+                 <i data-lucide="truck" class="w-6 h-6 text-white"></i>
                </div>`,
         iconSize: [48, 48],
         iconAnchor: [24, 24]
     });
     
     L.marker(currentPosition, {icon: truckIcon}).addTo(map);
+    
+    // Инициализируем Lucide Icons
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
     {% endif %}
 }
 
@@ -410,59 +469,82 @@ async function loadRealRoute() {
         const [startLat, startLng] = routeCoordinates[0];
         const [endLat, endLng] = routeCoordinates[1];
         
+        console.log('Загружаем маршрут от', startLat, startLng, 'до', endLat, endLng);
+        
+        // Используем бесплатный API OpenRouteService
         const apiKey = '5b3ce3597851110001cf624837a2d1abb30640ba92c5c16d57e75087';
         const url = `https://api.openrouteservice.org/v2/directions/driving-car?api_key=${apiKey}&start=${startLng},${startLat}&end=${endLng},${endLat}`;
         
+        console.log('URL запроса:', url);
+        
         const response = await fetch(url);
+        console.log('Ответ API:', response.status, response.statusText);
+        
         if (response.ok) {
             const data = await response.json();
-            const coordinates = data.features[0].geometry.coordinates;
+            console.log('Данные маршрута:', data);
             
-            // Конвертируем координаты (OpenRouteService возвращает [lng, lat])
-            const routePoints = coordinates.map(coord => [coord[1], coord[0]]);
-            
-            // Удаляем старую простую линию и добавляем реальный маршрут
-            mainMap.eachLayer(layer => {
-                if (layer instanceof L.Polyline && !(layer instanceof L.Marker)) {
-                    mainMap.removeLayer(layer);
-                }
-            });
-            
-            // Добавляем реальный маршрут
-            L.polyline(routePoints, {
-                color: '#2563EB',
-                weight: 6,
-                opacity: 0.8
-            }).addTo(mainMap);
-            
-            // Если есть полноэкранная карта, обновляем и её
-            if (fullscreenMap) {
-                fullscreenMap.eachLayer(layer => {
+            if (data.features && data.features.length > 0) {
+                const coordinates = data.features[0].geometry.coordinates;
+                
+                // Конвертируем координаты (OpenRouteService возвращает [lng, lat])
+                realRoutePoints = coordinates.map(coord => [coord[1], coord[0]]);
+                console.log('Точки маршрута:', realRoutePoints.length);
+                
+                // Удаляем старую простую линию и добавляем реальный маршрут
+                mainMap.eachLayer(layer => {
                     if (layer instanceof L.Polyline && !(layer instanceof L.Marker)) {
-                        fullscreenMap.removeLayer(layer);
+                        mainMap.removeLayer(layer);
                     }
                 });
                 
-                L.polyline(routePoints, {
+                // Добавляем реальный маршрут
+                L.polyline(realRoutePoints, {
                     color: '#2563EB',
                     weight: 6,
                     opacity: 0.8
-                }).addTo(fullscreenMap);
+                }).addTo(mainMap);
+                
+                console.log('Реальный маршрут добавлен на карту');
+                
+                // Если есть полноэкранная карта, обновляем и её
+                if (fullscreenMap) {
+                    fullscreenMap.eachLayer(layer => {
+                        if (layer instanceof L.Polyline && !(layer instanceof L.Marker)) {
+                            fullscreenMap.removeLayer(layer);
+                        }
+                    });
+                    
+                    L.polyline(realRoutePoints, {
+                        color: '#2563EB',
+                        weight: 6,
+                        opacity: 0.8
+                    }).addTo(fullscreenMap);
+                }
+            } else {
+                console.warn('Нет данных о маршруте в ответе API');
+                // Оставляем простую линию маршрута
             }
+        } else {
+            console.error('Ошибка API:', response.status, response.statusText);
+            // Оставляем простую линию маршрута
         }
     } catch (error) {
         console.error('Ошибка загрузки реального маршрута:', error);
+        // Оставляем простую линию маршрута
     }
 }
 
 // Подгонка карты под маршрут
 function fitMapToRoute(map) {
-    if (routeCoordinates.length >= 2) {
+    const pointsToFit = realRoutePoints.length > 0 ? realRoutePoints : routeCoordinates;
+    if (pointsToFit.length >= 2) {
         const group = new L.featureGroup();
-        routeCoordinates.forEach(coord => {
+        pointsToFit.forEach(coord => {
             L.marker(coord).addTo(group);
         });
         map.fitBounds(group.getBounds().pad(0.1));
+        console.log('Карта подогнана под маршрут:', pointsToFit.length, 'точек');
     }
 }
 
@@ -532,579 +614,11 @@ document.addEventListener('DOMContentLoaded', function() {
     background: white;
 }
 
-/* Анимация для прогресс бара */
-@keyframes progressAnimation {
-    from { width: 0%; }
-    to { width: 60%; }
-}
-
-#progress-bar {
-    animation: progressAnimation 1s ease-out;
-}
+/* Стили для карты */
 
 /* Стили для полноэкранной карты */
 #fullscreen-modal {
     backdrop-filter: blur(4px);
 }
 </style>
-{% endblock %} 
-
-
-{% load static %}
-
-{% block title %}{{ trip.title }} | BARLAU.KZ{% endblock %}
-
-<!-- Leaflet для интерактивной карты -->
-{% block extra_head %}
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
-      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" 
-        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" crossorigin="anonymous" />
 {% endblock %}
-
-{% block content %}
-    <!-- Боковая панель - точная копия из dashboard.html -->
-    <div class="w-64 h-screen bg-white border-r border-zinc-200 flex flex-col justify-start items-start fixed left-0 bottom-0 sidebar">
-        <div class="self-stretch px-5 py-6 relative flex flex-col justify-start items-start gap-2 sidebar-logo">
-            <div class="py-1 inline-flex justify-start items-center gap-2">
-                <img src="{% static 'core/img/logo.png' %}" alt="Barlau Logo" class="w-10 h-6">
-                <div class="text-center justify-start text-black text-2xl font-semibold leading-normal">Barlau.kz</div>
-            </div>
-        </div>
-        <div class="self-stretch flex-1 px-4 pt-2 pb-4 flex flex-col justify-start items-center gap-4 sidebar-menu">
-            <div class="self-stretch flex flex-col justify-start items-start gap-1">
-                <div class="self-stretch flex flex-col justify-start items-start">
-                <a href="{% url 'core:home' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2">
-                    <img src="{% static 'core/img/home.svg' %}" alt="Home" class="w-5 h-5 desktop-icon">
-                    <img src="{% static 'core/img/mobile/home.svg' %}" alt="Home" class="mobile-icon hidden w-5 h-5">
-                    <div class="flex-1 text-gray-500 text-base font-medium leading-normal tracking-tight">Главная</div>
-                    </a>
-                <a href="{% url 'core:tasks' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2">
-                    <img src="{% static 'core/img/check-square.svg' %}" alt="Tasks" class="w-5 h-5 desktop-icon align-middle">
-                    <img src="{% static 'core/img/mobile/check-square.svg' %}" alt="Tasks" class="mobile-icon hidden align-middle">
-                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Задачи</div>
-                    </a>
-                <a href="{% url 'core:trips' %}" class="self-stretch px-3 py-3.5 bg-gray-50 rounded-lg inline-flex items-center gap-2 relative">
-                        <div class="w-1 h-6 left-0 top-[calc(50%-12px)] absolute bg-blue-600 rounded-tr-lg rounded-br-lg"></div>
-                    <img src="{% static 'core/img/truck.svg' %}" alt="Trips" style="filter: brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(142deg) brightness(96%) contrast(91%);" class="w-5 h-5 desktop-icon align-middle" onerror="this.onerror=null; this.src='/static/core/img/trips.svg'">
-                    <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Trips" style="filter: brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(142deg) brightness(96%) contrast(91%);" class="mobile-icon hidden align-middle">
-                        <div class="flex-1 justify-start text-blue-600 text-base font-medium leading-normal tracking-tight">Заезды</div>
-                    </a>
-                {% if request.user.role != 'DRIVER' %}
-                <a href="{% url 'core:trucks' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2">
-                    <img src="{% static 'core/img/truck.svg' %}" alt="Trucks" class="w-5 h-5 desktop-icon align-middle">
-                    <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Trucks" class="mobile-icon hidden align-middle">
-                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Грузовики</div>
-                    </a>
-                <a href="{% url 'core:employees' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2">
-                    <img src="{% static 'core/img/employee.svg' %}" alt="Employees" class="w-5 h-5 desktop-icon align-middle">
-                    <img src="{% static 'core/img/mobile/employee.svg' %}" alt="Employees" class="mobile-icon hidden align-middle">
-                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Сотрудники</div>
-                    </a>
-                {% endif %}
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Основной контент -->
-    <div class="ml-64 flex-1 min-h-screen bg-gray-50 relative main-content">
-        <!-- Верхняя панель - точная копия из dashboard.html -->
-        <div class="w-full h-20 px-8 py-5 bg-white flex justify-between items-center border-b border-gray-200">
-            <div class="flex items-center gap-4">
-                <!-- Кнопка "Назад" -->
-                <a href="{% url 'core:trips' %}" class="text-gray-500 hover:text-gray-700 transition-colors">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-                    </svg>
-                </a>
-                <div class="justify-start text-zinc-950 text-2xl font-semibold leading-loose">{{ trip.vehicle.number|default:'Без транспорта' }}{% if trip.vehicle %} • {{ trip.vehicle.brand }} {{ trip.vehicle.model }}{% endif %}</div>
-            </div>
-            <div class="flex justify-start items-center gap-3">
-                <!-- Статус -->
-                <div class="flex items-center px-3 py-1.5 rounded-xl border"
-                     style="background-color: {% if trip.status == 'ACTIVE' %}#ECFDF5{% elif trip.status == 'COMPLETED' %}#F9FAFB{% elif trip.status == 'PLANNED' %}#EFF6FF{% else %}#F9FAFB{% endif %}; 
-                            border-color: {% if trip.status == 'ACTIVE' %}#059669{% elif trip.status == 'COMPLETED' %}#6B7280{% elif trip.status == 'PLANNED' %}#2563EB{% else %}#6B7280{% endif %}33;">
-                    <div class="w-2 h-2 rounded-full mr-2" 
-                         style="background-color: {% if trip.status == 'ACTIVE' %}#059669{% elif trip.status == 'COMPLETED' %}#6B7280{% elif trip.status == 'PLANNED' %}#2563EB{% else %}#6B7280{% endif %};"></div>
-                    <span class="text-sm font-semibold" 
-                          style="color: {% if trip.status == 'ACTIVE' %}#059669{% elif trip.status == 'COMPLETED' %}#6B7280{% elif trip.status == 'PLANNED' %}#2563EB{% else %}#6B7280{% endif %};">
-                        {% if trip.status == 'ACTIVE' %}В пути
-                        {% elif trip.status == 'COMPLETED' %}Завершен
-                        {% elif trip.status == 'PLANNED' %}Запланирован
-                        {% else %}{{ trip.status }}{% endif %}
-                    </span>
-                </div>
-                
-                <div class="flex justify-start items-start gap-2">
-                <a href="{% url 'core:notifications' %}" class="w-10 h-10 px-3 py-2 bg-white rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex justify-center items-center gap-1.5 relative">
-                        <img src="{% static 'core/img/bell.svg' %}" alt="Notifications" class="w-5 h-5">
-                    <span id="notif-badge" class="absolute -top-2 -right-2 bg-red-500 rounded-full border-2 border-white flex items-center justify-center font-bold shadow-lg transition-all duration-200" style="min-width: 1.4rem; min-height: 1.4rem; font-size: 0.85rem; color: #fff; padding: 0 0.3em; display: none; align-items: center; justify-content: center;"></span>
-                    </a>
-                </div>
-            <div class="flex justify-start items-center gap-1.5 relative">
-                    {% if request.user.is_authenticated %}
-                    <div class="relative group" id="user-menu">
-                        {% if request.user.photo %}
-                            <img class="w-8 h-8 rounded-full object-cover cursor-pointer" src="{{ request.user.photo.url }}" id="user-avatar" />
-                        {% else %}
-                            <img class="w-8 h-8 rounded-full object-cover cursor-pointer" src="{% static 'core/img/avatars/placeholder-ava.png' %}" id="user-avatar" />
-                        {% endif %}
-                        <div class="hidden group-hover:block absolute right-0 mt-2 w-44 bg-white border border-gray-200 rounded-lg shadow-lg z-50" id="user-dropdown">
-                            <a href="{% url 'core:profile' %}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Профиль</a>
-                            <a href="{% url 'core:custom-logout' %}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Выйти</a>
-                        </div>
-                    </div>
-                    {% else %}
-                        <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
-                            </svg>
-                        </div>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-
-        <!-- Прокручиваемый контент -->
-        <div class="p-8 space-y-6">
-            <!-- Основная информация -->
-            <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow-[0px_2px_10px_rgba(0,0,0,0.05)]">
-                <div class="space-y-6">
-                    <!-- Информационная панель -->
-                    <div class="bg-gray-50 rounded-xl border border-gray-200 p-4">
-                        <div class="space-y-4">
-                            <div class="flex justify-between items-center">
-                                <span class="text-sm font-medium text-gray-700">Маршрут</span>
-                                <span class="text-sm font-semibold text-gray-900">{{ trip.start_address|default:'Откуда не указано' }} → {{ trip.end_address|default:'Куда не указано' }}</span>
-                            </div>
-                            
-                            {% if trip.date %}
-                            <div class="flex justify-between items-center">
-                                <span class="text-sm font-medium text-gray-700">Дата отправления</span>
-                                <span class="text-sm font-semibold text-gray-900">{{ trip.date|date:'d.m.Y' }}</span>
-                            </div>
-                            {% endif %}
-                            
-                            {% if trip.cargo_type %}
-                            <div class="flex justify-between items-center">
-                                <span class="text-sm font-medium text-gray-700">Груз</span>
-                                <span class="text-sm font-semibold text-gray-900">{{ trip.cargo_type }}</span>
-                            </div>
-                            {% endif %}
-                            
-                            {% if trip.cargo_weight or trip.cargo_volume %}
-                            <div class="flex justify-between items-center">
-                                <span class="text-sm font-medium text-gray-700">Характеристики</span>
-                                <span class="text-sm text-gray-600">
-                                    {% if trip.cargo_volume %}Объем: {{ trip.cargo_volume }} м³{% endif %}
-                                    {% if trip.cargo_weight and trip.cargo_volume %} • {% endif %}
-                                    {% if trip.cargo_weight %}Вес: {{ trip.cargo_weight|floatformat:0 }} кг{% endif %}
-                                </span>
-                            </div>
-                            {% endif %}
-                            
-                            {% if trip.border_crossing %}
-                            <div class="flex justify-between items-center">
-                                <span class="text-sm font-medium text-gray-700">Пункт пропуска</span>
-                                <span class="text-sm font-semibold text-gray-900">{{ trip.border_crossing }}</span>
-                            </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                    
-                    <!-- Прогресс для активных заездов -->
-                    {% if trip.status == 'ACTIVE' %}
-                    <div class="bg-blue-50 border border-blue-100 rounded-xl p-4">
-                        <div class="flex items-center justify-between mb-3">
-                            <span class="text-sm font-semibold text-gray-700">Прогресс поездки</span>
-                            <span class="text-lg font-bold text-blue-600" id="progress-text">60%</span>
-                        </div>
-                        <div class="w-full bg-gray-200 rounded-full h-1.5">
-                            <div class="bg-blue-600 h-1.5 rounded-full transition-all duration-300" 
-                                 style="width: 60%" id="progress-bar"></div>
-                        </div>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-
-            <!-- Заезды с маршрутом -->
-            <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-[0px_16px_32px_-12px_rgba(88,92,95,0.10)]">
-                <div class="relative">
-                    <!-- Заезды -->
-                    <div id="trip-map" class="w-full h-80"></div>
-                    
-                    <!-- Кнопки управления картой -->
-                    <div class="absolute top-3 left-3">
-                        <button onclick="centerMap()" class="bg-white p-2 rounded-lg shadow-md hover:shadow-lg transition-shadow">
-                            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                            </svg>
-                        </button>
-                    </div>
-                    
-                    <div class="absolute top-3 right-3">
-                        <button onclick="toggleFullscreen()" class="bg-white p-2 rounded-lg shadow-md hover:shadow-lg transition-shadow">
-                            <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Контакты -->
-            {% if trip.driver %}
-            <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow-[0px_16px_32px_-12px_rgba(88,92,95,0.10)]">
-                <h3 class="text-lg font-bold text-gray-900 mb-4">Контакты</h3>
-                
-                <!-- Водитель -->
-                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
-                    <div class="flex items-center space-x-4">
-                        <div class="bg-blue-100 p-3 rounded-xl">
-                            <svg class="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
-                            </svg>
-                        </div>
-                        <div>
-                            <h4 class="text-base font-semibold text-gray-900">{{ trip.driver.get_full_name }}</h4>
-                            {% if trip.driver.phone %}
-                            <p class="text-sm text-gray-600">{{ trip.driver.phone }}</p>
-                            {% endif %}
-                        </div>
-                    </div>
-                    
-                    {% if trip.driver.phone %}
-                    <a href="tel:{{ trip.driver.phone }}" class="bg-green-500 hover:bg-green-600 text-white p-3 rounded-xl transition-colors">
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"></path>
-                        </svg>
-                    </a>
-                    {% endif %}
-                </div>
-            </div>
-            {% endif %}
-
-            <!-- Дополнительная информация -->
-            {% if trip.notes or trip.freight_amount %}
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <!-- Финансовая информация -->
-                {% if trip.freight_amount %}
-                <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow-[0px_16px_32px_-12px_rgba(88,92,95,0.10)]">
-                    <h3 class="text-lg font-bold text-gray-900 mb-4">Финансовая информация</h3>
-                    <div class="space-y-3">
-                        <div class="flex justify-between">
-                            <span class="text-sm font-medium text-gray-700">Стоимость перевозки</span>
-                            <span class="text-sm font-semibold text-gray-900">{{ trip.freight_amount|floatformat:0 }} ₸</span>
-                        </div>
-                        {% if trip.freight_payment_type %}
-                        <div class="flex justify-between">
-                            <span class="text-sm font-medium text-gray-700">Тип оплаты</span>
-                            <span class="text-sm font-semibold text-gray-900">{{ trip.freight_payment_type }}</span>
-                        </div>
-                        {% endif %}
-                    </div>
-                </div>
-                {% endif %}
-                
-                <!-- Примечания -->
-                {% if trip.notes %}
-                <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow-[0px_16px_32px_-12px_rgba(88,92,95,0.10)]">
-                    <h3 class="text-lg font-bold text-gray-900 mb-4">Примечания</h3>
-                    <p class="text-gray-700 whitespace-pre-line">{{ trip.notes }}</p>
-                </div>
-                {% endif %}
-            </div>
-            {% endif %}
-        </div>
-    </div>
-</div>
-
-<!-- Полноэкранная карта (модальное окно) -->
-<div id="fullscreen-modal" class="fixed inset-0 z-50 hidden bg-black bg-opacity-50">
-    <div class="relative w-full h-full">
-        <!-- Кнопка закрытия -->
-        <button onclick="toggleFullscreen()" class="absolute top-4 left-4 z-10 bg-white p-3 rounded-xl shadow-lg hover:shadow-xl transition-shadow">
-            <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-            </svg>
-        </button>
-        
-        <!-- Информация о заезде -->
-        <div class="absolute bottom-8 left-4 right-4 z-10 bg-white rounded-2xl p-4 shadow-xl">
-            <h3 class="text-lg font-bold text-gray-900">Заезд #{{ trip.id }}</h3>
-            <p class="text-blue-600 font-semibold">{{ trip.start_address|default:'Откуда не указано' }} → {{ trip.end_address|default:'Куда не указано' }}</p>
-            <p class="text-sm text-gray-600">{{ trip.vehicle.number|default:'Без транспорта' }}{% if trip.driver %} • {{ trip.driver.get_full_name }}{% endif %}</p>
-        </div>
-        
-        <!-- Полноэкранная карта -->
-        <div id="fullscreen-map" class="w-full h-full"></div>
-    </div>
-</div>
-
-<script>
-// Глобальные переменные для карт
-let mainMap = null;
-let fullscreenMap = null;
-let routeCoordinates = [];
-let currentPosition = null;
-
-// Координаты городов Казахстана
-const cityCoordinates = {
-    'Алматы': [43.2220, 76.8512],
-    'Астана': [51.1694, 71.4491],
-    'Нур-Султан': [51.1694, 71.4491],
-    'Шымкент': [42.3000, 69.5900],
-    'Караганда': [49.8047, 73.1094],
-    'Тараз': [42.9000, 71.3667],
-    'Актобе': [50.2958, 57.1667],
-    'Павлодар': [52.2973, 76.9677],
-    'Усть-Каменогорск': [49.9486, 82.6105],
-    'Семей': [50.4119, 80.2275]
-};
-
-// Получение координат города
-function getCityCoordinates(cityName) {
-    return cityCoordinates[cityName] || [43.2220, 76.8512]; // По умолчанию Алматы
-}
-
-// Инициализация карты
-function initializeMap() {
-    const startCoords = getCityCoordinates('{{ trip.start_address|default:"Алматы" }}');
-    const endCoords = getCityCoordinates('{{ trip.end_address|default:"Астана" }}');
-    
-    routeCoordinates = [startCoords, endCoords];
-    
-    // Основная карта
-    mainMap = L.map('trip-map').setView(startCoords, 6);
-    
-    // Добавляем тайлы карты (тот же стиль что во Flutter)
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-        subdomains: 'abcd',
-        maxZoom: 19
-    }).addTo(mainMap);
-    
-    // Добавляем маркеры и маршрут
-    addMarkersAndRoute(mainMap);
-    
-    // Подгоняем вид карты под маршрут
-    fitMapToRoute(mainMap);
-    
-    // Загружаем реальный маршрут
-    loadRealRoute();
-}
-
-// Добавление маркеров и маршрута
-function addMarkersAndRoute(map) {
-    const [startLat, startLng] = routeCoordinates[0];
-    const [endLat, endLng] = routeCoordinates[1];
-    
-    // Начальная точка - синий круг
-    const startIcon = L.divIcon({
-        className: 'custom-marker',
-        html: `<div class="w-5 h-5 bg-blue-600 rounded-full border-2 border-white shadow-lg flex items-center justify-center">
-                 <div class="w-2 h-2 bg-white rounded-full"></div>
-               </div>`,
-        iconSize: [20, 20],
-        iconAnchor: [10, 10]
-    });
-    
-    // Конечная точка - зеленый круг
-    const endIcon = L.divIcon({
-        className: 'custom-marker',
-        html: `<div class="w-5 h-5 bg-green-400 rounded-full border-2 border-white shadow-lg flex items-center justify-center">
-                 <div class="w-2 h-2 bg-white rounded-full"></div>
-               </div>`,
-        iconSize: [20, 20],
-        iconAnchor: [10, 10]
-    });
-    
-    L.marker([startLat, startLng], {icon: startIcon}).addTo(map);
-    L.marker([endLat, endLng], {icon: endIcon}).addTo(map);
-    
-    // Простая линия маршрута
-    L.polyline(routeCoordinates, {
-        color: '#2563EB',
-        weight: 6,
-        opacity: 0.8
-    }).addTo(map);
-    
-    // Текущая позиция для активных заездов
-    {% if trip.status == 'ACTIVE' %}
-    const progress = 0.6; // В реальности берется из базы данных
-    const currentLat = startLat + (endLat - startLat) * progress;
-    const currentLng = startLng + (endLng - startLng) * progress;
-    currentPosition = [currentLat, currentLng];
-    
-    const truckIcon = L.divIcon({
-        className: 'custom-marker',
-        html: `<div class="w-12 h-12 bg-blue-600 rounded-full border-4 border-white shadow-xl flex items-center justify-center">
-                 <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                   <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"></path>
-                   <path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7a1 1 0 00-1 1v6.05A2.5 2.5 0 0115.95 16H17a1 1 0 001-1V8a1 1 0 00-1-1h-3z"></path>
-                 </svg>
-               </div>`,
-        iconSize: [48, 48],
-        iconAnchor: [24, 24]
-    });
-    
-    L.marker(currentPosition, {icon: truckIcon}).addTo(map);
-    {% endif %}
-}
-
-// Загрузка реального маршрута через OpenRouteService API
-async function loadRealRoute() {
-    try {
-        const [startLat, startLng] = routeCoordinates[0];
-        const [endLat, endLng] = routeCoordinates[1];
-        
-        const apiKey = '5b3ce3597851110001cf624837a2d1abb30640ba92c5c16d57e75087';
-        const url = `https://api.openrouteservice.org/v2/directions/driving-car?api_key=${apiKey}&start=${startLng},${startLat}&end=${endLng},${endLat}`;
-        
-        const response = await fetch(url);
-        if (response.ok) {
-            const data = await response.json();
-            const coordinates = data.features[0].geometry.coordinates;
-            
-            // Конвертируем координаты (OpenRouteService возвращает [lng, lat])
-            const routePoints = coordinates.map(coord => [coord[1], coord[0]]);
-            
-            // Удаляем старую простую линию и добавляем реальный маршрут
-            mainMap.eachLayer(layer => {
-                if (layer instanceof L.Polyline && !(layer instanceof L.Marker)) {
-                    mainMap.removeLayer(layer);
-                }
-            });
-            
-            // Добавляем реальный маршрут
-            L.polyline(routePoints, {
-                color: '#2563EB',
-                weight: 6,
-                opacity: 0.8
-            }).addTo(mainMap);
-            
-            // Если есть полноэкранная карта, обновляем и её
-            if (fullscreenMap) {
-                fullscreenMap.eachLayer(layer => {
-                    if (layer instanceof L.Polyline && !(layer instanceof L.Marker)) {
-                        fullscreenMap.removeLayer(layer);
-                    }
-                });
-                
-                L.polyline(routePoints, {
-                    color: '#2563EB',
-                    weight: 6,
-                    opacity: 0.8
-                }).addTo(fullscreenMap);
-            }
-        }
-    } catch (error) {
-        console.error('Ошибка загрузки реального маршрута:', error);
-    }
-}
-
-// Подгонка карты под маршрут
-function fitMapToRoute(map) {
-    if (routeCoordinates.length >= 2) {
-        const group = new L.featureGroup();
-        routeCoordinates.forEach(coord => {
-            L.marker(coord).addTo(group);
-        });
-        map.fitBounds(group.getBounds().pad(0.1));
-    }
-}
-
-// Центрирование карты
-function centerMap() {
-    fitMapToRoute(mainMap);
-}
-
-// Переключение полноэкранного режима
-function toggleFullscreen() {
-    const modal = document.getElementById('fullscreen-modal');
-    
-    if (modal.classList.contains('hidden')) {
-        // Открываем полноэкранный режим
-        modal.classList.remove('hidden');
-        
-        // Инициализируем полноэкранную карту
-        setTimeout(() => {
-            if (!fullscreenMap) {
-                fullscreenMap = L.map('fullscreen-map').setView(routeCoordinates[0], 6);
-                
-                L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-                    subdomains: 'abcd',
-                    maxZoom: 19
-                }).addTo(fullscreenMap);
-                
-                addMarkersAndRoute(fullscreenMap);
-                fitMapToRoute(fullscreenMap);
-            } else {
-                fullscreenMap.invalidateSize();
-                fitMapToRoute(fullscreenMap);
-            }
-        }, 100);
-    } else {
-        // Закрываем полноэкранный режим
-        modal.classList.add('hidden');
-    }
-}
-
-// Инициализация при загрузке страницы
-document.addEventListener('DOMContentLoaded', function() {
-    initializeMap();
-});
-</script>
-
-<style>
-/* Стили для кастомных маркеров */
-.custom-marker {
-    background: none;
-    border: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-/* Стили для карты */
-.leaflet-container {
-    font-family: inherit;
-}
-
-.leaflet-popup-content-wrapper {
-    border-radius: 12px;
-}
-
-.leaflet-popup-tip {
-    background: white;
-}
-
-/* Анимация для прогресс бара */
-@keyframes progressAnimation {
-    from { width: 0%; }
-    to { width: 60%; }
-}
-
-#progress-bar {
-    animation: progressAnimation 1s ease-out;
-}
-
-/* Стили для полноэкранной карты */
-#fullscreen-modal {
-    backdrop-filter: blur(4px);
-}
-</style>
-{% endblock %} 
-
-
-
-
-
-
-
-
-

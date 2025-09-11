@@ -5,6 +5,8 @@
 
 {% block extra_head %}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" crossorigin="anonymous" />
+<meta name="user-role" content="{{ request.user.role }}">
+<meta name="is-superuser" content="{{ request.user.is_superuser|yesno:'true,false' }}">
 <style>
     .trips-container {
         background: #F8FAFC;
@@ -150,17 +152,53 @@
     }
     
     .trip-card:hover {
-        border-color: #2679DB;
-        box-shadow: 0 4px 12px rgba(38, 121, 219, 0.1);
+        border-color: #D1D5DB;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
     
+    .trip-actions {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        display: flex;
+        gap: 4px;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+    }
+    
+    .trip-card:hover .trip-actions {
+        opacity: 1;
+    }
+    
+    .trip-action-btn {
+        width: 28px;
+        height: 28px;
+        border: none;
+        border-radius: 6px;
+        background: rgba(255, 255, 255, 0.9);
+        color: #6B7280;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        transition: all 0.2s ease;
+    }
+    
+    .trip-action-btn:hover {
+        background: #2679DB;
+        color: white;
+        transform: scale(1.1);
+    }
+    
+    /* Вариант 1: Цветные полосы (текущий) */
     .trip-status-indicator {
         position: absolute;
         left: 0;
-        top: 0;
-        bottom: 0;
+        top: 4px;
+        bottom: 4px;
         width: 4px;
-        border-radius: 2px;
+        border-radius: 16px 0 0 16px;
     }
     
     .trip-status-active {
@@ -175,11 +213,89 @@
         background: #2679DB;
     }
     
+    /* Вариант 2: Бейджи/теги */
+    .trip-status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .trip-status-badge-active {
+        background: #D1FAE5;
+        color: #065F46;
+    }
+    
+    .trip-status-badge-completed {
+        background: #F3F4F6;
+        color: #374151;
+    }
+    
+    .trip-status-badge-planned {
+        background: #DBEAFE;
+        color: #1E40AF;
+    }
+    
+    /* Вариант 3: Цветные точки */
+    .trip-status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 8px;
+    }
+    
+    .trip-status-dot-active {
+        background: #10B981;
+        box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+    }
+    
+    .trip-status-dot-completed {
+        background: #6B7280;
+        box-shadow: 0 0 0 2px rgba(107, 114, 128, 0.2);
+    }
+    
+    .trip-status-dot-planned {
+        background: #2679DB;
+        box-shadow: 0 0 0 2px rgba(38, 121, 219, 0.2);
+    }
+    
+    /* Вариант 4: Градиентные полосы */
+    .trip-status-gradient {
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        border-radius: 16px 0 0 16px;
+    }
+    
+    .trip-status-gradient-active {
+        background: linear-gradient(135deg, #10B981, #059669);
+    }
+    
+    .trip-status-gradient-completed {
+        background: linear-gradient(135deg, #6B7280, #4B5563);
+    }
+    
+    .trip-status-gradient-planned {
+        background: linear-gradient(135deg, #2679DB, #1D4ED8);
+    }
+    
     .trip-content {
         margin-left: 12px;
         display: flex;
         justify-content: space-between;
         align-items: center;
+    }
+    
+    /* Уменьшенный отступ для стиля с точками */
+    .trip-content.dot-style {
+        margin-left: 4px;
     }
     
     .trip-info {
@@ -463,6 +579,94 @@
     </div>
 </div>
 
+<!-- Модальное окно для создания заезда -->
+<div id="create-trip-modal" class="modal hidden">
+    <div class="modal-content large">
+        <div class="modal-header">
+            <h3>Создать новый заезд</h3>
+            <button type="button" class="close-btn" onclick="closeCreateTripModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form id="create-trip-form" class="space-y-4">
+                {% csrf_token %}
+                <!-- Статус -->
+                <div>
+                    <label for="trip-status" class="block text-sm font-medium text-gray-700 mb-1">Статус</label>
+                    <select id="trip-status" name="status"
+                            class="w-full px-4 py-3 bg-gray-50 border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white text-base">
+                        <option value="PLANNED">Запланирована</option>
+                        <option value="READY">Готова к отправке</option>
+                    </select>
+                </div>
+
+                <!-- Транспорт и водитель -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="trip-vehicle" class="block text-sm font-medium text-gray-700 mb-1">Грузовик *</label>
+                        <select id="trip-vehicle" name="vehicle" required
+                                class="w-full px-4 py-3 bg-gray-50 border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white text-base">
+                            <option value="">Выберите грузовик</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="trip-driver" class="block text-sm font-medium text-gray-700 mb-1">Водитель *</label>
+                        <select id="trip-driver" name="driver" required
+                                class="w-full px-4 py-3 bg-gray-50 border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white text-base">
+                            <option value="">Выберите водителя</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Маршрут -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="trip-start-address" class="block text-sm font-medium text-gray-700 mb-1">Адрес отправления *</label>
+                        <input type="text" id="trip-start-address" name="start_address" required
+                               class="w-full px-4 py-3 bg-gray-50 border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white text-base"
+                               placeholder="Адрес отправления">
+                    </div>
+                    <div>
+                        <label for="trip-end-address" class="block text-sm font-medium text-gray-700 mb-1">Адрес назначения *</label>
+                        <input type="text" id="trip-end-address" name="end_address" required
+                               class="w-full px-4 py-3 bg-gray-50 border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white text-base"
+                               placeholder="Адрес назначения">
+                    </div>
+                </div>
+
+                <!-- Дата начала -->
+                <div>
+                    <label for="trip-planned-start" class="block text-sm font-medium text-gray-700 mb-1">Планируемая дата начала *</label>
+                    <input type="datetime-local" id="trip-planned-start" name="planned_start_date" required
+                           class="w-full px-4 py-3 bg-gray-50 border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white text-base">
+                </div>
+
+                <!-- Примечания -->
+                <div>
+                    <label for="trip-notes" class="block text-sm font-medium text-gray-700 mb-1">Примечания</label>
+                    <textarea id="trip-notes" name="notes" rows="3"
+                              class="w-full px-4 py-3 bg-gray-50 border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white resize-none text-base"
+                              placeholder="Дополнительная информация..."></textarea>
+                </div>
+
+                <!-- Сообщение об ошибке/успехе -->
+                <div id="trip-form-message" class="hidden"></div>
+
+                <!-- Кнопки -->
+                <div class="flex justify-end gap-3 pt-4">
+                    <button type="button" onclick="closeCreateTripModal()" 
+                            class="px-6 py-3 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        Отмена
+                    </button>
+                    <button type="submit" id="create-trip-submit-btn"
+                            class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        Создать заезд
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <style>
 .modal {
     position: fixed;
@@ -640,7 +844,7 @@ function setupFilters() {
 // Загрузка заездов
 async function loadTrips() {
     try {
-        const response = await fetch('/api/trips/?page_size=100', {
+        const response = await fetch('/dashboard/simple-trips/', {
             headers: {
                 'X-CSRFToken': getCookie('csrftoken'),
             }
@@ -737,35 +941,76 @@ function createTripCard(trip) {
     const statusClass = getStatusClass(trip.status);
     const statusColor = getStatusColor(trip.status);
     const startDate = new Date(trip.planned_start_date);
-    const formattedDate = startDate.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' });
+    const formattedDate = isNaN(startDate.getTime()) ? 'Дата не указана' : startDate.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' });
+    
+    // Создаем HTML для статуса в зависимости от стиля
+    let statusHtml = '';
+    if (currentStatusStyle === 'badge') {
+        statusHtml = `<div class="trip-status-badge ${statusClass}">${getStatusLabel(trip.status)}</div>`;
+    } else if (currentStatusStyle === 'dot') {
+        statusHtml = `<div class="trip-status-dot ${statusClass}"></div>`;
+    } else {
+        statusHtml = `<div class="trip-status-${currentStatusStyle} ${statusClass}"></div>`;
+    }
     
     return `
         <div class="trip-card" onclick="showTripDetails(${trip.id})">
-            <div class="trip-status-indicator ${statusClass}"></div>
-            <div class="trip-content">
+            ${currentStatusStyle === 'badge' || currentStatusStyle === 'dot' ? '' : statusHtml}
+            <div class="trip-content ${currentStatusStyle === 'dot' ? 'dot-style' : ''}">
                 <div class="trip-info">
-                    <div class="trip-title">${trip.vehicle?.number || trip.vehicle_details?.number || 'Не указан'} • ${trip.driver?.first_name || trip.driver_details?.first_name || ''} ${trip.driver?.last_name || trip.driver_details?.last_name || ''}</div>
+                    <div class="trip-title">
+                        ${currentStatusStyle === 'dot' ? statusHtml : ''}
+                        ${trip.vehicle?.number || trip.vehicle_details?.number || 'Не указан'} • ${trip.driver?.first_name || trip.driver_details?.first_name || ''} ${trip.driver?.last_name || trip.driver_details?.last_name || ''}
+                    </div>
                     <div class="trip-route">${trip.start_address || ''} → ${trip.end_address || ''}</div>
                 </div>
-                <div class="trip-date">${formattedDate}</div>
+                <div class="trip-date">
+                    ${formattedDate}
+                    ${currentStatusStyle === 'badge' ? statusHtml : ''}
+                </div>
             </div>
         </div>
     `;
 }
 
+// Переменная для выбора стиля статуса
+let currentStatusStyle = 'dot'; // 'strip', 'badge', 'dot', 'gradient'
+
 // Получение класса статуса
 function getStatusClass(status) {
+    const baseClass = `trip-status-${currentStatusStyle}`;
     switch (status) {
         case 'ACTIVE':
-            return 'trip-status-active';
+            return `${baseClass}-active`;
         case 'COMPLETED':
-            return 'trip-status-completed';
+            return `${baseClass}-completed`;
         case 'PLANNED':
-            return 'trip-status-planned';
+            return `${baseClass}-planned`;
         default:
-            return 'trip-status-planned';
+            return `${baseClass}-planned`;
     }
 }
+
+function getStatusLabel(status) {
+    switch (status) {
+        case 'ACTIVE':
+            return 'В пути';
+        case 'COMPLETED':
+            return 'Завершена';
+        case 'PLANNED':
+            return 'Запланирована';
+        case 'PENDING_CHECKLIST':
+            return 'Ожидает чек-лист';
+        case 'READY':
+            return 'Готова к отправке';
+        case 'CANCELLED':
+            return 'Отменена';
+        default:
+            return 'Неизвестно';
+    }
+}
+
+// Функция для переключения стиля статуса (удалена - больше не используется)
 
 // Получение цвета статуса
 function getStatusColor(status) {
@@ -984,24 +1229,10 @@ function clearFilters() {
     }
 }
 
-// Показать детали заезда
-async function showTripDetails(tripId) {
-    try {
-        const response = await fetch(`/api/trips/${tripId}/`, {
-            headers: {
-                'X-CSRFToken': getCookie('csrftoken'),
-            }
-        });
-        
-        if (response.ok) {
-            const trip = await response.json();
-            showTripDetailsModal(trip);
-        } else {
-            console.error('Ошибка загрузки деталей заезда:', response.status);
-        }
-    } catch (error) {
-        console.error('Ошибка загрузки деталей заезда:', error);
-    }
+// Показать детали заезда - переход на отдельную страницу
+function showTripDetails(tripId) {
+    // Переходим на страницу деталей заезда
+    window.location.href = `/trips/${tripId}/`;
 }
 
 // Показать модальное окно с деталями заезда
@@ -1164,10 +1395,140 @@ document.addEventListener('click', function(event) {
         }
     });
 });
+
+    // Глобальные функции для создания заезда
+    window.openCreateTripForm = function() {
+        document.getElementById('create-trip-modal').classList.remove('hidden');
+        loadCreateTripData();
+        setDefaultDateTime();
+    };
+    
+    window.openCreateTripModal = function() {
+        document.getElementById('create-trip-modal').classList.remove('hidden');
+        loadCreateTripData();
+        setDefaultDateTime();
+    };
+
+window.closeCreateTripModal = function() {
+    document.getElementById('create-trip-modal').classList.add('hidden');
+    document.getElementById('create-trip-form').reset();
+    document.getElementById('trip-form-message').className = 'hidden';
+    setDefaultDateTime();
+};
+
+window.setDefaultDateTime = function() {
+    const now = new Date();
+    const localDateTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+    document.getElementById('trip-planned-start').value = localDateTime;
+};
+
+window.loadCreateTripData = async function() {
+    try {
+        // Загружаем водителей
+        const driversResponse = await fetch('/api/employees/');
+        if (driversResponse.ok) {
+            const driversData = await driversResponse.json();
+            const driverSelect = document.getElementById('trip-driver');
+            driverSelect.innerHTML = '<option value="">Выберите водителя</option>';
+            
+            driversData.results.forEach(driver => {
+                if (driver.role === 'DRIVER') {
+                    const option = document.createElement('option');
+                    option.value = driver.id;
+                    option.textContent = `${driver.first_name} ${driver.last_name}`;
+                    driverSelect.appendChild(option);
+                }
+            });
+        }
+
+        // Загружаем грузовики
+        const vehiclesResponse = await fetch('/api/vehicles/');
+        if (vehiclesResponse.ok) {
+            const vehiclesData = await vehiclesResponse.json();
+            const vehicleSelect = document.getElementById('trip-vehicle');
+            vehicleSelect.innerHTML = '<option value="">Выберите грузовик</option>';
+            
+            vehiclesData.results.forEach(vehicle => {
+                const option = document.createElement('option');
+                option.value = vehicle.id;
+                option.textContent = `${vehicle.number} (${vehicle.brand} ${vehicle.model})`;
+                vehicleSelect.appendChild(option);
+            });
+        }
+    } catch (error) {
+        console.error('Ошибка загрузки данных для создания заезда:', error);
+    }
+};
+
+// Обработчик отправки формы создания заезда
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('create-trip-form');
+    if (form) {
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(form);
+            const submitBtn = document.getElementById('create-trip-submit-btn');
+            const messageDiv = document.getElementById('trip-form-message');
+            const originalText = submitBtn.textContent;
+            
+            // Показываем загрузку
+            submitBtn.textContent = 'Создание...';
+            submitBtn.disabled = true;
+            messageDiv.className = 'hidden';
+            
+            try {
+                const response = await fetch('/trips/create/', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Показываем сообщение об успехе
+                    messageDiv.className = 'p-4 rounded-lg bg-green-100 text-green-800';
+                    messageDiv.textContent = data.message;
+                    
+                    // Очищаем форму
+                    form.reset();
+                    setDefaultDateTime();
+                    
+                    // Закрываем модальное окно через 2 секунды
+                    setTimeout(() => {
+                        closeCreateTripModal();
+                        // Обновляем список заездов
+                        loadTrips();
+                    }, 2000);
+                } else {
+                    throw new Error(data.message || 'Ошибка создания заезда');
+                }
+            } catch (error) {
+                console.error('Ошибка:', error);
+                messageDiv.className = 'p-4 rounded-lg bg-red-100 text-red-800';
+                messageDiv.textContent = 'Ошибка создания заезда: ' + error.message;
+            } finally {
+                // Восстанавливаем кнопку
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+            }
+        });
+    }
+});
 </script>
 
         </div>
     </div>
+    
+    <!-- Кнопка создания заезда -->
+    {% if request.user.role == 'ADMIN' or request.user.role == 'DISPATCHER' or request.user.role == 'TECHNICAL' or request.user.is_superuser %}
+    <button onclick="openCreateTripForm()" style="position: fixed; bottom: 24px; right: 24px; z-index: 50; padding: 12px 24px; background: #2563eb; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 500; cursor: pointer; box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2); display: inline-flex; align-items: center; min-width: 140px;">
+        <i class="fas fa-plus mr-2"></i>Создать заезд
+    </button>
+    {% endif %}
 </div>
 {% endblock %} 
         background: #2679DB;
@@ -1178,6 +1539,11 @@ document.addEventListener('click', function(event) {
         display: flex;
         justify-content: space-between;
         align-items: center;
+    }
+    
+    /* Уменьшенный отступ для стиля с точками */
+    .trip-content.dot-style {
+        margin-left: 4px;
     }
     
     .trip-info {
@@ -1634,7 +2000,7 @@ function setupFilters() {
 // Загрузка заездов
 async function loadTrips() {
     try {
-        const response = await fetch('/api/trips/?page_size=100', {
+        const response = await fetch('/dashboard/simple-trips/', {
             headers: {
                 'X-CSRFToken': getCookie('csrftoken'),
             }
@@ -1731,35 +2097,76 @@ function createTripCard(trip) {
     const statusClass = getStatusClass(trip.status);
     const statusColor = getStatusColor(trip.status);
     const startDate = new Date(trip.planned_start_date);
-    const formattedDate = startDate.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' });
+    const formattedDate = isNaN(startDate.getTime()) ? 'Дата не указана' : startDate.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' });
+    
+    // Создаем HTML для статуса в зависимости от стиля
+    let statusHtml = '';
+    if (currentStatusStyle === 'badge') {
+        statusHtml = `<div class="trip-status-badge ${statusClass}">${getStatusLabel(trip.status)}</div>`;
+    } else if (currentStatusStyle === 'dot') {
+        statusHtml = `<div class="trip-status-dot ${statusClass}"></div>`;
+    } else {
+        statusHtml = `<div class="trip-status-${currentStatusStyle} ${statusClass}"></div>`;
+    }
     
     return `
         <div class="trip-card" onclick="showTripDetails(${trip.id})">
-            <div class="trip-status-indicator ${statusClass}"></div>
-            <div class="trip-content">
+            ${currentStatusStyle === 'badge' || currentStatusStyle === 'dot' ? '' : statusHtml}
+            <div class="trip-content ${currentStatusStyle === 'dot' ? 'dot-style' : ''}">
                 <div class="trip-info">
-                    <div class="trip-title">${trip.vehicle?.number || trip.vehicle_details?.number || 'Не указан'} • ${trip.driver?.first_name || trip.driver_details?.first_name || ''} ${trip.driver?.last_name || trip.driver_details?.last_name || ''}</div>
+                    <div class="trip-title">
+                        ${currentStatusStyle === 'dot' ? statusHtml : ''}
+                        ${trip.vehicle?.number || trip.vehicle_details?.number || 'Не указан'} • ${trip.driver?.first_name || trip.driver_details?.first_name || ''} ${trip.driver?.last_name || trip.driver_details?.last_name || ''}
+                    </div>
                     <div class="trip-route">${trip.start_address || ''} → ${trip.end_address || ''}</div>
                 </div>
-                <div class="trip-date">${formattedDate}</div>
+                <div class="trip-date">
+                    ${formattedDate}
+                    ${currentStatusStyle === 'badge' ? statusHtml : ''}
+                </div>
             </div>
         </div>
     `;
 }
 
+// Переменная для выбора стиля статуса
+let currentStatusStyle = 'dot'; // 'strip', 'badge', 'dot', 'gradient'
+
 // Получение класса статуса
 function getStatusClass(status) {
+    const baseClass = `trip-status-${currentStatusStyle}`;
     switch (status) {
         case 'ACTIVE':
-            return 'trip-status-active';
+            return `${baseClass}-active`;
         case 'COMPLETED':
-            return 'trip-status-completed';
+            return `${baseClass}-completed`;
         case 'PLANNED':
-            return 'trip-status-planned';
+            return `${baseClass}-planned`;
         default:
-            return 'trip-status-planned';
+            return `${baseClass}-planned`;
     }
 }
+
+function getStatusLabel(status) {
+    switch (status) {
+        case 'ACTIVE':
+            return 'В пути';
+        case 'COMPLETED':
+            return 'Завершена';
+        case 'PLANNED':
+            return 'Запланирована';
+        case 'PENDING_CHECKLIST':
+            return 'Ожидает чек-лист';
+        case 'READY':
+            return 'Готова к отправке';
+        case 'CANCELLED':
+            return 'Отменена';
+        default:
+            return 'Неизвестно';
+    }
+}
+
+// Функция для переключения стиля статуса (удалена - больше не используется)
 
 // Получение цвета статуса
 function getStatusColor(status) {
@@ -1978,24 +2385,10 @@ function clearFilters() {
     }
 }
 
-// Показать детали заезда
-async function showTripDetails(tripId) {
-    try {
-        const response = await fetch(`/api/trips/${tripId}/`, {
-            headers: {
-                'X-CSRFToken': getCookie('csrftoken'),
-            }
-        });
-        
-        if (response.ok) {
-            const trip = await response.json();
-            showTripDetailsModal(trip);
-        } else {
-            console.error('Ошибка загрузки деталей заезда:', response.status);
-        }
-    } catch (error) {
-        console.error('Ошибка загрузки деталей заезда:', error);
-    }
+// Показать детали заезда - переход на отдельную страницу
+function showTripDetails(tripId) {
+    // Переходим на страницу деталей заезда
+    window.location.href = `/trips/${tripId}/`;
 }
 
 // Показать модальное окно с деталями заезда
@@ -2158,6 +2551,396 @@ document.addEventListener('click', function(event) {
         }
     });
 });
+
+// Функции для создания заезда
+function openCreateTripModal() {
+    document.getElementById('create-trip-modal').classList.remove('hidden');
+    loadCreateTripData();
+    setDefaultDateTime();
+}
+
+function closeCreateTripModal() {
+    document.getElementById('create-trip-modal').classList.add('hidden');
+    document.getElementById('create-trip-form').reset();
+}
+
+function setDefaultDateTime() {
+    const now = new Date();
+    const localDateTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+    document.getElementById('trip-planned-start').value = localDateTime;
+}
+
+async function loadCreateTripData() {
+    try {
+        // Загружаем водителей
+        const driversResponse = await fetch('/api/employees/');
+        if (driversResponse.ok) {
+            const driversData = await driversResponse.json();
+            const driverSelect = document.getElementById('trip-driver');
+            driverSelect.innerHTML = '<option value="">Выберите водителя</option>';
+            
+            driversData.results.forEach(driver => {
+                if (driver.role === 'DRIVER') {
+                    const option = document.createElement('option');
+                    option.value = driver.id;
+                    option.textContent = `${driver.first_name} ${driver.last_name}`;
+                    driverSelect.appendChild(option);
+                }
+            });
+        }
+
+        // Загружаем грузовики
+        const vehiclesResponse = await fetch('/api/vehicles/');
+        if (vehiclesResponse.ok) {
+            const vehiclesData = await vehiclesResponse.json();
+            const vehicleSelect = document.getElementById('trip-vehicle');
+            vehicleSelect.innerHTML = '<option value="">Выберите грузовик</option>';
+            
+            vehiclesData.results.forEach(vehicle => {
+                const option = document.createElement('option');
+                option.value = vehicle.id;
+                option.textContent = `${vehicle.number} (${vehicle.brand} ${vehicle.model})`;
+                vehicleSelect.appendChild(option);
+            });
+        }
+    } catch (error) {
+        console.error('Ошибка загрузки данных для создания заезда:', error);
+    }
+}
+
+// Обработчик отправки формы создания заезда
+console.log('Настраиваем обработчик формы создания заезда');
+const form = document.getElementById('create-trip-form');
+if (form) {
+    console.log('Форма найдена, добавляем обработчик');
+    form.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const submitBtn = document.getElementById('create-trip-submit-btn');
+    const originalText = submitBtn.textContent;
+    submitBtn.textContent = 'Создание...';
+    submitBtn.disabled = true;
+    
+    try {
+        const formData = new FormData(this);
+        const tripData = {};
+        
+        // Преобразуем FormData в объект
+        for (let [key, value] of formData.entries()) {
+            if (value !== '') {
+                tripData[key] = value;
+            }
+        }
+        
+        // Добавляем значения по умолчанию для координат
+        tripData.start_latitude = null;
+        tripData.start_longitude = null;
+        tripData.end_latitude = null;
+        tripData.end_longitude = null;
+        
+        console.log('Отправляемые данные:', tripData);
+        
+        console.log('Отправляем запрос на /api/trips/');
+        const response = await fetch('/api/trips/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify(tripData)
+        });
+        
+        console.log('Ответ сервера:', response.status, response.statusText);
+        
+        if (response.ok) {
+            const newTrip = await response.json();
+            console.log('Заезд создан:', newTrip);
+            
+            // Закрываем модальное окно
+            closeCreateTripModal();
+            
+            // Обновляем данные на странице
+            await loadTrips();
+            
+            // Показываем уведомление об успехе
+            alert('Заезд успешно создан!');
+        } else {
+            const errorData = await response.json();
+            console.error('Ошибка создания заезда:', errorData);
+            alert(`Ошибка создания заезда: ${errorData.detail || 'Неизвестная ошибка'}`);
+        }
+    } catch (error) {
+        console.error('Ошибка при создании заезда:', error);
+        alert('Ошибка при создании заезда. Проверьте подключение к интернету.');
+    } finally {
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
+    }
+    });
+} else {
+    console.log('Форма не найдена!');
+}
+
+// Добавляем кнопку создания заезда в DOM после загрузки страницы
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOMContentLoaded вызван');
+    
+    // Проверяем роль пользователя через мета-тег
+    const userRole = document.querySelector('meta[name="user-role"]')?.getAttribute('content');
+    const isSuperuser = document.querySelector('meta[name="is-superuser"]')?.getAttribute('content') === 'true';
+    
+    console.log('Роль пользователя:', userRole);
+    console.log('Суперпользователь:', isSuperuser);
+    
+    if (userRole === 'ADMIN' || userRole === 'DISPATCHER' || userRole === 'TECHNICAL' || isSuperuser) {
+        console.log('Создаем кнопку создания заезда');
+        
+        const createButton = document.createElement('button');
+        createButton.onclick = openCreateTripModal;
+        createButton.className = 'create-task-button';
+        createButton.innerHTML = '<i class="fas fa-plus mr-2"></i>Создать заезд';
+        createButton.style.cssText = 'display: inline-flex; align-items: center; justify-content: center; padding: 12px 24px; background: #2563eb; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 500; cursor: pointer; transition: all 0.2s ease-in-out; box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2); min-width: 140px; position: fixed; bottom: 24px; right: 24px; z-index: 50;';
+        
+        createButton.addEventListener('mouseenter', function() {
+            this.style.background = '#1d4ed8';
+            this.style.boxShadow = '0 4px 8px rgba(37, 99, 235, 0.3)';
+            this.style.transform = 'translateY(-1px)';
+        });
+        
+        createButton.addEventListener('mouseleave', function() {
+            this.style.background = '#2563eb';
+            this.style.boxShadow = '0 2px 4px rgba(37, 99, 235, 0.2)';
+            this.style.transform = 'translateY(0)';
+        });
+        
+        document.body.appendChild(createButton);
+        console.log('Кнопка добавлена в DOM');
+    } else {
+        console.log('Пользователь не имеет прав для создания заездов');
+    }
+});
+
+// Функции редактирования заездов
+function editTripStatus(tripId, currentStatus) {
+    const newStatus = prompt('Выберите новый статус:\n1. PLANNED - Запланирована\n2. READY - Готова к отправке\n3. ACTIVE - Активна\n4. COMPLETED - Завершена', currentStatus);
+    
+    if (newStatus && newStatus !== currentStatus) {
+        updateTripStatus(tripId, newStatus);
+    }
+}
+
+function editTripFreight(tripId) {
+    const freight = prompt('Введите сумму фрахта (тенге):', '');
+    
+    if (freight && !isNaN(freight)) {
+        updateTripFreight(tripId, parseFloat(freight));
+    }
+}
+
+function editTripDate(tripId) {
+    const newDate = prompt('Введите новую дату (ГГГГ-ММ-ДД ЧЧ:ММ):', '');
+    
+    if (newDate) {
+        updateTripDate(tripId, newDate);
+    }
+}
+
+async function updateTripStatus(tripId, status) {
+    try {
+        const response = await fetch(`/api/trips/${tripId}/`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: JSON.stringify({ status: status })
+        });
+        
+        if (response.ok) {
+            showToastNotification('Success', 'Статус заезда обновлен!');
+            loadTrips(); // Перезагружаем список
+        } else {
+            showToastNotification('Error', 'Ошибка обновления статуса');
+        }
+    } catch (error) {
+        console.error('Ошибка:', error);
+        showToastNotification('Error', 'Ошибка обновления статуса');
+    }
+}
+
+async function updateTripFreight(tripId, freight) {
+    try {
+        const response = await fetch(`/api/trips/${tripId}/`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: JSON.stringify({ freight_amount: freight })
+        });
+        
+        if (response.ok) {
+            showToastNotification('Success', 'Фрахт обновлен!');
+            loadTrips(); // Перезагружаем список
+        } else {
+            showToastNotification('Error', 'Ошибка обновления фрахта');
+        }
+    } catch (error) {
+        console.error('Ошибка:', error);
+        showToastNotification('Error', 'Ошибка обновления фрахта');
+    }
+}
+
+async function updateTripDate(tripId, newDate) {
+    try {
+        const response = await fetch(`/api/trips/${tripId}/`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: JSON.stringify({ planned_start_date: newDate })
+        });
+        
+        if (response.ok) {
+            showToastNotification('Success', 'Дата заезда обновлена!');
+            loadTrips(); // Перезагружаем список
+        } else {
+            showToastNotification('Error', 'Ошибка обновления даты');
+        }
+    } catch (error) {
+        console.error('Ошибка:', error);
+        showToastNotification('Error', 'Ошибка обновления даты');
+    }
+}
+
+// Новая функция создания карточки заезда с кнопками редактирования
+function createTripCardWithActions(trip) {
+    const statusInfo = getStatusInfo(trip.status);
+    const startDate = new Date(trip.planned_start_date);
+    const formattedDate = isNaN(startDate.getTime()) ? 'Дата не указана' : startDate.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' });
+    const formattedTime = isNaN(startDate.getTime()) ? 'Время не указано' : startDate.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+    
+    // Получаем информацию о транспорте и водителе
+    const vehicleNumber = trip.vehicle?.number || trip.vehicle_details?.number || 'Не указан';
+    const vehicleModel = trip.vehicle?.model || trip.vehicle_details?.model || '';
+    const driverName = `${trip.driver?.first_name || trip.driver_details?.first_name || ''} ${trip.driver?.last_name || trip.driver_details?.last_name || ''}`.trim() || 'Водитель не назначен';
+    
+    // Сокращаем адреса для отображения
+    function shortAddr(addr) {
+        if (!addr) return '';
+        let parts = addr.split(',');
+        let city = parts[0].trim();
+        if (city.match(/\d/)) city = (parts[1]||'').trim();
+        return city;
+    }
+    const startCity = shortAddr(trip.start_address);
+    const endCity = shortAddr(trip.end_address);
+    const route = (startCity && endCity) ? `${startCity} — ${endCity}` : (trip.start_address || '') + ' → ' + (trip.end_address || '');
+    
+    return `
+        <div class="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer group trip-card-modern" onclick="showTripDetails(${trip.id})">
+            <!-- Заголовок карточки -->
+            <div class="p-6 border-b border-gray-100">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-lg bg-blue-600 flex items-center justify-center">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-gray-900 text-lg">${vehicleNumber}</h3>
+                            <p class="text-sm text-gray-500">${vehicleModel} • ${driverName}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${statusInfo.bgClass} ${statusInfo.textClass}">
+                        ${statusInfo.label}
+                    </div>
+                </div>
+                
+                <!-- Маршрут -->
+                <div class="flex items-center gap-2 text-sm text-gray-600 mb-2">
+                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
+                    <span class="font-medium">${route}</span>
+                </div>
+                
+                <!-- Дата и время -->
+                <div class="flex items-center gap-2 text-sm text-gray-500">
+                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span>${formattedDate} в ${formattedTime}</span>
+                </div>
+            </div>
+            
+            <!-- Кнопки действий -->
+            <div class="p-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                <button onclick="event.stopPropagation(); editTripStatus(${trip.id}, '${trip.status}')" 
+                        class="flex-1 inline-flex items-center justify-center gap-2 px-3 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                    </svg>
+                    Статус
+                </button>
+                <button onclick="event.stopPropagation(); editTripFreight(${trip.id})" 
+                        class="flex-1 inline-flex items-center justify-center gap-2 px-3 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                    </svg>
+                    Фрахт
+                </button>
+                <button onclick="event.stopPropagation(); editTripDate(${trip.id})" 
+                        class="flex-1 inline-flex items-center justify-center gap-2 px-3 py-2 bg-orange-600 text-white text-sm font-medium rounded-lg hover:bg-orange-700 transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                    Дата
+                </button>
+            </div>
+        </div>
+    `;
+}
+
+// Получение информации о статусе для отображения
+function getStatusInfo(status) {
+    switch (status) {
+        case 'ACTIVE':
+            return {
+                label: 'Активна',
+                bgClass: 'bg-green-100',
+                textClass: 'text-green-800'
+            };
+        case 'COMPLETED':
+            return {
+                label: 'Завершена',
+                bgClass: 'bg-gray-100',
+                textClass: 'text-gray-800'
+            };
+        case 'PLANNED':
+            return {
+                label: 'Запланирована',
+                bgClass: 'bg-blue-100',
+                textClass: 'text-blue-800'
+            };
+        case 'READY':
+            return {
+                label: 'Готова',
+                bgClass: 'bg-yellow-100',
+                textClass: 'text-yellow-800'
+            };
+        default:
+            return {
+                label: 'Неизвестно',
+                bgClass: 'bg-gray-100',
+                textClass: 'text-gray-800'
+            };
+    }
+}
 </script>
 
         </div>

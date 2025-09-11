@@ -1,0 +1,369 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}{{ vehicle.number }} - Детали грузовика{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script>
+// Проверяем загрузку Leaflet CSS
+document.addEventListener('DOMContentLoaded', function() {
+    var leafletCSS = document.querySelector('link[href*="leaflet"]');
+    if (!leafletCSS) {
+        console.error('❌ Leaflet CSS не найден');
+    }
+});
+</script>
+<style>
+    body {
+        background-color: #f5f5f5;
+    }
+    
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .vehicle-header {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .tabs {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+    
+    .tab-nav {
+        display: flex;
+        border-bottom: 1px solid #e5e5e5;
+    }
+    
+    .tab-btn {
+        flex: 1;
+        padding: 15px 20px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-weight: 600;
+        color: #666;
+        transition: all 0.3s;
+    }
+    
+    .tab-btn.active {
+        color: #2679DB;
+        border-bottom: 3px solid #2679DB;
+        background: #f8f9ff;
+    }
+    
+    .tab-content {
+        padding: 20px;
+        min-height: 400px;
+    }
+    
+    .tab-pane {
+        display: none;
+    }
+    
+    .tab-pane.active {
+        display: block;
+    }
+    
+    #map {
+        width: 100% !important;
+        height: 400px !important;
+        border-radius: 8px;
+        background-color: #f0f0f0;
+        border: 1px solid #ddd;
+    }
+    
+    .info-item {
+        margin-bottom: 10px;
+        padding: 10px;
+        background: #f8f9fa;
+        border-radius: 6px;
+    }
+    
+    .trip-card {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 15px;
+        border-left: 4px solid #2679DB;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="w-full flex">
+    <!-- Боковая панель -->
+    <div class="w-64 h-screen bg-white border-r border-zinc-200 flex flex-col justify-start items-start fixed left-0 bottom-0 sidebar">
+        <div class="self-stretch px-5 py-6 relative flex flex-col justify-start items-start gap-2 sidebar-logo">
+            <div class="py-1 inline-flex justify-start items-center gap-2">
+                <img src="{% static 'core/img/logo.png' %}" alt="Barlau Logo" class="w-10 h-6">
+                <div class="text-center justify-start text-black text-2xl font-semibold leading-normal">Barlau.kz</div>
+            </div>
+        </div>
+        <div class="self-stretch flex-1 px-4 pt-2 pb-4 flex flex-col justify-start items-center gap-4 sidebar-menu">
+            <div class="self-stretch flex flex-col justify-start items-start gap-1">
+                <div class="self-stretch flex flex-col justify-start items-start">
+                    <a href="{% url 'core:home' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2 relative">
+                        <img src="{% static 'core/img/home.svg' %}" alt="Home" class="w-5 h-5 desktop-icon align-middle">
+                        <img src="{% static 'core/img/mobile/home.svg' %}" alt="Home" class="mobile-icon hidden align-middle">
+                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Главная</div>
+                    </a>
+                    <a href="{% url 'core:tasks' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2">
+                        <img src="{% static 'core/img/check-square.svg' %}" alt="Tasks" class="w-5 h-5 desktop-icon align-middle">
+                        <img src="{% static 'core/img/mobile/check-square.svg' %}" alt="Tasks" class="mobile-icon hidden align-middle">
+                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Задачи</div>
+                    </a>
+                    <a href="{% url 'core:trips' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2">
+                        <img src="{% static 'core/img/location.svg' %}?v={% now 'U' %}" alt="Trips" class="w-5 h-5 desktop-icon align-middle" onerror="this.onerror=null; this.src='/static/core/img/location.svg'">
+                        <img src="{% static 'core/img/mobile/location.svg' %}" alt="Trips" class="mobile-icon hidden align-middle">
+                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Заезды</div>
+                    </a>
+                    <a href="{% url 'core:trucks' %}" class="self-stretch px-3 py-3.5 bg-gray-50 rounded-lg inline-flex items-center gap-2 relative">
+                        <div class="w-1 h-6 left-0 top-[calc(50%-12px)] absolute bg-blue-600 rounded-tr-lg rounded-br-lg"></div>
+                        <img src="{% static 'core/img/truck.svg' %}" alt="Vehicles" class="w-5 h-5 desktop-icon">
+                        <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Vehicles" class="mobile-icon hidden w-5 h-5">
+                        <div class="flex-1 text-blue-600 text-base font-medium leading-normal tracking-tight">Грузовики</div>
+                    </a>
+                    <a href="{% url 'core:employees' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2">
+                        <img src="{% static 'core/img/employee.svg' %}" alt="Employees" class="w-5 h-5 desktop-icon align-middle">
+                        <img src="{% static 'core/img/mobile/employee.svg' %}" alt="Employees" class="mobile-icon hidden align-middle">
+                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Сотрудники</div>
+                    </a>
+                    <a href="{% url 'core:expenses' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2">
+                        <img src="{% static 'core/img/expenses.svg' %}" alt="Expenses" class="w-5 h-5 desktop-icon align-middle" style="filter: brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(142deg) brightness(96%) contrast(91%);">
+                        <img src="{% static 'core/img/mobile/expenses.svg' %}" alt="Expenses" class="mobile-icon hidden align-middle" style="filter: brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(142deg) brightness(96%) contrast(91%);">
+                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Расходы</div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Основной контент -->
+    <div class="flex-1 ml-64 main-content">
+        <div class="container">
+    <!-- Заголовок -->
+    <div class="vehicle-header">
+        <h1 style="font-size: 24px; font-weight: bold; color: #333; margin: 0;">
+            Грузовик {{ vehicle.number }}
+        </h1>
+        <p style="color: #666; margin: 5px 0 0 0;">
+            {{ vehicle.make }} {{ vehicle.model }} ({{ vehicle.year }})
+        </p>
+    </div>
+
+    <!-- Вкладки -->
+    <div class="tabs">
+        <div class="tab-nav">
+            <button class="tab-btn active" onclick="showTab(event, 'main')">Основное</button>
+            <button class="tab-btn" onclick="showTab(event, 'docs')">Документы</button>
+            <button class="tab-btn" onclick="showTab(event, 'trips')">Заезды</button>
+        </div>
+        
+        <div class="tab-content">
+            <!-- Основная информация -->
+            <div id="main" class="tab-pane active">
+                <h3 style="margin-bottom: 20px; color: #333;">Основная информация</h3>
+                
+                <div class="info-item">
+                    <strong>Номер:</strong> {{ vehicle.number }}
+                </div>
+                <div class="info-item">
+                    <strong>Марка:</strong> {{ vehicle.make }}
+                </div>
+                <div class="info-item">
+                    <strong>Модель:</strong> {{ vehicle.model }}
+                </div>
+                <div class="info-item">
+                    <strong>Год выпуска:</strong> {{ vehicle.year }}
+                </div>
+                
+                {% if gps_data %}
+                <h3 style="margin: 30px 0 20px 0; color: #333;">Текущее местоположение</h3>
+                <div id="map"></div>
+                <div style="margin-top: 10px; color: #666; font-size: 14px;">
+                    Последнее обновление: {{ gps_data.last_update|default:"Нет данных" }}
+                </div>
+                {% else %}
+                <div style="margin-top: 20px; padding: 20px; background: #fff3cd; border-radius: 8px; color: #856404;">
+                    GPS мониторинг не активен для этого грузовика
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Документы -->
+            <div id="docs" class="tab-pane">
+                <h3 style="margin-bottom: 20px; color: #333;">Документы</h3>
+                {% if documents %}
+                    {% for doc in documents %}
+                        <div class="info-item">
+                            <strong>{{ doc.name|default:"Документ" }}</strong><br>
+                            {% if doc.file %}
+                                <a href="{{ doc.file.url }}" target="_blank" style="color: #2679DB;">Скачать</a>
+                            {% else %}
+                                <span style="color: #999;">Файл не загружен</span>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div style="color: #666;">Документы не загружены</div>
+                {% endif %}
+            </div>
+
+            <!-- Заезды -->
+            <div id="trips" class="tab-pane">
+                <h3 style="margin-bottom: 20px; color: #333;">Последние заезды</h3>
+                {% if trips %}
+                    {% for trip in trips %}
+                        <div class="trip-card">
+                            <strong>{{ trip.start_address|default:"Не указано" }} → {{ trip.end_address|default:"Не указано" }}</strong><br>
+                            <small style="color: #666;">
+                                {% if trip.planned_start_date %}
+                                    {{ trip.planned_start_date|date:"d.m.Y H:i" }}
+                                {% else %}
+                                    Дата не указана
+                                {% endif %}
+                            </small>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div style="color: #666;">Заезды не найдены</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+// Проверяем загрузку Leaflet JS
+if (typeof L === 'undefined') {
+    console.error('❌ Leaflet JS не загружен');
+}
+</script>
+<script>
+function showTab(evt, tabName) {
+    // Скрыть все содержимое вкладок
+    var tabcontent = document.getElementsByClassName('tab-pane');
+    for (var i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].classList.remove('active');
+    }
+
+    // Убрать активный класс со всех кнопок
+    var tablinks = document.getElementsByClassName('tab-btn');
+    for (var i = 0; i < tablinks.length; i++) {
+        tablinks[i].classList.remove('active');
+    }
+
+    // Показать выбранную вкладку и добавить активный класс к кнопке
+    document.getElementById(tabName).classList.add('active');
+    evt.currentTarget.classList.add('active');
+    
+    // Если показываем основную вкладку и есть GPS данные, инициализируем карту
+    if (tabName === 'main' && typeof initMap === 'function') {
+        setTimeout(initMap, 100);
+    }
+}
+
+{% if gps_data %}
+var map;
+function initMap() {
+    try {
+        // Проверяем, что Leaflet загружен
+        if (typeof L === 'undefined') {
+            console.error('❌ Leaflet не загружен');
+            return;
+        }
+        
+        // Проверяем координаты с правильной конвертацией
+        var lat = parseFloat('{{ gps_data.latitude }}');
+        var lng = parseFloat('{{ gps_data.longitude }}');
+        
+        if (isNaN(lat) || isNaN(lng)) {
+            console.error('❌ Неверные GPS координаты:', lat, lng);
+            // Показываем сообщение об ошибке
+            mapContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #666;">Ошибка загрузки GPS данных</div>';
+            return;
+        }
+        
+        console.log('✅ GPS координаты загружены:', lat, lng);
+        
+        if (map) {
+            map.remove();
+        }
+        
+        // Проверяем контейнер карты
+        var mapContainer = document.getElementById('map');
+        if (!mapContainer) {
+            console.error('❌ Контейнер карты не найден');
+            return;
+        }
+        
+        // Создаем карту
+        map = L.map('map').setView([lat, lng], 13);
+        
+        // Добавляем слой карты (тот же стиль что на странице заездов)
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+            subdomains: 'abcd',
+            maxZoom: 19
+        }).addTo(map);
+        
+        // Создаем кастомную иконку грузовика
+        const truckIcon = L.divIcon({
+            className: 'custom-marker',
+            html: `<div class="w-12 h-12 bg-blue-600 rounded-full border-4 border-white shadow-xl flex items-center justify-center">
+                     <i data-lucide="truck" class="w-6 h-6 text-white"></i>
+                   </div>`,
+            iconSize: [48, 48],
+            iconAnchor: [24, 24]
+        });
+        
+        // Добавляем маркер с кастомной иконкой
+        L.marker([lat, lng], {icon: truckIcon})
+            .addTo(map)
+            .bindPopup('{{ vehicle.number }}<br>Скорость: {{ gps_data.speed|default:"0" }} км/ч')
+            .openPopup();
+        
+        // Инициализируем Lucide Icons
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+        
+    } catch (error) {
+        console.error('Ошибка инициализации карты:', error);
+    }
+}
+
+// Инициализация карты при загрузке страницы
+document.addEventListener('DOMContentLoaded', function() {
+    // Ждем загрузки Leaflet
+    setTimeout(function() {
+        if (typeof L !== 'undefined') {
+            initMap();
+        } else {
+            console.error('❌ Leaflet не загружен после таймаута');
+            // Показываем сообщение об ошибке
+            var mapContainer = document.getElementById('map');
+            if (mapContainer) {
+                mapContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #666;">Ошибка загрузки карты</div>';
+            }
+        }
+    }, 1000);
+});
+{% endif %}
+</script>
+{% endblock %}
