@@ -343,10 +343,10 @@ class Trip(models.Model):
     driver = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True, related_name='trips', verbose_name='Водитель')
     
     # Маршрут
-    start_latitude = models.DecimalField(max_digits=9, decimal_places=6, verbose_name='Широта отправления')
-    start_longitude = models.DecimalField(max_digits=9, decimal_places=6, verbose_name='Долгота отправления')
-    end_latitude = models.DecimalField(max_digits=9, decimal_places=6, verbose_name='Широта назначения')
-    end_longitude = models.DecimalField(max_digits=9, decimal_places=6, verbose_name='Долгота назначения')
+    start_latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True, verbose_name='Широта отправления')
+    start_longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True, verbose_name='Долгота отправления')
+    end_latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True, verbose_name='Широта назначения')
+    end_longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True, verbose_name='Долгота назначения')
     start_address = models.CharField(max_length=255, blank=True, verbose_name='Адрес отправления')
     end_address = models.CharField(max_length=255, blank=True, verbose_name='Адрес назначения')
     
@@ -406,13 +406,13 @@ class Trip(models.Model):
         return {
             'start': {
                 'address': self.start_address,
-                'latitude': float(self.start_latitude),
-                'longitude': float(self.start_longitude)
+                'latitude': float(self.start_latitude) if self.start_latitude is not None else None,
+                'longitude': float(self.start_longitude) if self.start_longitude is not None else None
             },
             'end': {
                 'address': self.end_address,
-                'latitude': float(self.end_latitude),
-                'longitude': float(self.end_longitude)
+                'latitude': float(self.end_latitude) if self.end_latitude is not None else None,
+                'longitude': float(self.end_longitude) if self.end_longitude is not None else None
             }
         }
     

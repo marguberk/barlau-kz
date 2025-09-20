@@ -18,6 +18,7 @@ from .views import (
     EmployeePDFView,
     AboutPageView,
     EmployeeFormView,
+    TripDetailView,
     EmployeePhotoUploadView,
     EmployeeListView,
     EmployeeCreateView,
@@ -45,12 +46,18 @@ from .views import (
     EmployeePDFPublicView,
     trips_simple_view,
     drivers_simple_view,
+    create_trip,
+    create_trip_simple,
+    create_trip_test,
 )
+# from .views_gps import gps_update_page, update_gps_data
+# from .views_gps_test import gps_test_page, gps_test_api
 from .api import (
-    update_profile, upload_profile_photo, get_profile_stats, trips_api, open_trips_api, driver_locations_api, 
+    update_profile, upload_profile_photo, get_profile_stats, trips_api, public_trips_api, open_trips_api, driver_locations_api, 
     employee_pdf_api, employee_pdf_public, vehicles_api, TripViewSet, ChecklistTemplateViewSet, TripChecklistViewSet, ChecklistItemViewSet,
     create_checklist_for_trip, get_trip_checklist, generate_checklist_pdf, update_checklist_item, upload_checklist_photos, delete_checklist_photo
 )
+# from .views_webhook import gps_webhook
 from logistics.views.task import TaskViewSet
 from logistics.views.expense import ExpenseViewSet
 from logistics.views.vehicle import VehicleViewSet
@@ -82,6 +89,9 @@ urlpatterns = [
     path('trucks/<int:pk>/delete/', VehicleDeleteView.as_view(), name='truck-delete'),
     path('tasks/', TasksView.as_view(), name='tasks'),
     path('trips/', MapView.as_view(), name='trips'),
+    path('trips/create/', create_trip, name='create-trip'),
+    path('trips/create-simple/', create_trip_simple, name='create-trip-simple'),
+    path('trips/create-test/', create_trip_test, name='create-trip-test'),
     path('test-trips/', TemplateView.as_view(template_name='core/test_trips.html'), name='test-trips'),
     path('checklist/', ChecklistView.as_view(), name='checklist'),
     path('expenses/', ExpensesView.as_view(), name='expenses'),
@@ -99,6 +109,8 @@ urlpatterns = [
     path('api/users/me/stats/', get_profile_stats, name='api-profile-stats'),
     path('api/trips/', trips_api, name='api-trips'),
     path('api/trips/<int:pk>/', trips_api, name='api-trips-detail'),
+    path('trips/<int:pk>/', TripDetailView.as_view(), name='trip-detail'),
+    path('api/public/trips/', public_trips_api, name='api-public-trips'),
     path('dashboard/api/trips/', trips_simple_view, name='dashboard-api-trips'),
     path('simple-trips/', trips_simple_view, name='simple-trips'),
     path('dashboard/api/trips/<int:pk>/', trips_api, name='dashboard-api-trips-detail'),
@@ -112,6 +124,9 @@ urlpatterns = [
     path('api/checklist-items/<int:item_id>/update/', update_checklist_item, name='api-update-checklist-item'),
     path('api/checklist-items/<int:item_id>/upload-photos/', upload_checklist_photos, name='api-upload-checklist-photos'),
     path('api/checklist-photos/<int:photo_id>/delete/', delete_checklist_photo, name='api-delete-checklist-photo'),
+    
+    # GPS Webhook
+    # path('api/gps-webhook/', gps_webhook, name='gps-webhook'),
     
     # Employees
     path('employees/', EmployeesView.as_view(), name='employees'),
@@ -153,4 +168,12 @@ urlpatterns = [
     # API endpoints
     path('simple-trips/', trips_simple_view, name='simple-trips'),
     path('simple-drivers/', drivers_simple_view, name='simple-drivers'),
+    
+    # GPS обновление
+    # path('gps-update/', gps_update_page, name='gps-update'),
+    # path('gps-update/', update_gps_data, name='gps-update-api'),
+    
+    # GPS тестовая страница
+    # path('gps-test/', gps_test_page, name='gps-test'),
+    # path('api/gps-test/', gps_test_api, name='gps-test-api'),
 ] 

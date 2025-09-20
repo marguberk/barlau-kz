@@ -2,8 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:feather_icons/feather_icons.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import '../providers/auth_provider.dart';
+import '../services/biometric_service.dart';
 import 'main_screen.dart';
+import 'quick_login_screen.dart';
+import 'pin_setup_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -18,6 +22,13 @@ class _LoginScreenState extends State<LoginScreen>
   final _passwordController = TextEditingController();
   bool _isPasswordVisible = false;
   bool _isLoading = false;
+  bool _isNavigating = false; // Флаг для предотвращения множественной навигации
+
+  // Маска для номера телефона в формате +7 (111) 111-1111
+  final _phoneMaskFormatter = MaskTextInputFormatter(
+    mask: '+7 (###) ###-####',
+    filter: {"#": RegExp(r'[0-9]')},
+  );
 
   late AnimationController _logoController;
   late AnimationController _formController;
@@ -33,10 +44,16 @@ class _LoginScreenState extends State<LoginScreen>
   void initState() {
     super.initState();
 
-    // Предзаполняем номер телефона
-    _phoneController.text = '+7';
+    // Предзаполняем номер телефона маской
+    _phoneController.text = '+7 (___) ___-____';
     
-
+    // Проверяем быстрый вход
+    _checkQuickLogin();
+    
+    // Если пользователь уже авторизован, сразу переходим к PIN настройке
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkIfAlreadyAuthenticated();
+    });
 
     // Контроллеры анимации
     _logoController = AnimationController(
@@ -94,6 +111,76 @@ class _LoginScreenState extends State<LoginScreen>
     _subtitleController.forward();
   }
 
+  Future<void> _checkQuickLogin() async {
+    try {
+      final isQuickLoginEnabled = await BiometricService.isQuickLoginEnabled();
+      if (isQuickLoginEnabled && mounted) {
+        // Переходим на экран быстрого входа
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const QuickLoginScreen()),
+        );
+      }
+    } catch (e) {
+      print('LoginScreen: Ошибка проверки быстрого входа: $e');
+    }
+  }
+
+  void _checkIfAlreadyAuthenticated() async {
+    try {
+      final authProvider = context.read<AuthProvider>();
+      if (authProvider.isAuthenticated && mounted && !_isNavigating) {
+        print('🎬 LoginScreen: Пользователь уже авторизован, переходим к PIN настройке');
+        _isNavigating = true;
+        
+        final userData = authProvider.getUserDataForQuickLogin();
+        if (userData != null) {
+          // Небольшая задержка для плавности
+          await Future.delayed(const Duration(milliseconds: 100));
+          
+          // Переходим к настройке PIN с анимацией
+          Navigator.of(context).pushReplacement(
+            PageRouteBuilder(
+              pageBuilder: (context, animation, secondaryAnimation) {
+                return PinSetupScreen(
+                  username: userData['username'] ?? '',
+                  password: '',
+                  displayName: userData['displayName'],
+                  firstName: userData['firstName'],
+                  isExistingSetup: false,
+                );
+              },
+              transitionDuration: const Duration(milliseconds: 500),
+              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                // Плавная анимация slide справа налево
+                return SlideTransition(
+                  position: Tween<Offset>(
+                    begin: const Offset(1.0, 0.0),
+                    end: Offset.zero,
+                  ).animate(CurvedAnimation(
+                    parent: animation,
+                    curve: Curves.easeOutCubic,
+                  )),
+                  child: FadeTransition(
+                    opacity: Tween<double>(
+                      begin: 0.0,
+                      end: 1.0,
+                    ).animate(CurvedAnimation(
+                      parent: animation,
+                      curve: Curves.easeOut,
+                    )),
+                    child: child,
+                  ),
+                );
+              },
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      print('🔴 Ошибка проверки авторизации: $e');
+    }
+  }
+
   @override
   void dispose() {
     _phoneController.dispose();
@@ -102,14 +189,24 @@ class _LoginScreenState extends State<LoginScreen>
     _formController.dispose();
     _titleController.dispose();
     _subtitleController.dispose();
+    _isNavigating = false; // Сбрасываем флаг навигации
     super.dispose();
   }
 
   Future<void> _login() async {
-    if (_phoneController.text.isEmpty || _passwordController.text.isEmpty) {
+    // Получаем номер телефона и конвертируем его в формат +7XXXXXXXXXX
+    final maskedPhone = _phoneController.text.trim();
+    final password = _passwordController.text.trim();
+    
+    // Извлекаем только цифры из маскированного номера (должно быть 11 цифр: 7 + 10 цифр номера)
+    final phoneDigits = maskedPhone.replaceAll(RegExp(r'[^\d]'), '');
+    final phone = '+$phoneDigits';
+    
+    // Проверяем, что номер телефона содержит 11 цифр (7 + 10 цифр номера)
+    if (phoneDigits.length != 11 || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Пожалуйста, заполните все поля'),
+          content: Text('Пожалуйста, заполните все поля корректно'),
           backgroundColor: Colors.red,
         ),
       );
@@ -121,39 +218,84 @@ class _LoginScreenState extends State<LoginScreen>
     });
 
     try {
+      print('LoginScreen: Начинаем авторизацию...');
+      print('LoginScreen: username: $phone, password: $password');
+      
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      
+      // Используем реальные данные для авторизации
+      final username = phone;
+      final userPassword = password;
+      
+      print('LoginScreen: Вызываем authProvider.login...');
       final success = await authProvider.login(
-        _phoneController.text,
-        _passwordController.text,
+        username,
+        userPassword,
+        context: context,
       );
+      print('LoginScreen: Результат авторизации: $success');
 
       if (success && mounted) {
-        // Успешная авторизация - перенаправляем на главный экран
-        print('✅ Успешная авторизация, перенаправляем на главный экран');
+        // Успешная авторизация - проверяем, нужно ли настроить быстрый вход
+        final now = DateTime.now();
+        print('✅ Успешная авторизация в ${now.millisecondsSinceEpoch}');
         
-        // Проверяем текущее состояние
-        print('✅ Состояние до обновления - isAuthenticated: ${authProvider.isAuthenticated}, isLoading: ${authProvider.isLoading}');
+        // Очищаем старые данные быстрого входа для первого входа
+        try {
+          await BiometricService.clearQuickLoginData();
+        } catch (_) {}
         
-        // Принудительно обновляем состояние AuthProvider
-        authProvider.notifyListeners();
-        
-        // Добавляем небольшую задержку для корректного обновления UI
-        await Future.delayed(const Duration(milliseconds: 200));
-        
-        // Проверяем, что состояние обновилось
-        print('✅ Состояние после входа - isAuthenticated: ${authProvider.isAuthenticated}, isLoading: ${authProvider.isLoading}');
-        
-        // Дополнительно вызываем checkAuthStatus для обновления состояния
-        await authProvider.checkAuthStatus();
-        print('✅ checkAuthStatus выполнен после входа');
-        
-        // Принудительно переходим на главный экран
-        if (mounted) {
-          Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (context) => const MainScreen()),
-            (route) => false,
+        // Всегда переходим к настройке PIN с анимацией при первом входе
+        final userData = authProvider.getUserDataForQuickLogin();
+        if (userData != null && !_isNavigating) {
+          print('🎬 LoginScreen: Переходим к PIN настройке с анимацией');
+          _isNavigating = true;
+          
+          // Небольшая задержка для плавности
+          await Future.delayed(const Duration(milliseconds: 100));
+          
+          // Навигация с анимацией
+          Navigator.of(context).pushReplacement(
+            PageRouteBuilder(
+              pageBuilder: (context, animation, secondaryAnimation) {
+                return PinSetupScreen(
+                  username: userData['username'] ?? '',
+                  password: '',
+                  displayName: userData['displayName'],
+                  firstName: userData['firstName'],
+                  isExistingSetup: false,
+                );
+              },
+              transitionDuration: const Duration(milliseconds: 500),
+              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                // Плавная анимация slide справа налево
+                return SlideTransition(
+                  position: Tween<Offset>(
+                    begin: const Offset(1.0, 0.0),
+                    end: Offset.zero,
+                  ).animate(CurvedAnimation(
+                    parent: animation,
+                    curve: Curves.easeOutCubic,
+                  )),
+                  child: FadeTransition(
+                    opacity: Tween<double>(
+                      begin: 0.0,
+                      end: 1.0,
+                    ).animate(CurvedAnimation(
+                      parent: animation,
+                      curve: Curves.easeOut,
+                    )),
+                    child: child,
+                  ),
+                );
+              },
+            ),
           );
+          return;
         }
+        
+        final now2 = DateTime.now();
+        print('✅ Авторизация успешна, AuthWrapper покажет нужный экран в ${now2.millisecondsSinceEpoch}');
         
       } else if (!success && mounted) {
         // Получаем конкретную ошибку из AuthProvider
@@ -194,7 +336,7 @@ class _LoginScreenState extends State<LoginScreen>
                     const Text(
                       'Ошибка входа',
                       style: TextStyle(
-                        fontFamily: 'SF Pro Display',
+                        fontFamily: 'InterTight',
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
                         color: Color(0xFF1F2937),
@@ -207,7 +349,7 @@ class _LoginScreenState extends State<LoginScreen>
                       errorMessage,
                       textAlign: TextAlign.center,
                       style: const TextStyle(
-                        fontFamily: 'SF Pro Display',
+                        fontFamily: 'InterTight',
                         fontSize: 14,
                         color: Color(0xFF6B7280),
                         height: 1.4,
@@ -232,7 +374,7 @@ class _LoginScreenState extends State<LoginScreen>
                         child: const Text(
                           'Понятно',
                           style: TextStyle(
-                            fontFamily: 'SF Pro Display',
+                            fontFamily: 'InterTight',
                             fontSize: 16,
                             fontWeight: FontWeight.w500,
                           ),
@@ -267,6 +409,8 @@ class _LoginScreenState extends State<LoginScreen>
 
   @override
   Widget build(BuildContext context) {
+    final now = DateTime.now();
+    print('🔴 LoginScreen: build вызван, показываем экран в ${now.millisecondsSinceEpoch}');
     return Scaffold(
       resizeToAvoidBottomInset: true,
       body: Container(
@@ -421,13 +565,24 @@ class _LoginScreenState extends State<LoginScreen>
                                       ),
                                       child: TextField(
                                         controller: _phoneController,
+                                        inputFormatters: [_phoneMaskFormatter],
                                         keyboardType: TextInputType.phone,
+                                        onChanged: (value) {
+                                          // Применяем маску к введенному тексту
+                                          final maskedValue = _phoneMaskFormatter.maskText(value);
+                                          if (maskedValue != value) {
+                                            _phoneController.value = TextEditingValue(
+                                              text: maskedValue,
+                                              selection: TextSelection.collapsed(offset: maskedValue.length),
+                                            );
+                                          }
+                                        },
                                         style: const TextStyle(
                                           fontSize: 16,
                                           color: Color(0xFF18181B),
                                         ),
                                         decoration: const InputDecoration(
-                                          hintText: '+7',
+                                          hintText: '+7 (___) ___-____',
                                           hintStyle: TextStyle(
                                             color: Color(0xFF9CA3AF), // text-gray-400
                                           ),

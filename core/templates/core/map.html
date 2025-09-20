@@ -2018,6 +2018,51 @@ async function loadDriverLocations() {
         console.log('Is driver:', isDriver());
         console.log('Is admin:', isAdmin());
         
+        // Сначала пробуем загрузить GPS данные от StavTrack
+        try {
+            const gpsResp = await fetch('/api/vehicles/locations/');
+            if (gpsResp.ok) {
+                const gpsData = await gpsResp.json();
+                console.log('GPS data from StavTrack:', gpsData);
+                
+                if (gpsData && gpsData.length > 0) {
+                    // Преобразуем GPS данные в формат для маркеров
+                    const gpsLocations = gpsData.map(vehicle => ({
+                        latitude: vehicle.gps_latitude,
+                        longitude: vehicle.gps_longitude,
+                        driver_details: {
+                            full_name: vehicle.driver_name || 'Водитель',
+                            username: vehicle.driver_username || 'driver'
+                        },
+                        vehicle_details: {
+                            number: vehicle.number,
+                            brand: vehicle.brand,
+                            model: vehicle.model
+                        },
+                        speed: vehicle.gps_speed,
+                        heading: vehicle.gps_heading,
+                        last_update: vehicle.gps_last_update,
+                        gps_enabled: vehicle.gps_enabled
+                    }));
+                    
+                    renderDriverMarkers(gpsLocations);
+                    
+                    // Для водителя — если есть свои координаты, рисуем себя
+                    if (isDriver() && gpsLocations.length > 0) {
+                        const selfLoc = gpsLocations.find(l => l.driver_details && l.driver_details.id === window.currentUserId);
+                        if (selfLoc) {
+                            console.log('Found self GPS location for driver:', selfLoc);
+                            showSelfLocationOnMap(selfLoc.latitude, selfLoc.longitude);
+                        }
+                    }
+                    return;
+                }
+            }
+        } catch (gpsError) {
+            console.log('GPS data not available, falling back to driver locations:', gpsError);
+        }
+        
+        // Fallback: загружаем обычные данные о местоположении водителей
         const resp = await fetch('/api/driver_locations/');
         console.log('API response status:', resp.status);
         

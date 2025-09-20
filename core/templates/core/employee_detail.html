@@ -59,19 +59,14 @@
         <div class="self-stretch flex-1 px-4 pt-2 pb-4 flex flex-col justify-start items-center gap-4 sidebar-menu">
             <div class="self-stretch flex flex-col justify-start items-start gap-1">
                 <div class="self-stretch flex flex-col justify-start items-start">
-                    <a href="{% url 'core:home' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2">
-                        <img src="{% static 'core/img/home.svg' %}" alt="Home" class="w-5 h-5 desktop-icon">
-                        <img src="{% static 'core/img/mobile/home.svg' %}" alt="Home" class="mobile-icon hidden w-5 h-5">
-                        <div class="flex-1 text-gray-500 text-base font-medium leading-normal tracking-tight">Главная</div>
-                    </a>
                     <a href="{% url 'core:tasks' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2">
                         <img src="{% static 'core/img/check-square.svg' %}" alt="Tasks" class="w-5 h-5 desktop-icon align-middle">
                         <img src="{% static 'core/img/mobile/check-square.svg' %}" alt="Tasks" class="mobile-icon hidden align-middle">
                         <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Задачи</div>
                     </a>
                     <a href="{% url 'core:trips' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2">
-                        <img src="{% static 'core/img/trips.svg' %}" alt="Trips" style="filter: brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(142deg) brightness(96%) contrast(91%);" class="w-5 h-5 desktop-icon align-middle" onerror="this.onerror=null; this.src='/static/core/img/trips.svg'">
-                        <img src="{% static 'core/img/mobile/trips.svg' %}" alt="Trips" style="filter: brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(142deg) brightness(96%) contrast(91%);" class="mobile-icon hidden align-middle">
+                        <img src="{% static 'core/img/location.svg' %}?v={% now 'U' %}" alt="Trips" class="w-5 h-5 desktop-icon align-middle" onerror="this.onerror=null; this.src='/static/core/img/location.svg'">
+                        <img src="{% static 'core/img/mobile/location.svg' %}" alt="Trips" class="mobile-icon hidden align-middle">
                         <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Заезды</div>
                     </a>
                     <a href="{% url 'core:trucks' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2">
@@ -81,9 +76,14 @@
                     </a>
                     <a href="{% url 'core:employees' %}" class="self-stretch px-3 py-3.5 bg-gray-50 rounded-lg inline-flex items-center gap-2 relative">
                         <div class="w-1 h-6 left-0 top-[calc(50%-12px)] absolute bg-blue-600 rounded-tr-lg rounded-br-lg"></div>
-                        <img src="{% static 'core/img/employee.svg' %}" alt="Employees" class="w-5 h-5 desktop-icon align-middle">
-                        <img src="{% static 'core/img/mobile/employee.svg' %}" alt="Employees" class="mobile-icon hidden align-middle">
-                        <div class="flex-1 justify-start text-blue-600 text-base font-medium leading-normal tracking-tight">Сотрудники</div>
+                        <img src="{% static 'core/img/employee.svg' %}" alt="Employees" class="w-5 h-5 desktop-icon">
+                        <img src="{% static 'core/img/mobile/employee.svg' %}" alt="Employees" class="mobile-icon hidden w-5 h-5">
+                        <div class="flex-1 text-blue-600 text-base font-medium leading-normal tracking-tight">Сотрудники</div>
+                    </a>
+                    <a href="{% url 'core:expenses' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2 text-gray-500">
+                        <img src="{% static 'core/img/expenses.svg' %}" alt="Expenses" class="w-5 h-5 desktop-icon align-middle" style="filter: brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(142deg) brightness(96%) contrast(91%);">
+                        <img src="{% static 'core/img/mobile/expenses.svg' %}" alt="Expenses" class="mobile-icon hidden align-middle" style="filter: brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(142deg) brightness(96%) contrast(91%);">
+                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Расходы</div>
                     </a>
                 </div>
             </div>

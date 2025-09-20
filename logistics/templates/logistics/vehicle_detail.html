@@ -1,0 +1,1315 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}{{ vehicle.number }} - Детали грузовика{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+    .vehicle-detail-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .vehicle-header {
+        background: white;
+        border-radius: 12px;
+        padding: 24px;
+        margin-bottom: 24px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    
+    .vehicle-title {
+        font-size: 28px;
+        font-weight: 700;
+        color: #1F2937;
+        margin-bottom: 8px;
+    }
+    
+    .vehicle-subtitle {
+        font-size: 16px;
+        color: #6B7280;
+        margin-bottom: 16px;
+    }
+    
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: 600;
+    }
+    
+    .status-active {
+        background-color: #D1FAE5;
+        color: #065F46;
+    }
+    
+    .status-inactive {
+        background-color: #F3F4F6;
+        color: #374151;
+    }
+    
+    .tabs-container {
+        background: white !important;
+        border-radius: 12px !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+        overflow: hidden !important;
+    }
+    
+    .tabs-nav {
+        display: flex !important;
+        border-bottom: 1px solid #E5E7EB !important;
+    }
+    
+    .tab-button {
+        flex: 1 !important;
+        padding: 16px 24px !important;
+        background: #FF0000 !important;
+        border: none !important;
+        font-size: 16px !important;
+        font-weight: 600 !important;
+        color: #FFFFFF !important;
+        cursor: pointer !important;
+        transition: all 0.2s !important;
+    }
+    
+    .tab-button.active {
+        color: #2679DB !important;
+        border-bottom: 2px solid #2679DB !important;
+    }
+    
+    .tab-button:hover {
+        background-color: #F9FAFB;
+    }
+    
+    .tab-content {
+        padding: 24px !important;
+        min-height: 400px !important;
+    }
+    
+    .info-card {
+        background: #F9FAFB;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .info-card-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: #1F2937;
+        margin-bottom: 16px;
+    }
+    
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0;
+        border-bottom: 1px solid #E5E7EB;
+    }
+    
+    .info-row:last-child {
+        border-bottom: none;
+    }
+    
+    .info-label {
+        font-weight: 600;
+        color: #374151;
+    }
+    
+    .info-value {
+        color: #6B7280;
+    }
+    
+    .map-container {
+        height: 300px;
+        border-radius: 12px;
+        overflow: hidden;
+        margin-top: 16px;
+    }
+    
+    .trip-card {
+        background: white;
+        border: 1px solid #E5E7EB;
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 12px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .trip-card:hover {
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transform: translateY(-1px);
+    }
+    
+    .trip-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #1F2937;
+        margin-bottom: 8px;
+    }
+    
+    .trip-route {
+        color: #6B7280;
+        font-size: 14px;
+        margin-bottom: 8px;
+    }
+    
+    .trip-status {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+    
+    .status-completed {
+        background-color: #D1FAE5;
+        color: #065F46;
+    }
+    
+    .status-active {
+        background-color: #DBEAFE;
+        color: #1E40AF;
+    }
+    
+    .status-planned {
+        background-color: #FEF3C7;
+        color: #92400E;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 40px;
+        color: #6B7280;
+    }
+    
+    .empty-state-icon {
+        font-size: 48px;
+        margin-bottom: 16px;
+    }
+    
+    .loading-spinner {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        border: 2px solid #E5E7EB;
+        border-top: 2px solid #2679DB;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    .photo-gallery {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 16px;
+        margin-top: 16px;
+    }
+    
+    .photo-item {
+        border-radius: 8px;
+        overflow: hidden;
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+    
+    .photo-item:hover {
+        transform: scale(1.05);
+    }
+    
+    .photo-item img {
+        width: 100%;
+        height: 150px;
+        object-fit: cover;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="w-full flex">
+    <!-- Боковая панель -->
+    <div class="w-64 h-screen bg-white border-r border-zinc-200 flex flex-col justify-start items-start fixed left-0 bottom-0 sidebar">
+        <div class="self-stretch px-5 py-6 relative flex flex-col justify-start items-start gap-2 sidebar-logo">
+            <div class="py-1 inline-flex justify-start items-center gap-2">
+                <img src="{% static 'core/img/logo.png' %}" alt="Barlau Logo" class="w-10 h-6">
+                <div class="text-center justify-start text-black text-2xl font-semibold leading-normal">Barlau.kz</div>
+            </div>
+        </div>
+        <div class="self-stretch flex-1 px-4 pt-2 pb-4 flex flex-col justify-start items-center gap-4 sidebar-menu">
+            <div class="self-stretch flex flex-col justify-start items-start gap-1">
+                <div class="self-stretch flex flex-col justify-start items-start">
+                    <a href="{% url 'core:home' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2 relative">
+                        <img src="{% static 'core/img/home.svg' %}" alt="Home" class="w-5 h-5 desktop-icon align-middle">
+                        <img src="{% static 'core/img/mobile/home.svg' %}" alt="Home" class="mobile-icon hidden align-middle">
+                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Главная</div>
+                    </a>
+                    <a href="{% url 'core:tasks' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2">
+                        <img src="{% static 'core/img/check-square.svg' %}" alt="Tasks" class="w-5 h-5 desktop-icon align-middle">
+                        <img src="{% static 'core/img/mobile/check-square.svg' %}" alt="Tasks" class="mobile-icon hidden align-middle">
+                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Задачи</div>
+                    </a>
+                    <a href="{% url 'core:trips' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2">
+                        <img src="{% static 'core/img/location.svg' %}?v={% now 'U' %}" alt="Trips" class="w-5 h-5 desktop-icon align-middle" onerror="this.onerror=null; this.src='/static/core/img/location.svg'">
+                        <img src="{% static 'core/img/mobile/location.svg' %}" alt="Trips" class="mobile-icon hidden align-middle">
+                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Заезды</div>
+                    </a>
+                    <a href="{% url 'core:trucks' %}" class="self-stretch px-3 py-3.5 bg-gray-50 rounded-lg inline-flex items-center gap-2 relative">
+                        <div class="w-1 h-6 left-0 top-[calc(50%-12px)] absolute bg-blue-600 rounded-tr-lg rounded-br-lg"></div>
+                        <img src="{% static 'core/img/truck.svg' %}" alt="Vehicles" class="w-5 h-5 desktop-icon">
+                        <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Vehicles" class="mobile-icon hidden w-5 h-5">
+                        <div class="flex-1 text-blue-600 text-base font-medium leading-normal tracking-tight">Грузовики</div>
+                    </a>
+                    <a href="{% url 'core:employees' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2">
+                        <img src="{% static 'core/img/employee.svg' %}" alt="Employees" class="w-5 h-5 desktop-icon align-middle">
+                        <img src="{% static 'core/img/mobile/employee.svg' %}" alt="Employees" class="mobile-icon hidden align-middle">
+                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Сотрудники</div>
+                    </a>
+                    <a href="{% url 'core:expenses' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2">
+                        <img src="{% static 'core/img/expenses.svg' %}" alt="Expenses" class="w-5 h-5 desktop-icon align-middle" style="filter: brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(142deg) brightness(96%) contrast(91%);">
+                        <img src="{% static 'core/img/mobile/expenses.svg' %}" alt="Expenses" class="mobile-icon hidden align-middle" style="filter: brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(142deg) brightness(96%) contrast(91%);">
+                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Расходы</div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Основной контент -->
+    <div class="flex-1 ml-64 main-content">
+        <div class="vehicle-detail-container">
+    <!-- Заголовок грузовика -->
+    <div class="vehicle-header">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+            <div>
+                <h1 class="vehicle-title">{{ vehicle.number }}</h1>
+                <p class="vehicle-subtitle">{{ vehicle.brand }} {{ vehicle.model }} ({{ vehicle.year }})</p>
+            </div>
+            <div>
+                {% if vehicle.status == 'ACTIVE' %}
+                    <span class="status-badge status-active">Активен</span>
+                {% else %}
+                    <span class="status-badge status-inactive">Неактивен</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Вкладки -->
+    <div class="tabs-container">
+        <div class="tabs-nav">
+            <button class="tab-button active" onclick="showTab('main')">Основное</button>
+            <button class="tab-button" onclick="showTab('documents')">Документы</button>
+            <button class="tab-button" onclick="showTab('trips')">Заезды</button>
+        </div>
+
+        <!-- Вкладка "Основное" -->
+        <div id="main-tab" class="tab-content">
+            <!-- Основная информация -->
+            <div class="info-card">
+                <h3 class="info-card-title">Основная информация</h3>
+                <div class="info-row">
+                    <span class="info-label">Номер</span>
+                    <span class="info-value">{{ vehicle.number }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Марка</span>
+                    <span class="info-value">{{ vehicle.brand|default:"Не указано" }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Модель</span>
+                    <span class="info-value">{{ vehicle.model|default:"Не указано" }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Год выпуска</span>
+                    <span class="info-value">{{ vehicle.year|default:"Не указан" }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Цвет</span>
+                    <span class="info-value">{{ vehicle.color|default:"Не указан" }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Водитель</span>
+                    <span class="info-value">
+                        {% if vehicle.driver %}
+                            {{ vehicle.driver.first_name }} {{ vehicle.driver.last_name }}
+                        {% else %}
+                            Не назначен
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Тип транспорта</span>
+                    <span class="info-value">{{ vehicle.get_vehicle_type_display|default:"Не указано" }}</span>
+                </div>
+            </div>
+
+            <!-- Текущее местоположение -->
+            {% if gps_data %}
+            <div class="info-card">
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <h3 class="info-card-title">Текущее местоположение</h3>
+                    <div id="location-loading" class="loading-spinner" style="display: none;"></div>
+                </div>
+                <div id="map" class="map-container"></div>
+                <div style="margin-top: 12px; font-size: 14px; color: #6B7280;">
+                    <div>Скорость: {{ gps_data.speed|floatformat:1 }} км/ч</div>
+                    <div>Направление: {{ gps_data.heading|floatformat:1 }}°</div>
+                    {% if gps_data.last_update %}
+                        <div>Обновлено: {{ gps_data.last_update|date:"d.m.Y H:i" }}</div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Технические характеристики -->
+            <div class="info-card">
+                <h3 class="info-card-title">Технические характеристики</h3>
+                <div class="info-row">
+                    <span class="info-label">VIN номер</span>
+                    <span class="info-value">{{ vehicle.vin_number|default:"Не указан" }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Номер двигателя</span>
+                    <span class="info-value">{{ vehicle.engine_number|default:"Не указан" }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Номер шасси</span>
+                    <span class="info-value">{{ vehicle.chassis_number|default:"Не указан" }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Объем двигателя</span>
+                    <span class="info-value">{{ vehicle.engine_capacity|default:"Не указан" }} л</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Тип топлива</span>
+                    <span class="info-value">{{ vehicle.get_fuel_type_display|default:"Не указан" }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Габариты (Д×Ш×В)</span>
+                    <span class="info-value">
+                        {% if vehicle.length and vehicle.width and vehicle.height %}
+                            {{ vehicle.length }}×{{ vehicle.width }}×{{ vehicle.height }} м
+                        {% else %}
+                            Не указаны
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Максимальная масса</span>
+                    <span class="info-value">{{ vehicle.max_weight|default:"Не указана" }} кг</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Грузоподъемность</span>
+                    <span class="info-value">{{ vehicle.cargo_capacity|default:"Не указана" }} кг</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Вкладка "Документы" -->
+        <div id="documents-tab" class="tab-content" style="display: none;">
+            {% if documents %}
+                <div class="info-card">
+                    <h3 class="info-card-title">Документы</h3>
+                    {% for document in documents %}
+                        <div class="info-row">
+                            <span class="info-label">{{ document.get_document_type_display }}</span>
+                            <span class="info-value">
+                                {% if document.file %}
+                                    <a href="{{ document.file.url }}" target="_blank" style="color: #2679DB;">Скачать</a>
+                                {% else %}
+                                    Не загружен
+                                {% endif %}
+                            </span>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            
+            {% if photos %}
+                <div class="info-card">
+                    <h3 class="info-card-title">Фотографии</h3>
+                    <div class="photo-gallery">
+                        {% for photo in photos %}
+                            <div class="photo-item" onclick="openPhotoModal('{{ photo.photo.url }}')">
+                                <img src="{{ photo.photo.url }}" alt="Фото грузовика">
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+            
+            {% if not documents and not photos %}
+                <div class="empty-state">
+                    <div class="empty-state-icon">📄</div>
+                    <h3>Нет документов и фотографий</h3>
+                    <p>Документы и фотографии для этого грузовика пока не загружены.</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Вкладка "Заезды" -->
+        <div id="trips-tab" class="tab-content" style="display: none;">
+            <div id="trips-loading" class="loading-spinner" style="display: none; margin: 20px auto;"></div>
+            <div id="trips-content">
+                {% if trips %}
+                    {% for trip in trips %}
+                        <div class="trip-card" onclick="openTripDetail({{ trip.id }})">
+                            <div class="trip-title">{{ trip.title }}</div>
+                            <div class="trip-route">{{ trip.start_address }} → {{ trip.end_address }}</div>
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span class="trip-status status-{{ trip.status|lower }}">
+                                    {{ trip.get_status_display }}
+                                </span>
+                                <span style="font-size: 12px; color: #6B7280;">
+                                    {{ trip.planned_start_date|date:"d.m.Y H:i" }}
+                                </span>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🚛</div>
+                        <h3>История заездов</h3>
+                        <p>Заезды для этого грузовика пока не найдены.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно для фотографий -->
+<div id="photo-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; cursor: pointer;" onclick="closePhotoModal()">
+    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); max-width: 90%; max-height: 90%;">
+        <img id="modal-photo" src="" style="max-width: 100%; max-height: 100%; border-radius: 8px;">
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+    // Тест JavaScript
+    console.log('🚛 Vehicle detail page loaded!');
+    
+    let map;
+    let vehicleMarker;
+
+    // Инициализация карты
+    function initMap() {
+        {% if gps_data %}
+        const vehicleLat = {{ gps_data.latitude }};
+        const vehicleLng = {{ gps_data.longitude }};
+        
+        map = L.map('map').setView([vehicleLat, vehicleLng], 12);
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+        
+        // Добавляем маркер грузовика
+        const truckIcon = L.divIcon({
+            className: 'truck-marker',
+            html: '<div style="background: #2679DB; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-size: 16px;">🚛</div>',
+            iconSize: [30, 30],
+            iconAnchor: [15, 15]
+        });
+        
+        vehicleMarker = L.marker([vehicleLat, vehicleLng], { icon: truckIcon })
+            .addTo(map)
+            .bindPopup(`
+                <div style="text-align: center;">
+                    <strong>{{ vehicle.number }}</strong><br>
+                    Скорость: {{ gps_data.speed|floatformat:1 }} км/ч<br>
+                    Направление: {{ gps_data.heading|floatformat:1 }}°
+                </div>
+            `);
+        {% endif %}
+    }
+
+    // Переключение вкладок
+    function showTab(tabName) {
+        // Скрываем все вкладки
+        document.querySelectorAll('.tab-content').forEach(tab => {
+            tab.style.display = 'none';
+        });
+        
+        // Убираем активный класс со всех кнопок
+        document.querySelectorAll('.tab-button').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        
+        // Показываем выбранную вкладку
+        document.getElementById(tabName + '-tab').style.display = 'block';
+        
+        // Добавляем активный класс к кнопке
+        event.target.classList.add('active');
+        
+        // Если открываем вкладку заездов, загружаем данные
+        if (tabName === 'trips') {
+            loadTrips();
+        }
+    }
+
+    // Загрузка заездов
+    function loadTrips() {
+        const loadingEl = document.getElementById('trips-loading');
+        const contentEl = document.getElementById('trips-content');
+        
+        loadingEl.style.display = 'block';
+        contentEl.innerHTML = '';
+        
+        fetch(`/api/vehicle-trips/{{ vehicle.id }}/`)
+            .then(response => response.json())
+            .then(data => {
+                loadingEl.style.display = 'none';
+                
+                if (data.success && data.data.length > 0) {
+                    let tripsHtml = '';
+                    data.data.forEach(trip => {
+                        const statusClass = 'status-' + trip.status.toLowerCase();
+                        tripsHtml += `
+                            <div class="trip-card" onclick="openTripDetail(${trip.id})">
+                                <div class="trip-title">${trip.title}</div>
+                                <div class="trip-route">${trip.start_address} → ${trip.end_address}</div>
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span class="trip-status ${statusClass}">${trip.status_display}</span>
+                                    <span style="font-size: 12px; color: #6B7280;">
+                                        ${new Date(trip.planned_start_date).toLocaleDateString('ru-RU')}
+                                    </span>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    contentEl.innerHTML = tripsHtml;
+                } else {
+                    contentEl.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🚛</div>
+                            <h3>История заездов</h3>
+                            <p>Заезды для этого грузовика пока не найдены.</p>
+                        </div>
+                    `;
+                }
+            })
+            .catch(error => {
+                loadingEl.style.display = 'none';
+                contentEl.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">❌</div>
+                        <h3>Ошибка загрузки</h3>
+                        <p>Не удалось загрузить заезды.</p>
+                    </div>
+                `;
+            });
+    }
+
+    // Открытие деталей заезда
+    function openTripDetail(tripId) {
+        window.location.href = `/trips/${tripId}/`;
+    }
+
+    // Модальное окно для фотографий
+    function openPhotoModal(photoUrl) {
+        document.getElementById('modal-photo').src = photoUrl;
+        document.getElementById('photo-modal').style.display = 'block';
+    }
+
+    function closePhotoModal() {
+        document.getElementById('photo-modal').style.display = 'none';
+    }
+
+    // Инициализация при загрузке страницы
+    document.addEventListener('DOMContentLoaded', function() {
+        initMap();
+    });
+</script>
+{% endblock %}
+
+
+{% block title %}{{ vehicle.number }} - Детали грузовика{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+    .vehicle-detail-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .vehicle-header {
+        background: white;
+        border-radius: 12px;
+        padding: 24px;
+        margin-bottom: 24px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    
+    .vehicle-title {
+        font-size: 28px;
+        font-weight: 700;
+        color: #1F2937;
+        margin-bottom: 8px;
+    }
+    
+    .vehicle-subtitle {
+        font-size: 16px;
+        color: #6B7280;
+        margin-bottom: 16px;
+    }
+    
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: 600;
+    }
+    
+    .status-active {
+        background-color: #D1FAE5;
+        color: #065F46;
+    }
+    
+    .status-inactive {
+        background-color: #F3F4F6;
+        color: #374151;
+    }
+    
+    .tabs-container {
+        background: white !important;
+        border-radius: 12px !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+        overflow: hidden !important;
+    }
+    
+    .tabs-nav {
+        display: flex !important;
+        border-bottom: 1px solid #E5E7EB !important;
+    }
+    
+    .tab-button {
+        flex: 1 !important;
+        padding: 16px 24px !important;
+        background: #FF0000 !important;
+        border: none !important;
+        font-size: 16px !important;
+        font-weight: 600 !important;
+        color: #FFFFFF !important;
+        cursor: pointer !important;
+        transition: all 0.2s !important;
+    }
+    
+    .tab-button.active {
+        color: #2679DB !important;
+        border-bottom: 2px solid #2679DB !important;
+    }
+    
+    .tab-button:hover {
+        background-color: #F9FAFB;
+    }
+    
+    .tab-content {
+        padding: 24px !important;
+        min-height: 400px !important;
+    }
+    
+    .info-card {
+        background: #F9FAFB;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .info-card-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: #1F2937;
+        margin-bottom: 16px;
+    }
+    
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0;
+        border-bottom: 1px solid #E5E7EB;
+    }
+    
+    .info-row:last-child {
+        border-bottom: none;
+    }
+    
+    .info-label {
+        font-weight: 600;
+        color: #374151;
+    }
+    
+    .info-value {
+        color: #6B7280;
+    }
+    
+    .map-container {
+        height: 300px;
+        border-radius: 12px;
+        overflow: hidden;
+        margin-top: 16px;
+    }
+    
+    .trip-card {
+        background: white;
+        border: 1px solid #E5E7EB;
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 12px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .trip-card:hover {
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transform: translateY(-1px);
+    }
+    
+    .trip-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #1F2937;
+        margin-bottom: 8px;
+    }
+    
+    .trip-route {
+        color: #6B7280;
+        font-size: 14px;
+        margin-bottom: 8px;
+    }
+    
+    .trip-status {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+    
+    .status-completed {
+        background-color: #D1FAE5;
+        color: #065F46;
+    }
+    
+    .status-active {
+        background-color: #DBEAFE;
+        color: #1E40AF;
+    }
+    
+    .status-planned {
+        background-color: #FEF3C7;
+        color: #92400E;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 40px;
+        color: #6B7280;
+    }
+    
+    .empty-state-icon {
+        font-size: 48px;
+        margin-bottom: 16px;
+    }
+    
+    .loading-spinner {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        border: 2px solid #E5E7EB;
+        border-top: 2px solid #2679DB;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    .photo-gallery {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 16px;
+        margin-top: 16px;
+    }
+    
+    .photo-item {
+        border-radius: 8px;
+        overflow: hidden;
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+    
+    .photo-item:hover {
+        transform: scale(1.05);
+    }
+    
+    .photo-item img {
+        width: 100%;
+        height: 150px;
+        object-fit: cover;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="w-full flex">
+    <!-- Боковая панель -->
+    <div class="w-64 h-screen bg-white border-r border-zinc-200 flex flex-col justify-start items-start fixed left-0 bottom-0 sidebar">
+        <div class="self-stretch px-5 py-6 relative flex flex-col justify-start items-start gap-2 sidebar-logo">
+            <div class="py-1 inline-flex justify-start items-center gap-2">
+                <img src="{% static 'core/img/logo.png' %}" alt="Barlau Logo" class="w-10 h-6">
+                <div class="text-center justify-start text-black text-2xl font-semibold leading-normal">Barlau.kz</div>
+            </div>
+        </div>
+        <div class="self-stretch flex-1 px-4 pt-2 pb-4 flex flex-col justify-start items-center gap-4 sidebar-menu">
+            <div class="self-stretch flex flex-col justify-start items-start gap-1">
+                <div class="self-stretch flex flex-col justify-start items-start">
+                    <a href="{% url 'core:home' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2 relative">
+                        <img src="{% static 'core/img/home.svg' %}" alt="Home" class="w-5 h-5 desktop-icon align-middle">
+                        <img src="{% static 'core/img/mobile/home.svg' %}" alt="Home" class="mobile-icon hidden align-middle">
+                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Главная</div>
+                    </a>
+                    <a href="{% url 'core:tasks' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2">
+                        <img src="{% static 'core/img/check-square.svg' %}" alt="Tasks" class="w-5 h-5 desktop-icon align-middle">
+                        <img src="{% static 'core/img/mobile/check-square.svg' %}" alt="Tasks" class="mobile-icon hidden align-middle">
+                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Задачи</div>
+                    </a>
+                    <a href="{% url 'core:trips' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2">
+                        <img src="{% static 'core/img/location.svg' %}?v={% now 'U' %}" alt="Trips" class="w-5 h-5 desktop-icon align-middle" onerror="this.onerror=null; this.src='/static/core/img/location.svg'">
+                        <img src="{% static 'core/img/mobile/location.svg' %}" alt="Trips" class="mobile-icon hidden align-middle">
+                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Заезды</div>
+                    </a>
+                    <a href="{% url 'core:trucks' %}" class="self-stretch px-3 py-3.5 bg-gray-50 rounded-lg inline-flex items-center gap-2 relative">
+                        <div class="w-1 h-6 left-0 top-[calc(50%-12px)] absolute bg-blue-600 rounded-tr-lg rounded-br-lg"></div>
+                        <img src="{% static 'core/img/truck.svg' %}" alt="Vehicles" class="w-5 h-5 desktop-icon">
+                        <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Vehicles" class="mobile-icon hidden w-5 h-5">
+                        <div class="flex-1 text-blue-600 text-base font-medium leading-normal tracking-tight">Грузовики</div>
+                    </a>
+                    <a href="{% url 'core:employees' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2">
+                        <img src="{% static 'core/img/employee.svg' %}" alt="Employees" class="w-5 h-5 desktop-icon align-middle">
+                        <img src="{% static 'core/img/mobile/employee.svg' %}" alt="Employees" class="mobile-icon hidden align-middle">
+                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Сотрудники</div>
+                    </a>
+                    <a href="{% url 'core:expenses' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2">
+                        <img src="{% static 'core/img/expenses.svg' %}" alt="Expenses" class="w-5 h-5 desktop-icon align-middle" style="filter: brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(142deg) brightness(96%) contrast(91%);">
+                        <img src="{% static 'core/img/mobile/expenses.svg' %}" alt="Expenses" class="mobile-icon hidden align-middle" style="filter: brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(142deg) brightness(96%) contrast(91%);">
+                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Расходы</div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Основной контент -->
+    <div class="flex-1 ml-64 main-content">
+        <div class="vehicle-detail-container">
+    <!-- Заголовок грузовика -->
+    <div class="vehicle-header">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+            <div>
+                <h1 class="vehicle-title">{{ vehicle.number }}</h1>
+                <p class="vehicle-subtitle">{{ vehicle.brand }} {{ vehicle.model }} ({{ vehicle.year }})</p>
+            </div>
+            <div>
+                {% if vehicle.status == 'ACTIVE' %}
+                    <span class="status-badge status-active">Активен</span>
+                {% else %}
+                    <span class="status-badge status-inactive">Неактивен</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Вкладки -->
+    <div class="tabs-container">
+        <div class="tabs-nav">
+            <button class="tab-button active" onclick="showTab('main')">Основное</button>
+            <button class="tab-button" onclick="showTab('documents')">Документы</button>
+            <button class="tab-button" onclick="showTab('trips')">Заезды</button>
+        </div>
+
+        <!-- Вкладка "Основное" -->
+        <div id="main-tab" class="tab-content">
+            <!-- Основная информация -->
+            <div class="info-card">
+                <h3 class="info-card-title">Основная информация</h3>
+                <div class="info-row">
+                    <span class="info-label">Номер</span>
+                    <span class="info-value">{{ vehicle.number }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Марка</span>
+                    <span class="info-value">{{ vehicle.brand|default:"Не указано" }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Модель</span>
+                    <span class="info-value">{{ vehicle.model|default:"Не указано" }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Год выпуска</span>
+                    <span class="info-value">{{ vehicle.year|default:"Не указан" }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Цвет</span>
+                    <span class="info-value">{{ vehicle.color|default:"Не указан" }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Водитель</span>
+                    <span class="info-value">
+                        {% if vehicle.driver %}
+                            {{ vehicle.driver.first_name }} {{ vehicle.driver.last_name }}
+                        {% else %}
+                            Не назначен
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Тип транспорта</span>
+                    <span class="info-value">{{ vehicle.get_vehicle_type_display|default:"Не указано" }}</span>
+                </div>
+            </div>
+
+            <!-- Текущее местоположение -->
+            {% if gps_data %}
+            <div class="info-card">
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <h3 class="info-card-title">Текущее местоположение</h3>
+                    <div id="location-loading" class="loading-spinner" style="display: none;"></div>
+                </div>
+                <div id="map" class="map-container"></div>
+                <div style="margin-top: 12px; font-size: 14px; color: #6B7280;">
+                    <div>Скорость: {{ gps_data.speed|floatformat:1 }} км/ч</div>
+                    <div>Направление: {{ gps_data.heading|floatformat:1 }}°</div>
+                    {% if gps_data.last_update %}
+                        <div>Обновлено: {{ gps_data.last_update|date:"d.m.Y H:i" }}</div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Технические характеристики -->
+            <div class="info-card">
+                <h3 class="info-card-title">Технические характеристики</h3>
+                <div class="info-row">
+                    <span class="info-label">VIN номер</span>
+                    <span class="info-value">{{ vehicle.vin_number|default:"Не указан" }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Номер двигателя</span>
+                    <span class="info-value">{{ vehicle.engine_number|default:"Не указан" }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Номер шасси</span>
+                    <span class="info-value">{{ vehicle.chassis_number|default:"Не указан" }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Объем двигателя</span>
+                    <span class="info-value">{{ vehicle.engine_capacity|default:"Не указан" }} л</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Тип топлива</span>
+                    <span class="info-value">{{ vehicle.get_fuel_type_display|default:"Не указан" }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Габариты (Д×Ш×В)</span>
+                    <span class="info-value">
+                        {% if vehicle.length and vehicle.width and vehicle.height %}
+                            {{ vehicle.length }}×{{ vehicle.width }}×{{ vehicle.height }} м
+                        {% else %}
+                            Не указаны
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Максимальная масса</span>
+                    <span class="info-value">{{ vehicle.max_weight|default:"Не указана" }} кг</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Грузоподъемность</span>
+                    <span class="info-value">{{ vehicle.cargo_capacity|default:"Не указана" }} кг</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Вкладка "Документы" -->
+        <div id="documents-tab" class="tab-content" style="display: none;">
+            {% if documents %}
+                <div class="info-card">
+                    <h3 class="info-card-title">Документы</h3>
+                    {% for document in documents %}
+                        <div class="info-row">
+                            <span class="info-label">{{ document.get_document_type_display }}</span>
+                            <span class="info-value">
+                                {% if document.file %}
+                                    <a href="{{ document.file.url }}" target="_blank" style="color: #2679DB;">Скачать</a>
+                                {% else %}
+                                    Не загружен
+                                {% endif %}
+                            </span>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            
+            {% if photos %}
+                <div class="info-card">
+                    <h3 class="info-card-title">Фотографии</h3>
+                    <div class="photo-gallery">
+                        {% for photo in photos %}
+                            <div class="photo-item" onclick="openPhotoModal('{{ photo.photo.url }}')">
+                                <img src="{{ photo.photo.url }}" alt="Фото грузовика">
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+            
+            {% if not documents and not photos %}
+                <div class="empty-state">
+                    <div class="empty-state-icon">📄</div>
+                    <h3>Нет документов и фотографий</h3>
+                    <p>Документы и фотографии для этого грузовика пока не загружены.</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Вкладка "Заезды" -->
+        <div id="trips-tab" class="tab-content" style="display: none;">
+            <div id="trips-loading" class="loading-spinner" style="display: none; margin: 20px auto;"></div>
+            <div id="trips-content">
+                {% if trips %}
+                    {% for trip in trips %}
+                        <div class="trip-card" onclick="openTripDetail({{ trip.id }})">
+                            <div class="trip-title">{{ trip.title }}</div>
+                            <div class="trip-route">{{ trip.start_address }} → {{ trip.end_address }}</div>
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span class="trip-status status-{{ trip.status|lower }}">
+                                    {{ trip.get_status_display }}
+                                </span>
+                                <span style="font-size: 12px; color: #6B7280;">
+                                    {{ trip.planned_start_date|date:"d.m.Y H:i" }}
+                                </span>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🚛</div>
+                        <h3>История заездов</h3>
+                        <p>Заезды для этого грузовика пока не найдены.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно для фотографий -->
+<div id="photo-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; cursor: pointer;" onclick="closePhotoModal()">
+    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); max-width: 90%; max-height: 90%;">
+        <img id="modal-photo" src="" style="max-width: 100%; max-height: 100%; border-radius: 8px;">
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+    // Тест JavaScript
+    console.log('🚛 Vehicle detail page loaded!');
+    
+    let map;
+    let vehicleMarker;
+
+    // Инициализация карты
+    function initMap() {
+        {% if gps_data %}
+        const vehicleLat = {{ gps_data.latitude }};
+        const vehicleLng = {{ gps_data.longitude }};
+        
+        map = L.map('map').setView([vehicleLat, vehicleLng], 12);
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+        
+        // Добавляем маркер грузовика
+        const truckIcon = L.divIcon({
+            className: 'truck-marker',
+            html: '<div style="background: #2679DB; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-size: 16px;">🚛</div>',
+            iconSize: [30, 30],
+            iconAnchor: [15, 15]
+        });
+        
+        vehicleMarker = L.marker([vehicleLat, vehicleLng], { icon: truckIcon })
+            .addTo(map)
+            .bindPopup(`
+                <div style="text-align: center;">
+                    <strong>{{ vehicle.number }}</strong><br>
+                    Скорость: {{ gps_data.speed|floatformat:1 }} км/ч<br>
+                    Направление: {{ gps_data.heading|floatformat:1 }}°
+                </div>
+            `);
+        {% endif %}
+    }
+
+    // Переключение вкладок
+    function showTab(tabName) {
+        // Скрываем все вкладки
+        document.querySelectorAll('.tab-content').forEach(tab => {
+            tab.style.display = 'none';
+        });
+        
+        // Убираем активный класс со всех кнопок
+        document.querySelectorAll('.tab-button').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        
+        // Показываем выбранную вкладку
+        document.getElementById(tabName + '-tab').style.display = 'block';
+        
+        // Добавляем активный класс к кнопке
+        event.target.classList.add('active');
+        
+        // Если открываем вкладку заездов, загружаем данные
+        if (tabName === 'trips') {
+            loadTrips();
+        }
+    }
+
+    // Загрузка заездов
+    function loadTrips() {
+        const loadingEl = document.getElementById('trips-loading');
+        const contentEl = document.getElementById('trips-content');
+        
+        loadingEl.style.display = 'block';
+        contentEl.innerHTML = '';
+        
+        fetch(`/api/vehicle-trips/{{ vehicle.id }}/`)
+            .then(response => response.json())
+            .then(data => {
+                loadingEl.style.display = 'none';
+                
+                if (data.success && data.data.length > 0) {
+                    let tripsHtml = '';
+                    data.data.forEach(trip => {
+                        const statusClass = 'status-' + trip.status.toLowerCase();
+                        tripsHtml += `
+                            <div class="trip-card" onclick="openTripDetail(${trip.id})">
+                                <div class="trip-title">${trip.title}</div>
+                                <div class="trip-route">${trip.start_address} → ${trip.end_address}</div>
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span class="trip-status ${statusClass}">${trip.status_display}</span>
+                                    <span style="font-size: 12px; color: #6B7280;">
+                                        ${new Date(trip.planned_start_date).toLocaleDateString('ru-RU')}
+                                    </span>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    contentEl.innerHTML = tripsHtml;
+                } else {
+                    contentEl.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🚛</div>
+                            <h3>История заездов</h3>
+                            <p>Заезды для этого грузовика пока не найдены.</p>
+                        </div>
+                    `;
+                }
+            })
+            .catch(error => {
+                loadingEl.style.display = 'none';
+                contentEl.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">❌</div>
+                        <h3>Ошибка загрузки</h3>
+                        <p>Не удалось загрузить заезды.</p>
+                    </div>
+                `;
+            });
+    }
+
+    // Открытие деталей заезда
+    function openTripDetail(tripId) {
+        window.location.href = `/trips/${tripId}/`;
+    }
+
+    // Модальное окно для фотографий
+    function openPhotoModal(photoUrl) {
+        document.getElementById('modal-photo').src = photoUrl;
+        document.getElementById('photo-modal').style.display = 'block';
+    }
+
+    function closePhotoModal() {
+        document.getElementById('photo-modal').style.display = 'none';
+    }
+
+    // Инициализация при загрузке страницы
+    document.addEventListener('DOMContentLoaded', function() {
+        initMap();
+    });
+</script>
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

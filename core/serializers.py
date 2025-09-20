@@ -6,6 +6,7 @@ from django.contrib.auth.password_validation import validate_password
 from django.db import IntegrityError
 from .models import Notification, Waybill, Trip, DriverLocation, ChecklistTemplate, TripChecklist, ChecklistItem, ChecklistItemPhoto
 from logistics.models import Vehicle
+from logistics.serializers import VehicleSerializer
 
 User = get_user_model()
 
@@ -151,7 +152,7 @@ class UserPhotoSerializer(serializers.ModelSerializer):
         return value 
 
 class TripSerializer(serializers.ModelSerializer):
-    vehicle_details = VehicleSerializer(source='vehicle', read_only=True)
+    vehicle_details = serializers.SerializerMethodField()
     trailer_details = VehicleSerializer(source='trailer', read_only=True)
     driver_details = UserSerializer(source='driver', read_only=True)
     created_by_details = UserSerializer(source='created_by', read_only=True)
@@ -161,6 +162,15 @@ class TripSerializer(serializers.ModelSerializer):
     status_display = serializers.CharField(source='get_status_display', read_only=True)
     cargo_type_display = serializers.CharField(source='get_cargo_type_display', read_only=True)
     freight_payment_type_display = serializers.CharField(source='get_freight_payment_type_display', read_only=True)
+    
+    def get_vehicle_details(self, obj):
+        """Получаем детали транспорта с GPS данными"""
+        if obj.vehicle:
+            # Создаем новый экземпляр VehicleSerializer
+            from logistics.serializers import VehicleSerializer
+            serializer = VehicleSerializer(obj.vehicle)
+            return serializer.data
+        return None
 
     class Meta:
         model = Trip

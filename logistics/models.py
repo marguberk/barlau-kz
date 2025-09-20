@@ -110,6 +110,23 @@ class Vehicle(models.Model):
         verbose_name='Основное фото'
     )
     
+    # GPS мониторинг (StavTrack)
+    gps_device_id = models.CharField(max_length=50, blank=True, null=True, verbose_name='ID GPS устройства')
+    gps_imei = models.CharField(max_length=20, blank=True, null=True, verbose_name='IMEI GPS устройства')
+    gps_phone = models.CharField(max_length=20, blank=True, null=True, verbose_name='Номер SIM GPS устройства')
+    gps_enabled = models.BooleanField(default=False, verbose_name='GPS мониторинг включен')
+    gps_last_update = models.DateTimeField(blank=True, null=True, verbose_name='Последнее обновление GPS')
+    gps_latitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True, verbose_name='Широта')
+    gps_longitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True, verbose_name='Долгота')
+    gps_speed = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True, verbose_name='Скорость (км/ч)')
+    gps_heading = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True, verbose_name='Направление (градусы)')
+    gps_altitude = models.DecimalField(max_digits=6, decimal_places=2, blank=True, null=True, verbose_name='Высота (м)')
+    gps_satellites = models.IntegerField(blank=True, null=True, verbose_name='Количество спутников')
+    gps_signal_quality = models.CharField(max_length=20, blank=True, null=True, verbose_name='Качество сигнала')
+    gps_fuel_level = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True, verbose_name='Уровень топлива (%)')
+    gps_engine_status = models.BooleanField(blank=True, null=True, verbose_name='Статус двигателя')
+    gps_ignition_status = models.BooleanField(blank=True, null=True, verbose_name='Статус зажигания')
+    
     # Метаданные
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='Дата обновления')
@@ -123,6 +140,25 @@ class Vehicle(models.Model):
     
     def __str__(self):
         return f"{self.brand} {self.model} ({self.number})"
+    
+    @property
+    def main_photo_url(self):
+        """Возвращает URL главной фотографии"""
+        # Сначала проверяем основное поле photo
+        if self.photo:
+            return self.photo.url
+        
+        # Затем ищем главную фотографию в связанных фотографиях
+        main_photo = self.photos.filter(is_main=True).first()
+        if main_photo:
+            return main_photo.photo.url
+        
+        # Если нет главной, берем первую
+        first_photo = self.photos.first()
+        if first_photo:
+            return first_photo.photo.url
+        
+        return None
     
     class Meta:
         verbose_name = 'Транспортное средство'
@@ -140,6 +176,35 @@ class VehiclePhoto(models.Model):
         verbose_name = 'Фотография транспорта'
         verbose_name_plural = 'Фотографии транспорта'
         ordering = ['-is_main', '-uploaded_at']
+
+class VehicleGPSHistory(models.Model):
+    """История GPS данных транспортного средства"""
+    vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE, related_name='gps_history', verbose_name='Транспорт')
+    timestamp = models.DateTimeField(verbose_name='Время записи')
+    latitude = models.DecimalField(max_digits=9, decimal_places=6, verbose_name='Широта')
+    longitude = models.DecimalField(max_digits=9, decimal_places=6, verbose_name='Долгота')
+    speed = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True, verbose_name='Скорость (км/ч)')
+    heading = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True, verbose_name='Направление (градусы)')
+    altitude = models.DecimalField(max_digits=6, decimal_places=2, blank=True, null=True, verbose_name='Высота (м)')
+    satellites = models.IntegerField(blank=True, null=True, verbose_name='Количество спутников')
+    signal_quality = models.CharField(max_length=20, blank=True, null=True, verbose_name='Качество сигнала')
+    fuel_level = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True, verbose_name='Уровень топлива (%)')
+    engine_status = models.BooleanField(blank=True, null=True, verbose_name='Статус двигателя')
+    ignition_status = models.BooleanField(blank=True, null=True, verbose_name='Статус зажигания')
+    raw_data = models.JSONField(blank=True, null=True, verbose_name='Сырые данные от GPS')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
+    
+    class Meta:
+        verbose_name = 'GPS история'
+        verbose_name_plural = 'GPS история'
+        ordering = ['-timestamp']
+        indexes = [
+            models.Index(fields=['vehicle', '-timestamp']),
+            models.Index(fields=['timestamp']),
+        ]
+    
+    def __str__(self):
+        return f"{self.vehicle.number} - {self.timestamp}"
 
 class VehicleDocument(models.Model):
     DOCUMENT_TYPE_CHOICES = [

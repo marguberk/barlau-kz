@@ -1,0 +1,296 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🛰️ GPS Демо - Грузовик 484 ATL 01</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            color: white;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            color: #333;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        .demo-badge {
+            background: #f59e0b;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+        .coordinates {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            text-align: center;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+        .coordinates h2 {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+        }
+        .coords {
+            font-size: 1.5rem;
+            font-weight: bold;
+            font-family: monospace;
+        }
+        .status {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #10b981;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .info-item {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #3b82f6;
+        }
+        .info-item h3 {
+            color: #1e40af;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+        .info-item .value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #1f2937;
+        }
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #2563eb;
+        }
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+        .btn-success:hover {
+            background: #059669;
+        }
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+        .log {
+            background: #1f2937;
+            color: #f9fafb;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: monospace;
+            font-size: 0.9rem;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .log-entry {
+            margin-bottom: 3px;
+            padding: 2px 0;
+        }
+        .timestamp {
+            color: #6b7280;
+        }
+        .success { color: #34d399; }
+        .error { color: #f87171; }
+        .warning { color: #fbbf24; }
+        .demo { color: #f59e0b; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="demo-badge">🎮 ДЕМО-РЕЖИМ</div>
+            <h1>🛰️ GPS Мониторинг</h1>
+            <p>Грузовик 484 ATL 01 - Демо с изменяющимися координатами</p>
+        </div>
+        
+        <div class="coordinates">
+            <h2>📍 Текущие координаты</h2>
+            <div class="coords" id="coordinates">Загрузка...</div>
+            <div class="status">
+                <div class="status-dot" id="statusDot"></div>
+                <span id="statusText">Демо-режим активен</span>
+            </div>
+        </div>
+        
+        <div class="info-grid">
+            <div class="info-item">
+                <h3>🚛 Грузовик</h3>
+                <div class="value">484 ATL 01</div>
+            </div>
+            <div class="info-item">
+                <h3>📱 Device ID</h3>
+                <div class="value">484_ATL_01</div>
+            </div>
+            <div class="info-item">
+                <h3>🛰️ GPS Статус</h3>
+                <div class="value">✅ Демо</div>
+            </div>
+            <div class="info-item">
+                <h3>⏰ Обновление</h3>
+                <div class="value" id="lastUpdate">-</div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button class="btn btn-primary" onclick="startDemo()">▶️ Запустить демо</button>
+            <button class="btn btn-success" onclick="updateOnce()">🔄 Обновить</button>
+            <button class="btn btn-danger" onclick="stopDemo()">⏹️ Остановить</button>
+        </div>
+        
+        <div class="log" id="log"></div>
+    </div>
+
+    <script>
+        let demoInterval;
+        let isDemoRunning = false;
+        let demoCount = 0;
+        
+        // Начальные координаты (Алматы)
+        let currentLat = 43.222000;
+        let currentLng = 76.851200;
+        
+        function log(message, type = 'info') {
+            const logContainer = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry ${type}`;
+            logEntry.innerHTML = `<span class="timestamp">[${timestamp}]</span> ${message}`;
+            logContainer.appendChild(logEntry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+        
+        function generateDemoCoordinates() {
+            // Генерируем случайные координаты в районе Алматы
+            const latVariation = (Math.random() - 0.5) * 0.01; // ±0.005 градуса
+            const lngVariation = (Math.random() - 0.5) * 0.01; // ±0.005 градуса
+            
+            currentLat = (43.222000 + latVariation).toFixed(6);
+            currentLng = (76.851200 + lngVariation).toFixed(6);
+            
+            return { lat: currentLat, lng: currentLng };
+        }
+        
+        function updateDemoData() {
+            const coords = generateDemoCoordinates();
+            const speed = Math.floor(Math.random() * 80) + 10; // 10-90 км/ч
+            const fuel = Math.floor(Math.random() * 40) + 60; // 60-100%
+            
+            document.getElementById('coordinates').textContent = `${coords.lat}, ${coords.lng}`;
+            document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString();
+            
+            document.getElementById('statusDot').style.background = '#10b981';
+            document.getElementById('statusText').textContent = '✅ Демо-данные обновлены';
+            
+            demoCount++;
+            log(`🎮 Демо-обновление ${demoCount}: ${coords.lat}, ${coords.lng} (скорость: ${speed} км/ч)`, 'demo');
+        }
+        
+        function startDemo() {
+            if (isDemoRunning) return;
+            
+            isDemoRunning = true;
+            log('▶️ Запуск демо-режима GPS мониторинга', 'success');
+            
+            // Обновляем сразу
+            updateDemoData();
+            
+            // Запускаем периодическое обновление
+            demoInterval = setInterval(updateDemoData, 5000);
+        }
+        
+        function stopDemo() {
+            if (!isDemoRunning) return;
+            
+            isDemoRunning = false;
+            clearInterval(demoInterval);
+            log('⏹️ Демо-режим остановлен', 'warning');
+            
+            document.getElementById('statusDot').style.background = '#6b7280';
+            document.getElementById('statusText').textContent = '⏹️ Демо остановлено';
+        }
+        
+        function updateOnce() {
+            log('🔄 Однократное обновление демо-данных', 'info');
+            updateDemoData();
+        }
+        
+        // Автозапуск при загрузке
+        document.addEventListener('DOMContentLoaded', function() {
+            log('🚀 GPS демо-мониторинг загружен', 'success');
+            log('💡 Нажмите "Запустить демо" для начала', 'info');
+            
+            // Автоматически запускаем демо через 2 секунды
+            setTimeout(() => {
+                startDemo();
+            }, 2000);
+        });
+        
+        window.addEventListener('beforeunload', function() {
+            if (isDemoRunning) {
+                stopDemo();
+            }
+        });
+    </script>
+</body>
+</html>

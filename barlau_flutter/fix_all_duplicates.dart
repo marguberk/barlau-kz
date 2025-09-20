@@ -33,36 +33,36 @@ Future<void> fixAllDuplicatesInFile(String filePath) async {
     String content = await file.readAsString();
     int fixedCount = 0;
     
-    // Исправляем дублирование fontFamily: 'SF Pro Display', fontFamily: 'SF Pro Display',
-    final pattern1 = RegExp(r"fontFamily: 'SF Pro Display',\s*fontFamily: 'SF Pro Display'");
+    // Исправляем дублирование fontFamily: 'InterTight', fontFamily: 'InterTight',
+    final pattern1 = RegExp(r"fontFamily: 'InterTight',\s*fontFamily: 'InterTight'");
     final matches1 = pattern1.allMatches(content);
     
     for (final match in matches1.toList().reversed) {
       final before = content.substring(0, match.start);
       final after = content.substring(match.end);
-      content = before + "fontFamily: 'SF Pro Display'," + after;
+      content = before + "fontFamily: 'InterTight'," + after;
       fixedCount++;
     }
     
     // Исправляем дублирование с отступами
-    final pattern2 = RegExp(r"fontFamily: 'SF Pro Display',\s*\n\s*fontFamily: 'SF Pro Display'");
+    final pattern2 = RegExp(r"fontFamily: 'InterTight',\s*\n\s*fontFamily: 'InterTight'");
     final matches2 = pattern2.allMatches(content);
     
     for (final match in matches2.toList().reversed) {
       final before = content.substring(0, match.start);
       final after = content.substring(match.end);
-      content = before + "fontFamily: 'SF Pro Display'," + after;
+      content = before + "fontFamily: 'InterTight'," + after;
       fixedCount++;
     }
     
     // Исправляем дублирование в одной строке
-    final pattern3 = RegExp(r"fontFamily: 'SF Pro Display',\s*fontFamily: 'SF Pro Display',");
+    final pattern3 = RegExp(r"fontFamily: 'InterTight',\s*fontFamily: 'InterTight',");
     final matches3 = pattern3.allMatches(content);
     
     for (final match in matches3.toList().reversed) {
       final before = content.substring(0, match.start);
       final after = content.substring(match.end);
-      content = before + "fontFamily: 'SF Pro Display'," + after;
+      content = before + "fontFamily: 'InterTight'," + after;
       fixedCount++;
     }
     

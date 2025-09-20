@@ -1,9 +1,11 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import '../models/user.dart';
 import '../services/api_service.dart';
 import '../services/safe_api_service.dart';
+import '../services/biometric_service.dart';
 
 class AuthProvider with ChangeNotifier {
   User? _user;
@@ -46,6 +48,25 @@ class AuthProvider with ChangeNotifier {
     return null;
   }
 
+
+
+  // Получение данных пользователя для быстрого входа
+  Map<String, String>? getUserDataForQuickLogin() {
+    print('AuthProvider: getUserDataForQuickLogin - _user: ${_user != null ? "есть" : "null"}');
+    if (_user != null) {
+      final userData = {
+        'username': _user!.username,
+        'displayName': _user!.firstName.isNotEmpty ? '${_user!.firstName} ${_user!.lastName}'.trim() : _user!.username,
+        'firstName': _user!.firstName,
+        'lastName': _user!.lastName,
+      };
+      print('AuthProvider: getUserDataForQuickLogin - данные: $userData');
+      return userData;
+    }
+    print('AuthProvider: getUserDataForQuickLogin - пользователь не найден');
+    return null;
+  }
+
   // Удаление пользователя из локального хранилища
   Future<void> _removeUserFromLocal() async {
     try {
@@ -53,6 +74,7 @@ class AuthProvider with ChangeNotifier {
       // Удаляем все данные авторизации
       await prefs.remove('user_profile');
       await prefs.remove('auth_token');
+      await prefs.remove('refresh_token');
       await prefs.remove('user_role');
       await prefs.remove('user_name');
       await prefs.remove('user_id');
@@ -60,6 +82,28 @@ class AuthProvider with ChangeNotifier {
     } catch (e) {
       print('AuthProvider: Ошибка удаления данных авторизации: $e');
     }
+  }
+
+  // Выход из-за недействительной сессии
+  Future<void> _logoutDueToInvalidSession(String reason) async {
+    print('AuthProvider: Выход из-за недействительной сессии: $reason');
+    
+    // Очищаем локальные данные
+    await _removeUserFromLocal();
+    
+    // Очищаем состояние
+    _user = null;
+    _isAuthenticated = false;
+    _error = reason;
+    _isLoading = false;
+    
+    print('AuthProvider: Выход из-за недействительной сессии завершен');
+  }
+
+  // Публичный метод для выхода из-за истечения сессии
+  Future<void> logoutDueToExpiredSession(String reason) async {
+    await _logoutDueToInvalidSession(reason);
+    notifyListeners();
   }
 
   Future<void> checkAuthStatus() async {
@@ -82,20 +126,25 @@ class AuthProvider with ChangeNotifier {
       
       // Проверяем, есть ли все необходимые данные
       if (userProfile != null && authToken != null && userRole != null) {
-        // Загружаем пользователя из локального хранилища
-      final localUser = await _loadUserFromLocal();
-      if (localUser != null) {
-        _user = localUser;
-        _isAuthenticated = true;
-        _error = null;
-          print('AuthProvider: Пользователь авторизован - ${localUser.username} (${localUser.role})');
+        // Проверяем валидность токена
+        print('AuthProvider: Проверяем валидность токена...');
+        final validToken = await SafeApiService.getValidToken();
+        
+        if (validToken != null) {
+          // Токен валиден, загружаем пользователя
+          final localUser = await _loadUserFromLocal();
+          if (localUser != null) {
+            _user = localUser;
+            _isAuthenticated = true;
+            _error = null;
+            print('AuthProvider: Пользователь авторизован - ${localUser.username} (${localUser.role})');
+          } else {
+            print('AuthProvider: Ошибка загрузки профиля пользователя');
+            await _logoutDueToInvalidSession('Ошибка загрузки профиля');
+          }
         } else {
-          print('AuthProvider: Ошибка загрузки профиля пользователя');
-          _isAuthenticated = false;
-          _user = null;
-        _error = null;
-          // Очищаем поврежденные данные
-          await _removeUserFromLocal();
+          print('AuthProvider: Токен недействителен, выполняем выход');
+          await _logoutDueToInvalidSession('Сессия истекла');
         }
       } else {
         print('AuthProvider: Неполные данные авторизации, требуется повторный вход');
@@ -107,11 +156,7 @@ class AuthProvider with ChangeNotifier {
       }
     } catch (e) {
       print('AuthProvider: Ошибка проверки авторизации: $e');
-        _isAuthenticated = false;
-        _user = null;
-        _error = 'Ошибка проверки авторизации';
-      // Очищаем данные при ошибке
-      await _removeUserFromLocal();
+      await _logoutDueToInvalidSession('Ошибка проверки авторизации');
     }
 
     _isLoading = false;
@@ -119,7 +164,7 @@ class AuthProvider with ChangeNotifier {
     print('AuthProvider: Статус авторизации: ${_isAuthenticated ? 'авторизован' : 'не авторизован'}');
   }
 
-  Future<bool> login(String username, String password) async {
+  Future<bool> login(String username, String password, {bool setupQuickLogin = false, BuildContext? context}) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
@@ -132,12 +177,14 @@ class AuthProvider with ChangeNotifier {
       
       print('AuthProvider: Результат SafeApiService.safeLogin: ${result['success']}');
       print('AuthProvider: Данные пользователя: ${result['data']?['user']}');
+      print('AuthProvider: result[data][user] != null: ${result['data']['user'] != null}');
       
       if (result['success']) {
         if (result['data']['user'] != null) {
           print('AuthProvider: Создаем пользователя из JSON');
           _user = User.fromJson(result['data']['user']);
           print('AuthProvider: Пользователь создан: ${_user!.username}, роль: ${_user!.role}');
+          print('AuthProvider: Имя пользователя: ${_user!.firstName} ${_user!.lastName}');
           
           // Сохраняем пользователя локально
           await _saveUserToLocal(_user!);
@@ -155,6 +202,9 @@ class AuthProvider with ChangeNotifier {
         print('AuthProvider: Вызываем notifyListeners() после успешной авторизации');
         notifyListeners();
         print('AuthProvider: notifyListeners() вызван после успешной авторизации');
+        
+        // Навигация теперь управляется только LoginScreen
+        // AuthProvider больше НЕ делает навигацию к PIN экрану
         
         // Дополнительно вызываем notifyListeners еще раз через небольшую задержку
         Future.delayed(const Duration(milliseconds: 100), () {
@@ -204,6 +254,14 @@ class AuthProvider with ChangeNotifier {
     _error = null;
     _isLoading = false;
     
+    // Очищаем данные быстрого входа при выходе
+    try {
+      await BiometricService.clearQuickLoginData();
+      print('AuthProvider: Данные быстрого входа очищены при выходе');
+    } catch (e) {
+      print('AuthProvider: Ошибка очистки данных быстрого входа: $e');
+    }
+    
     print('AuthProvider: Выход из аккаунта завершен');
     notifyListeners();
     
@@ -215,6 +273,47 @@ class AuthProvider with ChangeNotifier {
   void clearError() {
     _error = null;
     notifyListeners();
+  }
+
+  // Проверка валидности токена и автоматический выход при истечении
+  Future<Map<String, dynamic>> validateToken() async {
+    if (!_isAuthenticated) {
+      return {
+        'valid': false,
+        'reason': 'Пользователь не авторизован',
+        'shouldLogout': false,
+      };
+    }
+
+    try {
+      print('AuthProvider: Проверяем валидность токена...');
+      final validToken = await SafeApiService.getValidToken();
+      
+      if (validToken == null) {
+        print('AuthProvider: Токен недействителен, выполняем выход');
+        await _logoutDueToInvalidSession('Сессия истекла');
+        return {
+          'valid': false,
+          'reason': 'Сессия истекла',
+          'shouldLogout': true,
+        };
+      }
+      
+      print('AuthProvider: Токен валиден');
+      return {
+        'valid': true,
+        'reason': null,
+        'shouldLogout': false,
+      };
+    } catch (e) {
+      print('AuthProvider: Ошибка проверки токена: $e');
+      await _logoutDueToInvalidSession('Ошибка проверки токена');
+      return {
+        'valid': false,
+        'reason': 'Ошибка проверки токена',
+        'shouldLogout': true,
+      };
+    }
   }
 
   Future<bool> updateProfile({

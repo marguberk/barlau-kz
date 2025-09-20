@@ -197,6 +197,77 @@ def trips_api(request, pk=None):
         trip.delete()
         return Response({'detail': 'Поездка удалена'})
 
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def public_trips_api(request):
+    """Публичный API для получения списка заездов без авторизации"""
+    try:
+        from django.db import connection
+        
+        # Используем raw SQL для избежания проблем с ORM
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                SELECT 
+                    t.id, t.title, t.status, t.start_address, t.end_address,
+                    t.cargo_description, t.cargo_weight, t.freight_amount,
+                    t.planned_start_date, t.planned_end_date, t.actual_start_date, t.actual_end_date,
+                    t.notes, t.created_at, t.updated_at,
+                    t.driver_id, t.vehicle_id,
+                    d.first_name as driver_first_name, d.last_name as driver_last_name, d.username as driver_username,
+                    v.number as vehicle_number, v.brand as vehicle_brand, v.model as vehicle_model
+                FROM core_trip t
+                LEFT JOIN accounts_user d ON t.driver_id = d.id
+                LEFT JOIN logistics_vehicle v ON t.vehicle_id = v.id
+                ORDER BY t.created_at DESC
+            """)
+            
+            rows = cursor.fetchall()
+            
+        # Создаем упрощенный сериализатор без проблемных полей
+        trips_data = []
+        for row in rows:
+            trip_data = {
+                'id': row[0],
+                'title': row[1],
+                'status': row[2],
+                'start_address': row[3],
+                'end_address': row[4],
+                'cargo_description': row[5],
+                'cargo_weight': row[6],
+                'freight_amount': row[7],
+                'planned_start_date': row[8],
+                'planned_end_date': row[9],
+                'actual_start_date': row[10],
+                'actual_end_date': row[11],
+                'notes': row[12],
+                'created_at': row[13],
+                'updated_at': row[14],
+            }
+            
+            # Добавляем информацию о водителе
+            if row[15]:  # driver_id
+                trip_data['driver_details'] = {
+                    'id': row[15],
+                    'first_name': row[17],
+                    'last_name': row[18],
+                    'username': row[19],
+                }
+            
+            # Добавляем информацию о грузовике
+            if row[16]:  # vehicle_id
+                trip_data['vehicle_details'] = {
+                    'id': row[16],
+                    'number': row[20],
+                    'brand': row[21],
+                    'model': row[22],
+                }
+            
+            trips_data.append(trip_data)
+        
+        return Response(trips_data)
+    except Exception as e:
+        return Response({'error': str(e)}, status=500)
+
 @csrf_exempt
 @api_view(['GET', 'POST'])
 @authentication_classes([JWTAuthentication, CsrfExemptSessionAuthentication])

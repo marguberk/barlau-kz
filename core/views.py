@@ -46,6 +46,11 @@ from django.utils import timezone
 from django import forms
 from django.http import HttpResponseForbidden
 from logistics.models import Vehicle, VehiclePhoto, VehicleDocument
+from django.contrib.auth.decorators import login_required
+from datetime import datetime
+from logistics.models import Vehicle
+from accounts.models import User
+from .models import Trip
 
 User = get_user_model()
 
@@ -2610,13 +2615,42 @@ class TrucksView(LoginRequiredMixin, TemplateView):
 
 class TruckDetailView(LoginRequiredMixin, DetailView):
     model = Vehicle
-    template_name = 'core/truck_detail.html'
-    context_object_name = 'truck'
+    template_name = 'logistics/vehicle_detail_simple.html'
+    context_object_name = 'vehicle'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # помечаем активную страницу
-        context['active_page'] = 'trucks'
+        vehicle = self.get_object()
+        
+        # Получаем заезды для этого грузовика
+        from core.models import Trip
+        trips = Trip.objects.filter(vehicle=vehicle).order_by('-created_at')[:10]
+        
+        # Подготавливаем GPS данные
+        gps_data = None
+        if vehicle.gps_enabled and vehicle.gps_latitude and vehicle.gps_longitude:
+            try:
+                gps_data = {
+                    'latitude': float(vehicle.gps_latitude),
+                    'longitude': float(vehicle.gps_longitude),
+                    'speed': float(vehicle.gps_speed) if vehicle.gps_speed else 0,
+                    'heading': float(vehicle.gps_heading) if vehicle.gps_heading else 0,
+                    'last_update': vehicle.gps_last_update,
+                    'enabled': vehicle.gps_enabled
+                }
+            except (ValueError, TypeError) as e:
+                print(f"Ошибка конвертации GPS данных: {e}")
+                gps_data = None
+        
+        # Подготавливаем данные для шаблона
+        context.update({
+            'trips': trips,
+            'gps_data': gps_data,
+            'photos': vehicle.photos.all() if hasattr(vehicle, 'photos') else [],
+            'documents': vehicle.documents.all() if hasattr(vehicle, 'documents') else [],
+            'active_page': 'trucks'
+        })
+        
         return context
 
 
@@ -2892,7 +2926,7 @@ def trips_simple_view(request):
                     t.start_address,
                     t.end_address,
                     t.cargo_description,
-                    t.date,
+                    t.status,
                     t.created_at,
                     t.driver_id,
                     t.vehicle_id,
@@ -2918,9 +2952,8 @@ def trips_simple_view(request):
                     'start_address': row[5] or '',
                     'end_address': row[6] or '',
                     'cargo_description': row[7] or '',
-                    'date': str(row[8]) if row[8] else '',
+                    'status': row[8] or 'PLANNED',
                     'created_at': str(row[9]) if row[9] else '',
-                    'status': 'ACTIVE',
                     'title': f"{row[5]} → {row[6]}" if row[5] and row[6] else 'Поездка',
                     'driver_details': {
                         'id': row[10],
@@ -3056,3 +3089,337 @@ def drivers_simple_view(request):
         return JsonResponse({
             'detail': f'Ошибка при получении водителей: {str(e)}'
         }, status=500)
+@csrf_exempt
+def create_trip(request):
+    """Простое представление для создания заезда"""
+    if request.method == 'POST':
+        try:
+            # Получаем данные из формы
+            status = request.POST.get('status', 'PLANNED')
+            vehicle_id = request.POST.get('vehicle')
+            driver_id = request.POST.get('driver')
+            start_address = request.POST.get('start_address')
+            end_address = request.POST.get('end_address')
+            planned_start_date = request.POST.get('planned_start_date')
+            planned_end_date = request.POST.get('planned_end_date')
+            notes = request.POST.get('notes', '')
+            
+            # Валидация обязательных полей
+            if not all([vehicle_id, driver_id, start_address, end_address, planned_start_date]):
+                messages.error(request, 'Пожалуйста, заполните все обязательные поля')
+                return render(request, 'core/simple_create_trip.html', {
+                    'vehicles': Vehicle.objects.all(),
+                    'drivers': User.objects.filter(role='DRIVER'),
+                    'message': 'Пожалуйста, заполните все обязательные поля',
+                    'success': False
+                })
+            
+            # Получаем объекты
+            vehicle = Vehicle.objects.get(id=vehicle_id)
+            driver = User.objects.get(id=driver_id)
+            
+            # Парсим даты
+            planned_start = datetime.fromisoformat(planned_start_date.replace('T', ' '))
+            planned_end = None
+            if planned_end_date:
+                planned_end = datetime.fromisoformat(planned_end_date.replace('T', ' '))
+            
+            # Автоматически генерируем название заезда
+            title = f"{start_address} → {end_address}"
+            
+            # Создаем заезд
+            trip = Trip.objects.create(
+                title=title,
+                status=status,
+                vehicle=vehicle,
+                driver=driver,
+                start_address=start_address,
+                end_address=end_address,
+                planned_start_date=planned_start,
+                planned_end_date=planned_end,
+                notes=notes,
+                created_by=request.user
+            )
+            
+            messages.success(request, f'Заезд "{trip.title}" успешно создан!')
+            # Возвращаем JSON ответ для AJAX запросов
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                from django.http import JsonResponse
+                return JsonResponse({
+                    'success': True,
+                    'message': f'Заезд "{trip.title}" успешно создан!',
+                    'trip_id': trip.id
+                })
+            return redirect('core:trips')
+            
+        except Exception as e:
+            messages.error(request, f'Ошибка создания заезда: {str(e)}')
+            return render(request, 'core/simple_create_trip.html', {
+                'vehicles': Vehicle.objects.all(),
+                'drivers': User.objects.filter(role='DRIVER'),
+                'message': f'Ошибка создания заезда: {str(e)}',
+                'success': False
+            })
+    
+    # GET запрос - показываем форму
+    return render(request, 'core/simple_create_trip.html', {
+        'vehicles': Vehicle.objects.all(),
+        'drivers': User.objects.filter(role='DRIVER')
+    })
+
+def create_trip_simple(request):
+    """Простое представление для создания заезда без аутентификации"""
+    if request.method == 'POST':
+        try:
+            # Получаем данные из формы
+            title = request.POST.get('title')
+            status = request.POST.get('status', 'PLANNED')
+            vehicle_id = request.POST.get('vehicle')
+            driver_id = request.POST.get('driver')
+            start_address = request.POST.get('start_address')
+            end_address = request.POST.get('end_address')
+            planned_start_date = request.POST.get('planned_start_date')
+            planned_end_date = request.POST.get('planned_end_date')
+            notes = request.POST.get('notes', '')
+            
+            print(f"Получены данные: title={title}, vehicle={vehicle_id}, driver={driver_id}")
+            
+            # Валидация обязательных полей
+            if not all([title, vehicle_id, driver_id, start_address, end_address, planned_start_date]):
+                return render(request, 'core/simple_create_trip.html', {
+                    'vehicles': Vehicle.objects.all(),
+                    'drivers': User.objects.filter(role='DRIVER'),
+                    'message': 'Пожалуйста, заполните все обязательные поля',
+                    'success': False
+                })
+            
+            # Получаем объекты
+            vehicle = Vehicle.objects.get(id=vehicle_id)
+            driver = User.objects.get(id=driver_id)
+            
+            # Парсим даты
+            planned_start = datetime.fromisoformat(planned_start_date.replace('T', ' '))
+            planned_end = None
+            if planned_end_date:
+                planned_end = datetime.fromisoformat(planned_end_date.replace('T', ' '))
+            
+            # Создаем заезд
+            trip = Trip.objects.create(
+                title=title,
+                status=status,
+                vehicle=vehicle,
+                driver=driver,
+                start_address=start_address,
+                end_address=end_address,
+                planned_start_date=planned_start,
+                planned_end_date=planned_end,
+                notes=notes,
+                created_by=request.user if request.user.is_authenticated else None
+            )
+            
+            print(f"Заезд создан: ID={trip.id}, title={trip.title}")
+            
+            return render(request, 'core/simple_create_trip.html', {
+                'vehicles': Vehicle.objects.all(),
+                'drivers': User.objects.filter(role='DRIVER'),
+                'message': f'Заезд "{trip.title}" успешно создан!',
+                'success': True
+            })
+            
+        except Exception as e:
+            print(f"Ошибка создания заезда: {e}")
+            return render(request, 'core/simple_create_trip.html', {
+                'vehicles': Vehicle.objects.all(),
+                'drivers': User.objects.filter(role='DRIVER'),
+                'message': f'Ошибка создания заезда: {str(e)}',
+                'success': False
+            })
+    
+    # GET запрос - показываем форму
+    return render(request, 'core/simple_create_trip.html', {
+        'vehicles': Vehicle.objects.all(),
+        'drivers': User.objects.filter(role='DRIVER')
+    })
+
+@csrf_exempt
+def create_trip_test(request):
+    """Тестовое представление для создания заезда без CSRF защиты"""
+    if request.method == 'POST':
+        try:
+            # Получаем данные из формы
+            title = request.POST.get('title')
+            status = request.POST.get('status', 'PLANNED')
+            vehicle_id = request.POST.get('vehicle')
+            driver_id = request.POST.get('driver')
+            start_address = request.POST.get('start_address')
+            end_address = request.POST.get('end_address')
+            planned_start_date = request.POST.get('planned_start_date')
+            planned_end_date = request.POST.get('planned_end_date')
+            notes = request.POST.get('notes', '')
+            
+            print(f"Получены данные: title={title}, vehicle={vehicle_id}, driver={driver_id}")
+            
+            # Валидация обязательных полей
+            if not all([title, vehicle_id, driver_id, start_address, end_address, planned_start_date]):
+                return render(request, 'core/simple_create_trip.html', {
+                    'vehicles': Vehicle.objects.all(),
+                    'drivers': User.objects.filter(role='DRIVER'),
+                    'message': 'Пожалуйста, заполните все обязательные поля',
+                    'success': False
+                })
+            
+            # Получаем объекты
+            vehicle = Vehicle.objects.get(id=vehicle_id)
+            driver = User.objects.get(id=driver_id)
+            
+            # Парсим даты
+            planned_start = datetime.fromisoformat(planned_start_date.replace('T', ' '))
+            planned_end = None
+            if planned_end_date:
+                planned_end = datetime.fromisoformat(planned_end_date.replace('T', ' '))
+            
+            # Создаем заезд
+            trip = Trip.objects.create(
+                title=title,
+                status=status,
+                vehicle=vehicle,
+                driver=driver,
+                start_address=start_address,
+                end_address=end_address,
+                planned_start_date=planned_start,
+                planned_end_date=planned_end,
+                notes=notes,
+                created_by=request.user if request.user.is_authenticated else None
+            )
+            
+            print(f"Заезд создан: ID={trip.id}, title={trip.title}")
+            
+            return render(request, 'core/simple_create_trip.html', {
+                'vehicles': Vehicle.objects.all(),
+                'drivers': User.objects.filter(role='DRIVER'),
+                'message': f'Заезд "{trip.title}" успешно создан!',
+                'success': True
+            })
+            
+        except Exception as e:
+            print(f"Ошибка создания заезда: {e}")
+            return render(request, 'core/simple_create_trip.html', {
+                'vehicles': Vehicle.objects.all(),
+                'drivers': User.objects.filter(role='DRIVER'),
+                'message': f'Ошибка создания заезда: {str(e)}',
+                'success': False
+            })
+    
+    # GET запрос - показываем форму
+    return render(request, 'core/simple_create_trip.html', {
+        'vehicles': Vehicle.objects.all(),
+        'drivers': User.objects.filter(role='DRIVER')
+    })
+
+class TripDetailView(LoginRequiredMixin, DetailView):
+    """View для отображения деталей заезда с интеграцией GPS данных"""
+    model = Trip
+    template_name = 'core/trip_detail.html'
+    context_object_name = 'trip'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        # Получаем заезд
+        trip = self.get_object()
+        
+        # Добавляем GPS данные из связанного транспорта
+        if trip.vehicle:
+            vehicle = trip.vehicle
+            try:
+                context['gps_data'] = {
+                    'latitude': float(vehicle.gps_latitude) if vehicle.gps_latitude else None,
+                    'longitude': float(vehicle.gps_longitude) if vehicle.gps_longitude else None,
+                    'speed': float(vehicle.gps_speed) if vehicle.gps_speed else 0,
+                    'heading': float(vehicle.gps_heading) if vehicle.gps_heading else 0,
+                    'last_update': vehicle.gps_last_update,
+                    'enabled': vehicle.gps_enabled
+                }
+            except (ValueError, TypeError) as e:
+                print(f"Ошибка конвертации GPS данных для заезда {trip.id}: {e}")
+                context['gps_data'] = {
+                    'latitude': None,
+                    'longitude': None,
+                    'speed': 0,
+                    'heading': 0,
+                    'last_update': None,
+                    'enabled': False
+                }
+            
+            # Вычисляем прогресс для активных заездов
+            if trip.status == 'ACTIVE' and vehicle.gps_latitude and vehicle.gps_longitude:
+                progress = self.calculate_trip_progress(trip, vehicle)
+                context['trip_progress'] = progress
+        
+        # Добавляем информацию о водителе
+        if trip.driver:
+            context['driver_info'] = {
+                'name': trip.driver.get_full_name(),
+                'phone': trip.driver.phone,
+                'username': trip.driver.username
+            }
+        
+        # Добавляем информацию о транспорте
+        if trip.vehicle:
+            context['vehicle_info'] = {
+                'number': trip.vehicle.number,
+                'brand': trip.vehicle.brand,
+                'model': trip.vehicle.model,
+                'year': trip.vehicle.year
+            }
+        
+        return context
+    
+    def calculate_trip_progress(self, trip, vehicle):
+        """Вычисляет прогресс поездки на основе GPS координат"""
+        try:
+            # Получаем координаты начала и конца маршрута
+            start_lat = float(trip.start_latitude) if trip.start_latitude else None
+            start_lng = float(trip.start_longitude) if trip.start_longitude else None
+            end_lat = float(trip.end_latitude) if trip.end_latitude else None
+            end_lng = float(trip.end_longitude) if trip.end_longitude else None
+            
+            # Получаем текущие GPS координаты
+            current_lat = float(vehicle.gps_latitude) if vehicle.gps_latitude else None
+            current_lng = float(vehicle.gps_longitude) if vehicle.gps_longitude else None
+            
+            if not all([start_lat, start_lng, end_lat, end_lng, current_lat, current_lng]):
+                return 0
+            
+            # Вычисляем расстояние от начала до текущей позиции
+            from math import radians, cos, sin, asin, sqrt
+            
+            def haversine(lon1, lat1, lon2, lat2):
+                """Вычисляет расстояние между двумя точками на сфере"""
+                lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
+                dlon = lon2 - lon1
+                dlat = lat2 - lat1
+                a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
+                c = 2 * asin(sqrt(a))
+                r = 6371  # Радиус Земли в километрах
+                return c * r
+            
+            # Расстояние от начала до текущей позиции
+            distance_traveled = haversine(start_lng, start_lat, current_lng, current_lat)
+            
+            # Общее расстояние маршрута
+            total_distance = haversine(start_lng, start_lat, end_lng, end_lat)
+            
+            if total_distance == 0:
+                return 0
+            
+            # Вычисляем прогресс в процентах
+            progress = min(100, max(0, (distance_traveled / total_distance) * 100))
+            
+            return round(progress, 1)
+            
+        except Exception as e:
+            print(f"Ошибка вычисления прогресса: {e}")
+            return 0
+
+

@@ -93,6 +93,27 @@ class TaskViewSet(BaseModelViewSet):
         else:
             serializer.save()
     
+    def update(self, request, *args, **kwargs):
+        """Переопределяем метод update для проверки прав"""
+        task = self.get_object()
+        user = request.user
+        
+        # Проверяем права на обновление задачи
+        all_assignees = task.get_all_assignees()
+        can_update = (
+            user.role in ['DIRECTOR', 'SUPERADMIN', 'ADMIN'] or
+            user == task.created_by or
+            user in all_assignees
+        )
+        
+        if not can_update:
+            return Response(
+                {"detail": "У вас нет прав для обновления этой задачи"},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        return super().update(request, *args, **kwargs)
+    
     @action(detail=True, methods=['post'])
     def change_status(self, request, pk=None):
         """Изменить статус задачи"""

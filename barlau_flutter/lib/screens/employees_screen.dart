@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../components/app_header.dart';
 import 'employee_detail_screen.dart';
 import '../services/safe_api_service.dart';
+import '../config/app_config.dart';
 
 class EmployeesScreen extends StatefulWidget {
   const EmployeesScreen({super.key});
@@ -60,9 +61,9 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
     
     print('DEBUG: Токен авторизации для сотрудников: ${token != null ? 'есть' : 'нет'}');
 
-          // Используем только продакшн URL для избежания дубликатов
+          // Используем локальный URL для тестирования
       final urls = [
-        'https://barlau.org/api/employees/',
+        '${AppConfig.baseApiUrl}/employees/',
       ];
 
     for (String url in urls) {
@@ -216,7 +217,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                       Text(
                         'Сотрудники не найдены',
                         style: TextStyle(
-    fontFamily: 'SF Pro Display',
+    fontFamily: 'InterTight',
                           fontSize: 18,
                           color: Color(0xFF6B7280),
                         ),
@@ -328,7 +329,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                                 child: Text(
                                   initials,
                                   style: const TextStyle(
-    fontFamily: 'SF Pro Display',
+    fontFamily: 'InterTight',
                                     color: Colors.white,
                                     fontSize: 12,
                                     fontWeight: FontWeight.w600,
@@ -342,7 +343,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                           child: Text(
                             initials,
                             style: const TextStyle(
-    fontFamily: 'SF Pro Display',
+    fontFamily: 'InterTight',
                               color: Colors.white,
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
@@ -356,7 +357,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                   child: Text(
                     fullName,
                     style: const TextStyle(
-    fontFamily: 'SF Pro Display',
+    fontFamily: 'InterTight',
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                       color: Color(0xFF1F2937),
@@ -397,7 +398,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                               child: Text(
                                 roleDisplay,
                                 style: TextStyle(
-    fontFamily: 'SF Pro Display',
+    fontFamily: 'InterTight',
                                   fontSize: 11,
                                   fontWeight: FontWeight.w500,
                                   color: roleColor,
@@ -422,7 +423,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                             child: Text(
                               'Работает с $dateJoined',
                               style: const TextStyle(
-    fontFamily: 'SF Pro Display',
+    fontFamily: 'InterTight',
                                 fontSize: 12,
                                 color: Color(0xFF6B7280),
                               ),
@@ -468,7 +469,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                       child: Text(
                         'Посмотреть резюме',
                         style: TextStyle(
-    fontFamily: 'SF Pro Display',
+    fontFamily: 'InterTight',
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
                         ),
@@ -569,4 +570,4 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
       'is_active': employee['is_active'] ?? true,
     };
   }
-} 
+}

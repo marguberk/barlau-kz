@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Vehicle, Task, TaskFile, Expense, WaybillDocument, VehiclePhoto, VehicleDocument, VehicleMaintenance
+from .models import Vehicle, Task, TaskFile, Expense, WaybillDocument, VehiclePhoto, VehicleDocument, VehicleMaintenance, VehicleGPSHistory
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
@@ -44,13 +44,18 @@ class VehicleSerializer(serializers.ModelSerializer):
             return main.photo.url
         return None
     
+    
     class Meta:
         model = Vehicle
         fields = ['id', 'number', 'brand', 'model', 'year', 'color', 'description', 'vehicle_type', 'status', 
                  'vin_number', 'engine_number', 'chassis_number', 'engine_capacity', 'fuel_type', 'fuel_consumption',
                  'length', 'width', 'height', 'max_weight', 'cargo_capacity',
                  'driver', 'driver_details', 'created_at', 'updated_at', 'created_by',
-                 'photos', 'documents', 'maintenance_records', 'main_photo_url']
+                 'photos', 'documents', 'maintenance_records', 'main_photo_url',
+                 # GPS мониторинг
+                 'gps_device_id', 'gps_imei', 'gps_phone', 'gps_enabled', 'gps_last_update',
+                 'gps_latitude', 'gps_longitude', 'gps_speed', 'gps_heading', 'gps_altitude',
+                 'gps_satellites', 'gps_signal_quality', 'gps_fuel_level', 'gps_engine_status', 'gps_ignition_status']
 
 class VehicleLocationSerializer(serializers.ModelSerializer):
     driver_name = serializers.CharField(source='driver.get_full_name', read_only=True)
@@ -61,6 +66,15 @@ class VehicleLocationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Vehicle
         fields = ['id', 'number', 'brand', 'model', 'driver_name', 'latitude', 'longitude', 'last_update']
+
+class VehicleGPSHistorySerializer(serializers.ModelSerializer):
+    """Сериализатор для истории GPS данных"""
+    
+    class Meta:
+        model = VehicleGPSHistory
+        fields = ['id', 'vehicle', 'timestamp', 'latitude', 'longitude', 'speed', 'heading', 'altitude',
+                 'satellites', 'signal_quality', 'fuel_level', 'engine_status', 'ignition_status', 'raw_data']
+        read_only_fields = ['id', 'created_at']
 
 class TaskFileSerializer(serializers.ModelSerializer):
     uploaded_by_details = UserSerializer(source='uploaded_by', read_only=True)

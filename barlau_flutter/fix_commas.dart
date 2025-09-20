@@ -34,13 +34,13 @@ Future<void> fixCommasInFile(String filePath) async {
     int fixedCount = 0;
     
     // Исправляем лишние запятые
-    final pattern = RegExp(r"fontFamily: 'SF Pro Display',,");
+    final pattern = RegExp(r"fontFamily: 'InterTight',,");
     final matches = pattern.allMatches(content);
     
     for (final match in matches.toList().reversed) {
       final before = content.substring(0, match.start);
       final after = content.substring(match.end);
-      content = before + "fontFamily: 'SF Pro Display'," + after;
+      content = before + "fontFamily: 'InterTight'," + after;
       fixedCount++;
     }
     

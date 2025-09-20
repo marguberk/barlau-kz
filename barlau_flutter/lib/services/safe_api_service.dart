@@ -99,6 +99,7 @@ class SafeApiService {
       print('SafeApiService: Попытка входа для $username');
       print('SafeApiService: URL авторизации: ${AppConfig.baseApiUrl}/v1/auth/token/');
       
+      // Сначала пробуем реальный API
       final result = await safeRequest('/v1/auth/token/', 
         method: 'POST',
         body: {
@@ -155,7 +156,9 @@ class SafeApiService {
             
             return {
               'success': true,
-              'data': userData,
+              'data': {
+                'user': userData,
+              },
             };
           } else {
             print('SafeApiService: Ошибка получения данных пользователя: ${userResult['error']}');
@@ -173,13 +176,21 @@ class SafeApiService {
         }
       } else {
         print('SafeApiService: Ошибка авторизации через API: ${result['error']}');
-        return {
-          'success': false,
-          'error': 'Неверный логин или пароль',
-        };
+        
+        // Убираем демо-режим - только реальная авторизация
+        print('SafeApiService: Ошибка авторизации через API: ${result['error']}');
+        
+              return {
+        'success': false,
+        'error': 'Неверный логин или пароль. Проверьте правильность введенных данных.',
+      };
       }
     } catch (e) {
       print('SafeApiService: Ошибка авторизации: $e');
+      
+      // Убираем демо-режим - только реальная авторизация
+      print('SafeApiService: Ошибка сети при авторизации: $e');
+      
       return {
         'success': false,
         'error': 'Ошибка сети: $e',
@@ -442,9 +453,13 @@ class SafeApiService {
         
         final refreshResult = await refreshAuthToken();
         if (refreshResult['success']) {
+          print('SafeApiService: Токен успешно обновлен');
           return refreshResult['data']['access_token'];
         } else {
-          print('SafeApiService: Не удалось обновить токен');
+          print('SafeApiService: Не удалось обновить токен - сессия истекла');
+          // Очищаем все токены при неудачном обновлении
+          await prefs.remove('auth_token');
+          await prefs.remove('refresh_token');
           return null;
         }
       } else {

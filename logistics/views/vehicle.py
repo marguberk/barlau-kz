@@ -2,6 +2,7 @@ from rest_framework import permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters import rest_framework as filters
+from django.utils import timezone
 from ..models import Vehicle
 from ..serializers import VehicleSerializer, VehicleLocationSerializer
 from .base import BaseModelViewSet
@@ -121,6 +122,94 @@ class VehicleViewSet(BaseModelViewSet):
         
         serializer = self.get_serializer(vehicle)
         return Response(serializer.data)
+    
+    @action(detail=True, methods=['get'])
+    def gps_data(self, request, pk=None):
+        """Получить GPS данные транспортного средства"""
+        vehicle = self.get_object()
+        
+        if not vehicle.gps_enabled or not vehicle.gps_device_id:
+            return Response(
+                {"detail": "GPS мониторинг не настроен для этого транспортного средства"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        # Возвращаем текущие GPS данные
+        gps_data = {
+            'device_id': vehicle.gps_device_id,
+            'latitude': float(vehicle.gps_latitude) if vehicle.gps_latitude else None,
+            'longitude': float(vehicle.gps_longitude) if vehicle.gps_longitude else None,
+            'speed': float(vehicle.gps_speed) if vehicle.gps_speed else None,
+            'heading': float(vehicle.gps_heading) if vehicle.gps_heading else None,
+            'altitude': float(vehicle.gps_altitude) if vehicle.gps_altitude else None,
+            'satellites': vehicle.gps_satellites,
+            'signal_quality': vehicle.gps_signal_quality,
+            'fuel_level': float(vehicle.gps_fuel_level) if vehicle.gps_fuel_level else None,
+            'engine_status': vehicle.gps_engine_status,
+            'ignition_status': vehicle.gps_ignition_status,
+            'last_update': vehicle.gps_last_update,
+            'enabled': vehicle.gps_enabled
+        }
+        
+        return Response(gps_data)
+    
+    @action(detail=True, methods=['post'])
+    def sync_gps(self, request, pk=None):
+        """Синхронизировать GPS данные транспортного средства"""
+        if not request.user.role in ['DIRECTOR', 'SUPERADMIN', 'DISPATCHER']:
+            return Response(
+                {"detail": "У вас нет прав для синхронизации GPS данных"},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        vehicle = self.get_object()
+        
+        if not vehicle.gps_device_id:
+            return Response(
+                {"detail": "GPS устройство не привязано к этому транспортному средству"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        try:
+            from logistics.services.stavtrack_service import StavTrackService
+            stavtrack_service = StavTrackService()
+            
+            # Получаем актуальные данные от StavTrack
+            position = stavtrack_service.get_vehicle_position(vehicle.gps_device_id)
+            
+            if position:
+                # Обновляем данные в базе
+                vehicle.gps_latitude = position.get('latitude')
+                vehicle.gps_longitude = position.get('longitude')
+                vehicle.gps_speed = position.get('speed')
+                vehicle.gps_heading = position.get('course')
+                vehicle.gps_altitude = position.get('altitude')
+                vehicle.gps_satellites = position.get('satellites')
+                vehicle.gps_signal_quality = position.get('signalQuality')
+                vehicle.gps_fuel_level = position.get('fuelLevel')
+                vehicle.gps_engine_status = position.get('engineStatus')
+                vehicle.gps_ignition_status = position.get('ignitionStatus')
+                vehicle.gps_last_update = timezone.now()
+                vehicle.gps_enabled = True
+                
+                vehicle.save()
+                
+                return Response({
+                    "detail": "GPS данные успешно синхронизированы",
+                    "last_update": vehicle.gps_last_update
+                })
+            else:
+                return Response(
+                    {"detail": "Не удалось получить GPS данные от StavTrack"},
+                    status=status.HTTP_503_SERVICE_UNAVAILABLE
+                )
+                
+        except Exception as e:
+            logger.error(f"Ошибка при синхронизации GPS для {vehicle.number}: {str(e)}")
+            return Response(
+                {"detail": f"Ошибка при синхронизации GPS данных: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
     def perform_create(self, serializer):
         vehicle = serializer.save(created_by=self.request.user)

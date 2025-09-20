@@ -34,7 +34,7 @@ Future<void> fixDuplicateFontsInFile(String filePath) async {
     int fixedCount = 0;
     
     // Исправляем дублирование fontFamily
-    final pattern = RegExp(r"fontFamily: 'SF Pro Display',\\s*fontFamily: 'SF Pro Display'");
+    final pattern = RegExp(r"fontFamily: 'InterTight',\\s*fontFamily: 'InterTight'");
     final matches = pattern.allMatches(content);
     
     for (final match in matches.toList().reversed) {
