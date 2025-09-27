@@ -29,7 +29,7 @@ class TaskFilter(filters.FilterSet):
         }
 
 class TaskViewSet(BaseModelViewSet):
-    queryset = Task.objects.select_related('assigned_to', 'created_by', 'vehicle').prefetch_related('assignees', 'files').all().order_by('-created_at')
+    queryset = Task.objects.all().order_by('-created_at')
     serializer_class = TaskSerializer
     permission_classes = [permissions.IsAuthenticated]
     filterset_class = TaskFilter
@@ -133,13 +133,22 @@ class TaskViewSet(BaseModelViewSet):
             )
             
         # Проверяем права на изменение статуса
-        all_assignees = task.get_all_assignees()
-        if (request.user.role not in ['DIRECTOR', 'SUPERADMIN'] and 
-            request.user not in all_assignees):
-            return Response(
-                {"detail": "У вас нет прав для изменения статуса этой задачи"},
-                status=status.HTTP_403_FORBIDDEN
-            )
+        try:
+            all_assignees = task.get_all_assignees()
+            if (request.user.role not in ['DIRECTOR', 'SUPERADMIN'] and 
+                request.user not in all_assignees):
+                return Response(
+                    {"detail": "У вас нет прав для изменения статуса этой задачи"},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+        except Exception as e:
+            print(f"[DEBUG] Ошибка при проверке прав доступа: {e}")
+            # Если есть ошибка в проверке прав, разрешаем изменение для SUPERADMIN
+            if request.user.role not in ['DIRECTOR', 'SUPERADMIN']:
+                return Response(
+                    {"detail": "Ошибка при проверке прав доступа"},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
             
         task.status = new_status
         task.save()

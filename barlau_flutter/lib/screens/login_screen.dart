@@ -20,6 +20,8 @@ class _LoginScreenState extends State<LoginScreen>
     with TickerProviderStateMixin {
   final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _phoneFocusNode = FocusNode();
+  final _passwordFocusNode = FocusNode();
   bool _isPasswordVisible = false;
   bool _isLoading = false;
   bool _isNavigating = false; // Флаг для предотвращения множественной навигации
@@ -34,18 +36,37 @@ class _LoginScreenState extends State<LoginScreen>
   late AnimationController _formController;
   late AnimationController _titleController;
   late AnimationController _subtitleController;
+  late AnimationController _phoneBorderController;
+  late AnimationController _passwordBorderController;
 
   late Animation<double> _logoAnimation;
   late Animation<double> _formAnimation;
   late Animation<double> _titleAnimation;
   late Animation<double> _subtitleAnimation;
+  late Animation<double> _phoneBorderAnimation;
+  late Animation<double> _passwordBorderAnimation;
 
   @override
   void initState() {
     super.initState();
 
-    // Предзаполняем номер телефона маской
-    _phoneController.text = '+7 (___) ___-____';
+    // Добавляем слушатели фокуса для полей
+    _phoneFocusNode.addListener(() {
+      if (_phoneFocusNode.hasFocus) {
+        _phoneBorderController.forward();
+      } else {
+        _phoneBorderController.reverse();
+      }
+      setState(() {});
+    });
+    _passwordFocusNode.addListener(() {
+      if (_passwordFocusNode.hasFocus) {
+        _passwordBorderController.forward();
+      } else {
+        _passwordBorderController.reverse();
+      }
+      setState(() {});
+    });
     
     // Проверяем быстрый вход
     _checkQuickLogin();
@@ -72,6 +93,14 @@ class _LoginScreenState extends State<LoginScreen>
       duration: const Duration(milliseconds: 600),
       vsync: this,
     );
+    _phoneBorderController = AnimationController(
+      duration: const Duration(milliseconds: 200),
+      vsync: this,
+    );
+    _passwordBorderController = AnimationController(
+      duration: const Duration(milliseconds: 200),
+      vsync: this,
+    );
 
     // Анимации
     _logoAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
@@ -85,6 +114,12 @@ class _LoginScreenState extends State<LoginScreen>
     );
     _subtitleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _subtitleController, curve: Curves.easeOut),
+    );
+    _phoneBorderAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _phoneBorderController, curve: Curves.easeInOut),
+    );
+    _passwordBorderAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _passwordBorderController, curve: Curves.easeInOut),
     );
 
     // Запуск анимаций
@@ -185,10 +220,14 @@ class _LoginScreenState extends State<LoginScreen>
   void dispose() {
     _phoneController.dispose();
     _passwordController.dispose();
+    _phoneFocusNode.dispose();
+    _passwordFocusNode.dispose();
     _logoController.dispose();
     _formController.dispose();
     _titleController.dispose();
     _subtitleController.dispose();
+    _phoneBorderController.dispose();
+    _passwordBorderController.dispose();
     _isNavigating = false; // Сбрасываем флаг навигации
     super.dispose();
   }
@@ -417,12 +456,7 @@ class _LoginScreenState extends State<LoginScreen>
         width: double.infinity,
         height: double.infinity,
         decoration: const BoxDecoration(
-          color: Color(0xFFF7FAFC), // bg-gray-50
-          image: DecorationImage(
-            image: AssetImage('assets/images/bg-dots.png'),
-            fit: BoxFit.cover,
-            scale: 1.25, // Уменьшаем размер фона на 20% как в веб-версии
-          ),
+          color: Colors.white, // Простой белый фон
         ),
         child: SafeArea(
           child: SingleChildScrollView(
@@ -430,7 +464,7 @@ class _LoginScreenState extends State<LoginScreen>
               children: [
                 // Логотип сверху
                 Padding(
-                  padding: const EdgeInsets.only(top: 32),
+                  padding: const EdgeInsets.only(top: 20),
                   child: AnimatedBuilder(
                     animation: _logoAnimation,
                     builder: (context, child) {
@@ -443,8 +477,8 @@ class _LoginScreenState extends State<LoginScreen>
                             children: [
                               Image.asset(
                                 'assets/images/logo.png',
-                                width: 42,
-                                height: 23,
+                                width: 56,
+                                height: 30,
                               ),
                               const SizedBox(width: 8),
                               const Text(
@@ -464,11 +498,11 @@ class _LoginScreenState extends State<LoginScreen>
                 ),
 
                 // Пространство
-                const SizedBox(height: 100),
+                const SizedBox(height: 30),
 
                 // Форма в центре
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  padding: const EdgeInsets.symmetric(horizontal: 32),
                   child: AnimatedBuilder(
                     animation: _formAnimation,
                     builder: (context, child) {
@@ -483,90 +517,34 @@ class _LoginScreenState extends State<LoginScreen>
                                   ? (MediaQuery.of(context).size.width - 440) / 2 
                                   : 0,
                             ),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(20),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: const Color(0xFF585C5F).withOpacity(0.10),
-                                  blurRadius: 32,
-                                  offset: const Offset(0, 16),
-                                  spreadRadius: -12,
-                                ),
-                              ],
-                            ),
-                            padding: const EdgeInsets.all(32),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                // Заголовки
-                                AnimatedBuilder(
-                                  animation: _titleAnimation,
-                                  builder: (context, child) {
-                                    return Transform.translate(
-                                      offset: Offset(0, 10 * (1 - _titleAnimation.value)),
-                                      child: Opacity(
-                                        opacity: _titleAnimation.value.clamp(0.0, 1.0),
-                                        child: const Text(
-                                          'Войдите в систему',
-                                          style: TextStyle(
-                                            fontSize: 24,
-                                            fontWeight: FontWeight.w600,
-                                            color: Color(0xFF18181B), // text-zinc-950
-                                          ),
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                ),
-                                const SizedBox(height: 8),
-                                AnimatedBuilder(
-                                  animation: _subtitleAnimation,
-                                  builder: (context, child) {
-                                    return Transform.translate(
-                                      offset: Offset(0, 10 * (1 - _subtitleAnimation.value)),
-                                      child: Opacity(
-                                        opacity: _subtitleAnimation.value.clamp(0.0, 1.0),
-                                        child: const Text(
-                                          'Введите номер телефона и пароль',
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            color: Color(0xFF6B7280), // text-gray-500
-                                          ),
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                ),
-                                const SizedBox(height: 24),
 
                                 // Поле телефона
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const Text(
-                                      'Номер телефона',
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,
-                                        color: Color(0xFF6B7280), // text-gray-500
-                                      ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Container(
+                                AnimatedBuilder(
+                                  animation: _phoneBorderAnimation,
+                                  builder: (context, child) {
+                                    return Container(
                                       decoration: BoxDecoration(
                                         color: Colors.white,
-                                        borderRadius: BorderRadius.circular(12),
+                                        borderRadius: BorderRadius.circular(8),
                                         border: Border.all(
-                                          color: const Color(0xFFE5E7EB), // border-gray-200
+                                          color: Color.lerp(
+                                            const Color(0xFFE5E7EB), // border-gray-200
+                                            const Color(0xFF2679DB), // Акцентный синий цвет
+                                            _phoneBorderAnimation.value,
+                                          )!,
                                           width: 1,
                                         ),
                                       ),
                                       child: TextField(
                                         controller: _phoneController,
+                                        focusNode: _phoneFocusNode,
                                         inputFormatters: [_phoneMaskFormatter],
                                         keyboardType: TextInputType.phone,
+                                        textInputAction: TextInputAction.next,
                                         onChanged: (value) {
                                           // Применяем маску к введенному тексту
                                           final maskedValue = _phoneMaskFormatter.maskText(value);
@@ -581,53 +559,55 @@ class _LoginScreenState extends State<LoginScreen>
                                           fontSize: 16,
                                           color: Color(0xFF18181B),
                                         ),
-                                        decoration: const InputDecoration(
-                                          hintText: '+7 (___) ___-____',
-                                          hintStyle: TextStyle(
+                                        decoration: InputDecoration(
+                                          hintText: _phoneFocusNode.hasFocus || _phoneController.text.isNotEmpty ? '+7 (___) ___-____' : 'Телефон',
+                                          hintStyle: const TextStyle(
                                             color: Color(0xFF9CA3AF), // text-gray-400
                                           ),
                                           border: InputBorder.none,
-                                          contentPadding: EdgeInsets.symmetric(
+                                          contentPadding: const EdgeInsets.symmetric(
                                             horizontal: 16,
                                             vertical: 12,
                                           ),
                                         ),
                                       ),
-                                    ),
-                                  ],
+                                    );
+                                  },
                                 ),
-                                const SizedBox(height: 16),
+                                const SizedBox(height: 12),
 
                                 // Поле пароля
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const Text(
-                                      'Пароль',
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,
-                                        color: Color(0xFF6B7280), // text-gray-500
-                                      ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Container(
+                                AnimatedBuilder(
+                                  animation: _passwordBorderAnimation,
+                                  builder: (context, child) {
+                                    return Container(
                                       decoration: BoxDecoration(
                                         color: Colors.white,
-                                        borderRadius: BorderRadius.circular(12),
+                                        borderRadius: BorderRadius.circular(8),
                                         border: Border.all(
-                                          color: const Color(0xFFE5E7EB), // border-gray-200
+                                          color: Color.lerp(
+                                            const Color(0xFFE5E7EB), // border-gray-200
+                                            const Color(0xFF2679DB), // Акцентный синий цвет
+                                            _passwordBorderAnimation.value,
+                                          )!,
                                           width: 1,
                                         ),
                                       ),
                                       child: TextField(
                                         controller: _passwordController,
+                                        focusNode: _passwordFocusNode,
                                         obscureText: !_isPasswordVisible,
+                                        keyboardType: TextInputType.text,
+                                        textInputAction: TextInputAction.done,
                                         style: const TextStyle(
                                           fontSize: 16,
                                           color: Color(0xFF18181B),
                                         ),
                                         decoration: InputDecoration(
+                                          hintText: 'Пароль',
+                                          hintStyle: const TextStyle(
+                                            color: Color(0xFF9CA3AF), // text-gray-400
+                                          ),
                                           border: InputBorder.none,
                                           contentPadding: const EdgeInsets.symmetric(
                                             horizontal: 16,
@@ -649,10 +629,10 @@ class _LoginScreenState extends State<LoginScreen>
                                           ),
                                         ),
                                       ),
-                                    ),
-                                  ],
+                                    );
+                                  },
                                 ),
-                                const SizedBox(height: 24),
+                                const SizedBox(height: 12),
 
                                 // Кнопка входа
                                 SizedBox(
@@ -664,7 +644,7 @@ class _LoginScreenState extends State<LoginScreen>
                                       foregroundColor: Colors.white,
                                       padding: const EdgeInsets.symmetric(vertical: 12),
                                       shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(12),
+                                        borderRadius: BorderRadius.circular(8),
                                       ),
                                       elevation: 0,
                                       disabledBackgroundColor: const Color(0xFF9CA3AF),

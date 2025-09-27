@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from .models import DriverDocument
 
 User = get_user_model()
 
@@ -38,3 +39,30 @@ class UserAdmin(BaseUserAdmin):
         }),
         ('Важные даты', {'fields': ('last_login', 'date_joined')}),
     )
+
+
+@admin.register(DriverDocument)
+class DriverDocumentAdmin(admin.ModelAdmin):
+    list_display = ('driver', 'document_type', 'number', 'issue_date', 'expiry_date', 'created_by')
+    list_filter = ('document_type', 'issue_date', 'expiry_date')
+    search_fields = ('driver__first_name', 'driver__last_name', 'number', 'issuing_authority')
+    readonly_fields = ('created_at', 'updated_at')
+    date_hierarchy = 'issue_date'
+    
+    fieldsets = (
+        ('Основная информация', {
+            'fields': ('driver', 'document_type', 'number', 'file')
+        }),
+        ('Детали документа', {
+            'fields': ('issue_date', 'expiry_date', 'issuing_authority', 'description')
+        }),
+        ('Системная информация', {
+            'fields': ('created_by', 'created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+    
+    def save_model(self, request, obj, form, change):
+        if not change:  # Если это создание нового объекта
+            obj.created_by = request.user
+        super().save_model(request, obj, form, change)

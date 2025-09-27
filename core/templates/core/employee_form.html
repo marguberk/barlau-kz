@@ -306,6 +306,30 @@
                             </div>
                             {% endif %}
                         </div>
+                        
+                        <!-- Документы водителя -->
+                        {% if not is_new and employee.role == 'DRIVER' %}
+                        <div>
+                            <div class="flex items-center justify-between mb-4">
+                                <label class="block text-sm font-medium text-gray-700">Документы водителя</label>
+                                <a href="{% url 'core:driver_documents' employee.pk %}" 
+                                   class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                    </svg>
+                                    Управление документами
+                                </a>
+                            </div>
+                            <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                                <div class="flex items-center text-gray-600">
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                    </svg>
+                                    <span class="text-sm">Нажмите "Управление документами" для добавления и редактирования документов водителя</span>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
                     </div>
                 </div>
                 

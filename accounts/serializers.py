@@ -2,6 +2,7 @@ from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from django.db import IntegrityError
+from .models import DriverDocument
 
 User = get_user_model()
 
@@ -17,7 +18,7 @@ class UserSerializer(serializers.ModelSerializer):
             'position', 'experience', 'education', 'skills', 'photo',
             'desired_salary', 'age', 'location', 'skype', 'linkedin', 'portfolio_url',
             'about_me', 'key_skills', 'achievements', 'courses', 'publications',
-            'recommendations', 'hobbies', 'certifications', 'languages'
+            'recommendations', 'hobbies', 'certifications', 'languages', 'recommendation_file'
         )
         read_only_fields = ('is_phone_verified', 'firebase_uid', 'date_joined')
 
@@ -104,4 +105,31 @@ class UserResumeSerializer(serializers.ModelSerializer):
         fields = (
             'id', 'first_name', 'last_name', 'position', 'experience',
             'education', 'skills', 'photo'
-        ) 
+        )
+
+
+class DriverDocumentSerializer(serializers.ModelSerializer):
+    document_type_display = serializers.CharField(source='get_document_type_display', read_only=True)
+    driver_name = serializers.CharField(source='driver.get_full_name', read_only=True)
+    file_url = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = DriverDocument
+        fields = (
+            'id', 'driver', 'driver_name', 'document_type', 'document_type_display',
+            'number', 'issue_date', 'expiry_date', 'issuing_authority', 'description',
+            'file', 'file_url', 'created_at', 'updated_at', 'created_by'
+        )
+        read_only_fields = ('created_at', 'updated_at', 'created_by')
+    
+    def get_file_url(self, obj):
+        if obj.file:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.file.url)
+            return obj.file.url
+        return None
+    
+    def create(self, validated_data):
+        validated_data['created_by'] = self.context['request'].user
+        return super().create(validated_data) 

@@ -1,10 +1,11 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from .views import UserViewSet
+from .views import UserViewSet, DriverDocumentViewSet
 
 router = DefaultRouter()
 router.register('users', UserViewSet)
+router.register('driver-documents', DriverDocumentViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),

@@ -9,7 +9,7 @@ from ..serializers import ExpenseSerializer, ExpenseReportSerializer
 from .base import BaseModelViewSet
 
 class ExpenseViewSet(BaseModelViewSet):
-    queryset = Expense.objects.all().select_related('created_by', 'vehicle').order_by('-created_at')
+    queryset = Expense.objects.all().order_by('-created_at')
     serializer_class = ExpenseSerializer
     filterset_fields = ['category', 'vehicle', 'created_by', 'date']
     search_fields = ['description', 'vehicle__number', 'created_by__first_name', 'created_by__last_name']

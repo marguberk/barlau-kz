@@ -5,8 +5,9 @@ from rest_framework.response import Response
 from django.contrib.auth import get_user_model
 from .serializers import (
     UserSerializer, UserCreateSerializer, UserUpdateSerializer,
-    DriverLocationUpdateSerializer, UserResumeSerializer
+    DriverLocationUpdateSerializer, UserResumeSerializer, DriverDocumentSerializer
 )
+from .models import DriverDocument
 from django.utils import timezone
 
 User = get_user_model()
@@ -131,3 +132,38 @@ class UserViewSet(viewsets.ModelViewSet):
                 serializer.save()
                 return Response(serializer.data)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class DriverDocumentViewSet(viewsets.ModelViewSet):
+    queryset = DriverDocument.objects.all()
+    serializer_class = DriverDocumentSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get_queryset(self):
+        queryset = DriverDocument.objects.all()
+        
+        # Фильтрация по водителю
+        driver_id = self.request.query_params.get('driver_id')
+        if driver_id:
+            queryset = queryset.filter(driver_id=driver_id)
+        
+        # Фильтрация по типу документа
+        document_type = self.request.query_params.get('document_type')
+        if document_type:
+            queryset = queryset.filter(document_type=document_type)
+        
+        return queryset
+    
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
+    
+    @action(detail=False, methods=['get'])
+    def by_driver(self, request):
+        """Получить все документы конкретного водителя"""
+        driver_id = request.query_params.get('driver_id')
+        if not driver_id:
+            return Response({'error': 'driver_id is required'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        documents = self.get_queryset().filter(driver_id=driver_id)
+        serializer = self.get_serializer(documents, many=True)
+        return Response(serializer.data)

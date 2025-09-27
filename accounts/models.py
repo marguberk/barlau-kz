@@ -1,7 +1,9 @@
+import os
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.core.validators import RegexValidator
 from django.utils.translation import gettext_lazy as _
+from django.utils import timezone
 from phonenumber_field.modelfields import PhoneNumberField
 
 def user_photo_path(instance, filename):
@@ -11,6 +13,20 @@ def user_photo_path(instance, filename):
 def user_recommendation_path(instance, filename):
     # Генерируем путь для сохранения файла рекомендации: recommendations/user_<id>/<filename>
     return f'recommendations/user_{instance.id}/{filename}'
+
+def driver_document_upload_path(instance, filename):
+    """
+    Функция для определения пути загрузки документов водителя
+    """
+    # Получаем расширение файла
+    ext = filename.split('.')[-1]
+    # Формируем новое имя файла на основе id документа и водителя
+    if hasattr(instance, 'driver') and instance.driver:
+        driver_id = instance.driver.id
+    else:
+        driver_id = 'unknown'
+    # Путь для сохранения: drivers/driver_id/documents/filename
+    return os.path.join('drivers', str(driver_id), 'documents', f"{instance.id}_{timezone.now().strftime('%Y%m%d%H%M%S')}.{ext}")
 
 class User(AbstractUser):
     class Role(models.TextChoices):
@@ -24,7 +40,7 @@ class User(AbstractUser):
         LOGIST = 'LOGIST', _('Логист')
         CONSULTANT = 'CONSULTANT', _('Консультант')
         IT_MANAGER = 'IT_MANAGER', _('IT-менеджер')
-        ADMIN = 'ADMIN', _('Администратор')
+        DEPUTY_DIRECTOR = 'DEPUTY_DIRECTOR', _('Зам. директора')
         SUPERADMIN = 'SUPERADMIN', _('Суперадмин')
         EMPLOYEE = 'EMPLOYEE', _('Сотрудник')
 
@@ -100,3 +116,56 @@ class User(AbstractUser):
     is_phone_verified = models.BooleanField(default=False)
     firebase_uid = models.CharField(max_length=128, unique=True, null=True, blank=True)
     is_archived = models.BooleanField(_('archived'), default=False, help_text=_('Designates whether this user is archived and no longer active.'))
+
+
+class DriverDocument(models.Model):
+    DOCUMENT_TYPE_CHOICES = [
+        ('DRIVER_LICENSE', 'Водительское удостоверение'),
+        ('MEDICAL_CERTIFICATE', 'Медицинская справка'),
+        ('PASSPORT', 'Паспорт'),
+        ('WORK_PERMIT', 'Разрешение на работу'),
+        ('INSURANCE', 'Страховка'),
+        ('OTHER', 'Прочее'),
+    ]
+    
+    driver = models.ForeignKey(
+        'User', 
+        on_delete=models.CASCADE, 
+        related_name='documents', 
+        limit_choices_to={'role': 'DRIVER'},
+        verbose_name='Водитель'
+    )
+    document_type = models.CharField(
+        max_length=30, 
+        choices=DOCUMENT_TYPE_CHOICES, 
+        verbose_name='Тип документа'
+    )
+    number = models.CharField(max_length=50, blank=True, null=True, verbose_name='Номер документа')
+    issue_date = models.DateField(verbose_name='Дата выдачи')
+    expiry_date = models.DateField(blank=True, null=True, verbose_name='Дата окончания')
+    issuing_authority = models.CharField(max_length=100, blank=True, null=True, verbose_name='Кем выдан')
+    description = models.TextField(blank=True, null=True, verbose_name='Примечание')
+    file = models.FileField(
+        upload_to=driver_document_upload_path, 
+        blank=True, 
+        null=True, 
+        verbose_name='Файл документа'
+    )
+    
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='Дата обновления')
+    created_by = models.ForeignKey(
+        'User',
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='created_driver_documents',
+        verbose_name='Кем создан'
+    )
+    
+    class Meta:
+        verbose_name = 'Документ водителя'
+        verbose_name_plural = 'Документы водителей'
+        ordering = ['-issue_date']
+    
+    def __str__(self):
+        return f"{self.driver.get_full_name()} - {self.get_document_type_display()}"

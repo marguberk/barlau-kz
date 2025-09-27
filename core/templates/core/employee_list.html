@@ -81,11 +81,19 @@
                     
                     <div class="mt-2">
                         <span class="inline-flex rounded-full px-3 py-1 text-xs font-semibold 
-                            {% if employee.role == 'DIRECTOR' %}bg-purple-100 text-purple-800
-                            {% elif employee.role == 'ACCOUNTANT' %}bg-green-100 text-green-800
-                            {% elif employee.role == 'DRIVER' %}bg-blue-100 text-blue-800
-                            {% elif employee.role == 'SUPPLIER' %}bg-yellow-100 text-yellow-800
-                            {% elif employee.role == 'TECH' %}bg-gray-100 text-gray-800
+                            {% if employee.role == 'DIRECTOR' %}bg-red-100 text-red-800
+                            {% elif employee.role == 'DEPUTY_DIRECTOR' %}bg-red-600 text-white
+                            {% elif employee.role == 'ACCOUNTANT' %}bg-indigo-100 text-indigo-800
+                            {% elif employee.role == 'DRIVER' %}bg-amber-100 text-amber-800
+                            {% elif employee.role == 'SUPPLIER' %}bg-cyan-100 text-cyan-800
+                            {% elif employee.role == 'TECH' %}bg-emerald-100 text-emerald-800
+                            {% elif employee.role == 'MANAGER' %}bg-blue-100 text-blue-800
+                            {% elif employee.role == 'DISPATCHER' %}bg-orange-500 text-white
+                            {% elif employee.role == 'LOGIST' %}bg-lime-100 text-lime-800
+                            {% elif employee.role == 'CONSULTANT' %}bg-purple-100 text-purple-800
+                            {% elif employee.role == 'IT_MANAGER' %}bg-indigo-100 text-indigo-800
+                            {% elif employee.role == 'SUPERADMIN' %}bg-red-900 text-white
+                            {% elif employee.role == 'EMPLOYEE' %}bg-gray-100 text-gray-800
                             {% else %}bg-gray-100 text-gray-800{% endif %}">
                             {{ employee.get_role_display }}
                         </span>

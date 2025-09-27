@@ -14,6 +14,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model, logout, update_session_auth_hash
 from datetime import timedelta
 from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
 from django.template.loader import get_template
 from weasyprint import HTML
 from weasyprint.text.fonts import FontConfiguration
@@ -49,7 +50,7 @@ from logistics.models import Vehicle, VehiclePhoto, VehicleDocument
 from django.contrib.auth.decorators import login_required
 from datetime import datetime
 from logistics.models import Vehicle
-from accounts.models import User
+from accounts.models import User, DriverDocument
 from .models import Trip
 
 User = get_user_model()
@@ -76,7 +77,31 @@ class EmployeeViewSet(viewsets.ModelViewSet):
     search_fields = ['username', 'first_name', 'last_name', 'email', 'phone']
     filterset_fields = ['role', 'is_active', 'is_archived']
     ordering_fields = ['date_joined', 'last_login', 'id', 'first_name', 'role']
-    ordering = ['-date_joined', 'id']
+    ordering = ['id']  # Будем сортировать в get_queryset
+    
+    def get_queryset(self):
+        queryset = User.objects.filter(is_active=True)
+        
+        # Сортируем по приоритету ролей, затем по имени
+        def role_priority(employee):
+            role_order = {
+                'SUPERADMIN': 1,
+                'DIRECTOR': 2,
+                'DEPUTY_DIRECTOR': 3,
+                'MANAGER': 4,
+                'DISPATCHER': 5,
+                'ACCOUNTANT': 6,
+                'IT_MANAGER': 7,
+                'LOGIST': 8,
+                'SUPPLIER': 9,
+                'TECH': 10,
+                'CONSULTANT': 11,
+                'DRIVER': 12,
+                'EMPLOYEE': 13,
+            }
+            return (role_order.get(employee.role, 999), employee.last_name or '', employee.first_name or '')
+        
+        return sorted(queryset, key=role_priority)
 
     def get_permissions(self):
         """
@@ -252,22 +277,18 @@ class NotificationViewSet(viewsets.ModelViewSet):
         """
         Переопределяем получение разрешений для возврата тестовых данных неавторизованным пользователям
         """
-        if self.request.method == 'GET':
-            return []
+        # Всегда требуем авторизацию для уведомлений
         return [permission() for permission in self.permission_classes]
 
     def get_queryset(self):
         """
-        Переопределяем метод для обеспечения корректной работы с анонимными пользователями
+        Возвращаем уведомления для авторизованного пользователя
         """
         if getattr(self, 'swagger_fake_view', False):
             return Notification.objects.none()
             
-        if not self.request.user.is_authenticated:
-            # Для неавторизованных пользователей возвращаем все уведомления
-            queryset = Notification.objects.all()
-        else:
-            queryset = Notification.objects.filter(user=self.request.user)
+        # Возвращаем уведомления только для авторизованного пользователя
+        queryset = Notification.objects.filter(user=self.request.user)
             
         notif_type = self.request.query_params.get('type')
         unread = self.request.query_params.get('unread')
@@ -992,9 +1013,28 @@ class EmployeesView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         # Получаем список активных сотрудников
-        context['employees'] = User.objects.filter(
-            is_active=True).order_by(
-            'last_name', 'first_name')
+        employees = User.objects.filter(is_active=True)
+        
+        # Сортируем по приоритету ролей, затем по имени
+        def role_priority(employee):
+            role_order = {
+                'SUPERADMIN': 1,
+                'DIRECTOR': 2,
+                'DEPUTY_DIRECTOR': 3,
+                'MANAGER': 4,
+                'DISPATCHER': 5,
+                'ACCOUNTANT': 6,
+                'IT_MANAGER': 7,
+                'LOGIST': 8,
+                'SUPPLIER': 9,
+                'TECH': 10,
+                'CONSULTANT': 11,
+                'DRIVER': 12,
+                'EMPLOYEE': 13,
+            }
+            return (role_order.get(employee.role, 999), employee.last_name or '', employee.first_name or '')
+        
+        context['employees'] = sorted(employees, key=role_priority)
         context['active_page'] = 'employees'
         context['can_manage_employees'] = self.request.user.role in [
             'DIRECTOR', 'SUPERADMIN'] or self.request.user.is_superuser
@@ -1268,6 +1308,13 @@ class EmployeeDetailView(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        employee = self.get_object()
+        
+        # Добавляем документы для водителей
+        if employee.role == 'DRIVER':
+            from accounts.models import DriverDocument
+            context['driver_documents'] = DriverDocument.objects.filter(driver=employee).order_by('-issue_date')
+        
         return context
 
 
@@ -1908,27 +1955,9 @@ class VehicleCreateView(LoginRequiredMixin, View):
         vehicle.save()
         print('[DEBUG] Транспорт сохранён:', vehicle)
 
-        # --- Основное фото ---
-        main_photo_path = request.POST.get('main_photo_path')
-        if main_photo_path:
-            with default_storage.open(main_photo_path, 'rb') as f:
-                VehiclePhoto.objects.create(
-                    vehicle=vehicle,
-                    photo=File(f, name=os.path.basename(main_photo_path)),
-                    is_main=True,
-                    uploaded_by=request.user
-                )
-        elif 'main_photo' in request.FILES:
-            VehiclePhoto.objects.create(
-                vehicle=vehicle,
-                photo=request.FILES['main_photo'],
-                is_main=True,
-                uploaded_by=request.user
-            )
-
-        # --- Дополнительные фото ---
-        additional_photos_paths = request.POST.get('additional_photos_paths', '')
-        for path in filter(None, additional_photos_paths.split(',')):
+        # --- Фотографии грузовика ---
+        vehicle_photos_paths = request.POST.get('vehicle_photos_paths', '')
+        for path in filter(None, vehicle_photos_paths.split(',')):
             with default_storage.open(path, 'rb') as f:
                 VehiclePhoto.objects.create(
                     vehicle=vehicle,
@@ -1936,7 +1965,7 @@ class VehicleCreateView(LoginRequiredMixin, View):
                     is_main=False,
                     uploaded_by=request.user
                 )
-        for photo in request.FILES.getlist('additional_photos'):
+        for photo in request.FILES.getlist('vehicle_photos'):
             VehiclePhoto.objects.create(
                 vehicle=vehicle,
                 photo=photo,
@@ -2364,25 +2393,15 @@ class VehicleUpdateView(LoginRequiredMixin, View):
 
             vehicle.save()
 
-            # Обрабатываем основное фото
-            main_photo = form.cleaned_data.get('main_photo')
-            if main_photo:
-                # Если уже есть фото, заменяем его
-                if vehicle.main_photo:
-                    # При необходимости, можно удалить старое фото
-                    # default_storage.delete(vehicle.main_photo.path)
-                    pass
-
-                vehicle.main_photo = main_photo
-                vehicle.save()
-
-            # Обрабатываем дополнительные фотографии
-            additional_photos = request.FILES.getlist('additional_photos')
-            if additional_photos:
-                for photo_file in additional_photos:
+            # Обрабатываем фотографии грузовика
+            vehicle_photos = request.FILES.getlist('vehicle_photos')
+            if vehicle_photos:
+                for photo_file in vehicle_photos:
                     VehiclePhoto.objects.create(
                         vehicle=vehicle,
-                        photo=photo_file
+                        photo=photo_file,
+                        is_main=False,  # Все фото как дополнительные, первое может стать основным
+                        uploaded_by=request.user
                     )
 
             # Обрабатываем документы
@@ -2606,6 +2625,7 @@ class TrucksView(LoginRequiredMixin, TemplateView):
     template_name = 'core/trucks.html'
 
     def get_context_data(self, **kwargs):
+        from logistics.models import Vehicle
         context = super().get_context_data(**kwargs)
         # помечаем активную страницу и передаем список грузовиков
         context['active_page'] = 'trucks'
@@ -2615,8 +2635,8 @@ class TrucksView(LoginRequiredMixin, TemplateView):
 
 class TruckDetailView(LoginRequiredMixin, DetailView):
     model = Vehicle
-    template_name = 'logistics/vehicle_detail_simple.html'
-    context_object_name = 'vehicle'
+    template_name = 'core/truck_detail.html'
+    context_object_name = 'truck'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -3421,5 +3441,133 @@ class TripDetailView(LoginRequiredMixin, DetailView):
         except Exception as e:
             print(f"Ошибка вычисления прогресса: {e}")
             return 0
+
+
+class DriverDocumentsView(LoginRequiredMixin, View):
+    template_name = 'core/driver_documents.html'
+    
+    def get(self, request, driver_id):
+        # Проверка прав доступа
+        if not request.user.is_authenticated or request.user.role not in [
+                'SUPERADMIN', 'DIRECTOR', 'DEPUTY_DIRECTOR', 'HR_MANAGER', 'ACCOUNTANT']:
+            messages.error(
+                request, 'У вас нет прав для просмотра документов водителей')
+            return redirect('core:employees')
+
+        # Получение водителя
+        try:
+            driver = User.objects.get(pk=driver_id, role='DRIVER')
+        except User.DoesNotExist:
+            messages.error(request, 'Водитель не найден')
+            return redirect('core:employees')
+
+        # Получение документов водителя
+        documents = DriverDocument.objects.filter(driver=driver).order_by('-issue_date')
+
+        context = {
+            'driver': driver,
+            'documents': documents,
+            'title': f'Документы водителя: {driver.get_full_name()}'
+        }
+        return render(request, self.template_name, context)
+
+    def post(self, request, driver_id):
+        # Проверка прав доступа
+        if not request.user.is_authenticated or request.user.role not in [
+                'SUPERADMIN', 'DIRECTOR', 'DEPUTY_DIRECTOR', 'HR_MANAGER', 'ACCOUNTANT']:
+            messages.error(
+                request, 'У вас нет прав для добавления документов водителей')
+            return redirect('core:employees')
+
+        # Получение водителя
+        try:
+            driver = User.objects.get(pk=driver_id, role='DRIVER')
+        except User.DoesNotExist:
+            messages.error(request, 'Водитель не найден')
+            return redirect('core:employees')
+
+        # Получение данных из формы
+        document_type = request.POST.get('document_type', '')
+        number = request.POST.get('number', '')
+        issue_date = request.POST.get('issue_date', '')
+        expiry_date = request.POST.get('expiry_date', '')
+        issuing_authority = request.POST.get('issuing_authority', '')
+        description = request.POST.get('description', '')
+
+        # Базовая валидация
+        errors = {}
+        if not document_type:
+            errors['document_type'] = 'Тип документа обязателен для заполнения'
+        if not issue_date:
+            errors['issue_date'] = 'Дата выдачи обязательна для заполнения'
+
+        # Если есть ошибки, возвращаем форму с ошибками
+        if errors:
+            documents = DriverDocument.objects.filter(driver=driver).order_by('-issue_date')
+            context = {
+                'driver': driver,
+                'documents': documents,
+                'errors': errors,
+                'title': f'Документы водителя: {driver.get_full_name()}'
+            }
+            return render(request, self.template_name, context)
+
+        # Создание документа
+        try:
+            document = DriverDocument.objects.create(
+                driver=driver,
+                document_type=document_type,
+                number=number if number else None,
+                issue_date=issue_date,
+                expiry_date=expiry_date if expiry_date else None,
+                issuing_authority=issuing_authority if issuing_authority else None,
+                description=description if description else None,
+                created_by=request.user
+            )
+
+            # Обработка загрузки файла
+            if 'file' in request.FILES:
+                document.file = request.FILES['file']
+                document.save()
+
+            messages.success(
+                request, f'Документ {document.get_document_type_display()} успешно добавлен')
+            return redirect('core:driver_documents', driver_id=driver_id)
+
+        except Exception as e:
+            messages.error(request, f'Ошибка при создании документа: {str(e)}')
+            return redirect('core:driver_documents', driver_id=driver_id)
+
+
+class DriverDocumentDeleteView(LoginRequiredMixin, View):
+    def delete(self, request, document_id):
+        # Проверка прав доступа
+        if not request.user.is_authenticated or request.user.role not in [
+                'SUPERADMIN', 'DIRECTOR', 'DEPUTY_DIRECTOR', 'HR_MANAGER', 'ACCOUNTANT']:
+            return JsonResponse({'error': 'У вас нет прав для удаления документов водителей'}, status=403)
+
+        # Получение документа
+        try:
+            document = DriverDocument.objects.get(pk=document_id)
+        except DriverDocument.DoesNotExist:
+            return JsonResponse({'error': 'Документ не найден'}, status=404)
+
+        driver_id = document.driver.id
+        document_type_display = document.get_document_type_display()
+
+        # Удаление файла, если он существует
+        if document.file:
+            try:
+                if os.path.exists(document.file.path):
+                    os.remove(document.file.path)
+            except Exception as e:
+                print(f"Ошибка при удалении файла: {e}")
+
+        document.delete()
+
+        return JsonResponse({
+            'success': True,
+            'message': f'Документ "{document_type_display}" успешно удален'
+        })
 
 

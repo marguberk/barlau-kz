@@ -292,8 +292,8 @@ class Task(models.Model):
     
     assigned_to = models.ForeignKey('accounts.User', on_delete=models.SET_NULL, null=True, blank=True, 
                                   related_name='assigned_tasks', verbose_name='Основной исполнитель')
-    assignees = models.ManyToManyField('accounts.User', blank=True, 
-                                     related_name='task_assignments', verbose_name='Исполнители')
+    # assignees = models.ManyToManyField('accounts.User', blank=True, 
+    #                                  related_name='task_assignments', verbose_name='Исполнители')  # Временно отключено
     vehicle = models.ForeignKey('Vehicle', on_delete=models.SET_NULL, null=True, blank=True,
                               related_name='tasks', verbose_name='Транспорт')
     
@@ -313,10 +313,24 @@ class Task(models.Model):
 
     def get_all_assignees(self):
         """Получить всех исполнителей (основного + дополнительных)"""
-        assignees = list(self.assignees.all())
-        if self.assigned_to and self.assigned_to not in assignees:
-            assignees.insert(0, self.assigned_to)
-        return assignees
+        try:
+            assignees = list(self.assignees.all())
+            # Проверяем, что assigned_to существует и не был удален
+            if self.assigned_to_id:
+                try:
+                    assigned_user = self.assigned_to
+                    if assigned_user and assigned_user not in assignees:
+                        assignees.insert(0, assigned_user)
+                except Exception as e:
+                    print(f"[DEBUG] Ошибка при обращении к assigned_to для задачи {self.id}: {e}")
+                    # Если assigned_to ссылается на несуществующего пользователя, обнуляем ссылку
+                    self.assigned_to = None
+                    self.save()
+            return assignees
+        except Exception as e:
+            print(f"[DEBUG] Ошибка в get_all_assignees для задачи {self.id}: {e}")
+            # Возвращаем пустой список в случае ошибки
+            return []
 
 class TaskFile(models.Model):
     """Файлы и изображения прикрепленные к задаче"""

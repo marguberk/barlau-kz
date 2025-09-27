@@ -5,8 +5,10 @@ import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../components/app_header.dart';
 import 'employee_detail_screen.dart';
+import 'driver_documents_screen.dart';
 import '../services/safe_api_service.dart';
 import '../config/app_config.dart';
+import '../models/driver_document.dart';
 
 class EmployeesScreen extends StatefulWidget {
   const EmployeesScreen({super.key});
@@ -147,6 +149,9 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
             // Маппим поля Django API в формат Flutter
             final mappedEmployees = deduplicatedEmployees.map((employee) => _mapEmployeeFields(employee)).toList();
             
+            // Сортируем сотрудников по приоритету ролей
+            mappedEmployees.sort(_compareEmployeesByRole);
+            
             if (mounted) {
               setState(() {
                 allEmployees = mappedEmployees;
@@ -233,7 +238,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                       crossAxisCount: 1,
                       childAspectRatio: 2.1,
                       crossAxisSpacing: 16,
-                      mainAxisSpacing: 16,
+                      mainAxisSpacing: 8,
                     ),
                     itemCount: allEmployees.length,
                     itemBuilder: (context, index) {
@@ -267,6 +272,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
     final role = employee['role'] ?? '';
     final roleDisplay = _getRoleDisplay(role);
     final roleColor = _getRoleColor(role);
+    final roleTextColor = _getRoleTextColor(role);
 
     final position = employee['position'] ?? '';
     final dateJoined = _formatDate(employee['date_joined']);
@@ -279,13 +285,6 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: const Color(0xFFE5E7EB)),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF0D0D12).withValues(alpha: 0.06),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -401,7 +400,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
     fontFamily: 'InterTight',
                                   fontSize: 11,
                                   fontWeight: FontWeight.w500,
-                                  color: roleColor,
+                                  color: roleTextColor,
                                 ),
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -438,7 +437,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
               ),
             ),
           ),
-          // Кнопка "Посмотреть резюме"
+          // Кнопки действий
           Container(
             padding: const EdgeInsets.all(8),
             decoration: const BoxDecoration(
@@ -446,44 +445,49 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                 top: BorderSide(color: Color(0xFFE5E7EB)),
               ),
             ),
-            child: SizedBox(
-              width: double.infinity,
-              height: 32,
-              child: ElevatedButton(
-                onPressed: () => _showEmployeeDetails(employee),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: const Color(0xFF374151),
-                  elevation: 0,
-                  side: const BorderSide(color: Color(0xFFE5E7EB)),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                ),
-                child: const Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Flexible(
-                      child: Text(
-                        'Посмотреть резюме',
-                        style: TextStyle(
-    fontFamily: 'InterTight',
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                        ),
-                        overflow: TextOverflow.ellipsis,
+            child: Column(
+              children: [
+                // Кнопка "Посмотреть резюме"
+                SizedBox(
+                  width: double.infinity,
+                  height: 32,
+                  child: ElevatedButton(
+                    onPressed: () => _showEmployeeDetails(employee),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: const Color(0xFF374151),
+                      elevation: 0,
+                      side: const BorderSide(color: Color(0xFFE5E7EB)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
                       ),
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
                     ),
-                    SizedBox(width: 6),
-                    Icon(
-                      Icons.arrow_forward_ios,
-                      size: 14,
+                    child: const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Flexible(
+                          child: Text(
+                            'Посмотреть резюме',
+                            style: TextStyle(
+    fontFamily: 'InterTight',
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        SizedBox(width: 6),
+                        Icon(
+                          Icons.arrow_forward_ios,
+                          size: 14,
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
-              ),
+              ],
             ),
           ),
         ],
@@ -499,6 +503,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
       ),
     );
   }
+
 
   String _getInitials(String firstName, String lastName) {
     String firstInitial = firstName.isNotEmpty ? firstName[0].toUpperCase() : '';
@@ -518,7 +523,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
       'DISPATCHER': 'Диспетчер',
       'LOGIST': 'Логист',
       'IT_MANAGER': 'IT-менеджер',
-      'ADMIN': 'Администратор',
+      'DEPUTY_DIRECTOR': 'Зам. директора',
       'SUPERADMIN': 'Суперадмин',
       'EMPLOYEE': 'Сотрудник',
     };
@@ -534,14 +539,69 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
       'CONSULTANT': Color(0xFF8B5CF6),
       'TECH': Color(0xFF10B981),
       'SUPPLIER': Color(0xFF06B6D4),
-      'DISPATCHER': Color(0xFFF97316),
+      'DISPATCHER': Color(0xFFFED7AA), // Светло-оранжевый
       'LOGIST': Color(0xFF84CC16),
       'IT_MANAGER': Color(0xFF6366F1),
-      'ADMIN': Color(0xFF6B7280),
-      'SUPERADMIN': Color(0xFF991B1B),
+      'DEPUTY_DIRECTOR': Color(0xFFDBEAFE), // Светло-синий
+      'SUPERADMIN': Color(0xFFFECACA), // Светло-красный
       'EMPLOYEE': Color(0xFF6B7280),
     };
     return colorMap[role] ?? const Color(0xFF6B7280);
+  }
+
+  Color _getRoleTextColor(String role) {
+    const textColorMap = {
+      'DIRECTOR': Color(0xFFEF4444),
+      'DRIVER': Color(0xFFF59E0B),
+      'MANAGER': Color(0xFF3B82F6),
+      'ACCOUNTANT': Color(0xFF6366F1),
+      'CONSULTANT': Color(0xFF8B5CF6),
+      'TECH': Color(0xFF10B981),
+      'SUPPLIER': Color(0xFF06B6D4),
+      'DISPATCHER': Color(0xFFEA580C), // Темно-оранжевый для текста
+      'LOGIST': Color(0xFF84CC16),
+      'IT_MANAGER': Color(0xFF6366F1),
+      'DEPUTY_DIRECTOR': Color(0xFF2563EB), // Темно-синий для текста
+      'SUPERADMIN': Color(0xFFDC2626), // Темно-красный для текста
+      'EMPLOYEE': Color(0xFF6B7280),
+    };
+    return textColorMap[role] ?? const Color(0xFF6B7280);
+  }
+
+  int _compareEmployeesByRole(Map<String, dynamic> a, Map<String, dynamic> b) {
+    // Приоритет ролей (меньшее число = выше в списке)
+    const rolePriority = {
+      'SUPERADMIN': 1,
+      'DIRECTOR': 2,
+      'DEPUTY_DIRECTOR': 3,
+      'MANAGER': 4,
+      'DISPATCHER': 5,
+      'ACCOUNTANT': 6,
+      'IT_MANAGER': 7,
+      'LOGIST': 8,
+      'SUPPLIER': 9,
+      'TECH': 10,
+      'CONSULTANT': 11,
+      'DRIVER': 12,
+      'EMPLOYEE': 13,
+    };
+    
+    final roleA = a['role'] as String? ?? '';
+    final roleB = b['role'] as String? ?? '';
+    
+    final priorityA = rolePriority[roleA] ?? 999;
+    final priorityB = rolePriority[roleB] ?? 999;
+    
+    // Сначала сортируем по роли
+    if (priorityA != priorityB) {
+      return priorityA.compareTo(priorityB);
+    }
+    
+    // Если роли одинаковые, сортируем по имени
+    final nameA = '${a['first_name'] ?? ''} ${a['last_name'] ?? ''}'.trim();
+    final nameB = '${b['first_name'] ?? ''} ${b['last_name'] ?? ''}'.trim();
+    
+    return nameA.compareTo(nameB);
   }
 
   String _formatDate(dynamic date) {

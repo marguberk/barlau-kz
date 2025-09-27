@@ -1,0 +1,364 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}{{ title }} | BARLAU.KZ{% endblock %}
+
+{% block content %}
+<div class="w-full flex">
+    <!-- Боковая панель -->
+    <div class="w-64 h-screen bg-white border-r border-zinc-200 flex flex-col justify-start items-start fixed left-0 bottom-0 sidebar">
+        <div class="self-stretch px-5 py-6 relative flex flex-col justify-start items-start gap-2 sidebar-logo">
+            <div class="py-1 inline-flex justify-start items-center gap-2">
+                <img src="{% static 'core/img/logo.png' %}" alt="Barlau Logo" class="w-10 h-6">
+                <div class="text-center justify-start text-black text-2xl font-semibold leading-normal">Barlau.kz</div>
+            </div>
+        </div>
+        <div class="self-stretch flex-1 px-4 pt-2 pb-4 flex flex-col justify-start items-center gap-4 sidebar-menu">
+            <div class="self-stretch flex flex-col justify-start items-start gap-1">
+                <div class="self-stretch flex flex-col justify-start items-start">
+                    <a href="{% url 'core:home' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2 relative">
+                        <img src="{% static 'core/img/home.svg' %}" alt="Home" class="w-5 h-5 desktop-icon align-middle">
+                        <img src="{% static 'core/img/mobile/home.svg' %}" alt="Home" class="mobile-icon hidden align-middle">
+                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Главная</div>
+                    </a>
+                    <a href="{% url 'core:tasks' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2">
+                        <img src="{% static 'core/img/check-square.svg' %}" alt="Tasks" class="w-5 h-5 desktop-icon">
+                        <img src="{% static 'core/img/mobile/check-square.svg' %}" alt="Tasks" class="mobile-icon hidden w-5 h-5">
+                        <div class="flex-1 text-gray-500 text-base font-medium leading-normal tracking-tight">Задачи</div>
+                    </a>
+                    <a href="{% url 'core:trips' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2">
+                        <img src="{% static 'core/img/trips.svg' %}?v={% now 'U' %}" alt="Trips" style="filter: brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(142deg) brightness(96%) contrast(91%);" class="w-5 h-5 desktop-icon align-middle" onerror="this.onerror=null; this.src='/static/core/img/trips.svg'">
+                        <img src="{% static 'core/img/mobile/trips.svg' %}" alt="Trips" style="filter: brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(142deg) brightness(96%) contrast(91%);" class="mobile-icon hidden align-middle">
+                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Заезды</div>
+                    </a>
+                    <a href="{% url 'core:trucks' %}" class="self-stretch px-3 py-3.5 bg-white rounded-lg inline-flex items-center gap-2">
+                        <img src="{% static 'core/img/truck.svg' %}" alt="Trucks" class="w-5 h-5 desktop-icon align-middle">
+                        <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Trucks" class="mobile-icon hidden align-middle">
+                        <div class="flex-1 justify-start text-gray-500 text-base font-medium leading-normal tracking-tight">Грузовики</div>
+                    </a>
+                    <a href="{% url 'core:employees' %}" class="self-stretch px-3 py-3.5 bg-gray-50 rounded-lg inline-flex items-center gap-2 relative">
+                        <div class="w-1 h-6 left-0 top-[calc(50%-12px)] absolute bg-blue-600 rounded-tr-lg rounded-br-lg"></div>
+                        <img src="{% static 'core/img/employee.svg' %}" alt="Employees" class="w-5 h-5 desktop-icon align-middle">
+                        <img src="{% static 'core/img/mobile/employee.svg' %}" alt="Employees" class="mobile-icon hidden align-middle">
+                        <div class="flex-1 justify-start text-blue-600 text-base font-medium leading-normal tracking-tight">Сотрудники</div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Основной контент -->
+    <div class="ml-64 flex-1 min-h-screen bg-white relative main-content">
+        <!-- Верхняя панель -->
+        <div class="w-full h-20 px-8 py-5 bg-white flex justify-between items-center border-b border-gray-200">
+            <div class="flex items-center">
+                <a href="{% url 'core:employee_edit' driver.id %}" class="mr-4 text-blue-600 hover:text-blue-800">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                    </svg>
+                </a>
+                <div class="justify-start text-zinc-950 text-2xl font-semibold leading-loose">{{ title }}</div>
+            </div>
+            <div class="flex justify-start items-center gap-3">
+                <div class="flex justify-start items-start gap-2">
+                    <a href="{% url 'core:notifications' %}" class="w-10 h-10 px-3 py-2 bg-white rounded-lg shadow-[0px_1px_2px_0px_rgba(13,13,18,0.06)] outline outline-1 outline-offset-[-1px] outline-zinc-200 flex justify-center items-center gap-1.5 relative">
+                        <img src="{% static 'core/img/bell.svg' %}" alt="Notifications" class="w-5 h-5">
+                        <span id="notif-badge" class="absolute -top-2 -right-2 bg-red-500 rounded-full border-2 border-white flex items-center justify-center font-bold shadow-lg transition-all duration-200" style="min-width: 1.4rem; min-height: 1.4rem; font-size: 0.85rem; color: #fff; padding: 0 0.3em; display: none; align-items: center; justify-content: center;"></span>
+                    </a>
+                </div>
+                <div class="flex justify-start items-center gap-1.5 relative">
+                    {% if request.user.is_authenticated %}
+                        <div class="relative group" id="user-menu">
+                        {% if request.user.photo %}
+                                <img class="w-8 h-8 rounded-full object-cover cursor-pointer" src="{{ request.user.photo.url }}" id="user-avatar" />
+                        {% else %}
+                                <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center cursor-pointer" id="user-avatar">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                        {% endif %}
+                            <div class="hidden group-hover:block absolute right-0 mt-2 w-44 bg-white border border-gray-200 rounded-lg shadow-lg z-50" id="user-dropdown">
+                                <a href="{% url 'core:profile' %}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Профиль</a>
+                                <a href="{% url 'core:custom-logout' %}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Выйти</a>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Контент -->
+        <div class="w-full px-8 py-6">
+            <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                <div class="p-6">
+                    <!-- Форма добавления документа -->
+                    <div class="mb-8">
+                        <h2 class="text-lg font-semibold text-gray-800 mb-4">Добавить документ</h2>
+                        <form method="post" class="space-y-6" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label for="document_type" class="block text-sm font-medium text-gray-700 mb-1">Тип документа *</label>
+                                    <select id="document_type" name="document_type" 
+                                            class="w-full px-3 py-2 border {% if errors.document_type %}border-red-500{% else %}border-gray-300{% endif %} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                                            required>
+                                        <option value="">Выберите тип документа</option>
+                                        <option value="DRIVER_LICENSE">Водительское удостоверение</option>
+                                        <option value="MEDICAL_CERTIFICATE">Медицинская справка</option>
+                                        <option value="PASSPORT">Паспорт</option>
+                                        <option value="WORK_PERMIT">Разрешение на работу</option>
+                                        <option value="INSURANCE">Страховка</option>
+                                        <option value="OTHER">Прочее</option>
+                                    </select>
+                                    {% if errors.document_type %}
+                                    <p class="mt-1 text-sm text-red-600">{{ errors.document_type }}</p>
+                                    {% endif %}
+                                </div>
+                                
+                                <div>
+                                    <label for="number" class="block text-sm font-medium text-gray-700 mb-1">Номер документа</label>
+                                    <input type="text" id="number" name="number" 
+                                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                
+                                <div>
+                                    <label for="issue_date" class="block text-sm font-medium text-gray-700 mb-1">Дата выдачи *</label>
+                                    <input type="date" id="issue_date" name="issue_date" 
+                                           class="w-full px-3 py-2 border {% if errors.issue_date %}border-red-500{% else %}border-gray-300{% endif %} rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                                           required>
+                                    {% if errors.issue_date %}
+                                    <p class="mt-1 text-sm text-red-600">{{ errors.issue_date }}</p>
+                                    {% endif %}
+                                </div>
+                                
+                                <div>
+                                    <label for="expiry_date" class="block text-sm font-medium text-gray-700 mb-1">Дата окончания</label>
+                                    <input type="date" id="expiry_date" name="expiry_date" 
+                                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                
+                                <div>
+                                    <label for="issuing_authority" class="block text-sm font-medium text-gray-700 mb-1">Кем выдан</label>
+                                    <input type="text" id="issuing_authority" name="issuing_authority" 
+                                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                
+                                <div>
+                                    <label for="file" class="block text-sm font-medium text-gray-700 mb-1">Файл документа</label>
+                                    <input type="file" id="file" name="file" 
+                                           class="block w-full text-sm text-gray-500
+                                           file:mr-4 file:py-2 file:px-4
+                                           file:rounded-full file:border-0
+                                           file:text-sm file:font-semibold
+                                           file:bg-blue-50 file:text-blue-700
+                                           hover:file:bg-blue-100">
+                                    <p class="mt-1 text-sm text-gray-500">PDF, DOC, DOCX, JPG, PNG. Максимум 10 МБ.</p>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Описание</label>
+                                <textarea id="description" name="description" rows="3" 
+                                          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                            </div>
+                            
+                            <div class="flex justify-end">
+                                <button type="submit" 
+                                        class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                                    Добавить документ
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <!-- Список документов -->
+                    <div>
+                        <h2 class="text-lg font-semibold text-gray-800 mb-4">Документы водителя</h2>
+                        
+                        {% if documents %}
+                        <div class="space-y-4">
+                            {% for doc in documents %}
+                            <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-4">
+                                            {% if doc.document_type == 'DRIVER_LICENSE' %}
+                                                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                                </svg>
+                                            {% elif doc.document_type == 'MEDICAL_CERTIFICATE' %}
+                                                <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                                                </svg>
+                                            {% elif doc.document_type == 'PASSPORT' %}
+                                                <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                                                </svg>
+                                            {% else %}
+                                                <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                                </svg>
+                                            {% endif %}
+                                        </div>
+                                        <div>
+                                            <h4 class="font-medium text-gray-900">{{ doc.get_document_type_display }}</h4>
+                                            <div class="text-sm text-gray-500 space-y-1">
+                                                {% if doc.number %}<div>№ {{ doc.number }}</div>{% endif %}
+                                                <div>Выдан: {{ doc.issue_date }}</div>
+                                                {% if doc.expiry_date %}
+                                                <div class="{% if doc.expiry_date < today %}text-red-600 font-medium{% elif doc.expiry_date|timeuntil|slice:':2' == '30' %}text-orange-600 font-medium{% endif %}">
+                                                    Действует до: {{ doc.expiry_date }}
+                                                    {% if doc.expiry_date < today %} (Истек){% elif doc.expiry_date|timeuntil|slice:':2' == '30' %} (Скоро истекает){% endif %}
+                                                </div>
+                                                {% endif %}
+                                                {% if doc.issuing_authority %}<div>Выдан: {{ doc.issuing_authority }}</div>{% endif %}
+                                                {% if doc.description %}<div class="text-gray-600">{{ doc.description }}</div>{% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        {% if doc.file %}
+                                        <a href="{{ doc.file.url }}" target="_blank"
+                                           class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                            </svg>
+                                            Скачать
+                                        </a>
+                                        {% endif %}
+                                        <button type="button" 
+                                                onclick="confirmDelete({{ doc.id }}, '{{ doc.get_document_type_display|escapejs }}')"
+                                                class="inline-flex items-center px-3 py-2 border border-red-300 shadow-sm text-sm leading-4 font-medium rounded-md text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                            </svg>
+                                            Удалить
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="text-center py-8">
+                            <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                </svg>
+                            </div>
+                            <p class="text-gray-500">Документы не найдены</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Нижнее мобильное меню - показываем только на мобильных устройствах -->
+<nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 hidden max-lg:block">
+    <div class="flex justify-center items-center px-2" style="padding-top: 10px !important;">
+        <a href="{% url 'core:home' %}" class="flex-1 flex flex-col items-center text-gray-600  relative mx-1">
+            <div class="icon-container w-8 h-8 flex items-center justify-center">
+                <img src="{% static 'core/img/mobile/home.svg' %}" alt="Home" class="w-6 h-6">
+            </div>
+            <span class="text-xs text-[9px] mt-1">Главная</span>
+        </a>
+        <a href="{% url 'core:tasks' %}" class="flex-1 flex flex-col items-center text-gray-600  relative mx-1">
+            <div class="icon-container w-8 h-8 flex items-center justify-center">
+                <img src="{% static 'core/img/mobile/check-square.svg' %}" alt="Tasks" class="w-6 h-6">
+            </div>
+            <span class="text-xs text-[9px] mt-1">Задачи</span>
+        </a>
+        <a href="{% url 'core:trips' %}" class="flex-1 flex flex-col items-center text-gray-600  relative mx-1">
+            <div class="icon-container w-8 h-8 flex items-center justify-center">
+                <img src="{% static 'core/img/mobile/trips.svg' %}" alt="Trips" style="filter: brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(142deg) brightness(96%) contrast(91%);" class="w-6 h-6">
+            </div>
+            <span class="text-xs text-[9px] mt-1">Заезды</span>
+        </a>
+        <a href="{% url 'core:trucks' %}" class="flex-1 flex flex-col items-center text-gray-600  relative mx-1">
+            <div class="icon-container w-8 h-8 flex items-center justify-center">
+                <img src="{% static 'core/img/mobile/truck.svg' %}" alt="Vehicles" class="w-6 h-6">
+            </div>
+            <span class="text-xs text-[9px] mt-1">Грузовики</span>
+        </a>
+        <a href="{% url 'core:employees' %}" class="flex-1 flex flex-col items-center text-blue-600 relative mx-1">
+            <div class="icon-container w-8 h-8 flex items-center justify-center">
+                <img src="{% static 'core/img/mobile/employee.svg' %}" alt="Employees" class="w-6 h-6">
+            </div>
+            <span class="text-xs text-[9px] mt-1">Сотрудники</span>
+        </a>
+    </div>
+</nav>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Обработка dropdown меню пользователя
+        const avatar = document.getElementById('user-avatar');
+        const dropdown = document.getElementById('user-dropdown');
+        if (avatar && dropdown) {
+            avatar.addEventListener('click', function(e) {
+                e.stopPropagation();
+                dropdown.classList.toggle('hidden');
+            });
+            document.addEventListener('click', function() {
+                dropdown.classList.add('hidden');
+            });
+        }
+    });
+    
+    // Функция подтверждения удаления документа
+    function confirmDelete(documentId, documentName) {
+        if (confirm(`Вы уверены, что хотите удалить документ "${documentName}"?\n\nЭто действие нельзя отменить.`)) {
+            // Отправляем DELETE запрос
+            fetch(`/driver-documents/${documentId}/delete/`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(response => {
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    return response.json().then(data => {
+                        throw new Error(data.error || 'Ошибка при удалении документа');
+                    });
+                }
+            })
+            .catch(error => {
+                alert('Ошибка: ' + error.message);
+            });
+        }
+    }
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+@media (max-width: 1100px) {
+    body nav.fixed.bottom-0 {
+        height: 70px !important;
+        padding-top: 10px !important;
+        box-shadow: none !important;
+        z-index: 999 !important;
+        background-color: #fff !important;
+        border-top: 1px solid #E5E7EB !important;
+    }
+}
+</style>
+{% endblock %}
+
+

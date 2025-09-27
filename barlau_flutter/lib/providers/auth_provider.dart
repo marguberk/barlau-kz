@@ -165,6 +165,12 @@ class AuthProvider with ChangeNotifier {
   }
 
   Future<bool> login(String username, String password, {bool setupQuickLogin = false, BuildContext? context}) async {
+    // Если пользователь уже авторизован, возвращаем true
+    if (_isAuthenticated && _user != null) {
+      print('AuthProvider: Пользователь уже авторизован, пропускаем повторную авторизацию');
+      return true;
+    }
+
     _isLoading = true;
     _error = null;
     notifyListeners();

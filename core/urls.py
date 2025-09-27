@@ -49,13 +49,16 @@ from .views import (
     create_trip,
     create_trip_simple,
     create_trip_test,
+    DriverDocumentsView,
+    DriverDocumentDeleteView,
 )
 # from .views_gps import gps_update_page, update_gps_data
 # from .views_gps_test import gps_test_page, gps_test_api
 from .api import (
     update_profile, upload_profile_photo, get_profile_stats, trips_api, public_trips_api, open_trips_api, driver_locations_api, 
     employee_pdf_api, employee_pdf_public, vehicles_api, TripViewSet, ChecklistTemplateViewSet, TripChecklistViewSet, ChecklistItemViewSet,
-    create_checklist_for_trip, get_trip_checklist, generate_checklist_pdf, update_checklist_item, upload_checklist_photos, delete_checklist_photo
+    create_checklist_for_trip, get_trip_checklist, generate_checklist_pdf, update_checklist_item, upload_checklist_photos, delete_checklist_photo,
+    tasks_simple_api
 )
 # from .views_webhook import gps_webhook
 from logistics.views.task import TaskViewSet
@@ -107,8 +110,8 @@ urlpatterns = [
     path('api/users/me/', update_profile, name='api-profile-update'),
     path('api/users/me/photo/', upload_profile_photo, name='api-profile-photo-upload'),
     path('api/users/me/stats/', get_profile_stats, name='api-profile-stats'),
-    path('api/trips/', trips_api, name='api-trips'),
-    path('api/trips/<int:pk>/', trips_api, name='api-trips-detail'),
+    path('api/trips-custom/', trips_api, name='api-trips-custom'),
+    path('api/trips-custom/<int:pk>/', trips_api, name='api-trips-custom-detail'),
     path('trips/<int:pk>/', TripDetailView.as_view(), name='trip-detail'),
     path('api/public/trips/', public_trips_api, name='api-public-trips'),
     path('dashboard/api/trips/', trips_simple_view, name='dashboard-api-trips'),
@@ -118,6 +121,8 @@ urlpatterns = [
     path('api/employees/<int:pk>/pdf/', employee_pdf_api, name='api-employee-pdf'),
     path('api/public/employees/<int:pk>/pdf/', employee_pdf_public, name='api-employee-pdf-public'),
     path('api/vehicles/', vehicles_api, name='api-vehicles'),
+    path('api/tasks-simple/', tasks_simple_api, name='api-tasks-simple'),
+    path('api/tasks-simple/<int:pk>/', tasks_simple_api, name='api-tasks-simple-detail'),
     path('api/trips/<int:trip_id>/create-checklist/', create_checklist_for_trip, name='api-create-checklist'),
     path('api/trips/<int:trip_id>/checklist/', get_trip_checklist, name='api-get-trip-checklist'),
     path('api/checklists/<int:checklist_id>/pdf/', generate_checklist_pdf, name='api-checklist-pdf'),
@@ -138,6 +143,8 @@ urlpatterns = [
     path('employees/<int:pk>/edit/', EmployeeEditView.as_view(), name='employee_edit'),
     path('employees/<int:pk>/delete/', EmployeeDeleteView.as_view(), name='employee_delete'),
     path('employees/<int:pk>/upload-photo/', EmployeePhotoUploadView.as_view(), name='employee_upload_photo'),
+    path('employees/<int:driver_id>/documents/', DriverDocumentsView.as_view(), name='driver_documents'),
+    path('driver-documents/<int:document_id>/delete/', DriverDocumentDeleteView.as_view(), name='driver_document_delete'),
     
     # Waybills
     path('waybills/', WaybillListView.as_view(), name='waybills'),

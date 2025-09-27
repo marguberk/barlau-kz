@@ -93,13 +93,68 @@ class SafeApiService {
     }
   }
   
+  // Проверка валидности токена
+  static Future<Map<String, dynamic>> validateToken(String token) async {
+    try {
+      print('SafeApiService: Проверяем валидность токена...');
+      final result = await safeRequest('/v1/users/me/', 
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
+      
+      if (result['success'] && result['data'] != null) {
+        print('SafeApiService: Токен валиден');
+        return {
+          'success': true,
+          'data': result['data'],
+        };
+      } else {
+        print('SafeApiService: Токен невалиден');
+        return {
+          'success': false,
+          'error': 'Токен невалиден',
+        };
+      }
+    } catch (e) {
+      print('SafeApiService: Ошибка проверки токена: $e');
+      return {
+        'success': false,
+        'error': 'Ошибка проверки токена: $e',
+      };
+    }
+  }
+  
   // Безопасная авторизация
   static Future<Map<String, dynamic>> safeLogin(String username, String password) async {
     try {
       print('SafeApiService: Попытка входа для $username');
+      
+      // Сначала проверяем, не валиден ли уже существующий токен
+      final prefs = await SharedPreferences.getInstance();
+      final existingToken = prefs.getString('auth_token');
+      
+      if (existingToken != null) {
+        print('SafeApiService: Найден существующий токен, проверяем его валидность...');
+        final tokenValidation = await validateToken(existingToken);
+        if (tokenValidation['success']) {
+          print('SafeApiService: Существующий токен валиден, используем его');
+          return {
+            'success': true,
+            'data': {
+              'access': existingToken,
+              'refresh': prefs.getString('refresh_token'),
+              'user': tokenValidation['data'],
+            }
+          };
+        } else {
+          print('SafeApiService: Существующий токен невалиден, выполняем новую авторизацию');
+        }
+      }
+      
       print('SafeApiService: URL авторизации: ${AppConfig.baseApiUrl}/v1/auth/token/');
       
-      // Сначала пробуем реальный API
+      // Выполняем новую авторизацию
       final result = await safeRequest('/v1/auth/token/', 
         method: 'POST',
         body: {
@@ -469,6 +524,111 @@ class SafeApiService {
     } catch (e) {
       print('SafeApiService: Ошибка получения валидного токена: $e');
       return null;
+    }
+  }
+  
+  /// Обновление местоположения пользователя
+  static Future<bool> updateUserLocation({
+    required double latitude,
+    required double longitude,
+  }) async {
+    try {
+      final token = await getValidToken();
+      if (token == null) {
+        print('SafeApiService: Нет токена для обновления местоположения');
+        return false;
+      }
+      
+      final result = await safeRequest(
+        '/v1/users/me/location/',
+        method: 'PATCH',
+        body: {
+          'current_latitude': latitude,
+          'current_longitude': longitude,
+        },
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
+      
+      if (result['success'] && result['statusCode'] == 200) {
+        print('SafeApiService: Местоположение успешно обновлено');
+        return true;
+      } else {
+        print('SafeApiService: Ошибка обновления местоположения: ${result['error']}');
+        return false;
+      }
+    } catch (e) {
+      print('SafeApiService: Ошибка обновления местоположения: $e');
+      return false;
+    }
+  }
+
+  // Получение документов водителя
+  static Future<List<Map<String, dynamic>>?> getDriverDocuments({
+    int? driverId,
+  }) async {
+    try {
+      final token = await getValidToken();
+      if (token == null) {
+        print('SafeApiService: Нет токена для загрузки документов водителя');
+        return null;
+      }
+
+      String endpoint = '/v1/driver-documents/';
+      if (driverId != null) {
+        endpoint += '?driver_id=$driverId';
+      }
+
+      print('SafeApiService: Загружаем документы водителя с endpoint: $endpoint');
+
+      final result = await safeRequest(
+        endpoint,
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      print('SafeApiService: Документы водителя - статус: ${result['statusCode']}');
+
+      if (result['success'] && result['data'] != null) {
+        final data = result['data'];
+        if (data is List) {
+          return List<Map<String, dynamic>>.from(data);
+        } else if (data is Map && data.containsKey('results')) {
+          return List<Map<String, dynamic>>.from(data['results']);
+        }
+        return null;
+      } else {
+        print('SafeApiService: Ошибка загрузки документов водителя: ${result['error']}');
+        return null;
+      }
+    } catch (e) {
+      print('SafeApiService: Исключение при загрузке документов водителя: $e');
+      return null;
+    }
+  }
+
+  // Получение детальных данных сотрудника
+  static Future<Map<String, dynamic>> getEmployeeDetails(int employeeId) async {
+    try {
+      final token = await getValidToken();
+      if (token == null) {
+        throw Exception('Токен авторизации не найден');
+      }
+
+      final response = await safeRequest(
+        '/v1/users/$employeeId/',
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      print('SafeApiService: Детальные данные сотрудника - статус: ${response['_status']}');
+      return response;
+    } catch (e) {
+      print('SafeApiService: Ошибка загрузки детальных данных сотрудника: $e');
+      rethrow;
     }
   }
 }

@@ -89,7 +89,7 @@ class TaskFileSerializer(serializers.ModelSerializer):
 class TaskSerializer(serializers.ModelSerializer):
     created_by_details = UserSerializer(source='created_by', read_only=True)
     assigned_user_details = UserSerializer(source='assigned_to', read_only=True)
-    assignees_details = UserSerializer(source='assignees', many=True, read_only=True)
+    # assignees_details = UserSerializer(source='assignees', many=True, read_only=True)  # Временно отключено
     vehicle_details = VehicleSerializer(source='vehicle', read_only=True)
     files = TaskFileSerializer(many=True, read_only=True)
     assignees_ids = serializers.ListField(
@@ -142,7 +142,19 @@ class TaskLocationSerializer(serializers.ModelSerializer):
 
 class ExpenseSerializer(serializers.ModelSerializer):
     created_by_details = UserSerializer(source='created_by', read_only=True)
-    vehicle_details = VehicleSerializer(source='vehicle', read_only=True)
+    vehicle_details = serializers.SerializerMethodField()
+    
+    def get_vehicle_details(self, obj):
+        """Упрощенная версия данных о транспорте без связанных объектов"""
+        if obj.vehicle:
+            return {
+                'id': obj.vehicle.id,
+                'number': obj.vehicle.number,
+                'brand': obj.vehicle.brand,
+                'model': obj.vehicle.model,
+                'year': obj.vehicle.year,
+            }
+        return None
     
     class Meta:
         model = Expense
