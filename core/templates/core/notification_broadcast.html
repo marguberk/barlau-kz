@@ -1,0 +1,374 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Массовая рассылка уведомлений - BARLAU.KZ{% endblock %}
+
+{% block extra_head %}
+<style>
+    .form-container {
+        background: white;
+        border-radius: 16px;
+        padding: 32px;
+        box-shadow: 0px 16px 32px -12px rgba(88,92,95,0.10);
+        margin: 24px auto;
+        max-width: 600px;
+    }
+    
+    .form-group {
+        margin-bottom: 24px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #374151;
+        font-size: 14px;
+    }
+    
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: 12px 16px;
+        border: 1px solid #D1D5DB;
+        border-radius: 8px;
+        font-size: 14px;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: #2679DB;
+        box-shadow: 0 0 0 3px rgba(38, 121, 219, 0.1);
+    }
+    
+    .form-group textarea {
+        resize: vertical;
+        min-height: 100px;
+    }
+    
+    .checkbox-group {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 12px;
+        margin-top: 8px;
+    }
+    
+    .checkbox-item {
+        display: flex;
+        align-items: center;
+        padding: 8px 12px;
+        border: 1px solid #E5E7EB;
+        border-radius: 8px;
+        transition: all 0.2s;
+    }
+    
+    .checkbox-item:hover {
+        background-color: #F9FAFB;
+        border-color: #2679DB;
+    }
+    
+    .checkbox-item input[type="checkbox"] {
+        margin-right: 8px;
+        width: auto;
+    }
+    
+    .btn-primary {
+        background-color: #2679DB;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 14px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        width: 100%;
+    }
+    
+    .btn-primary:hover {
+        background-color: #1E6BB8;
+    }
+    
+    .btn-secondary {
+        background-color: #F3F4F6;
+        color: #374151;
+        border: 1px solid #D1D5DB;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-decoration: none;
+        display: inline-block;
+        text-align: center;
+        margin-right: 12px;
+    }
+    
+    .btn-secondary:hover {
+        background-color: #E5E7EB;
+        border-color: #9CA3AF;
+    }
+    
+    .recipient-info {
+        background-color: #EFF6FF;
+        border: 1px solid #BFDBFE;
+        border-radius: 8px;
+        padding: 12px 16px;
+        margin-top: 8px;
+        font-size: 14px;
+        color: #1E40AF;
+    }
+    
+    .priority-urgent {
+        color: #DC2626;
+        font-weight: 600;
+    }
+    
+    .priority-high {
+        color: #EA580C;
+        font-weight: 600;
+    }
+    
+    .priority-normal {
+        color: #059669;
+        font-weight: 600;
+    }
+    
+    .priority-low {
+        color: #6B7280;
+        font-weight: 600;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div style="text-align: center; margin-bottom: 32px;">
+        <h1 style="font-size: 24px; font-weight: 700; color: #111827; margin: 0 0 8px 0;">
+            📢 Массовая рассылка уведомлений
+        </h1>
+        <p style="color: #6B7280; font-size: 14px; margin: 0;">
+            Отправьте уведомление всем сотрудникам или выбранным группам
+        </p>
+    </div>
+
+    <form method="post" id="broadcastForm">
+        {% csrf_token %}
+        
+        <!-- Получатели -->
+        <div class="form-group">
+            <label for="{{ form.recipients.id_for_label }}">Получатели уведомления</label>
+            {{ form.recipients }}
+            {% if form.recipients.errors %}
+                <div style="color: #DC2626; font-size: 12px; margin-top: 4px;">
+                    {{ form.recipients.errors.0 }}
+                </div>
+            {% endif %}
+            
+            <div class="recipient-info" id="recipientInfo" style="display: none;">
+                <strong>Выбранные получатели:</strong> <span id="recipientCount">0</span> сотрудников
+            </div>
+        </div>
+
+        <!-- Выбор ролей (показывается только при выборе "Выбранные роли") -->
+        <div class="form-group" id="rolesGroup" style="display: none;">
+            <label>Выберите роли для отправки</label>
+            <div class="checkbox-group">
+                {% for choice in form.specific_roles %}
+                    <div class="checkbox-item">
+                        {{ choice.tag }}
+                        <label for="{{ choice.id_for_label }}" style="margin: 0; font-weight: 500;">
+                            {{ choice.choice_label }}
+                        </label>
+                    </div>
+                {% endfor %}
+            </div>
+            {% if form.specific_roles.errors %}
+                <div style="color: #DC2626; font-size: 12px; margin-top: 4px;">
+                    {{ form.specific_roles.errors.0 }}
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Тип уведомления -->
+        <div class="form-group">
+            <label for="{{ form.type.id_for_label }}">Тип уведомления</label>
+            {{ form.type }}
+            {% if form.type.errors %}
+                <div style="color: #DC2626; font-size: 12px; margin-top: 4px;">
+                    {{ form.type.errors.0 }}
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Приоритет -->
+        <div class="form-group">
+            <label for="{{ form.priority.id_for_label }}">Приоритет</label>
+            {{ form.priority }}
+            {% if form.priority.errors %}
+                <div style="color: #DC2626; font-size: 12px; margin-top: 4px;">
+                    {{ form.priority.errors.0 }}
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Заголовок -->
+        <div class="form-group">
+            <label for="{{ form.title.id_for_label }}">Заголовок уведомления</label>
+            {{ form.title }}
+            {% if form.title.errors %}
+                <div style="color: #DC2626; font-size: 12px; margin-top: 4px;">
+                    {{ form.title.errors.0 }}
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Сообщение -->
+        <div class="form-group">
+            <label for="{{ form.message.id_for_label }}">Текст уведомления</label>
+            {{ form.message }}
+            {% if form.message.errors %}
+                <div style="color: #DC2626; font-size: 12px; margin-top: 4px;">
+                    {{ form.message.errors.0 }}
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Ссылка (необязательно) -->
+        <div class="form-group">
+            <label for="{{ form.link.id_for_label }}">Ссылка (необязательно)</label>
+            {{ form.link }}
+            {% if form.link.errors %}
+                <div style="color: #DC2626; font-size: 12px; margin-top: 4px;">
+                    {{ form.link.errors.0 }}
+                </div>
+            {% endif %}
+            <small style="color: #6B7280; font-size: 12px; margin-top: 4px; display: block;">
+                URL-адрес, на который перейдет пользователь при нажатии на уведомление
+            </small>
+        </div>
+
+        <!-- Кнопки -->
+        <div style="display: flex; gap: 12px; margin-top: 32px;">
+            <a href="{% url 'core:notifications' %}" class="btn-secondary">
+                ← Назад к уведомлениям
+            </a>
+            <button type="submit" class="btn-primary" id="submitBtn">
+                📤 Отправить уведомление
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const recipientsSelect = document.getElementById('{{ form.recipients.id_for_label }}');
+    const rolesGroup = document.getElementById('rolesGroup');
+    const recipientInfo = document.getElementById('recipientInfo');
+    const recipientCount = document.getElementById('recipientCount');
+    const submitBtn = document.getElementById('submitBtn');
+    
+    // Функция для показа/скрытия выбора ролей
+    function toggleRolesGroup() {
+        if (recipientsSelect.value === 'specific_roles') {
+            rolesGroup.style.display = 'block';
+        } else {
+            rolesGroup.style.display = 'none';
+        }
+        updateRecipientInfo();
+    }
+    
+    // Функция для обновления информации о получателях
+    function updateRecipientInfo() {
+        const value = recipientsSelect.value;
+        let count = 0;
+        let description = '';
+        
+        switch(value) {
+            case 'all':
+                count = {{ total_users }};
+                description = 'Все сотрудники';
+                break;
+            case 'drivers':
+                count = {{ driver_count }};
+                description = 'Только водители';
+                break;
+            case 'management':
+                count = {{ management_count }};
+                description = 'Руководство';
+                break;
+            case 'accountants':
+                count = {{ accountant_count }};
+                description = 'Бухгалтеры';
+                break;
+            case 'dispatchers':
+                count = {{ dispatcher_count }};
+                description = 'Диспетчеры';
+                break;
+            case 'specific_roles':
+                const checkedRoles = document.querySelectorAll('#rolesGroup input[type="checkbox"]:checked');
+                count = checkedRoles.length > 0 ? 'выбранные роли' : 0;
+                description = 'Выбранные роли';
+                break;
+        }
+        
+        if (count > 0) {
+            recipientInfo.style.display = 'block';
+            recipientCount.textContent = count;
+        } else {
+            recipientInfo.style.display = 'none';
+        }
+    }
+    
+    // Обработчики событий
+    recipientsSelect.addEventListener('change', toggleRolesGroup);
+    
+    // Обработчик для чекбоксов ролей
+    const roleCheckboxes = document.querySelectorAll('#rolesGroup input[type="checkbox"]');
+    roleCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateRecipientInfo);
+    });
+    
+    // Обработчик отправки формы
+    document.getElementById('broadcastForm').addEventListener('submit', function(e) {
+        const recipients = recipientsSelect.value;
+        const title = document.getElementById('{{ form.title.id_for_label }}').value;
+        const message = document.getElementById('{{ form.message.id_for_label }}').value;
+        
+        if (!title.trim() || !message.trim()) {
+            e.preventDefault();
+            alert('Пожалуйста, заполните заголовок и текст уведомления.');
+            return;
+        }
+        
+        if (recipients === 'specific_roles') {
+            const checkedRoles = document.querySelectorAll('#rolesGroup input[type="checkbox"]:checked');
+            if (checkedRoles.length === 0) {
+                e.preventDefault();
+                alert('Пожалуйста, выберите хотя бы одну роль для отправки уведомления.');
+                return;
+            }
+        }
+        
+        // Показываем подтверждение
+        const count = recipientCount.textContent;
+        const confirmed = confirm(`Вы уверены, что хотите отправить уведомление "${title}" ${count} сотрудникам?`);
+        
+        if (!confirmed) {
+            e.preventDefault();
+        } else {
+            submitBtn.textContent = '📤 Отправляем...';
+            submitBtn.disabled = true;
+        }
+    });
+    
+    // Инициализация
+    toggleRolesGroup();
+});
+</script>
+{% endblock %}

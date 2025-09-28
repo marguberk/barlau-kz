@@ -7,10 +7,11 @@ from .views.finance import FinanceViewSet
 from .views.expense import ExpenseViewSet
 from .views.waybill import WaybillDocumentViewSet
 # from .views.web import vehicle_detail_view, vehicle_trips_api, vehicle_gps_api
-from core.views import NotificationViewSet, PublicNotificationViewSet
+from core.views import PublicNotificationViewSet
 from .api import (
     vehicle_gps_status, vehicle_gps_history, sync_vehicle_gps,
-    available_gps_devices, update_all_vehicles_gps, vehicles_with_gps
+    available_gps_devices, update_all_vehicles_gps, vehicles_with_gps,
+    sync_all_gps_wialon
 )
 
 app_name = 'logistics'
@@ -23,7 +24,6 @@ router.register(r'expenses', ExpenseViewSet, basename='expense')
 router.register(r'waybills', WaybillDocumentViewSet, basename='waybill')
 router.register(r'map', MapViewSet, basename='map')
 router.register(r'finance', FinanceViewSet, basename='finance')
-router.register(r'notifications', NotificationViewSet, basename='notification')
 router.register(r'public-notifications', PublicNotificationViewSet, basename='public-notification')
 
 urlpatterns = [
@@ -38,6 +38,7 @@ urlpatterns = [
     path('gps/vehicles/<int:vehicle_id>/sync/', sync_vehicle_gps, name='sync-vehicle-gps'),
     path('gps/devices/available/', available_gps_devices, name='available-gps-devices'),
     path('gps/vehicles/update-all/', update_all_vehicles_gps, name='update-all-vehicles-gps'),
+    path('gps/wialon/sync-all/', sync_all_gps_wialon, name='sync-all-gps-wialon'),
     path('gps/vehicles/with-gps/', vehicles_with_gps, name='vehicles-with-gps'),
     
     # Веб-страницы

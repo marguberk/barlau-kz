@@ -151,8 +151,12 @@ class _LoginScreenState extends State<LoginScreen>
       final isQuickLoginEnabled = await BiometricService.isQuickLoginEnabled();
       if (isQuickLoginEnabled && mounted) {
         // Переходим на экран быстрого входа
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const QuickLoginScreen()),
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(
+            builder: (context) => const QuickLoginScreen(),
+            fullscreenDialog: true, // Открываем как полноэкранный модальный экран
+          ),
+          (route) => false,
         );
       }
     } catch (e) {
@@ -164,50 +168,25 @@ class _LoginScreenState extends State<LoginScreen>
     try {
       final authProvider = context.read<AuthProvider>();
       if (authProvider.isAuthenticated && mounted && !_isNavigating) {
-        print('🎬 LoginScreen: Пользователь уже авторизован, переходим к PIN настройке');
+        print('🎬 LoginScreen: Пользователь уже авторизован, переходим в приложение');
         _isNavigating = true;
         
-        final userData = authProvider.getUserDataForQuickLogin();
-        if (userData != null) {
-          // Небольшая задержка для плавности
-          await Future.delayed(const Duration(milliseconds: 100));
-          
-          // Переходим к настройке PIN с анимацией
-          Navigator.of(context).pushReplacement(
-            PageRouteBuilder(
-              pageBuilder: (context, animation, secondaryAnimation) {
-                return PinSetupScreen(
-                  username: userData['username'] ?? '',
-                  password: '',
-                  displayName: userData['displayName'],
-                  firstName: userData['firstName'],
-                  isExistingSetup: false,
-                );
-              },
-              transitionDuration: const Duration(milliseconds: 500),
-              transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                // Плавная анимация slide справа налево
-                return SlideTransition(
-                  position: Tween<Offset>(
-                    begin: const Offset(1.0, 0.0),
-                    end: Offset.zero,
-                  ).animate(CurvedAnimation(
-                    parent: animation,
-                    curve: Curves.easeOutCubic,
-                  )),
-                  child: FadeTransition(
-                    opacity: Tween<double>(
-                      begin: 0.0,
-                      end: 1.0,
-                    ).animate(CurvedAnimation(
-                      parent: animation,
-                      curve: Curves.easeOut,
-                    )),
-                    child: child,
-                  ),
-                );
-              },
+        // Проверяем, настроен ли быстрый вход
+        final isQuickLoginEnabled = await BiometricService.isQuickLoginEnabled();
+        if (isQuickLoginEnabled) {
+          // Если быстрый вход настроен, переходим к нему
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(
+              builder: (context) => const QuickLoginScreen(),
+              fullscreenDialog: true,
             ),
+            (route) => false,
+          );
+        } else {
+          // Если быстрый вход не настроен, переходим в приложение
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (context) => const MainScreen()),
+            (route) => false,
           );
         }
       }

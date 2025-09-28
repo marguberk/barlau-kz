@@ -5,6 +5,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from rest_framework import viewsets, permissions, status, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
 from django.template.loader import render_to_string
 from xhtml2pdf import pisa
@@ -2777,6 +2778,48 @@ class NotificationManualForm(forms.Form):
         self.fields['message'].widget.attrs['rows'] = 4
         self.fields['link'].widget.attrs['placeholder'] = 'https://...'
 
+class NotificationBroadcastForm(forms.Form):
+    RECIPIENT_CHOICES = [
+        ('all', 'Все сотрудники'),
+        ('drivers', 'Только водители'),
+        ('management', 'Руководство'),
+        ('accountants', 'Бухгалтеры'),
+        ('dispatchers', 'Диспетчеры'),
+        ('specific_roles', 'Выбранные роли'),
+    ]
+    
+    recipients = forms.ChoiceField(choices=RECIPIENT_CHOICES, label='Получатели')
+    specific_roles = forms.MultipleChoiceField(
+        choices=[
+            ('DRIVER', 'Водители'),
+            ('DISPATCHER', 'Диспетчеры'),
+            ('ACCOUNTANT', 'Бухгалтеры'),
+            ('ADMIN', 'Администраторы'),
+            ('DIRECTOR', 'Директор'),
+            ('SUPERADMIN', 'Суперадмин'),
+            ('DEPUTY_DIRECTOR', 'Заместитель директора'),
+        ],
+        required=False,
+        label='Выберите роли',
+        widget=forms.CheckboxSelectMultiple
+    )
+    type = forms.ChoiceField(choices=Notification.Type.choices, label='Тип')
+    priority = forms.ChoiceField(choices=Notification.Priority.choices, label='Приоритет')
+    title = forms.CharField(max_length=100, label='Заголовок')
+    message = forms.CharField(widget=forms.Textarea, label='Текст')
+    link = forms.CharField(max_length=255, label='Ссылка', required=False)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            if hasattr(field.widget, 'attrs'):
+                field.widget.attrs['class'] = 'w-full rounded-lg border-gray-300'
+        self.fields['title'].widget.attrs['placeholder'] = 'Заголовок уведомления'
+        self.fields['message'].widget.attrs['placeholder'] = 'Текст уведомления для всех сотрудников'
+        self.fields['message'].widget.attrs['rows'] = 4
+        self.fields['link'].widget.attrs['placeholder'] = 'https://...'
+        self.fields['priority'].initial = 'NORMAL'
+
 class NotificationManualCreateView(LoginRequiredMixin, FormView):
     template_name = 'core/notification_manual_create.html'
     form_class = NotificationManualForm
@@ -2792,6 +2835,156 @@ class NotificationManualCreateView(LoginRequiredMixin, FormView):
         )
         messages.success(self.request, 'Уведомление отправлено!')
         return super().form_valid(form)
+
+class NotificationBroadcastView(LoginRequiredMixin, FormView):
+    template_name = 'core/notification_broadcast.html'
+    form_class = NotificationBroadcastForm
+    success_url = '/dashboard/notifications/'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        # Получаем статистику пользователей для отображения в форме
+        context['total_users'] = User.objects.filter(is_active=True).count()
+        context['driver_count'] = User.objects.filter(role='DRIVER', is_active=True).count()
+        context['management_count'] = User.objects.filter(
+            role__in=['DIRECTOR', 'ADMIN', 'SUPERADMIN', 'DEPUTY_DIRECTOR'], 
+            is_active=True
+        ).count()
+        context['accountant_count'] = User.objects.filter(role='ACCOUNTANT', is_active=True).count()
+        context['dispatcher_count'] = User.objects.filter(role='DISPATCHER', is_active=True).count()
+        
+        return context
+
+    def get_recipients(self, form):
+        """Получить список получателей на основе выбора"""
+        recipients = form.cleaned_data['recipients']
+        specific_roles = form.cleaned_data.get('specific_roles', [])
+        
+        if recipients == 'all':
+            return User.objects.filter(is_active=True)
+        elif recipients == 'drivers':
+            return User.objects.filter(role='DRIVER', is_active=True)
+        elif recipients == 'management':
+            return User.objects.filter(
+                role__in=['DIRECTOR', 'ADMIN', 'SUPERADMIN', 'DEPUTY_DIRECTOR'], 
+                is_active=True
+            )
+        elif recipients == 'accountants':
+            return User.objects.filter(role='ACCOUNTANT', is_active=True)
+        elif recipients == 'dispatchers':
+            return User.objects.filter(role='DISPATCHER', is_active=True)
+        elif recipients == 'specific_roles' and specific_roles:
+            return User.objects.filter(role__in=specific_roles, is_active=True)
+        else:
+            return User.objects.none()
+
+    def form_valid(self, form):
+        recipients = self.get_recipients(form)
+        
+        if not recipients.exists():
+            messages.error(self.request, 'Не найдено получателей для отправки уведомления.')
+            return self.form_invalid(form)
+        
+        # Создаем уведомления для всех получателей
+        notifications = []
+        for user in recipients:
+            notification = Notification(
+                user=user,
+                type=form.cleaned_data['type'],
+                priority=form.cleaned_data['priority'],
+                title=form.cleaned_data['title'],
+                message=form.cleaned_data['message'],
+                link=form.cleaned_data.get('link', '')
+            )
+            notifications.append(notification)
+        
+        # Массово создаем уведомления
+        Notification.objects.bulk_create(notifications)
+        
+        count = len(notifications)
+        messages.success(
+            self.request, 
+            f'Уведомление отправлено {count} сотрудникам!'
+        )
+        
+        return super().form_valid(form)
+
+class NotificationBroadcastAPIView(APIView):
+    """API endpoint для массовой рассылки уведомлений"""
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def post(self, request):
+        try:
+            recipients = request.data.get('recipients', 'all')
+            specific_roles = request.data.get('specific_roles', [])
+            notification_type = request.data.get('type', 'SYSTEM')
+            priority = request.data.get('priority', 'NORMAL')
+            title = request.data.get('title')
+            message = request.data.get('message')
+            link = request.data.get('link', '')
+            
+            if not title or not message:
+                return Response(
+                    {'error': 'Заголовок и сообщение обязательны'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+            # Получаем список получателей
+            if recipients == 'all':
+                users = User.objects.filter(is_active=True)
+            elif recipients == 'drivers':
+                users = User.objects.filter(role='DRIVER', is_active=True)
+            elif recipients == 'management':
+                users = User.objects.filter(
+                    role__in=['DIRECTOR', 'ADMIN', 'SUPERADMIN', 'DEPUTY_DIRECTOR'], 
+                    is_active=True
+                )
+            elif recipients == 'accountants':
+                users = User.objects.filter(role='ACCOUNTANT', is_active=True)
+            elif recipients == 'dispatchers':
+                users = User.objects.filter(role='DISPATCHER', is_active=True)
+            elif recipients == 'specific_roles' and specific_roles:
+                users = User.objects.filter(role__in=specific_roles, is_active=True)
+            else:
+                return Response(
+                    {'error': 'Не найдено получателей'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+            if not users.exists():
+                return Response(
+                    {'error': 'Не найдено получателей для отправки уведомления'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+            # Создаем уведомления для всех получателей
+            notifications = []
+            for user in users:
+                notification = Notification(
+                    user=user,
+                    type=notification_type,
+                    priority=priority,
+                    title=title,
+                    message=message,
+                    link=link
+                )
+                notifications.append(notification)
+            
+            # Массово создаем уведомления
+            Notification.objects.bulk_create(notifications)
+            
+            return Response({
+                'message': f'Уведомление отправлено {len(notifications)} сотрудникам',
+                'count': len(notifications)
+            }, status=status.HTTP_201_CREATED)
+            
+        except Exception as e:
+            print(f"Ошибка массовой рассылки уведомлений: {e}")
+            return Response(
+                {'error': f'Ошибка отправки: {str(e)}'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 def create_expiry_notification(vehicle, document_type, expiry_date):
     print('[DEBUG] create_expiry_notification вызвана', vehicle, document_type, expiry_date)
@@ -3383,6 +3576,40 @@ class TripDetailView(LoginRequiredMixin, DetailView):
                 'phone': trip.driver.phone,
                 'username': trip.driver.username
             }
+            
+            # Добавляем местоположение водителя
+            try:
+                from core.models import DriverLocation
+                driver_location = DriverLocation.objects.filter(
+                    driver=trip.driver,
+                    trip=trip
+                ).order_by('-timestamp').first()
+                
+                if driver_location:
+                    context['driver_location'] = {
+                        'latitude': float(driver_location.latitude),
+                        'longitude': float(driver_location.longitude),
+                        'timestamp': driver_location.timestamp,
+                        'enabled': True
+                    }
+                else:
+                    # Если нет местоположения для этого заезда, берем последнее общее
+                    driver_location = DriverLocation.objects.filter(
+                        driver=trip.driver
+                    ).order_by('-timestamp').first()
+                    
+                    if driver_location:
+                        context['driver_location'] = {
+                            'latitude': float(driver_location.latitude),
+                            'longitude': float(driver_location.longitude),
+                            'timestamp': driver_location.timestamp,
+                            'enabled': True
+                        }
+                    else:
+                        context['driver_location'] = None
+            except Exception as e:
+                print(f"Ошибка получения местоположения водителя для заезда {trip.id}: {e}")
+                context['driver_location'] = None
         
         # Добавляем информацию о транспорте
         if trip.vehicle:

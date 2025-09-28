@@ -160,6 +160,22 @@
                                 <span class="text-sm font-semibold text-gray-900">{{ trip.border_crossing }}</span>
                             </div>
                             {% endif %}
+                            
+                            {% if driver_location %}
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm font-medium text-gray-700">Местоположение водителя</span>
+                                <span class="text-sm font-semibold text-gray-900">
+                                    <span class="inline-flex items-center">
+                                        <span class="w-2 h-2 bg-orange-500 rounded-full mr-2"></span>
+                                        Активно
+                                    </span>
+                                </span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm font-medium text-gray-700">Последнее обновление</span>
+                                <span class="text-sm text-gray-600">{{ driver_location.timestamp|date:"d.m.Y H:i" }}</span>
+                            </div>
+                            {% endif %}
                         </div>
                     </div>
                     
@@ -402,6 +418,33 @@ function addMarkersAndRoute(map) {
     
     L.marker(currentPosition, {icon: truckIcon}).addTo(map);
     {% endif %}
+    
+    // Добавляем местоположение водителя, если есть
+    {% if driver_location %}
+    const driverLat = {{ driver_location.latitude }};
+    const driverLng = {{ driver_location.longitude }};
+    
+    const driverIcon = L.divIcon({
+        className: 'custom-marker',
+        html: `<div class="w-10 h-10 bg-orange-500 rounded-full border-4 border-white shadow-xl flex items-center justify-center">
+                 <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                   <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
+                 </svg>
+               </div>`,
+        iconSize: [40, 40],
+        iconAnchor: [20, 20]
+    });
+    
+    const driverMarker = L.marker([driverLat, driverLng], {icon: driverIcon})
+        .addTo(map)
+        .bindPopup(`
+            <div style="text-align: center;">
+                <strong>{% if driver_info %}{{ driver_info.name }}{% else %}Водитель{% endif %}</strong><br>
+                <small>Местоположение водителя</small><br>
+                <small>Обновлено: {{ driver_location.timestamp|date:"d.m.Y H:i" }}</small>
+            </div>
+        `);
+    {% endif %}
 }
 
 // Загрузка реального маршрута через OpenRouteService API
@@ -457,11 +500,24 @@ async function loadRealRoute() {
 
 // Подгонка карты под маршрут
 function fitMapToRoute(map) {
+    const group = new L.featureGroup();
+    
+    // Добавляем точки маршрута
     if (routeCoordinates.length >= 2) {
-        const group = new L.featureGroup();
         routeCoordinates.forEach(coord => {
             L.marker(coord).addTo(group);
         });
+    }
+    
+    // Добавляем местоположение водителя, если есть
+    {% if driver_location %}
+    const driverLat = {{ driver_location.latitude }};
+    const driverLng = {{ driver_location.longitude }};
+    L.marker([driverLat, driverLng]).addTo(group);
+    {% endif %}
+    
+    // Подгоняем карту под все маркеры
+    if (group.getLayers().length > 0) {
         map.fitBounds(group.getBounds().pad(0.1));
     }
 }

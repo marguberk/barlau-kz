@@ -43,6 +43,8 @@ from .views import (
     TruckDetailView,
     FileUploadView,
     NotificationManualCreateView,
+    NotificationBroadcastView,
+    NotificationBroadcastAPIView,
     EmployeePDFPublicView,
     trips_simple_view,
     drivers_simple_view,
@@ -106,6 +108,7 @@ urlpatterns = [
     path('accounts/logout/', logout_view, name='custom-logout'),
     
     # API endpoints
+    path('api/notifications/broadcast/', NotificationBroadcastAPIView.as_view(), name='api-notification-broadcast'),
     path('api/', include(router.urls)),
     path('api/users/me/', update_profile, name='api-profile-update'),
     path('api/users/me/photo/', upload_profile_photo, name='api-profile-photo-upload'),
@@ -171,6 +174,7 @@ urlpatterns = [
     
     # Ручное создание уведомления
     path('notifications/manual_create/', NotificationManualCreateView.as_view(), name='notification-manual-create'),
+    path('notifications/broadcast/', NotificationBroadcastView.as_view(), name='notification-broadcast'),
     
     # API endpoints
     path('simple-trips/', trips_simple_view, name='simple-trips'),

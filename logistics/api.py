@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from .models import Vehicle, VehicleGPSHistory
 # from .services.stavtrack_service import StavTrackService
+from .services.wialon_service import WialonService
 from .serializers import VehicleSerializer
 import logging
 
@@ -22,10 +23,10 @@ def vehicle_gps_status(request, vehicle_id):
                 'error': 'GPS мониторинг не включен для данного транспортного средства'
             }, status=status.HTTP_400_BAD_REQUEST)
         
-        # Обновляем GPS данные
-        # stavtrack_service = StavTrackService()
-        # if vehicle.gps_device_id:
-        #     stavtrack_service.update_vehicle_gps_data(vehicle)
+        # Обновляем GPS данные через Wialon API
+        wialon_service = WialonService()
+        if vehicle.gps_device_id:
+            wialon_service.update_vehicle_gps_data(vehicle)
         
         # Возвращаем обновленные данные
         gps_data = {
@@ -146,6 +147,36 @@ def sync_vehicle_gps(request, vehicle_id):
         logger.error(f"Ошибка синхронизации GPS: {e}")
         return Response({
             'error': 'Ошибка синхронизации'
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def sync_all_gps_wialon(request):
+    """Синхронизация всех GPS данных с Wialon API"""
+    try:
+        wialon_service = WialonService()
+        
+        # Авторизация
+        if not wialon_service.authenticate():
+            return Response({
+                'error': 'Ошибка авторизации в Wialon API'
+            }, status=status.HTTP_401_UNAUTHORIZED)
+        
+        # Синхронизация всех грузовиков
+        updated_count = wialon_service.sync_all_vehicles_gps()
+        
+        # Выход из системы
+        wialon_service.logout()
+        
+        return Response({
+            'message': f'Синхронизация завершена: обновлено {updated_count} грузовиков',
+            'updated_count': updated_count
+        })
+        
+    except Exception as e:
+        logger.error(f"Ошибка синхронизации GPS с Wialon: {e}")
+        return Response({
+            'error': f'Ошибка синхронизации: {e}'
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(['GET'])
