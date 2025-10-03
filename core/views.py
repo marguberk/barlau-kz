@@ -70,7 +70,7 @@ class IsDirectorOrSuperAdmin(permissions.BasePermission):
 
 class EmployeeViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
-    permission_classes = [permissions.IsAuthenticated, IsDirectorOrSuperAdmin]
+    permission_classes = [permissions.IsAuthenticated]  # Все авторизованные пользователи могут просматривать сотрудников
     filter_backends = [
         DjangoFilterBackend,
         filters.SearchFilter,
@@ -80,40 +80,15 @@ class EmployeeViewSet(viewsets.ModelViewSet):
     ordering_fields = ['date_joined', 'last_login', 'id', 'first_name', 'role']
     ordering = ['id']  # Будем сортировать в get_queryset
     
-    def get_queryset(self):
-        queryset = User.objects.filter(is_active=True)
-        
-        # Сортируем по приоритету ролей, затем по имени
-        def role_priority(employee):
-            role_order = {
-                'SUPERADMIN': 1,
-                'DIRECTOR': 2,
-                'DEPUTY_DIRECTOR': 3,
-                'MANAGER': 4,
-                'DISPATCHER': 5,
-                'ACCOUNTANT': 6,
-                'IT_MANAGER': 7,
-                'LOGIST': 8,
-                'SUPPLIER': 9,
-                'TECH': 10,
-                'CONSULTANT': 11,
-                'DRIVER': 12,
-                'EMPLOYEE': 13,
-            }
-            return (role_order.get(employee.role, 999), employee.last_name or '', employee.first_name or '')
-        
-        return sorted(queryset, key=role_priority)
-
     def get_permissions(self):
-        """
-        Переопределяем получение разрешений для разрешения GET запросов в DEBUG режиме
-        """
-        if self.request.method == 'GET' and settings.DEBUG:
-            return [permissions.AllowAny()]
-        return [permission() for permission in self.permission_classes]
-
+        """Только директора и суперадмины могут создавать/редактировать/удалять"""
+        if self.action in ['create', 'update', 'partial_update', 'destroy']:
+            return [permissions.IsAuthenticated(), IsDirectorOrSuperAdmin()]
+        return [permissions.IsAuthenticated()]
+    
     def get_queryset(self):
-        queryset = User.objects.all().order_by('-date_joined', 'id')
+        # Исключаем тестовых пользователей по ID
+        queryset = User.objects.filter(is_active=True).exclude(id__in=[76, 77])
 
         # Фильтрация по архивным сотрудникам
         is_archived = self.request.query_params.get('is_archived', None)
@@ -123,8 +98,17 @@ class EmployeeViewSet(viewsets.ModelViewSet):
         else:
             # По умолчанию показываем только неархивированных сотрудников
             queryset = queryset.filter(is_archived=False)
+        
+        # Сортируем по дате регистрации, затем по ID (QuerySet, а не список)
+        return queryset.order_by('-date_joined', 'id')
 
-        return queryset
+    def get_permissions(self):
+        """
+        Переопределяем получение разрешений для разрешения GET запросов в DEBUG режиме
+        """
+        if self.request.method == 'GET' and settings.DEBUG:
+            return [permissions.AllowAny()]
+        return [permission() for permission in self.permission_classes]
 
     def get_serializer_class(self):
         if self.action == 'create':

@@ -1,6 +1,6 @@
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from .models import Vehicle, VehicleGPSHistory
@@ -257,6 +257,58 @@ def vehicles_with_gps(request):
         logger.error(f"Ошибка получения транспорта с GPS: {e}")
         return Response({
             'error': 'Ошибка получения данных'
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def vehicles_locations(request):
+    """API endpoint для получения GPS координат всех грузовиков (для карты)"""
+    try:
+        vehicles = Vehicle.objects.filter(
+            gps_enabled=True,
+            gps_latitude__isnull=False,
+            gps_longitude__isnull=False
+        ).select_related('driver')
+        
+        logger.info(f"Найдено {vehicles.count()} грузовиков с GPS данными")
+        
+        vehicles_data = []
+        for vehicle in vehicles:
+            try:
+                vehicle_data = {
+                    'id': vehicle.id,
+                    'number': vehicle.number,
+                    'brand': vehicle.brand,
+                    'model': vehicle.model,
+                    'driver_name': f"{vehicle.driver.first_name} {vehicle.driver.last_name}" if vehicle.driver else 'Не назначен',
+                    'driver_username': vehicle.driver.username if vehicle.driver else None,
+                    'gps_latitude': float(vehicle.gps_latitude),
+                    'gps_longitude': float(vehicle.gps_longitude),
+                    'gps_speed': float(vehicle.gps_speed) if vehicle.gps_speed else 0.0,
+                    'gps_heading': float(vehicle.gps_heading) if vehicle.gps_heading else 0.0,
+                    'gps_satellites': vehicle.gps_satellites,
+                    'gps_signal_quality': vehicle.gps_signal_quality,
+                    'gps_last_update': vehicle.gps_last_update,
+                    'gps_enabled': vehicle.gps_enabled,
+                    'engine_status': vehicle.gps_engine_status,
+                    'ignition_status': vehicle.gps_ignition_status
+                }
+                vehicles_data.append(vehicle_data)
+                logger.info(f"Добавлен грузовик {vehicle.number}: {vehicle.gps_latitude}, {vehicle.gps_longitude}")
+            except Exception as ve:
+                logger.error(f"Ошибка обработки грузовика {vehicle.number}: {ve}")
+        
+        logger.info(f"Возвращаем {len(vehicles_data)} грузовиков")
+        return Response({
+            'status': 'success',
+            'count': len(vehicles_data),
+            'vehicles': vehicles_data
+        })
+        
+    except Exception as e:
+        logger.error(f"Ошибка получения GPS координат: {e}")
+        return Response({
+            'error': 'Ошибка получения GPS данных'
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 

@@ -59,7 +59,7 @@ class TaskAdmin(admin.ModelAdmin):
     list_filter = ('status', 'priority', 'created_at')
     search_fields = ('title', 'description')
     raw_id_fields = ('assigned_to', 'vehicle', 'created_by')
-    filter_horizontal = ('assignees',)
+    # filter_horizontal = ('assignees',)  # Поле assignees временно отключено
     date_hierarchy = 'created_at'
     inlines = [TaskFileInline]
 

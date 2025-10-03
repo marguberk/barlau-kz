@@ -2020,7 +2020,7 @@ async function loadDriverLocations() {
         
         // Сначала пробуем загрузить GPS данные от StavTrack
         try {
-            const gpsResp = await fetch('/api/vehicles/locations/');
+            const gpsResp = await fetch('/api/gps/vehicles/locations/');
             if (gpsResp.ok) {
                 const gpsData = await gpsResp.json();
                 console.log('GPS data from StavTrack:', gpsData);

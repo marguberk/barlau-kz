@@ -93,7 +93,7 @@ class VehicleViewSet(BaseModelViewSet):
     def locations(self, request):
         """Получить местоположение всех транспортных средств"""
         vehicles = Vehicle.objects.filter(driver__isnull=False)
-        if request.user.role == 'DRIVER':
+        if hasattr(request.user, 'role') and request.user.role == 'DRIVER':
             vehicles = vehicles.filter(driver=request.user)
             
         serializer = VehicleLocationSerializer(vehicles, many=True)

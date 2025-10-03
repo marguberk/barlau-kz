@@ -22,6 +22,8 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
   bool isLoading = true;
   bool isConnected = false;
   bool _isLoadingEmployees = false; // Защита от множественных загрузок
+  String? userRole; // Роль текущего пользователя
+  bool showOnlyDrivers = false; // Флаг для фильтрации только водителей
 
   @override
   void initState() {
@@ -29,12 +31,25 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
     // Очищаем список сотрудников при инициализации
     allEmployees = [];
     
-    // Загружаем сотрудников только один раз при инициализации
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    // Загружаем роль пользователя и сотрудников
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (mounted) {
+        await _loadUserRole();
         _loadEmployees();
       }
     });
+  }
+
+  Future<void> _loadUserRole() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (mounted) {
+      setState(() {
+        userRole = prefs.getString('user_role');
+        // Для диспетчера показываем только водителей
+        showOnlyDrivers = userRole == 'DISPATCHER';
+      });
+      print('EmployeesScreen: User role: $userRole, Show only drivers: $showOnlyDrivers');
+    }
   }
 
   Future<void> _loadEmployees() async {
@@ -147,7 +162,13 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
               print('================================');
             
             // Маппим поля Django API в формат Flutter
-            final mappedEmployees = deduplicatedEmployees.map((employee) => _mapEmployeeFields(employee)).toList();
+            var mappedEmployees = deduplicatedEmployees.map((employee) => _mapEmployeeFields(employee)).toList();
+            
+            // Фильтруем только водителей для диспетчера
+            if (showOnlyDrivers) {
+              mappedEmployees = mappedEmployees.where((emp) => emp['role'] == 'DRIVER').toList();
+              print('Фильтрация для диспетчера: оставлено ${mappedEmployees.length} водителей');
+            }
             
             // Сортируем сотрудников по приоритету ролей
             mappedEmployees.sort(_compareEmployeesByRole);
@@ -158,7 +179,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                 isLoading = false;
                 isConnected = true;
               });
-              print('Загружено ${allEmployees.length} сотрудников из базы данных');
+              print('Загружено ${allEmployees.length} ${showOnlyDrivers ? "водителей" : "сотрудников"} из базы данных');
             }
             
             return;
@@ -199,7 +220,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppHeader(
-        title: 'Сотрудники',
+        title: showOnlyDrivers ? 'Водители' : 'Сотрудники',
         isConnected: isConnected,
       ),
       body: isLoading
@@ -209,19 +230,19 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
               ),
             )
           : allEmployees.isEmpty
-              ? const Center(
+              ? Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.people_outline,
                         size: 64,
                         color: Color(0xFF9CA3AF),
                       ),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
                       Text(
-                        'Сотрудники не найдены',
-                        style: TextStyle(
+                        showOnlyDrivers ? 'Водители не найдены' : 'Сотрудники не найдены',
+                        style: const TextStyle(
     fontFamily: 'InterTight',
                           fontSize: 18,
                           color: Color(0xFF6B7280),

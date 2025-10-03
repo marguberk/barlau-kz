@@ -11,7 +11,7 @@ from core.views import PublicNotificationViewSet
 from .api import (
     vehicle_gps_status, vehicle_gps_history, sync_vehicle_gps,
     available_gps_devices, update_all_vehicles_gps, vehicles_with_gps,
-    sync_all_gps_wialon
+    sync_all_gps_wialon, vehicles_locations
 )
 
 app_name = 'logistics'
@@ -40,6 +40,7 @@ urlpatterns = [
     path('gps/vehicles/update-all/', update_all_vehicles_gps, name='update-all-vehicles-gps'),
     path('gps/wialon/sync-all/', sync_all_gps_wialon, name='sync-all-gps-wialon'),
     path('gps/vehicles/with-gps/', vehicles_with_gps, name='vehicles-with-gps'),
+    path('gps/vehicles/locations/', vehicles_locations, name='vehicles-locations'),
     
     # Веб-страницы
     # path('vehicles/<int:vehicle_id>/', vehicle_detail_view, name='vehicle-detail'),
