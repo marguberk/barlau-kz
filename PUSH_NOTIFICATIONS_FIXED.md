@@ -97,3 +97,4 @@ OneSignalService.send_notification_to_users(
 - ✅ **Готова к тестированию**
 
 **Теперь push-уведомления работают как положено!** 🎉
+

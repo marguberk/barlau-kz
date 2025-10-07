@@ -139,3 +139,4 @@ class FirebaseService:
         except Exception as e:
             logger.error(f"Ошибка отправки Firebase мультикаст уведомления: {e}")
             return False
+

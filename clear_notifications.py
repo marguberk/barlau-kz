@@ -85,3 +85,4 @@ def clear_all_notifications():
 
 if __name__ == "__main__":
     clear_all_notifications()
+
