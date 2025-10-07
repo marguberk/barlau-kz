@@ -631,4 +631,72 @@ class SafeApiService {
       rethrow;
     }
   }
+
+  // Обновление FCM токена
+  static Future<bool> updateFCMToken(String fcmToken) async {
+    try {
+      final token = await getValidToken();
+      if (token == null) {
+        print('SafeApiService: Токен авторизации не найден для обновления FCM');
+        return false;
+      }
+
+      final response = await safeRequest(
+        '/v1/users/me/fcm-token/',
+        method: 'PATCH',
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: {
+          'fcm_token': fcmToken,
+        },
+      );
+
+      if (response['_status'] == 200) {
+        print('SafeApiService: FCM токен успешно обновлен');
+        return true;
+      } else {
+        print('SafeApiService: Ошибка обновления FCM токена: ${response['_status']}');
+        return false;
+      }
+    } catch (e) {
+      print('SafeApiService: Ошибка обновления FCM токена: $e');
+      return false;
+    }
+  }
+
+  // Обновление OneSignal Player ID
+  static Future<bool> updateOneSignalPlayerId(String playerId) async {
+    try {
+      final token = await getValidToken();
+      if (token == null) {
+        print('SafeApiService: Токен авторизации не найден для обновления OneSignal Player ID');
+        return false;
+      }
+
+      final response = await safeRequest(
+        '/v1/users/me/onesignal-player-id/',
+        method: 'PATCH',
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: {
+          'player_id': playerId,
+        },
+      );
+
+      if (response['_status'] == 200) {
+        print('SafeApiService: OneSignal Player ID успешно обновлен');
+        return true;
+      } else {
+        print('SafeApiService: Ошибка обновления OneSignal Player ID: ${response['_status']}');
+        return false;
+      }
+    } catch (e) {
+      print('SafeApiService: Ошибка обновления OneSignal Player ID: $e');
+      return false;
+    }
+  }
 }

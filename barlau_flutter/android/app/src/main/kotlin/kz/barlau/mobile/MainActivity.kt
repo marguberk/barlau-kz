@@ -1,4 +1,4 @@
-package kz.barlau.app
+package kz.barlau.mobile
 
 import io.flutter.embedding.android.FlutterFragmentActivity
 

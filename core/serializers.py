@@ -13,12 +13,22 @@ User = get_user_model()
 class UserSerializer(serializers.ModelSerializer):
     role_display = serializers.CharField(source='get_role_display', read_only=True)
     full_name = serializers.CharField(source='get_full_name', read_only=True)
+    photo_url = serializers.SerializerMethodField()
+    
+    def get_photo_url(self, obj):
+        if obj.photo:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.photo.url)
+            # Если нет request в контексте, формируем URL вручную
+            return f"https://barlau.org{obj.photo.url}"
+        return None
     
     class Meta:
         model = User
         fields = [
             'id', 'username', 'email', 'phone', 'first_name', 'last_name', 
-            'role', 'role_display', 'is_active', 'is_archived', 'position', 'photo', 
+            'role', 'role_display', 'is_active', 'is_archived', 'position', 'photo', 'photo_url',
             'date_joined', 'last_login', 'full_name',
             # Биографические поля
             'about_me', 'experience', 'education', 'key_skills', 'languages', 
@@ -154,7 +164,7 @@ class UserPhotoSerializer(serializers.ModelSerializer):
 class TripSerializer(serializers.ModelSerializer):
     vehicle_details = serializers.SerializerMethodField()
     trailer_details = VehicleSerializer(source='trailer', read_only=True)
-    driver_details = UserSerializer(source='driver', read_only=True)
+    driver_details = serializers.SerializerMethodField()
     created_by_details = UserSerializer(source='created_by', read_only=True)
     current_location = serializers.ReadOnlyField()
     route_info = serializers.ReadOnlyField()
@@ -169,6 +179,13 @@ class TripSerializer(serializers.ModelSerializer):
             # Создаем новый экземпляр VehicleSerializer
             from logistics.serializers import VehicleSerializer
             serializer = VehicleSerializer(obj.vehicle)
+            return serializer.data
+        return None
+    
+    def get_driver_details(self, obj):
+        """Получаем детали водителя с полным URL фото"""
+        if obj.driver:
+            serializer = UserSerializer(obj.driver, context=self.context)
             return serializer.data
         return None
 

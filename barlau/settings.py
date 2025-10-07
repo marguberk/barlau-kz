@@ -307,3 +307,7 @@ ALLOWED_IMAGE_TYPES = [
     'image/png',
     'image/gif',
 ]
+
+# OneSignal settings
+ONESIGNAL_APP_ID = '24c6c8e0-f55e-45a6-bca6-3985329161c7'
+ONESIGNAL_REST_API_KEY = 'NzA0MzE3ZmMtNzg3Yy00OGY2LTg1M2MtOGQ4YzYxMzUwOTM5'

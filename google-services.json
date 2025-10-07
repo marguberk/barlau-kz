@@ -1,0 +1,28 @@
+{
+  "project_info": {
+    "project_number": "968358447485",
+    "project_id": "barlau-mobile",
+    "storage_bucket": "barlau-mobile.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:968358447485:android:90665786fa95c53fdaa414",
+        "android_client_info": {
+          "package_name": "kz.barlau.mobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCEQJxPKFyxtHacFe9EoSErn675P5IGzT8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"

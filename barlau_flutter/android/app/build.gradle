@@ -3,6 +3,7 @@ plugins {
     id "kotlin-android"
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id "dev.flutter.flutter-gradle-plugin"
+    // id "com.google.gms.google-services"  // Временно отключено для тестирования
 }
 
 def keystoreProperties = new Properties()
@@ -12,13 +13,14 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace = "kz.barlau.app"
+    namespace = "kz.barlau.mobile"
     compileSdk = 35
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
+        coreLibraryDesugaringEnabled true
     }
 
     kotlinOptions {
@@ -26,7 +28,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "kz.barlau.app"
+        applicationId = "kz.barlau.mobile"
         minSdk = 21
         targetSdk = 35
         versionCode = 2
@@ -57,4 +59,8 @@ android {
 
 flutter {
     source = "../.."
+}
+
+dependencies {
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.4'
 }

@@ -45,6 +45,8 @@ from .views import (
     NotificationManualCreateView,
     NotificationBroadcastView,
     NotificationBroadcastAPIView,
+    UpdateFCMTokenAPIView,
+    UpdateOneSignalPlayerIdAPIView,
     EmployeePDFPublicView,
     trips_simple_view,
     drivers_simple_view,
@@ -109,6 +111,8 @@ urlpatterns = [
     
     # API endpoints
     path('api/notifications/broadcast/', NotificationBroadcastAPIView.as_view(), name='api-notification-broadcast'),
+    path('api/v1/users/me/fcm-token/', UpdateFCMTokenAPIView.as_view(), name='api-update-fcm-token'),
+    path('api/v1/users/me/onesignal-player-id/', UpdateOneSignalPlayerIdAPIView.as_view(), name='api-update-onesignal-player-id'),
     path('api/', include(router.urls)),
     path('api/users/me/', update_profile, name='api-profile-update'),
     path('api/users/me/photo/', upload_profile_photo, name='api-profile-photo-upload'),

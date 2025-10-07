@@ -345,6 +345,7 @@ def public_trips_api(request):
                     t.notes, t.created_at, t.updated_at,
                     t.driver_id, t.vehicle_id,
                     d.first_name as driver_first_name, d.last_name as driver_last_name, d.username as driver_username,
+                    d.photo as driver_photo,
                     v.number as vehicle_number, v.brand as vehicle_brand, v.model as vehicle_model
                 FROM core_trip t
                 LEFT JOIN accounts_user d ON t.driver_id = d.id
@@ -377,20 +378,26 @@ def public_trips_api(request):
             
             # Добавляем информацию о водителе
             if row[15]:  # driver_id
+                driver_photo = row[20]  # driver_photo
+                photo_url = None
+                if driver_photo:
+                    photo_url = f"https://barlau.org/media/{driver_photo}"
+                
                 trip_data['driver_details'] = {
                     'id': row[15],
                     'first_name': row[17],
                     'last_name': row[18],
                     'username': row[19],
+                    'photo_url': photo_url,
                 }
             
             # Добавляем информацию о грузовике
             if row[16]:  # vehicle_id
                 trip_data['vehicle_details'] = {
                     'id': row[16],
-                    'number': row[20],
-                    'brand': row[21],
-                    'model': row[22],
+                    'number': row[21],
+                    'brand': row[22],
+                    'model': row[23],
                 }
             
             trips_data.append(trip_data)
@@ -1029,6 +1036,12 @@ class TripViewSet(viewsets.ModelViewSet):
         else:
             # Для других ролей показываем только активные поездки
             return queryset.filter(status='ACTIVE')
+
+    def get_serializer_context(self):
+        """Передаем контекст запроса в сериализатор"""
+        context = super().get_serializer_context()
+        context['request'] = self.request
+        return context
 
     def perform_create(self, serializer):
         """Создание поездки с автоматическим назначением создателя"""

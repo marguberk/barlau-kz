@@ -592,19 +592,19 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
   int _compareEmployeesByRole(Map<String, dynamic> a, Map<String, dynamic> b) {
     // Приоритет ролей (меньшее число = выше в списке)
     const rolePriority = {
-      'SUPERADMIN': 1,
-      'DIRECTOR': 2,
-      'DEPUTY_DIRECTOR': 3,
-      'MANAGER': 4,
-      'DISPATCHER': 5,
-      'ACCOUNTANT': 6,
-      'IT_MANAGER': 7,
-      'LOGIST': 8,
-      'SUPPLIER': 9,
-      'TECH': 10,
-      'CONSULTANT': 11,
-      'DRIVER': 12,
-      'EMPLOYEE': 13,
+      'DIRECTOR': 1,
+      'DEPUTY_DIRECTOR': 2,
+      'MANAGER': 3,
+      'DISPATCHER': 4,
+      'ACCOUNTANT': 5,
+      'IT_MANAGER': 6,
+      'LOGIST': 7,
+      'SUPPLIER': 8,
+      'TECH': 9,
+      'CONSULTANT': 10,
+      'DRIVER': 11,
+      'EMPLOYEE': 12,
+      'SUPERADMIN': 13, // Суперадмин в самом низу
     };
     
     final roleA = a['role'] as String? ?? '';

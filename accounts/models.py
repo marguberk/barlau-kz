@@ -54,6 +54,8 @@ class User(AbstractUser):
     role = models.CharField(_('role'), max_length=20, choices=Role.choices, default=Role.DRIVER)
     position = models.CharField(_('position'), max_length=100, blank=True)
     photo = models.ImageField(_('photo'), upload_to='employee_photos/', blank=True, null=True)
+    fcm_token = models.CharField(_('FCM token'), max_length=255, blank=True, null=True)
+    onesignal_player_id = models.CharField(_('OneSignal Player ID'), max_length=255, blank=True, null=True)
     
     # Расширенные поля для резюме
     experience = models.TextField(_('work experience'), blank=True)

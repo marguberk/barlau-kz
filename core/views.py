@@ -81,8 +81,12 @@ class EmployeeViewSet(viewsets.ModelViewSet):
     ordering = ['id']  # Будем сортировать в get_queryset
     
     def get_permissions(self):
-        """Только директора и суперадмины могут создавать/редактировать/удалять"""
-        if self.action in ['create', 'update', 'partial_update', 'destroy']:
+        """
+        Переопределяем получение разрешений для разрешения GET запросов в DEBUG режиме
+        """
+        if self.request.method == 'GET' and settings.DEBUG:
+            return [permissions.AllowAny()]
+        elif self.action in ['create', 'update', 'partial_update', 'destroy']:
             return [permissions.IsAuthenticated(), IsDirectorOrSuperAdmin()]
         return [permissions.IsAuthenticated()]
     
@@ -99,16 +103,17 @@ class EmployeeViewSet(viewsets.ModelViewSet):
             # По умолчанию показываем только неархивированных сотрудников
             queryset = queryset.filter(is_archived=False)
         
-        # Сортируем по дате регистрации, затем по ID (QuerySet, а не список)
-        return queryset.order_by('-date_joined', 'id')
-
-    def get_permissions(self):
-        """
-        Переопределяем получение разрешений для разрешения GET запросов в DEBUG режиме
-        """
-        if self.request.method == 'GET' and settings.DEBUG:
-            return [permissions.AllowAny()]
-        return [permission() for permission in self.permission_classes]
+        # Сортируем по роли (суперадмин внизу), затем по дате регистрации, затем по ID
+        from django.db.models import Case, When, IntegerField
+        return queryset.order_by(
+            Case(
+                When(role='SUPERADMIN', then=1),
+                default=0,
+                output_field=IntegerField(),
+            ),
+            '-date_joined',
+            'id'
+        )
 
     def get_serializer_class(self):
         if self.action == 'create':
@@ -2958,6 +2963,64 @@ class NotificationBroadcastAPIView(APIView):
             # Массово создаем уведомления
             Notification.objects.bulk_create(notifications)
             
+            # Отправляем OneSignal push уведомления
+            try:
+                from core.onesignal_service import OneSignalService
+                
+                # Определяем является ли уведомление срочным
+                is_urgent = (priority == 'URGENT' or notification_type == 'URGENT')
+                
+                # Отправляем OneSignal уведомление
+                if recipients == 'drivers':
+                    onesignal_success = OneSignalService.send_notification_to_users(
+                        title=title,
+                        message=message,
+                        target_roles=['DRIVER'],
+                        is_urgent=is_urgent
+                    )
+                elif recipients == 'management':
+                    onesignal_success = OneSignalService.send_notification_to_users(
+                        title=title,
+                        message=message,
+                        target_roles=['DIRECTOR', 'SUPERADMIN', 'DEPUTY_DIRECTOR'],
+                        is_urgent=is_urgent
+                    )
+                elif recipients == 'accountants':
+                    onesignal_success = OneSignalService.send_notification_to_users(
+                        title=title,
+                        message=message,
+                        target_roles=['ACCOUNTANT'],
+                        is_urgent=is_urgent
+                    )
+                elif recipients == 'dispatchers':
+                    onesignal_success = OneSignalService.send_notification_to_users(
+                        title=title,
+                        message=message,
+                        target_roles=['DISPATCHER'],
+                        is_urgent=is_urgent
+                    )
+                elif recipients == 'specific_roles' and specific_roles:
+                    onesignal_success = OneSignalService.send_notification_to_users(
+                        title=title,
+                        message=message,
+                        target_roles=specific_roles,
+                        is_urgent=is_urgent
+                    )
+                else:  # recipients == 'all'
+                    onesignal_success = OneSignalService.send_notification_to_users(
+                        title=title,
+                        message=message,
+                        is_urgent=is_urgent
+                    )
+                
+                if onesignal_success:
+                    print(f"OneSignal уведомления отправлены успешно")
+                else:
+                    print("Ошибка отправки OneSignal уведомлений")
+                    
+            except Exception as onesignal_error:
+                print(f"Ошибка отправки OneSignal уведомлений: {onesignal_error}")
+            
             return Response({
                 'message': f'Уведомление отправлено {len(notifications)} сотрудникам',
                 'count': len(notifications)
@@ -2967,6 +3030,70 @@ class NotificationBroadcastAPIView(APIView):
             print(f"Ошибка массовой рассылки уведомлений: {e}")
             return Response(
                 {'error': f'Ошибка отправки: {str(e)}'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+class UpdateFCMTokenAPIView(APIView):
+    """API endpoint для обновления FCM токена пользователя"""
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def patch(self, request):
+        try:
+            fcm_token = request.data.get('fcm_token')
+            
+            if not fcm_token:
+                return Response(
+                    {'error': 'FCM токен обязателен'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+            # Обновляем FCM токен для текущего пользователя
+            request.user.fcm_token = fcm_token
+            request.user.save()
+            
+            print(f"FCM токен обновлен для пользователя {request.user.email}: {fcm_token}")
+            
+            return Response({
+                'message': 'FCM токен успешно обновлен',
+                'fcm_token': fcm_token
+            }, status=status.HTTP_200_OK)
+            
+        except Exception as e:
+            print(f"Ошибка обновления FCM токена: {e}")
+            return Response(
+                {'error': f'Ошибка обновления: {str(e)}'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+class UpdateOneSignalPlayerIdAPIView(APIView):
+    """API endpoint для обновления OneSignal Player ID пользователя"""
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def patch(self, request):
+        try:
+            player_id = request.data.get('player_id')
+            
+            if not player_id:
+                return Response(
+                    {'error': 'OneSignal Player ID обязателен'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+            # Обновляем OneSignal Player ID для текущего пользователя
+            request.user.onesignal_player_id = player_id
+            request.user.save()
+            
+            print(f"OneSignal Player ID обновлен для пользователя {request.user.username}: {player_id}")
+            
+            return Response({
+                'message': 'OneSignal Player ID успешно обновлен',
+                'player_id': player_id
+            }, status=status.HTTP_200_OK)
+            
+        except Exception as e:
+            print(f"Ошибка обновления OneSignal Player ID: {e}")
+            return Response(
+                {'error': f'Ошибка обновления: {str(e)}'},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
